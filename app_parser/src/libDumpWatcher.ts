@@ -51,20 +51,15 @@ watcherObservable({ pattern: WATCH_FOR, cwd: DUMP_PATH })
       // todo: maybe add pool of executors
       log('got %o', filename)
       try {
-        // log('moving and extracting')
         const libDesc = await extractSingleLibraryFromDump({
           dumpPath: DUMP_PATH,
           libsPath: LIB_PATH,
           filename,
         })
-        // log('finding main files')
         const mainFiles = await extractMainFiles({ libsPath: LIB_PATH, libDesc })
         const savedMainFiles = await saveFiles(mainFiles)
-        log('saved main files:\n%O', savedMainFiles)
-        log('analysing main files')
-        const analysedMainFiles = await analyseLibFiles(savedMainFiles)
-        const savedAnalysedMainFiles = await saveFiles(analysedMainFiles)
-        log('saved analysed main files:\n%O', savedAnalysedMainFiles)
+        const analysisFiles = await analyseLibFiles(savedMainFiles)
+        const savedAnalysisFiles = await saveFiles(analysisFiles)
         log('finished %o', filename)
       } catch (err) {
         log('errror\n%O\n%O', err, err.stack)
