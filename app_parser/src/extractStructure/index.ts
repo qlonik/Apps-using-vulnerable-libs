@@ -1,7 +1,9 @@
 import {
+  Identifier,
   isArrowFunctionExpression,
   isAssignmentExpression,
   isAssignmentPattern,
+  isBinaryExpression,
   isCallExpression,
   isFunction,
   isFunctionDeclaration,
@@ -49,6 +51,10 @@ const extractNameFromLiteral = (node: Literal): string => {
     return '*template literal*'
   }
   return node.value.toString()
+}
+
+const extractNameFromIdentifier = (node: Identifier): string => {
+  return `'${node.name}'`
 }
 
 /**
@@ -148,11 +154,14 @@ const fnNodeFilter = (path: string, node: BabNode): myNodeDescriptor | null => {
 
     let varName = undefined
     if (isIdentifier(varNode)) {
-      varName = varNode.name
+      varName = extractNameFromIdentifier(varNode)
+    }
+    else if (isLiteral(varNode)) {
+      varName = extractNameFromLiteral(varNode)
     }
     else if (isMemberExpression(varNode)) {
       if (isIdentifier(varNode.property)) {
-        varName = varNode.property.name
+        varName = extractNameFromIdentifier(varNode.property)
       }
       else if (isLiteral(varNode.property)) {
         varName = extractNameFromLiteral(varNode.property)
@@ -160,13 +169,39 @@ const fnNodeFilter = (path: string, node: BabNode): myNodeDescriptor | null => {
       else if (isMemberExpression(varNode.property) || isCallExpression(varNode.property)) {
         varName = null
       }
-    }
-    else if (isLiteral(varNode)) {
-      varName = extractNameFromLiteral(varNode)
+      else if (isBinaryExpression(varNode.property)) {
+        const op = varNode.property.operator
+        const left = varNode.property.left
+        const right = varNode.property.right
+        let leftName
+        let rightName
+
+        if (isIdentifier(left)) {
+          leftName = extractNameFromIdentifier(left)
+        }
+        else if (isLiteral(left)) {
+          leftName = extractNameFromLiteral(left)
+        }
+
+        if (isIdentifier(right)) {
+          rightName = extractNameFromIdentifier(right)
+        }
+        else if (isLiteral(right)) {
+          rightName = extractNameFromLiteral(right)
+        }
+
+        if (leftName && rightName) {
+          varName = leftName + op + rightName
+        }
+      }
     }
 
     if (varNode && Object.is(varName, undefined) && fnNode && isFunction(fnNode)) {
-      console.log(`This seems like special case! ${path}\n${utilInspect(node)}`)
+      console.log([
+        'This seems like special case!',
+        path,
+        utilInspect(node, { depth: Infinity })
+      ].join('\n'))
     }
 
     let name
