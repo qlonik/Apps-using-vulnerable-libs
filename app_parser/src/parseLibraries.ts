@@ -187,10 +187,7 @@ export async function extractSingleLibraryFromDump({
   dumpPath: string,
   libsPath: string,
   filename: string,
-  opts?: {
-    conservative?: boolean
-  },
-  conservative?: boolean,
+  opts?: opts,
 }): Promise<libDesc> {
 
   const libDesc = extractNameVersionFromFilename(filename)

@@ -1,6 +1,6 @@
 import { copy, ensureDir, move, pathExists, writeFile, writeJSON } from 'fs-extra'
 import { dirname, join } from 'path';
-import { chunk, resolveParallelGroups } from './index'
+import { chunk, opts, resolveParallelGroups } from './index'
 
 
 export type fileDesc = {
@@ -30,9 +30,7 @@ export const myWriteJSON = async function (
 const saveOneFile = async (
   fileDesc: fileDescOp, {
     conservative = true,
-  }: {
-    conservative?: boolean,
-  } = {}): Promise<fileDesc> => {
+  }: opts = {}): Promise<fileDesc> => {
 
   const { cwd, dst } = fileDesc
   if (!fileDesc.type) {
@@ -81,11 +79,7 @@ export async function saveFiles(
     conservative = true,
     chunkLimit = 15,
     chunkSize = 10,
-  }: {
-    conservative?: boolean,
-    chunkLimit?: number,
-    chunkSize?: number,
-  } = {}): Promise<fileDesc[]> {
+  }: opts = {}): Promise<fileDesc[]> {
 
   if (!Array.isArray(files)) {
     return [await saveOneFile(files, { conservative })]
