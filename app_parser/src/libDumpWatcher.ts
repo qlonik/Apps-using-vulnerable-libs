@@ -1,4 +1,5 @@
 import { watch } from 'chokidar'
+import { createPool } from 'generic-pool'
 import { inspect } from 'util'
 import { analyseLibFiles, extractMainFiles, extractSingleLibraryFromDump } from './parseLibraries'
 import { saveFiles } from './utils/files'
@@ -54,8 +55,14 @@ log.log = console.log.bind(console)
 /*
  * Creating pool of analysis executors
  */
-
-
+const executorsPool = createPool({
+  create() {
+    return Promise.resolve({})
+  },
+  destroy() {
+    return Promise.resolve(undefined)
+  }
+}, { min: 2, max: 10 })
 
 /*
  * Creating observable, watch only add events and reacting to them (by parsing libraries)
@@ -67,29 +74,34 @@ watcherObservable({ pattern: WATCH_FOR, cwd: DUMP_PATH })
     start: () => {
       log('started')
     },
-    next: async (filename) => {
-      // todo: maybe add pool of executors
-      log('got %o', filename)
-      try {
-        const { name, version } = await extractSingleLibraryFromDump({
-          dumpPath: DUMP_PATH,
-          libsPath: LIB_PATH,
-          filename,
-        })
+    next: (filename) => {
 
-        const main = await saveFiles(extractMainFiles({ libsPath: LIB_PATH, name, version }))
-        const analysis = await saveFiles(analyseLibFiles(main))
+      executorsPool.acquire().then(async (poolResource) => {
+        try {
+          log('got %o', filename)
 
-        log([
-          'finished %o' + (main.length ? '' : ' (no main files found!!!)'),
-          '   main files:',
-          '%I',
-          '   analysis files:',
-          '%I'
-        ].join('\n'), filename, main, analysis)
+          const { name, version } = await extractSingleLibraryFromDump({
+            dumpPath: DUMP_PATH,
+            libsPath: LIB_PATH,
+            filename,
+          })
+          const main = await saveFiles(extractMainFiles({ libsPath: LIB_PATH, name, version }))
+          const analysis = await saveFiles(analyseLibFiles(main))
 
-      } catch (err) {
-        log('errror\n%O\n%O', err, err.stack)
-      }
+          log([
+            'finished %o' + (main.length ? '' : ' (no main files found!!!)'),
+            '   main files:',
+            '%I',
+            '   analysis files:',
+            '%I'
+          ].join('\n'), filename, main, analysis)
+        }
+        catch (err) {
+          log('errror\n%I\n%I', err, err.stack)
+        }
+        finally {
+          executorsPool.release(poolResource)
+        }
+      })
     }
   })
