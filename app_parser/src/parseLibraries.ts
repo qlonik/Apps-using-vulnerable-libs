@@ -40,29 +40,22 @@ function getMinJs(path: string | null) {
   return join(mainPathDir, `${mainPathBaseName}.min${mainPathExt}`)
 }
 
-export async function extractMainFiles({
-  libsPath,
-  libDesc: { name, version },
-}: {
-  libsPath: string,
-  libDesc: libDesc,
-}): Promise<fileDescOp[]> {
+export async function extractMainFiles(libPath: string): Promise<fileDescOp[]> {
 
   const result: fileDescOp[] = []
 
-  const libP = join(libsPath, name, version)
-  const libPackageP = join(libP, 'package')
+  const libPackageP = join(libPath, 'package')
   const npmMainTemp = await extractFromNpmPackage(libPackageP)
   const npmMain = npmMainTemp !== null ? join('package', npmMainTemp) : null
   const npmMainMin = getMinJs(npmMain)
 
   if (npmMain !== null) {
     const i = leftPad(result.length)
-    result.push({ type: 'copy', cwd: libP, src: npmMain, dst: `mains/${i}.main.js` })
+    result.push({ type: 'copy', cwd: libPath, src: npmMain, dst: `mains/${i}.main.js` })
   }
-  if (npmMainMin !== null && await pathExists(join(libP, npmMainMin))) {
+  if (npmMainMin !== null && await pathExists(join(libPath, npmMainMin))) {
     const i = leftPad(result.length)
-    result.push({ type: 'copy', cwd: libP, src: npmMainMin, dst: `mains/${i}.main.min.js` })
+    result.push({ type: 'copy', cwd: libPath, src: npmMainMin, dst: `mains/${i}.main.min.js` })
   }
 
   return result

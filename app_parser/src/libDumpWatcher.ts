@@ -1,4 +1,5 @@
 import { watch } from 'chokidar'
+import { join } from 'path'
 import { analyseLibFiles, extractMainFiles, extractSingleLibraryFromDump } from './parseLibraries'
 import { saveFiles } from './utils/files'
 import debug = require('debug')
@@ -51,12 +52,12 @@ watcherObservable({ pattern: WATCH_FOR, cwd: DUMP_PATH })
       // todo: maybe add pool of executors
       log('got %o', filename)
       try {
-        const libDesc = await extractSingleLibraryFromDump({
+        const { name, version } = await extractSingleLibraryFromDump({
           dumpPath: DUMP_PATH,
           libsPath: LIB_PATH,
           filename,
         })
-        const mainFiles = await extractMainFiles({ libsPath: LIB_PATH, libDesc })
+        const mainFiles = await extractMainFiles(join(LIB_PATH, name, version))
         const savedMainFiles = await saveFiles(mainFiles)
         const analysisFiles = await analyseLibFiles(savedMainFiles)
         const savedAnalysisFiles = await saveFiles(analysisFiles)
