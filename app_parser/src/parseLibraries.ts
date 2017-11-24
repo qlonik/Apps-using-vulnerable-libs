@@ -1,8 +1,15 @@
-import { copy, ensureDir, move, pathExists, readdir, readFile, remove } from 'fs-extra'
+import { copy, ensureDir, move, pathExists, readdir, readFile, readJSON, remove } from 'fs-extra'
 import { basename, dirname, extname, join, relative, resolve } from 'path'
-import { inspect } from 'util';
+import { inspect } from 'util'
 import { extractStructure } from './extractStructure'
-import { chunk, leftPad, opts, resolveParallelGroups, tgzUnpack } from './utils'
+import {
+  chunk,
+  leftPad,
+  opts,
+  resolveAllOrInParallel,
+  resolveParallelGroups,
+  tgzUnpack
+} from './utils'
 import { fileDesc, fileDescOp, myWriteJSON } from './utils/files'
 import debug = require('debug')
 
@@ -11,22 +18,135 @@ export type libDesc = {
   name: string,
   version: string,
 }
-type parseLibraryInPathConf = {
-  libsPath: string,
-  libDesc: libDesc,
+
+enum PKG_TYPE {
+  bower,
+  npm,
+  component,
+  guessed,
 }
 
-const parLibInPathLog = debug(`parLibInPath`)
+function extractNameVersionFromFilename(filename: string): libDesc | null {
+  const nameVersionRegex = /(.*)-(\d+\.\d+\.\d+.*)\.tgz/
+  const match = nameVersionRegex.exec(filename)
+  if (match === null) {
+    return null
+  }
+  return { name: match[1], version: match[2] }
+}
 
-async function extractFromNpmPackage(pkgPath: string): Promise<string | null> {
+/**
+ * Spec is available at {@link https://github.com/bower/spec/blob/master/json.md}
+ */
+async function tryAsBowerPkg(
+  pkgPath: string, { log }: opts = {}): Promise<string[] | null> {
+
+  const bowerJsonPath = join(pkgPath, 'bower.json')
+  let bowerJSON
+  try {
+    bowerJSON = await readJSON(bowerJsonPath)
+  }
+  catch (err) {
+    if (log) {
+      log('failed to read bower.json:\n%O', err)
+    }
+    return null
+  }
+
+  const main: string | string[] | void = bowerJSON.main
+
+  if (!main) {
+    return null
+  }
+
+  if (typeof main === 'string') {
+    return extname(main) === '.js' ? [main] : null
+  }
+
+  const mainJs = main
+    .filter((item) => extname(item) === '.js')
+
+  return mainJs.length ? mainJs : null
+}
+
+/**
+ * Spec is available at
+ * {@link https://github.com/componentjs/spec/blob/master/component.json/specifications.md}
+ */
+async function tryAsComponentJsPkg(
+  pkgPath: string,
+  { log }: opts = {}): Promise<string[] | null> {
+
+  const componentJsonPath = join(pkgPath, 'component.json')
+  let componentJSON
+  try {
+    componentJSON = await readJSON(componentJsonPath)
+  }
+  catch (err) {
+    if (log) {
+      log('failed to read component.json:\n%O', err)
+    }
+    return null
+  }
+
+  const main: string | string[] | void = componentJSON.scripts
+
+  if (!main) {
+    return null
+  }
+
+  if (typeof main === 'string') {
+    return extname(main) === '.js' ? [main] : null
+  }
+
+  const mainJs = main
+    .filter((item) => extname(item) === '.js')
+
+  return mainJs.length ? mainJs : null
+}
+
+/**
+ * Spec is available at {@link https://nodejs.org/api/modules.html#modules_all_together}
+ */
+async function tryAsNodePkg(
+  pkgPath: string,
+  { log }: opts = {}): Promise<string[] | null> {
+
   const absolutePkgPath = resolve(process.cwd(), pkgPath)
-  let mainPath = null
+  let mainPath: string
   try {
     mainPath = require.resolve(absolutePkgPath)
   }
-  finally {
+  catch (err) {
+    if (log) {
+      log('require.resolve failed to load main file:\n%O', err)
+    }
+    return null
   }
-  return relative(pkgPath, mainPath)
+
+  return [relative(absolutePkgPath, mainPath)]
+}
+
+/**
+ * Guessing the main filename based on the file structure of the package:
+ *    1. try 'dist/<pkgName>.js'
+ *    2. try 'dist/<pkgName>-<pkgVer>.js'
+ *    3. try '<pkgName>.js'
+ *    4. try '<pkgName>-<pkgVer>.js'
+ *
+ * Minified versions of these files are tried outside of this function, in the parent function.
+ */
+async function tryAsGuessedPkg(
+  pkgPath: string,
+  { name, version }: libDesc,
+  { log }: opts = {}): Promise<string[] | null> {
+
+  return [
+    `dist/${name}.js`,
+    `dist/${name}-${version}.js`,
+    `${name}.js`,
+    `${name}-${version}.js`,
+  ]
 }
 
 function getMinJs(path: string | null) {
@@ -40,25 +160,49 @@ function getMinJs(path: string | null) {
   return join(mainPathDir, `${mainPathBaseName}.min${mainPathExt}`)
 }
 
-export async function extractMainFiles(libPath: string): Promise<fileDescOp[]> {
+export async function extractMainFiles(
+  { libsPath, name, version }: { libsPath: string } & libDesc,
+  { conservative = true }: opts = {}): Promise<fileDescOp[]> {
 
-  const result: fileDescOp[] = []
-
+  /*
+   * (right now fails for jquery 2.1.0-beta2, jquery 1.9.1
+   */
+  const libPath = join(libsPath, name, version)
   const libPackageP = join(libPath, 'package')
-  const npmMainTemp = await extractFromNpmPackage(libPackageP)
-  const npmMain = npmMainTemp !== null ? join('package', npmMainTemp) : null
-  const npmMainMin = getMinJs(npmMain)
 
-  if (npmMain !== null) {
-    const i = leftPad(result.length)
-    result.push({ type: 'copy', cwd: libPath, src: npmMain, dst: `mains/${i}.main.js` })
+  let potentialMainFiles = await tryAsBowerPkg(libPackageP)
+  let solvedWith = PKG_TYPE.bower
+  if (potentialMainFiles === null) {
+    potentialMainFiles = await tryAsComponentJsPkg(libPackageP)
+    solvedWith = PKG_TYPE.component
   }
-  if (npmMainMin !== null && await pathExists(join(libPath, npmMainMin))) {
-    const i = leftPad(result.length)
-    result.push({ type: 'copy', cwd: libPath, src: npmMainMin, dst: `mains/${i}.main.min.js` })
+  if (potentialMainFiles === null) {
+    potentialMainFiles = await tryAsNodePkg(libPackageP)
+    solvedWith = PKG_TYPE.npm
+  }
+  if (potentialMainFiles === null) {
+    potentialMainFiles = await tryAsGuessedPkg(libPackageP, { name, version })
+    solvedWith = PKG_TYPE.guessed
+  }
+  if (potentialMainFiles === null) {
+    return []
   }
 
-  return result
+  const existingMainFilesLazy = potentialMainFiles
+    .map((file) => join('package', file))
+    .reduce((acc, item) => {
+      acc = acc.concat(item)
+      const minJs = getMinJs(item)
+      if (minJs) {
+        return acc.concat(minJs)
+      }
+      return acc
+    }, <string[]>[])
+    .map(async (item) => await pathExists(join(libPath, item)) ? item : null)
+
+  return <fileDescOp[]>(<string[]>await Promise.all(existingMainFilesLazy))
+    .filter((el) => !!el)
+    .map((src, i) => ({ type: 'copy', cwd: libPath, src, dst: `mains/${leftPad(i)}.js` }))
 }
 
 const extractIndexFromFilenameRegex = /(\d+)\..*/
@@ -72,7 +216,7 @@ async function analyseOneLibFile(
   if (indexOrNull === null) {
     throw new Error('couldn\'t parse filename')
   }
-  const index = parseInt(indexOrNull[1], 10)
+  const index = indexOrNull[1]
   const destSig = `sigs/${index}.json`
 
   const fileP = join(cwd, dst)
@@ -84,89 +228,24 @@ async function analyseOneLibFile(
 
 export async function analyseLibFiles(
   files: fileDesc | fileDesc[],
-  { chunkLimit = 15, chunkSize = 10, conservative = true }: opts = {}): Promise<fileDescOp[]> {
+  {
+    chunkLimit,
+    chunkSize,
+    conservative = true,
+  }: opts = {}): Promise<fileDescOp[]> {
 
   if (!Array.isArray(files)) {
     return [await analyseOneLibFile(files, { conservative })]
   }
 
-  if (files.length < chunkLimit) {
-    return await Promise.all(files.map((file) => analyseOneLibFile(file, { conservative })))
-  }
-  else {
-    let lazySaved = files.map((file) => {
-      return async () => analyseOneLibFile(file, { conservative })
-    })
-    return await resolveParallelGroups(chunk(lazySaved, chunkSize))
-  }
-}
-
-async function parseLibraryInPath({ libsPath, libDesc: { name, version } }: parseLibraryInPathConf) {
-  const libPath = join(libsPath, name, version)
-  const pkgPath = resolve(process.cwd(), libPath, 'package')
-
-  const mainPath = await extractFromNpmPackage(pkgPath)
-
-  if (mainPath === null) {
-    return
+  if (!files.length) {
+    return []
   }
 
-  const mainPathMin = getMinJs(mainPath)
-  const libScriptPath = join(libPath, 'libDesc.js')
-  const libMinScriptPath = join(libPath, 'libDesc.min.js')
-
-  parLibInPathLog(
-    `>>>
-    ${inspect({ name, version })}
-    ${mainPath} --> ${libScriptPath}
-    ` + (mainPathMin !== null ? mainPathMin + ' --> ' + libMinScriptPath : ''))
-
-  if (await pathExists(mainPath)) {
-    if (!await pathExists(libScriptPath)) {
-      await copy(mainPath, libScriptPath)
-    }
-    const script = await readFile(libScriptPath, 'utf-8')
-    await myWriteJSON({
-      file: join(libPath, 'libDesc.sig.json'),
-      content: await extractStructure({ content: script })
-    })
-  }
-  if (mainPathMin !== null && await pathExists(mainPathMin)) {
-    if (!await pathExists(libMinScriptPath)) {
-      await copy(mainPathMin, libMinScriptPath)
-    }
-    const script = await readFile(libMinScriptPath, 'utf-8')
-    await myWriteJSON({
-      file: join(libPath, 'libDesc.min.sig.json'),
-      content: await extractStructure({ content: script }),
-    })
-  }
-}
-
-export async function getNamesVersions(libsPath: string): Promise<libDesc[]> {
-  const libs = await readdir(libsPath)
-  return await libs.reduce(async (acc, lib) => {
-    const versions = await readdir(join(libsPath, lib))
-    const libVers = versions.map((version) => ({ name: lib, version }));
-    return (await acc).concat(libVers)
-  }, <Promise<libDesc[]>> Promise.resolve([]))
-}
-
-export function extractNameVersionFromFilename(filename: string): libDesc | null {
-  const nameVersionRegex = /(.*)-(\d+\.\d+\.\d+.*)\.tgz/
-  const match = nameVersionRegex.exec(filename)
-  if (match === null) {
-    return null
-  }
-  return { name: match[1], version: match[2] }
-}
-
-export async function parseLibraries({ libsPath }: { libsPath: string }) {
-  const libVer = await getNamesVersions(libsPath)
-  const libSignaturesParsed = libVer.map((lib) => {
-    return async () => parseLibraryInPath({ libsPath, libDesc: lib })
+  let lazySaved = files.map((file) => {
+    return async () => analyseOneLibFile(file, { conservative })
   })
-  const content = await resolveParallelGroups(chunk(libSignaturesParsed, 10))
+  return await resolveAllOrInParallel(lazySaved, { chunkLimit, chunkSize })
 }
 
 export async function extractSingleLibraryFromDump({
@@ -219,5 +298,86 @@ export async function extractSingleLibraryFromDump({
     await tgzUnpack(destFile)
   }
 
-  return libDesc
+  return { name, version }
+}
+
+
+
+/*
+ * OLD API
+ */
+
+
+async function extractFromNpmPackage(pkgPath: string): Promise<string | null> {
+  const absolutePkgPath = resolve(process.cwd(), pkgPath)
+  let mainPath = null
+  try {
+    mainPath = require.resolve(absolutePkgPath)
+  }
+  finally {
+  }
+  return relative(pkgPath, mainPath)
+}
+
+async function parseLibraryInPath(
+  { libsPath, name, version }: { libsPath: string } & libDesc) {
+
+  const libPath = join(libsPath, name, version)
+  const pkgPath = resolve(process.cwd(), libPath, 'package')
+
+  const mainPath = await extractFromNpmPackage(pkgPath)
+
+  if (mainPath === null) {
+    return
+  }
+
+  const mainPathMin = getMinJs(mainPath)
+  const libScriptPath = join(libPath, 'libDesc.js')
+  const libMinScriptPath = join(libPath, 'libDesc.min.js')
+
+  const parLibInPathLog = debug(`parLibInPath`)
+  parLibInPathLog(
+    `>>>
+    ${inspect({ name, version })}
+    ${mainPath} --> ${libScriptPath}
+    ` + (mainPathMin !== null ? mainPathMin + ' --> ' + libMinScriptPath : ''))
+
+  if (await pathExists(mainPath)) {
+    if (!await pathExists(libScriptPath)) {
+      await copy(mainPath, libScriptPath)
+    }
+    const script = await readFile(libScriptPath, 'utf-8')
+    await myWriteJSON({
+      file: join(libPath, 'libDesc.sig.json'),
+      content: await extractStructure({ content: script })
+    })
+  }
+  if (mainPathMin !== null && await pathExists(mainPathMin)) {
+    if (!await pathExists(libMinScriptPath)) {
+      await copy(mainPathMin, libMinScriptPath)
+    }
+    const script = await readFile(libMinScriptPath, 'utf-8')
+    await myWriteJSON({
+      file: join(libPath, 'libDesc.min.sig.json'),
+      content: await extractStructure({ content: script }),
+    })
+  }
+}
+
+export async function getNamesVersions(libsPath: string): Promise<libDesc[]> {
+  const libs = await readdir(libsPath)
+  return await libs.reduce(async (acc, name) => {
+    const versions = await readdir(join(libsPath, name))
+    const path = join(libsPath, name)
+    const libVers = versions.map((version) => ({ path: join(path, version), name, version }));
+    return (await acc).concat(libVers)
+  }, <Promise<libDesc[]>> Promise.resolve([]))
+}
+
+export async function parseLibraries({ libsPath }: { libsPath: string }) {
+  const libVer = await getNamesVersions(libsPath)
+  const libSignaturesParsed = libVer.map(({ name, version }) => {
+    return async () => parseLibraryInPath({ libsPath, name, version })
+  })
+  const content = await resolveParallelGroups(chunk(libSignaturesParsed, 10))
 }

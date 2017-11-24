@@ -1,6 +1,6 @@
 import { copy, ensureDir, move, pathExists, writeFile, writeJSON } from 'fs-extra'
 import { dirname, join } from 'path';
-import { chunk, opts, resolveParallelGroups } from './index'
+import { opts, resolveAllOrInParallel } from './index'
 
 
 export type fileDesc = {
@@ -28,7 +28,8 @@ export const myWriteJSON = async function (
 }
 
 const saveOneFile = async (
-  fileDesc: fileDescOp, {
+  fileDesc: fileDescOp,
+  {
     conservative = true,
   }: opts = {}): Promise<fileDesc> => {
 
@@ -74,24 +75,25 @@ const saveOneFile = async (
 }
 
 export async function saveFiles(
-  files: fileDescOp | fileDescOp[],
+  files: fileDescOp | fileDescOp[] | Promise<fileDescOp> | Promise<fileDescOp[]>,
   {
     conservative = true,
-    chunkLimit = 15,
-    chunkSize = 10,
+    chunkLimit,
+    chunkSize,
   }: opts = {}): Promise<fileDesc[]> {
+
+  files = await files
 
   if (!Array.isArray(files)) {
     return [await saveOneFile(files, { conservative })]
   }
 
-  if (files.length < chunkLimit) {
-    return await Promise.all(files.map((file) => saveOneFile(file, { conservative })))
+  if (!files.length) {
+    return []
   }
-  else {
-    let lazySaved = files.map((file) => {
-      return async () => saveOneFile(file, { conservative })
-    })
-    return await resolveParallelGroups(chunk(lazySaved, chunkSize))
-  }
+
+  const lazyFilesSaved = files.map((file) => {
+    return async () => saveOneFile(file, { conservative })
+  })
+  return await resolveAllOrInParallel(lazyFilesSaved, { chunkLimit, chunkSize })
 }

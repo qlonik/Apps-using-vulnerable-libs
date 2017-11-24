@@ -1,5 +1,5 @@
 import { watch } from 'chokidar'
-import { join } from 'path'
+import { inspect } from 'util'
 import { analyseLibFiles, extractMainFiles, extractSingleLibraryFromDump } from './parseLibraries'
 import { saveFiles } from './utils/files'
 import debug = require('debug')
@@ -12,6 +12,9 @@ const WATCH_FOR = '*.tgz'
 
 const CONSERVATIVE = false
 
+/*
+ * Creating observable out of event emitter to catch all events
+ */
 type eventDesc = { event: string, path: string }
 const watcherObservable = ({ pattern, cwd }: { pattern: string, cwd: string }) => {
   return new Observable<eventDesc>((observer) => {
@@ -38,9 +41,25 @@ const watcherObservable = ({ pattern, cwd }: { pattern: string, cwd: string }) =
   })
 }
 
+/*
+ * Logger setup
+ */
+debug.formatters.I = (v: any): string => {
+  return inspect(v, { depth: Infinity, colors: true, breakLength: 50 })
+    .split('\n').map((l) => '   ' + l).join('\n')
+}
 const log = debug('dump/*.tgz')
 log.log = console.log.bind(console)
 
+/*
+ * Creating pool of analysis executors
+ */
+
+
+
+/*
+ * Creating observable, watch only add events and reacting to them (by parsing libraries)
+ */
 watcherObservable({ pattern: WATCH_FOR, cwd: DUMP_PATH })
   .filter(({ event }) => event === 'add')
   .map(({ path }) => path)
@@ -57,11 +76,18 @@ watcherObservable({ pattern: WATCH_FOR, cwd: DUMP_PATH })
           libsPath: LIB_PATH,
           filename,
         })
-        const mainFiles = await extractMainFiles(join(LIB_PATH, name, version))
-        const savedMainFiles = await saveFiles(mainFiles)
-        const analysisFiles = await analyseLibFiles(savedMainFiles)
-        const savedAnalysisFiles = await saveFiles(analysisFiles)
-        log('finished %o', filename)
+
+        const main = await saveFiles(extractMainFiles({ libsPath: LIB_PATH, name, version }))
+        const analysis = await saveFiles(analyseLibFiles(main))
+
+        log([
+          'finished %o' + (main.length ? '' : ' (no main files found!!!)'),
+          '   main files:',
+          '%I',
+          '   analysis files:',
+          '%I'
+        ].join('\n'), filename, main, analysis)
+
       } catch (err) {
         log('errror\n%O\n%O', err, err.stack)
       }

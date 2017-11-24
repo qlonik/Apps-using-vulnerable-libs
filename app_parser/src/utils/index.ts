@@ -90,5 +90,20 @@ export type opts = {
   conservative?: boolean,
   chunkLimit?: number,
   chunkSize?: number,
+  log?: debug.IDebugger,
 }
 
+export const resolveAllOrInParallel = async function <T>(
+  arr: (() => Promise<T>)[],
+  {
+    chunkLimit = 15,
+    chunkSize = 10,
+  }: opts = {}): Promise<T[]> {
+
+  if (arr.length < chunkLimit) {
+    return await Promise.all(arr.map(fn => fn()))
+  }
+  else {
+    return await resolveParallelGroups(chunk(arr, chunkSize))
+  }
+}
