@@ -205,20 +205,12 @@ export async function extractMainFiles(
     .map((src, i) => ({ type: 'copy', cwd: libPath, src, dst: `mains/${leftPad(i)}.js` }))
 }
 
-const extractIndexFromFilenameRegex = /(\d+)\..*/
-
 async function analyseOneLibFile(
-  file: fileDesc, { conservative = true }: opts): Promise<fileDescOp> {
+  { file, i }: { file: fileDesc, i: number },
+  { conservative = true }: opts): Promise<fileDescOp> {
 
   const { cwd, dst } = file
-
-  const indexOrNull = extractIndexFromFilenameRegex.exec(basename(dst))
-  if (indexOrNull === null) {
-    throw new Error('couldn\'t parse filename')
-  }
-  const index = indexOrNull[1]
-  const destSig = `sigs/${index}.json`
-
+  const destSig = `sigs/${leftPad(i)}.json`
   const fileP = join(cwd, dst)
   const content = await readFile(fileP, 'utf-8')
   const signature = await extractStructure({ content })
@@ -235,15 +227,15 @@ export async function analyseLibFiles(
   }: opts = {}): Promise<fileDescOp[]> {
 
   if (!Array.isArray(files)) {
-    return [await analyseOneLibFile(files, { conservative })]
+    return [await analyseOneLibFile({ file: files, i: 0 }, { conservative })]
   }
 
   if (!files.length) {
     return []
   }
 
-  let lazySaved = files.map((file) => {
-    return async () => analyseOneLibFile(file, { conservative })
+  let lazySaved = files.map((file, i) => {
+    return async () => analyseOneLibFile({ file, i }, { conservative })
   })
   return await resolveAllOrInParallel(lazySaved, { chunkLimit, chunkSize })
 }
