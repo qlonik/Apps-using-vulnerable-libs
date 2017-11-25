@@ -4,18 +4,13 @@ import { Pool } from 'generic-pool'
  * Promisified auto closed pool
  */
 export const createAutoClosedPool = <T>(pool: Pool<T>) => {
-  return (fn: (resource: T) => Promise<any>) => {
-    return pool.acquire().then((resource) => {
-      return fn(resource).then(
-        (result) => {
-          pool.release(resource)
-          return result
-        },
-        (error) => {
-          pool.release(resource)
-          throw error
-        }
-      )
-    })
+  return async <K>(fn: (resource: T) => Promise<K>): Promise<K> => {
+    const resource = await pool.acquire()
+    try {
+      return await fn(resource)
+    }
+    finally {
+      pool.release(resource)
+    }
   }
 }
