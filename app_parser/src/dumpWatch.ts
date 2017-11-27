@@ -206,6 +206,8 @@ const processLibrary = ({
 
   return async (worker: ChildProcessWithLog) => {
 
+    log('(w:%o) got %o', worker.pid, filename)
+
     worker.send(<serverMessage>{
       from: messageFrom.server,
       type: serverMessageType.process,
@@ -228,13 +230,13 @@ const processLibrary = ({
     }))
 
     if (!main || !analysis) {
-      log('The file %o left untouched. Could not parse filename', filename)
+      log('(w:%o) The file %o left untouched. Could not parse filename', worker.pid, filename)
     }
     else {
-      log('finished %o'
+      log('(w:%o) finished %o'
           + (main.length ? '' : ' (no main files found!!!)')
           + ' %o',
-        filename, { main, analysis })
+        worker.pid, filename, { main, analysis })
     }
   }
 }
