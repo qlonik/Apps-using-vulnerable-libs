@@ -107,3 +107,11 @@ export const resolveAllOrInParallel = async function <T>(
     return await resolveParallelGroups(chunk(arr, chunkSize))
   }
 }
+
+/**
+ * This function is for the TypeScript compiler to help us
+ * with the exhaustiveness of if/switch statements.
+ */
+export function assertNever(x: never): never {
+  throw new Error("Unexpected object: " + x);
+}

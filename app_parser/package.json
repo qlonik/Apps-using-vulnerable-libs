@@ -9,7 +9,7 @@
     "clean:build": "npm run clean && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run build && time node $NODE_DEBUG_OPTION lib/index.js",
-    "watch:lib_dump": "npm run build && node $NODE_DEBUG_OPTION lib/libDumpWatcher.js"
+    "watch:lib_dump": "npm run build && node $NODE_DEBUG_OPTION lib/dumpWatch.js"
   },
   "keywords": [],
   "author": "",
