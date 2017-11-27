@@ -80,7 +80,7 @@ const visitNodesOptsDefault: visitNodesOptsType<any> = {
 
 const visitNodes = <K>({ fn, includeNodes } = visitNodesOptsDefault) => {
   return function paths(obj: object | Array<any>, pathSoFar: string = ''): TreePath<K>[] {
-    let entries: Array<[string | number, any]> = []
+    let entries: Array<[string | number, BabNode]> = []
     if (Array.isArray(obj)) {
       entries = [...obj.entries()]
     }
@@ -88,7 +88,7 @@ const visitNodes = <K>({ fn, includeNodes } = visitNodesOptsDefault) => {
       entries = Object.entries(obj)
     }
 
-    return flatMap(entries, ([key, value]: [string, BabNode]) => {
+    return flatMap(entries, ([key, value]: [string | number, BabNode]) => {
       const childPath = pathConcat(pathSoFar, key)
       const result: TreePath<K> = {
         prop: childPath,

@@ -116,9 +116,9 @@ if (process.send) {
   }
 
   observableFromEventEmitter(process, 'message')
-    .map(([msg]: [serverMessage]) => msg)
+    .map((event) => (<[serverMessage, any]>event)[0])
     .subscribe({
-      start(subscrb) {
+      start(subscrb: ZenObservable.Subscription) {
         log('Started listening')
         subscription = subscrb
       },

@@ -21,8 +21,8 @@
  */
 
 declare module 'extract-comments' {
-  const x: any
-  export = <ParseFn> x
+  const x: ParseFn
+  export = x
 
   interface ParseFn {
     /*

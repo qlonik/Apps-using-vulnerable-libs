@@ -1,16 +1,16 @@
 import { pathExists, readJSON } from 'fs-extra'
-import { chain } from 'lodash';
+import { flatten, sortBy } from 'lodash';
 import { join } from 'path'
 import { Signature } from '../extractStructure'
 import { getNamesVersions, libDesc } from '../parseLibraries'
 import { chunk, resolveParallelGroups } from '../utils'
+import { myWriteJSON } from '../utils/files'
 import {
   indexValue,
   makeSetOutOfArray,
   makeSetOutOfFilePath,
   similarityIndexToLib,
 } from '../utils/set'
-import { myWriteJSON } from '../utils/files'
 
 
 export type Similarity = libDesc & {
@@ -28,9 +28,10 @@ export async function getSimilarities(
 
   const libDescriptions = await getNamesVersions(libsPath)
   const unknownSigSet = makeSetOutOfArray(signature)
+  // : (() => Promise<Similarity[]>)[]
   const similarLazyPromises = libDescriptions.map(({ name, version }) => {
     return async () => {
-      const sim = []
+      const sim: Similarity[] = []
       const libPath = join(libsPath, name, version)
 
       const lib = join(libPath, 'libDesc.sig.json')
@@ -57,10 +58,7 @@ export async function getSimilarities(
   })
   const similar = await resolveParallelGroups(chunk(similarLazyPromises, 10))
 
-  return chain(similar)
-    .flatten()
-    .sortBy((v) => -v.similarity.val)
-    .value()
+  return sortBy(flatten(similar), (v: Similarity) => -v.similarity.val)
 }
 
 export type getSimilaritiesFromPathOpts = {
