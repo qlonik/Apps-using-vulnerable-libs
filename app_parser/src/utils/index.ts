@@ -114,5 +114,5 @@ export const resolveAllOrInParallel = async function <T>(
  * with the exhaustiveness of if/switch statements.
  */
 export function assertNever(x: never): never {
-  throw new Error("Unexpected object: " + x);
+  throw new Error("Unexpected object: " + x)
 }

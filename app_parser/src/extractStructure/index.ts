@@ -70,7 +70,7 @@ type TreePath<T> = {
 
 interface visitNodesOptsType<T> {
   fn?: (path: string, val: BabNode) => T | null,
-  includeNodes?: boolean;
+  includeNodes?: boolean,
 }
 
 const visitNodesOptsDefault: visitNodesOptsType<any> = {
@@ -288,7 +288,7 @@ export async function demo() {
   var obj = {
     insideObj() {}
   }
-  `;
+  `
   const parsed = parse(source)
   // const inspectedParsed = utilInspect(parsed, { depth: null })
   // console.log(inspectedParsed)

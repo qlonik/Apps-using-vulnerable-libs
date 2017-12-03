@@ -1,6 +1,6 @@
 import { inspect } from 'util'
 import { analyseLibFiles, extractMainFiles, extractSingleLibraryFromDump } from './parseLibraries'
-import { assertNever } from './utils';
+import { assertNever } from './utils'
 import { fileDesc, saveFiles } from './utils/files'
 import { observableFromEventEmitter } from './utils/observable'
 import debug = require('debug')

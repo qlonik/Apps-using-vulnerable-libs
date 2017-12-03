@@ -1,5 +1,5 @@
 import { copy, ensureDir, move, pathExists, writeFile, writeJSON } from 'fs-extra'
-import { dirname, join } from 'path';
+import { dirname, join } from 'path'
 import { opts, resolveAllOrInParallel } from './index'
 
 

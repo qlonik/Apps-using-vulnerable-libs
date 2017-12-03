@@ -1,5 +1,5 @@
 import { pathExists, readdir } from 'fs-extra'
-import { flatten, sortBy, unzip } from 'lodash';
+import { flatten, sortBy, unzip } from 'lodash'
 import { join } from 'path'
 import { Signature } from '../extractStructure'
 import { getNamesVersions, libDesc } from '../parseLibraries'

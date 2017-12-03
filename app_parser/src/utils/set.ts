@@ -1,40 +1,40 @@
 import { readJSON } from 'fs-extra'
-import { curry } from 'lodash';
+import { curry } from 'lodash'
 
 
 export function isSuperset<T>(a: Set<T>, b: Set<T>): boolean {
   for (let elem of a) {
     if (!b.has(elem)) {
-      return false;
+      return false
     }
   }
-  return true;
+  return true
 }
 
 export function intersection<T>(a: Set<T>, b: Set<T>): Set<T> {
-  const intersection = new Set();
+  const intersection = new Set()
   for (let elem of a) {
     if (b.has(elem)) {
-      intersection.add(elem);
+      intersection.add(elem)
     }
   }
-  return intersection;
+  return intersection
 }
 
 export function union<T>(a: Set<T>, b: Set<T>): Set<T> {
-  const union = new Set(a);
+  const union = new Set(a)
   for (let elem of b) {
-    union.add(elem);
+    union.add(elem)
   }
-  return union;
+  return union
 }
 
 export function difference<T>(a: Set<T>, b: Set<T>): Set<T> {
-  const difference = new Set(a);
+  const difference = new Set(a)
   for (let elem of b) {
-    difference.delete(elem);
+    difference.delete(elem)
   }
-  return difference;
+  return difference
 }
 
 export type indexValue = { val: number, num: number, den: number }

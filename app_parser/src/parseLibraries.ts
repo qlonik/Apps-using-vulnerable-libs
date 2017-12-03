@@ -361,7 +361,7 @@ export async function getNamesVersions(libsPath: string): Promise<libDesc[]> {
   return await libs.reduce(async (acc, name) => {
     const versions = await readdir(join(libsPath, name))
     const path = join(libsPath, name)
-    const libVers = versions.map((version) => ({ path: join(path, version), name, version }));
+    const libVers = versions.map((version) => ({ path: join(path, version), name, version }))
     return (await acc).concat(libVers)
   }, <Promise<libDesc[]>> Promise.resolve([]))
 }
