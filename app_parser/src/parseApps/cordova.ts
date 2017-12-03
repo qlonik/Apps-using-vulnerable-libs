@@ -1,30 +1,24 @@
-import { copy, ensureDir, mkdirp, outputFile, pathExists, readFile } from 'fs-extra'
+import { copy, ensureDir, mkdirp, move, outputFile, pathExists, readFile } from 'fs-extra'
 import { JSDOM } from 'jsdom'
 import { take } from 'lodash'
 import { join } from 'path'
 import { URL } from 'url'
 
-import { extractStructure } from './extractStructure'
-import { getSimilarities } from './similarityIndex'
-import { chunk, leftPad, resolveParallelGroups } from './utils'
-import { myWriteJSON } from './utils/files'
+import { extractStructure } from '../extractStructure'
+import { getSimilarities } from '../similarityIndex'
+import { chunk, leftPad, opts, resolveAllOrInParallel, resolveParallelGroups } from '../utils'
+import { myWriteJSON } from '../utils/files'
+import {
+  AppParserFn,
+  AppsFolderParserFn,
+  AppTypeFn,
+  getAppsAndSections,
+  LIMIT_SIMILARITIES
+} from './index'
 
 
-const LIMIT_SIMILARITIES = 100
-
-export type appDesc = {
-  section: string,
-  app: string,
-}
-
-export type parseScriptsFromHTMLConf = {
-  DEBUG_DO_JUST_ONE?: boolean,
-  appPath: string,
-  libsPath: string,
-}
-
-export async function isCordovaApp(
-  { allAppsPath, appDesc }: { allAppsPath: string, appDesc: appDesc }) {
+export const isCordovaApp: AppTypeFn = async function (
+  { allAppsPath, appDesc }): Promise<boolean> {
 
   const relIndexHtmlPath = ['assets', 'www', 'index.html']
   const relCordovaJsPath = ['assets', 'www', 'cordova.js']
@@ -35,11 +29,29 @@ export async function isCordovaApp(
   return await pathExists(indexHtmlPath) && await pathExists(cordovaJsPath)
 }
 
-export async function parseScriptsFromCordovaApp({
-  DEBUG_DO_JUST_ONE: DEBUG_DO_JUST_ONE = false,
-  appPath,
-  libsPath,
-}: parseScriptsFromHTMLConf) {
+export const getDefinitelyCordova = async function (
+  { allAppsPath, cordovaAppsPath }: { allAppsPath: string, cordovaAppsPath: string }) {
+
+  const apps = await getAppsAndSections({ allAppsPath })
+  const movePromises = []
+  for (let app of apps) {
+    if (await isCordovaApp({ allAppsPath, appDesc: app })) {
+      const src = join(allAppsPath, app.section, app.app)
+      const dest = join(cordovaAppsPath, app.section, app.app)
+      const jsSrc = join(dest, 'apktool.decomp', 'assets', 'www')
+      const jsDest = join(dest, 'extractedJs')
+      movePromises.push(async () => {
+        await move(src, dest)
+        await copy(jsSrc, jsDest)
+      })
+    }
+  }
+  await resolveParallelGroups(chunk(movePromises, 10))
+}
+
+export const parseScriptsFromCordovaApp: AppParserFn = async (
+  { appPath, libsPath },
+  { doJustOne = false, chunkLimit = 10, chunkSize = 10 }: opts = {}) => {
 
   const indexHtmlPath = join(appPath, 'extractedJs/index.html')
   const analysisFolderPath = join(appPath, 'jsAnalysis')
@@ -59,6 +71,7 @@ export async function parseScriptsFromCordovaApp({
         const infoFileLocation = join(scriptFolder, 'info.json')
         const fnSignFilePath = join(scriptFolder, 'libStructure.json')
         const similaritiesFilePath = join(scriptFolder, 'similarities.json')
+        const jaccardSimilaritiesFilePath = join(scriptFolder, 'similarities-jaccard.json')
 
         /**
          * Important object
@@ -122,28 +135,56 @@ export async function parseScriptsFromCordovaApp({
         }
 
         const structure = await extractStructure({ content })
-        const allSimilarities = await getSimilarities({ signature: structure, libsPath })
-        const similarities = take(allSimilarities, LIMIT_SIMILARITIES)
+        const { ourSim: allOurSim, jaccardSim: allJaccardSim } = await getSimilarities({
+          signature: structure,
+          libsPath,
+        })
 
         await Promise.all([
           myWriteJSON({ file: infoFileLocation, content: infoObject }),
           myWriteJSON({ file: fnSignFilePath, content: structure }),
-          myWriteJSON({ file: similaritiesFilePath, content: similarities }),
+          myWriteJSON({
+            file: similaritiesFilePath,
+            content: take(allOurSim, LIMIT_SIMILARITIES),
+          }),
+          myWriteJSON({
+            file: jaccardSimilaritiesFilePath,
+            content: take(allJaccardSim, LIMIT_SIMILARITIES),
+          }),
         ])
-
-        // await extractComments({ scriptFolder, content })
       }
     })
   }
 
   const lazyScriptTags = parseScriptTags('head').concat(parseScriptTags('body'))
   let contents
-  if (DEBUG_DO_JUST_ONE) {
+  if (doJustOne) {
     contents = [await lazyScriptTags[0](), await lazyScriptTags[1]()]
   }
   else {
-    contents = await resolveParallelGroups(chunk(lazyScriptTags, 10))
+    contents = await resolveAllOrInParallel(lazyScriptTags, { chunkLimit, chunkSize })
   }
   // console.log(contents.map(s => s.length <= 1000 ? s : s.length))
 }
 
+export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
+  { allAppsPath, libsPath },
+  { doJustOne = false, chunkLimit = 10, chunkSize = 5 }: opts = {}) => {
+
+  const apps = await getAppsAndSections({ allAppsPath })
+  const lazyAppAnalysis = apps.map((app) => {
+    return async () => {
+      return parseScriptsFromCordovaApp({
+        appPath: join(allAppsPath, app.section, app.app),
+        libsPath,
+      })
+    }
+  })
+  if (doJustOne) {
+    await lazyAppAnalysis[0]()
+    await lazyAppAnalysis[1]()
+  }
+  else {
+    await resolveAllOrInParallel(lazyAppAnalysis, { chunkLimit, chunkSize })
+  }
+}
