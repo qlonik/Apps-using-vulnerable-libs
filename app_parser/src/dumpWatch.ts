@@ -206,7 +206,7 @@ const processLibrary = ({
 
   return async (worker: ChildProcessWithLog) => {
 
-    log('(w:%o) got %o', worker.pid, filename)
+    // log('(w:%o) got %o', worker.pid, filename)
 
     worker.send(<serverMessage>{
       from: messageFrom.server,
