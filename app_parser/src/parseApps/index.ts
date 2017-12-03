@@ -10,21 +10,17 @@ export interface AppDescription {
   app: string,
 }
 
-export interface IsAppTypeFn {
-  (p: { allAppsPath: string, appDesc: AppDescription }): Promise<boolean>,
-}
+export type IsAppTypeFn =
+  (p: { allAppsPath: string, appDesc: AppDescription }) => Promise<boolean>
 
-export interface MoveAppTypeFn {
-  (p: { appTypePath: string, allAppsPath: string }, opts?: opts): Promise<any>,
-}
+export type MoveAppTypeFn =
+  (p: { appTypePath: string, allAppsPath: string }, opts?: opts) => Promise<any>
 
-export interface AppsFolderParserFn {
-  (p: { allAppsPath: string, libsPath: string }, opts?: opts): Promise<any>,
-}
+export type AppsFolderParserFn =
+  (p: { allAppsPath: string, libsPath: string }, opts?: opts) => Promise<any>
 
-export interface AppParserFn {
-  (p: { appPath: string, libsPath: string }, opts?: opts): Promise<any>,
-}
+export type AppParserFn =
+  (p: { appPath: string, libsPath: string }, opts?: opts) => Promise<any>
 
 export async function getAppsAndSections(
   { allAppsPath }: { allAppsPath: string }): Promise<AppDescription[]> {
