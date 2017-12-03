@@ -1,12 +1,12 @@
-import { pathExists, readJSON } from 'fs-extra'
-import { flatten, sortBy } from 'lodash';
+import { pathExists, readdir } from 'fs-extra'
+import { flatten, sortBy, unzip } from 'lodash';
 import { join } from 'path'
 import { Signature } from '../extractStructure'
 import { getNamesVersions, libDesc } from '../parseLibraries'
 import { chunk, resolveParallelGroups } from '../utils'
-import { myWriteJSON } from '../utils/files'
 import {
   indexValue,
+  jaccardIndex,
   makeSetOutOfArray,
   makeSetOutOfFilePath,
   similarityIndexToLib,
@@ -18,58 +18,66 @@ export type Similarity = libDesc & {
   similarity: indexValue,
 }
 
+export type JaccardSimilarity = libDesc & {
+  file: string,
+  jaccardIndex: indexValue,
+}
+
+type mergedSimilarity = Similarity & JaccardSimilarity
+
 export type getSimilaritiesOpts = {
   signature: Signature,
   libsPath: string,
 }
 
 export async function getSimilarities(
-  { signature, libsPath }: getSimilaritiesOpts): Promise<Similarity[]> {
+  { signature, libsPath }: getSimilaritiesOpts): Promise<{ ourSim: Similarity[], jaccardSim: JaccardSimilarity[] }> {
 
   const libDescriptions = await getNamesVersions(libsPath)
   const unknownSigSet = makeSetOutOfArray(signature)
-  // : (() => Promise<Similarity[]>)[]
   const similarLazyPromises = libDescriptions.map(({ name, version }) => {
-    return async () => {
-      const sim: Similarity[] = []
-      const libPath = join(libsPath, name, version)
+    return async (): Promise<mergedSimilarity[]> => {
+      const sigFolder = join(libsPath, name, version, 'sigs')
 
-      const lib = join(libPath, 'libDesc.sig.json')
-      if (await pathExists(lib)) {
-        sim.push({
-          name,
-          version,
-          file: 'libDesc.js',
-          similarity: similarityIndexToLib(await makeSetOutOfFilePath(lib), unknownSigSet),
-        })
-      }
-      const min = join(libPath, 'libDesc.min.sig.json')
-      if (await pathExists(min)) {
-        sim.push({
-          name,
-          version,
-          file: 'libDesc.min.js',
-          similarity: similarityIndexToLib(await makeSetOutOfFilePath(min), unknownSigSet),
-        })
+      if (!await pathExists(sigFolder)) {
+        return <mergedSimilarity[]>[]
       }
 
-      return sim
+      const simFiles = await readdir(sigFolder)
+      const similarityPromises = simFiles.map(async (file: string) => {
+        const libSigSet = await makeSetOutOfFilePath(join(sigFolder, file))
+        return {
+          name,
+          version,
+          file,
+          similarity: similarityIndexToLib(libSigSet, unknownSigSet),
+          jaccardIndex: jaccardIndex(libSigSet, unknownSigSet),
+        }
+      })
+      return Promise.all(similarityPromises)
     }
   })
   const similar = await resolveParallelGroups(chunk(similarLazyPromises, 10))
 
-  return sortBy(flatten(similar), (v: Similarity) => -v.similarity.val)
-}
+  const twoSimilaritiesZip: [Similarity, JaccardSimilarity][] = flatten(similar)
+    .map(({
+      name,
+      version,
+      file,
+      similarity,
+      jaccardIndex,
+    }: mergedSimilarity): [Similarity, JaccardSimilarity] => {
 
-export type getSimilaritiesFromPathOpts = {
-  unknownLibPath: string,
-  libsPath: string,
-}
+      return [
+        { name, version, file, similarity },
+        { name, version, file, jaccardIndex },
+      ]
+    })
+  const [similarity, jaccardSimilarity] =
+    <[Similarity[], JaccardSimilarity[]]>unzip(twoSimilaritiesZip)
 
-export async function getSimilaritiesFromPath(
-  { unknownLibPath, libsPath }: getSimilaritiesFromPathOpts) {
-  const signature = await readJSON(join(unknownLibPath, 'fnSignature.json'))
-  const similarities = await getSimilarities({ libsPath, signature })
-  await myWriteJSON({ file: join(unknownLibPath, 'similarity.json'), content: similarities })
-  return similarities
+  return {
+    ourSim: sortBy(similarity, (v: Similarity) => -v.similarity.val),
+    jaccardSim: sortBy(jaccardSimilarity, (v: JaccardSimilarity) => -v.jaccardIndex.val)
+  }
 }
