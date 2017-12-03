@@ -17,9 +17,9 @@ const parseScriptsFromSnowbuddy = () => parseScriptsFromCordovaApp({
 async function main() {
   // return await parseScriptsFromSnowbuddy()
   // return await appsReformat({ allAppsPath: ALL_APPS_PATH, })
-  // return await getDefinitelyCordova({
+  // return await moveDefinitelyCordovaApps({
   //   allAppsPath: ALL_APPS_PATH,
-  //   cordovaAppsPath: CORDOVA_APPS_PATH,
+  //   appTypePath: CORDOVA_APPS_PATH,
   // })
   return await parseScriptsFromCordovaApps({
     allAppsPath: CORDOVA_APPS_PATH,

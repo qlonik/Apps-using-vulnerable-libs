@@ -14,6 +14,10 @@ export interface AppTypeFn {
   (p: { allAppsPath: string, appDesc: AppDescription }): Promise<boolean>,
 }
 
+export interface MoveAppTypeFn {
+  (p: { appTypePath: string, allAppsPath: string }, opts?: opts): Promise<any>,
+}
+
 export interface AppsFolderParserFn {
   (p: { allAppsPath: string, libsPath: string }, opts?: opts): Promise<any>,
 }

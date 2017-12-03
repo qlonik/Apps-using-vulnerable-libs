@@ -6,14 +6,15 @@ import { URL } from 'url'
 
 import { extractStructure } from '../extractStructure'
 import { getSimilarities } from '../similarityIndex'
-import { chunk, leftPad, opts, resolveAllOrInParallel, resolveParallelGroups } from '../utils'
+import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import {
   AppParserFn,
   AppsFolderParserFn,
   AppTypeFn,
   getAppsAndSections,
-  LIMIT_SIMILARITIES
+  LIMIT_SIMILARITIES,
+  MoveAppTypeFn,
 } from './index'
 
 
@@ -29,24 +30,28 @@ export const isCordovaApp: AppTypeFn = async function (
   return await pathExists(indexHtmlPath) && await pathExists(cordovaJsPath)
 }
 
-export const getDefinitelyCordova = async function (
-  { allAppsPath, cordovaAppsPath }: { allAppsPath: string, cordovaAppsPath: string }) {
+export const moveDefinitelyCordovaApps: MoveAppTypeFn = async function (
+  { appTypePath, allAppsPath },
+  { chunkLimit = 10, chunkSize = 10 }: opts = {}): Promise<void> {
 
   const apps = await getAppsAndSections({ allAppsPath })
   const movePromises = []
-  for (let app of apps) {
-    if (await isCordovaApp({ allAppsPath, appDesc: app })) {
-      const src = join(allAppsPath, app.section, app.app)
-      const dest = join(cordovaAppsPath, app.section, app.app)
-      const jsSrc = join(dest, 'apktool.decomp', 'assets', 'www')
-      const jsDest = join(dest, 'extractedJs')
-      movePromises.push(async () => {
-        await move(src, dest)
-        await copy(jsSrc, jsDest)
-      })
+  for (let appDesc of apps) {
+    if (!await isCordovaApp({ allAppsPath, appDesc })) {
+      continue
     }
+
+    const { section, app } = appDesc
+    const src = join(allAppsPath, section, app)
+    const dest = join(appTypePath, section, app)
+    const jsSrc = join(dest, 'apktool.decomp', 'assets', 'www')
+    const jsDest = join(dest, 'extractedJs')
+    movePromises.push(async () => {
+      await move(src, dest)
+      await copy(jsSrc, jsDest)
+    })
   }
-  await resolveParallelGroups(chunk(movePromises, 10))
+  await resolveAllOrInParallel(movePromises, { chunkLimit, chunkSize })
 }
 
 export const parseScriptsFromCordovaApp: AppParserFn = async (
