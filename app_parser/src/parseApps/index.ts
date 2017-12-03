@@ -10,7 +10,7 @@ export interface AppDescription {
   app: string,
 }
 
-export interface AppTypeFn {
+export interface IsAppTypeFn {
   (p: { allAppsPath: string, appDesc: AppDescription }): Promise<boolean>,
 }
 

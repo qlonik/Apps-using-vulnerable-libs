@@ -11,14 +11,14 @@ import { myWriteJSON } from '../utils/files'
 import {
   AppParserFn,
   AppsFolderParserFn,
-  AppTypeFn,
+  IsAppTypeFn,
   getAppsAndSections,
   LIMIT_SIMILARITIES,
   MoveAppTypeFn,
 } from './index'
 
 
-export const isCordovaApp: AppTypeFn = async function (
+export const isCordovaApp: IsAppTypeFn = async function (
   { allAppsPath, appDesc }): Promise<boolean> {
 
   const relIndexHtmlPath = ['assets', 'www', 'index.html']
