@@ -6,6 +6,9 @@ import { observableFromEventEmitter } from './utils/observable'
 import debug = require('debug')
 
 
+/*
+ * Message types
+ */
 export enum messageFrom {
   server,
   client,
