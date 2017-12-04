@@ -174,12 +174,10 @@ export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
 
   const apps = await getAppsAndSections({ allAppsPath })
   const lazyAppAnalysis = apps.map((app) => {
-    return async () => {
-      return parseScriptsFromCordovaApp({
-        appPath: join(allAppsPath, app.section, app.app),
-        libsPath,
-      })
-    }
+    return async () => parseScriptsFromCordovaApp({
+      appPath: join(allAppsPath, app.section, app.app),
+      libsPath,
+    })
   })
   if (debugDoLess) {
     await lazyAppAnalysis[0]()
