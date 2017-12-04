@@ -180,8 +180,10 @@ export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
     })
   })
   if (debugDoLess) {
-    await lazyAppAnalysis[0]()
-    await lazyAppAnalysis[1]()
+    await Promise.all([
+      lazyAppAnalysis[0](),
+      lazyAppAnalysis[1](),
+    ])
   }
   else {
     await resolveAllOrInParallel(lazyAppAnalysis, { chunkLimit, chunkSize })
