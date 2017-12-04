@@ -162,6 +162,9 @@ const executorsPool = createPool<ChildProcessWithLog>({
       const killTimeout = setTimeout(killFn, WORKER_SHUTDOWN_TIMEOUT)
       let longKillTimeout: Timer | null = null
       const onMsgFn = (msg: clientMessage) => {
+        // remark: don't need to deal with shutdown during work case
+        // this is because the resource will not be released before work is finished
+        // therefore the worker cannot be killed before it is released
         if (msg.type === clientMessageType.delayShutdown) {
           log('received request to delay shutdown')
           clearTimeout(killTimeout)

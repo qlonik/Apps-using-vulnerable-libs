@@ -151,6 +151,10 @@ if (process.send) {
           if (processing === null) {
             terminateWorker()
           }
+          // remark: don't need to deal with shutdown while work is performed
+          // that is because the worker is never released back into the pool before
+          // it is done performing the work. Therefore the worker will never be
+          // requested to finish while it is working.
           else {
             replyToParent(<clientMessage>{
               from: messageFrom.client,
