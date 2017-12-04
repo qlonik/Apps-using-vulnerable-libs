@@ -11,21 +11,18 @@ import { myWriteJSON } from '../utils/files'
 import {
   AppParserFn,
   AppsFolderParserFn,
-  IsAppTypeFn,
   getAppsAndSections,
+  IsAppTypeFn,
   LIMIT_SIMILARITIES,
   MoveAppTypeFn,
 } from './index'
 
 
 export const isCordovaApp: IsAppTypeFn = async function (
-  { allAppsPath, appDesc }): Promise<boolean> {
+  { appPath }): Promise<boolean> {
 
-  const relIndexHtmlPath = ['assets', 'www', 'index.html']
-  const relCordovaJsPath = ['assets', 'www', 'cordova.js']
-  const appPath = join(allAppsPath, appDesc.section, appDesc.app, 'apktool.decomp')
-  const indexHtmlPath = join(appPath, ...relIndexHtmlPath)
-  const cordovaJsPath = join(appPath, ...relCordovaJsPath)
+  const indexHtmlPath = join(appPath, ...['assets', 'www', 'index.html'])
+  const cordovaJsPath = join(appPath, ...['assets', 'www', 'cordova.js'])
 
   return await pathExists(indexHtmlPath) && await pathExists(cordovaJsPath)
 }
@@ -36,13 +33,12 @@ export const moveDefinitelyCordovaApps: MoveAppTypeFn = async function (
 
   const apps = await getAppsAndSections({ allAppsPath })
   const movePromises = []
-  for (let appDesc of apps) {
-    if (!await isCordovaApp({ allAppsPath, appDesc })) {
+  for (let { section, app } of apps) {
+    const src = join(allAppsPath, section, app)
+    if (!await isCordovaApp({ appPath: src })) {
       continue
     }
 
-    const { section, app } = appDesc
-    const src = join(allAppsPath, section, app)
     const dest = join(appTypePath, section, app)
     const jsSrc = join(dest, 'apktool.decomp', 'assets', 'www')
     const jsDest = join(dest, 'extractedJs')

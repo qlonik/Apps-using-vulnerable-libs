@@ -11,7 +11,7 @@ export interface AppDescription {
 }
 
 export type IsAppTypeFn =
-  (p: { allAppsPath: string, appDesc: AppDescription }) => Promise<boolean>
+  (p: { appPath: string }) => Promise<boolean>
 
 export type MoveAppTypeFn =
   (p: { appTypePath: string, allAppsPath: string }, opts?: opts) => Promise<any>
