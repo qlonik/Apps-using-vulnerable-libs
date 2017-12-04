@@ -39,9 +39,9 @@ export const moveDefinitelyCordovaApps: MoveAppTypeFn = async function (
       continue
     }
 
-    const dest = join(appTypePath, section, app)
-    const jsSrc = join(dest, 'apktool.decomp', 'assets', 'www')
-    const jsDest = join(dest, 'extractedJs')
+    const dest = join(appTypePath, section, app, 'apktool.decomp')
+    const jsSrc = join(dest, 'assets', 'www')
+    const jsDest = join(dest, '..', 'extractedJs')
     movePromises.push(async () => {
       await move(src, dest)
       await copy(jsSrc, jsDest)
