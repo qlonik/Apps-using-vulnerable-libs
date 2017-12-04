@@ -52,7 +52,7 @@ export const moveDefinitelyCordovaApps: MoveAppTypeFn = async function (
 
 export const parseScriptsFromCordovaApp: AppParserFn = async (
   { appPath, libsPath },
-  { doJustOne = false, chunkLimit = 10, chunkSize = 10 }: opts = {}) => {
+  { debugDoLess = false, chunkLimit = 10, chunkSize = 10 }: opts = {}) => {
 
   const indexHtmlPath = join(appPath, 'extractedJs/index.html')
   const analysisFolderPath = join(appPath, 'jsAnalysis')
@@ -159,7 +159,7 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
 
   const lazyScriptTags = parseScriptTags('head').concat(parseScriptTags('body'))
   let contents
-  if (doJustOne) {
+  if (debugDoLess) {
     contents = [await lazyScriptTags[0](), await lazyScriptTags[1]()]
   }
   else {
@@ -170,7 +170,7 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
 
 export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
   { allAppsPath, libsPath },
-  { doJustOne = false, chunkLimit = 10, chunkSize = 5 }: opts = {}) => {
+  { debugDoLess = false, chunkLimit = 10, chunkSize = 5 }: opts = {}) => {
 
   const apps = await getAppsAndSections({ allAppsPath })
   const lazyAppAnalysis = apps.map((app) => {
@@ -181,7 +181,7 @@ export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
       })
     }
   })
-  if (doJustOne) {
+  if (debugDoLess) {
     await lazyAppAnalysis[0]()
     await lazyAppAnalysis[1]()
   }

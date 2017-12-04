@@ -87,7 +87,7 @@ export const tgzUnpack = async function (
 }
 
 export type opts = {
-  doJustOne?: boolean,
+  debugDoLess?: boolean,
   conservative?: boolean,
   chunkLimit?: number,
   chunkSize?: number,
