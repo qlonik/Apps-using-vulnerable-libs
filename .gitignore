@@ -1,5 +1,7 @@
-*.iml
-.idea/
+.idea/dictionaries/
+.idea/codeStyleSettings.xml
+.idea/tasks.xml
+.idea/workspace.xml
 
 *~
 
