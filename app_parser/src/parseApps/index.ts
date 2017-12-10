@@ -22,6 +22,7 @@ export type AppsFolderParserFn =
 export type AppParserFn =
   (p: { appPath: string, libsPath: string }, opts?: opts) => Promise<any>
 
+
 export async function getAppsAndSections(
   { allAppsPath }: { allAppsPath: string }): Promise<AppDescription[]> {
 
@@ -51,6 +52,7 @@ export const appsReformat = async function (
 
   return await resolveAllOrInParallel(pr, { chunkLimit, chunkSize })
 }
+
 
 export * from './cordova'
 export * from './react-native'
