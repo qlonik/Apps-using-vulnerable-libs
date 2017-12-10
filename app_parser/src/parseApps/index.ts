@@ -34,6 +34,16 @@ export async function getAppsAndSections(
   return (<AppDescription[]>[]).concat(...appsNonFlat)
 }
 
+/**
+ * Used to move files of the app in the app folder into subfolder 'apktool.decomp'
+ *
+ * @param {string} allAppsPath
+ * @param {number} chunkLimit
+ * @param {number} chunkSize
+ * @returns {Promise<any[]>}
+ *
+ * @deprecated
+ */
 export const appsReformat = async function (
   { allAppsPath }: { allAppsPath: string },
   { chunkLimit = 10, chunkSize = 5 }: opts = {}) {
