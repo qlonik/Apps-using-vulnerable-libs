@@ -135,22 +135,19 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
           }
         }
 
-        const structure = await extractStructure({ content })
-        const { ourSim: allOurSim, jaccardSim: allJaccardSim } = await getSimilarities({
-          signature: structure,
-          libsPath,
-        })
+        const signature = await extractStructure({ content })
+        const { ourSim, jaccardSim } = await getSimilarities({ signature, libsPath })
 
         await Promise.all([
           myWriteJSON({ file: infoFileLocation, content: infoObject }),
-          myWriteJSON({ file: fnSignFilePath, content: structure }),
+          myWriteJSON({ file: fnSignFilePath, content: signature }),
           myWriteJSON({
             file: similaritiesFilePath,
-            content: take(allOurSim, LIMIT_SIMILARITIES),
+            content: take(ourSim, LIMIT_SIMILARITIES),
           }),
           myWriteJSON({
             file: jaccardSimilaritiesFilePath,
-            content: take(allJaccardSim, LIMIT_SIMILARITIES),
+            content: take(jaccardSim, LIMIT_SIMILARITIES),
           }),
         ])
       }
