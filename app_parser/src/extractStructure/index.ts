@@ -27,6 +27,7 @@ import { parse } from 'babylon'
 import { stripIndent } from 'common-tags'
 import { flatMap, Many } from 'lodash'
 import { inspect as utilInspect } from 'util'
+import { stdoutLog } from '../utils/logger'
 
 
 const CONCAT_FNS_WITH = ':>>:'
@@ -49,6 +50,8 @@ type TreePath<T> = {
 }
 
 
+const NAMESPACE = 'x.Struct'
+const log = stdoutLog(NAMESPACE)
 
 const pathConcat = (p: string, c: string | number): string => {
   return p.concat(typeof c === 'number' ? `[${c}]` : (p.length ? '.' + c : c))
