@@ -1,6 +1,6 @@
 import { copy, ensureDir, move, pathExists, writeFile, writeJSON } from 'fs-extra'
 import { dirname, join } from 'path'
-import { opts, resolveAllOrInParallel } from './index'
+import { assertNever, opts, resolveAllOrInParallel } from './index'
 
 
 export type fileDesc = {
@@ -74,9 +74,14 @@ const saveOneFile = async (
       case fileOp.move:
         operation = move
         break
+      default:
+        assertNever(fileDesc.type)
     }
 
     await operation(sorc, dest)
+  }
+  else {
+    assertNever(fileDesc.type)
   }
 
   return { cwd, dst }
