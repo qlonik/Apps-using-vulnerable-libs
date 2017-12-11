@@ -329,8 +329,6 @@ const collapseFnNamesTree = (
 export const extractStructure = async function (
   { content }: {
     content: string,
-    scriptFolder?: string,
-    outputFilename?: string,
   }): Promise<Signature[]> {
 
   // TODO: try to parse with: esprima, acorn, espree, babylon
