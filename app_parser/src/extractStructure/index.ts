@@ -14,6 +14,7 @@ import {
   isLiteral,
   isMemberExpression,
   isNullLiteral,
+  isObjectMethod,
   isProperty,
   isRegExpLiteral,
   isReturnStatement,
@@ -162,7 +163,8 @@ const fnNodeFilter = (path: string, node: BabelNode): Signature | null => {
            isAssignmentExpression(node) ||
            isAssignmentPattern(node) ||
            isProperty(node) ||
-           isReturnStatement(node)) {
+           isReturnStatement(node) ||
+           isObjectMethod(node)) {
     let varNode: any = null
     let fnNode: any = null
 
@@ -181,6 +183,10 @@ const fnNodeFilter = (path: string, node: BabelNode): Signature | null => {
     else if (isReturnStatement(node)) {
       varNode = null
       fnNode = node.argument
+    }
+    else if (isObjectMethod(node)) {
+      varNode = node.key
+      fnNode = node
     }
 
 
