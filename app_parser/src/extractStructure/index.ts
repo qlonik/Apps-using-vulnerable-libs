@@ -4,7 +4,9 @@ import {
   isAssignmentExpression,
   isAssignmentPattern,
   isBinaryExpression,
+  isBlockStatement,
   isCallExpression,
+  isExpression,
   isFunction,
   isFunctionDeclaration,
   isFunctionExpression,
@@ -18,10 +20,10 @@ import {
   isTemplateLiteral,
   isVariableDeclarator,
   Literal,
-  Node as BabNode
+  Node as BabelNode
 } from 'babel-types'
 import { parse } from 'babylon'
-// import { Node as BabNode } from 'estree'
+import { stripIndent } from 'common-tags'
 import { flatMap, Many } from 'lodash'
 import { inspect as utilInspect } from 'util'
 
@@ -29,7 +31,23 @@ import { inspect as utilInspect } from 'util'
 const CONCAT_FNS_WITH = ':>>:'
 
 
-export type Signature = string[]
+export type Signature = {
+  type: 'fn',
+  name: string,
+  tokens: string[] | null,
+}
+/**
+ * @param prop - property name
+ * @param c - children
+ */
+type TreePath<T> = {
+  prop: string | number,
+  data: T | null,
+  node?: BabelNode,
+  c?: TreePath<T>[],
+}
+
+
 
 const pathConcat = (p: string, c: string | number): string => {
   return p.concat(typeof c === 'number' ? `[${c}]` : (p.length ? '.' + c : c))
@@ -57,30 +75,20 @@ const extractNameFromIdentifier = (node: Identifier): string => {
   return `'${node.name}'`
 }
 
-/**
- * @param prop - property name
- * @param c - children
- */
-type TreePath<T> = {
-  prop: string | number,
-  data: T | null,
-  node?: BabNode,
-  c?: TreePath<T>[],
-}
+const visitNodes = <K>(
+  {
+    fn = undefined,
+    includeNodes = false,
+  }: {
+    fn?: (path: string, val: BabelNode) => K | null,
+    includeNodes?: boolean,
+  } = {}) => {
 
-interface visitNodesOptsType<T> {
-  fn?: (path: string, val: BabNode) => T | null,
-  includeNodes?: boolean,
-}
+  return function paths(
+    obj: object | Array<any>,
+    pathSoFar: string = ''): TreePath<K>[] {
 
-const visitNodesOptsDefault: visitNodesOptsType<any> = {
-  fn: () => ({}),
-  includeNodes: false,
-}
-
-const visitNodes = <K>({ fn, includeNodes } = visitNodesOptsDefault) => {
-  return function paths(obj: object | Array<any>, pathSoFar: string = ''): TreePath<K>[] {
-    let entries: Array<[string | number, BabNode]> = []
+    let entries: Array<[string | number, BabelNode]> = []
     if (Array.isArray(obj)) {
       entries = [...obj.entries()]
     }
@@ -88,11 +96,11 @@ const visitNodes = <K>({ fn, includeNodes } = visitNodesOptsDefault) => {
       entries = Object.entries(obj)
     }
 
-    return flatMap(entries, ([key, value]: [string | number, BabNode]) => {
+    return flatMap(entries, ([key, value]: [string | number, BabelNode]) => {
       const childPath = pathConcat(pathSoFar, key)
       const result: TreePath<K> = {
         prop: childPath,
-        data: fn(childPath, value),
+        data: typeof fn === 'function' ? fn(childPath, value) : null,
       }
 
       if (includeNodes) {
@@ -116,15 +124,39 @@ const visitNodes = <K>({ fn, includeNodes } = visitNodesOptsDefault) => {
   }
 }
 
-type myNodeDescriptor = { name: string }
-const fnNodeFilter = (path: string, node: BabNode): myNodeDescriptor | null => {
+const getTokens = (node: BabelNode): string[] | null => {
+  if (!isFunction(node)) {
+    return null
+  }
+
+  let result: string[] = []
+
+  const { params, body } = node
+
+  result = result.concat(params.map(p => `param:${p.type}`))
+
+  if (isExpression(body)) {
+    result = result.concat(`expr:${body.type}`)
+  }
+  else if (isBlockStatement(body)) {
+    result = result.concat(body.body.map(st => `body:${st.type}`))
+  }
+
+  return result.length ? result.sort() : null
+}
+
+const fnNodeFilter = (path: string, node: BabelNode): Signature | null => {
 
   if (node && (<any>node).__skip) {
     return null
   }
 
   if (isFunctionDeclaration(node) || isFunctionExpression(node)) {
-    return { name: (node.id && node.id.name) || '[anonymous]' }
+    return {
+      type: 'fn',
+      name: (node.id && node.id.name) || '[anonymous]',
+      tokens: getTokens(node),
+    }
   }
   else if (isVariableDeclarator(node) ||
            isAssignmentExpression(node) ||
@@ -197,11 +229,11 @@ const fnNodeFilter = (path: string, node: BabNode): myNodeDescriptor | null => {
     }
 
     if (varNode && Object.is(varName, undefined) && fnNode && isFunction(fnNode)) {
-      console.log([
-        'This seems like special case!',
-        path,
-        utilInspect(node, { depth: Infinity })
-      ].join('\n'))
+      console.log(stripIndent`
+        This seems like a special case!
+        ${path}
+        ${utilInspect(node, { depth: Infinity })}
+      `)
     }
 
     let name
@@ -213,46 +245,58 @@ const fnNodeFilter = (path: string, node: BabNode): myNodeDescriptor | null => {
     }
 
     if (!isReturnStatement(node) && Object.is(varName, undefined) && name === '[anonymous]') {
-      console.log(`check this case: ${path}\n${utilInspect(node, { depth: 10 })}`)
+      console.log(stripIndent`
+        Check this case:
+        ${path}
+        ${utilInspect(node, { depth: 10 })}
+      `)
     }
     if (name) {
       fnNode.__skip = true
-      return { name }
+      return { type: 'fn', name, tokens: getTokens(fnNode) }
     }
   }
 
   return null
 }
-const fnOnlyTreeCreator = visitNodes<myNodeDescriptor>({ fn: fnNodeFilter })
+const fnOnlyTreeCreator = visitNodes<Signature>({ fn: fnNodeFilter })
 
 const collapseFnNamesTree = (
-  tree: TreePath<myNodeDescriptor>[],
-  fnNameSoFar: string = ''): string[] => {
+  tree: TreePath<Signature>[],
+  fnNameSoFar: string = ''): Signature[] => {
 
-  return flatMap(tree, (fnDesc: TreePath<myNodeDescriptor>): Many<string> => {
-    if (!fnDesc) {
+  if (!tree.length) {
+    return []
+  }
+
+  return flatMap(tree, (fnDesc: TreePath<Signature>): Many<Signature> => {
+    if (fnDesc.data === null) {
       return []
     }
 
-    const fnName = fnNamesConcat(fnNameSoFar, (<myNodeDescriptor>fnDesc.data).name)
-    if (fnDesc.c) {
-      return [fnName].concat(collapseFnNamesTree(fnDesc.c, fnName))
+    const fnName = fnNamesConcat(fnNameSoFar, fnDesc.data.name)
+    const tokens = fnDesc.data.tokens
+      ? fnDesc.data.tokens
+      : fnDesc.node
+        ? getTokens(fnDesc.node)
+        : null
+
+    const treeElem: Signature = { type: 'fn', name: fnName, tokens }
+
+    if (!fnDesc.c) {
+      return treeElem
     }
-    else {
-      return fnName
-    }
+    return [treeElem].concat(collapseFnNamesTree(fnDesc.c, fnName))
   })
 }
 
-
-type extractStructureConf = {
-  content: string,
-  scriptFolder?: string,
-  outputFilename?: string,
-}
-
 export const extractStructure = async function (
-  { content }: extractStructureConf): Promise<Signature> {
+  { content }: {
+    content: string,
+    scriptFolder?: string,
+    outputFilename?: string,
+  }): Promise<Signature[]> {
+
   // TODO: try to parse with: esprima, acorn, espree, babylon
   // espree is based on acorn and is used by eslint
   // babylon is based on acorn and is used by babel
@@ -263,7 +307,8 @@ export const extractStructure = async function (
   // console.log(inspectedParsed)
 
   const fnTree = fnOnlyTreeCreator(parsedContent)
-  return collapseFnNamesTree(fnTree).sort()
+  return collapseFnNamesTree(fnTree)
+    .sort((a, b) => a.name.localeCompare(b.name))
 }
 
 export async function demo() {
@@ -271,10 +316,10 @@ export async function demo() {
   let source = `
   var fn, fn2
   fn = function() {
-    function a(d = () => {}) {
+    function a(d = () => ({})) {
       b()
       // console.log('hi')
-      return function hello() {}
+      return function hello(param1, param2) {}
     }
     var b = function name() {
       console.log('hello')
@@ -293,7 +338,7 @@ export async function demo() {
   // const inspectedParsed = utilInspect(parsed, { depth: null })
   // console.log(inspectedParsed)
 
-  const tree = visitNodes<myNodeDescriptor>({ fn: fnNodeFilter })(parsed)
+  const tree = fnOnlyTreeCreator(parsed)
   const inspectedTree = utilInspect(tree, { depth: null })
   console.log(inspectedTree)
 
