@@ -145,7 +145,10 @@ const getFnStTypes = (node: BabelNode): string[] | null => {
     result = result.concat(`expr:${body.type}`)
   }
   else if (isBlockStatement(body)) {
-    result = result.concat(body.body.map(st => `body:${st.type}`))
+    const { directives = [], body: statements } = body
+    result = result
+      .concat(directives.map(d => `directive:${d.value.value}`))
+      .concat(statements.map(st => `statement:${st.type}`))
   }
 
   return result.length ? result.sort() : null
