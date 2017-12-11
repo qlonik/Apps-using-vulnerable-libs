@@ -164,9 +164,6 @@ export async function extractMainFiles(
   { libsPath, name, version }: { libsPath: string } & libDesc,
   { conservative = true }: opts = {}): Promise<fileDescOp[]> {
 
-  /*
-   * (right now fails for jquery 2.1.0-beta2, jquery 1.9.1
-   */
   const libPath = join(libsPath, name, version)
   const libPackageP = join(libPath, 'package')
 
