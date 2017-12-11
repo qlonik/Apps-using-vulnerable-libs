@@ -13,6 +13,7 @@ export enum fileOp {
   move = 'move',
   text = 'text',
   json = 'json',
+  noop = 'noop',
 }
 
 export type fileDescOp = fileDesc & ({
@@ -24,6 +25,8 @@ export type fileDescOp = fileDesc & ({
 } | {
   type: fileOp.json,
   json: object,
+} | {
+  type: fileOp.noop,
 })
 
 export const myWriteJSON = async function (
@@ -45,6 +48,10 @@ const saveOneFile = async (
   if (!fileDesc.type) {
     return { cwd, dst }
   }
+  if (fileDesc.type === fileOp.noop) {
+    return { cwd, dst }
+  }
+
   const dest = join(cwd, dst)
   const destExists = conservative && await pathExists(dest)
   if (destExists) {
