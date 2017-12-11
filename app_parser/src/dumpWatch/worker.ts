@@ -10,7 +10,7 @@ import {
   processingResult,
   serverMessage,
   serverMessageType
-} from './messages'
+} from './common'
 import debug = require('debug')
 
 

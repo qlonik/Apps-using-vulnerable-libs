@@ -8,7 +8,7 @@ import {
   messageFrom,
   serverMessage,
   serverMessageType,
-} from './messages'
+} from './common'
 import { ChildProcessWithLog, createAutoClosedPool, workerPool } from './workerPool'
 import Observable = require('zen-observable')
 

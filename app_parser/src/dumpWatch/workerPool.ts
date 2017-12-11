@@ -11,7 +11,7 @@ import {
   messageFrom,
   serverMessage,
   serverMessageType
-} from './messages'
+} from './common'
 import Timer = NodeJS.Timer
 
 
