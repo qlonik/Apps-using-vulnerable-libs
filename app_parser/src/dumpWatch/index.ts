@@ -26,7 +26,7 @@ const LIB_PATH = '../data/sample_libs'
 const DUMP_PATH = '../data/lib_dump'
 const WATCH_FOR = '*.tgz'
 
-const WORKER_PATH = relative(process.cwd(), require.resolve('./dumpWatchWorker'))
+const WORKER_PATH = relative(process.cwd(), require.resolve('./worker'))
 const WORKER_MIN_AT_LEAST = 1
 const WORKER_MAX_AT_LEAST = 3
 const WORKER_EVICTION_TIMEOUT = 10 * 1000
