@@ -371,14 +371,20 @@ export async function demo() {
   }
   `
   const parsed = parse(source)
-  // const inspectedParsed = utilInspect(parsed, { depth: null })
-  // console.log(inspectedParsed)
+  // log(stripIndent`
+  //   Parsed source tree:
+  //   %I
+  // `, parsed)
 
   const tree = fnOnlyTreeCreator(parsed)
-  const inspectedTree = utilInspect(tree, { depth: null })
-  console.log(inspectedTree)
+  log(stripIndent`
+    Function only tree:
+    %I
+  `, tree)
 
   const collapsedTree = collapseFnNamesTree(tree)
-  const inspectedCollapsedTree = utilInspect(collapsedTree, { depth: null })
-  console.log(inspectedCollapsedTree)
+  log(stripIndent`
+    Signature for the file:
+    %I
+  `, collapsedTree)
 }
