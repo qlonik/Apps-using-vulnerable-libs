@@ -7,14 +7,22 @@ export type fileDesc = {
   cwd: string,
   dst: string,
 }
+
+export enum fileOp {
+  copy = 'copy',
+  move = 'move',
+  text = 'text',
+  json = 'json',
+}
+
 export type fileDescOp = fileDesc & ({
-  type: 'copy' | 'move',
+  type: fileOp.copy | fileOp.move,
   src: string,
 } | {
-  type: 'text',
+  type: fileOp.text,
   text: string,
 } | {
-  type: 'json',
+  type: fileOp.json,
   json: object,
 })
 
@@ -46,24 +54,24 @@ const saveOneFile = async (
   const destDir = dirname(dest)
   await ensureDir(destDir)
 
-  if (fileDesc.type === 'json') {
+  if (fileDesc.type === fileOp.json) {
     const { json } = fileDesc
     await myWriteJSON({ content: json, file: dest })
   }
-  else if (fileDesc.type === 'text') {
+  else if (fileDesc.type === fileOp.text) {
     const { text } = fileDesc
     await writeFile(dest, text)
   }
-  else if ((fileDesc.type === 'copy' || fileDesc.type === 'move')) {
+  else if ((fileDesc.type === fileOp.move || fileDesc.type === fileOp.copy)) {
     const { src } = fileDesc
     const sorc = join(cwd, src)
 
     let operation: (src: string, dest: string, opts?: object) => Promise<void> = copy
     switch (fileDesc.type) {
-      case 'copy':
+      case fileOp.copy:
         operation = copy
         break
-      case 'move':
+      case fileOp.move:
         operation = move
         break
     }

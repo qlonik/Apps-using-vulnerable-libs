@@ -10,7 +10,7 @@ import {
   resolveParallelGroups,
   tgzUnpack
 } from './utils'
-import { fileDesc, fileDescOp, myWriteJSON } from './utils/files'
+import { fileDesc, fileDescOp, fileOp, myWriteJSON } from './utils/files'
 import debug = require('debug')
 
 
@@ -199,7 +199,7 @@ export async function extractMainFiles(
 
   return <fileDescOp[]>(<string[]>await Promise.all(existingMainFilesLazy))
     .filter((el) => !!el)
-    .map((src, i) => ({ type: 'copy', cwd: libPath, src, dst: `mains/${leftPad(i)}.js` }))
+    .map((src, i) => ({ type: fileOp.copy, cwd: libPath, src, dst: `mains/${leftPad(i)}.js` }))
 }
 
 async function analyseOneLibFile(
@@ -212,7 +212,7 @@ async function analyseOneLibFile(
   const content = await readFile(fileP, 'utf-8')
   const signature = await extractStructure({ content })
 
-  return { type: 'json', cwd, dst: destSig, json: signature }
+  return { type: fileOp.json, cwd, dst: destSig, json: signature }
 }
 
 export async function analyseLibFiles(
