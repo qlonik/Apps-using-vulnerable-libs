@@ -4,6 +4,7 @@ import { IDebugger } from 'debug'
 import { createPool } from 'generic-pool'
 import { once } from 'lodash'
 import { cpus } from 'os'
+import { relative } from 'path'
 import { inspect } from 'util'
 import { fileDesc } from '../utils/files'
 import { createAutoClosedPool } from '../utils/pool'
@@ -25,6 +26,7 @@ const LIB_PATH = '../data/sample_libs'
 const DUMP_PATH = '../data/lib_dump'
 const WATCH_FOR = '*.tgz'
 
+const WORKER_PATH = relative(process.cwd(), require.resolve('./dumpWatchWorker'))
 const WORKER_MIN_AT_LEAST = 1
 const WORKER_MAX_AT_LEAST = 3
 const WORKER_EVICTION_TIMEOUT = 10 * 1000
@@ -93,8 +95,7 @@ const executorsPool = createPool<ChildProcessWithLog>({
         const port = '2300' + (executorsPool && executorsPool.size || '0')
         return el.replace(/=(\d+)/, `=${port}`)
       })
-      const worker = <ChildProcessWithLog>fork(require.resolve('./dumpWatchWorker'),
-        [], { execArgv })
+      const worker = <ChildProcessWithLog>fork(WORKER_PATH, [], { execArgv })
       const log = stdoutLog(`${LOG_NAMESPACE}:worker:${worker.pid}`)
       worker.__log = log
 
