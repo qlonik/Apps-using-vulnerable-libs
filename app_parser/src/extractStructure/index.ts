@@ -138,9 +138,7 @@ const getFnStTypes = (node: BabelNode): string[] | null => {
   }
 
   let result: string[] = []
-
   const { params, body } = node
-
   result = result.concat(params.map(p => `param:${p.type}`))
 
   if (isExpression(body)) {
@@ -181,6 +179,7 @@ const fnNodeFilter = (path: string, node: BabelNode): Signature | null => {
            isProperty(node) ||
            isReturnStatement(node) ||
            isObjectMethod(node)) {
+
     let varNode: any = null
     let fnNode: any = null
 
@@ -327,9 +326,7 @@ const collapseFnNamesTree = (
 }
 
 export const extractStructure = async function (
-  { content }: {
-    content: string,
-  }): Promise<Signature[]> {
+  { content }: { content: string }): Promise<Signature[]> {
 
   // TODO: try to parse with: esprima, acorn, espree, babylon
   // espree is based on acorn and is used by eslint
