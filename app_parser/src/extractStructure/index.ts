@@ -298,6 +298,10 @@ const collapseFnNamesTree = (
 
   return flatMap(tree, (fnDesc: TreePath<Signature>): Many<Signature> => {
     if (fnDesc.data === null) {
+      if (fnDesc.c) {
+        return collapseFnNamesTree(fnDesc.c)
+      }
+
       return []
     }
 
