@@ -13,7 +13,7 @@ import {
   messageFrom,
   serverMessage,
   serverMessageType,
-} from './dumpWatchWorker'
+} from './messages'
 import debug = require('debug')
 import Observable = require('zen-observable')
 import Timer = NodeJS.Timer
