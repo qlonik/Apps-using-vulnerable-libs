@@ -166,6 +166,13 @@ export async function extractMainFiles(
 
   const libPath = join(libsPath, name, version)
   const libPackageP = join(libPath, 'package')
+  const libMainP = join(libPath, 'mains')
+
+  if (conservative && await pathExists(libMainP)) {
+    return (await readdir(libMainP))
+      .sort()
+      .map((f) => (<fileDescOp>{ type: fileOp.noop, cwd: libPath, dst: join('mains', f) }))
+  }
 
   let potentialMainFiles = await tryAsBowerPkg(libPackageP)
   let solvedWith = PKG_TYPE.bower
