@@ -5,6 +5,8 @@ import { createPool } from 'generic-pool'
 import { once } from 'lodash'
 import { cpus } from 'os'
 import { inspect } from 'util'
+import { fileDesc } from '../utils/files'
+import { createAutoClosedPool } from '../utils/pool'
 import {
   clientMessage,
   clientMessageType,
@@ -12,8 +14,6 @@ import {
   serverMessage,
   serverMessageType,
 } from './dumpWatchWorker'
-import { fileDesc } from './utils/files'
-import { createAutoClosedPool } from './utils/pool'
 import debug = require('debug')
 import Observable = require('zen-observable')
 import Timer = NodeJS.Timer
