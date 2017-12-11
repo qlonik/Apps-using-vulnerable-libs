@@ -35,8 +35,12 @@ const CONCAT_FNS_WITH = ':>>:'
 
 export type Signature = {
   type: 'fn',
+  // for signature mechanism based on function names
   name: string,
-  tokens: string[] | null,
+  // for signature mechanism based on statement types in the function
+  fnStatementTypes?: string[] | null,
+  // for signature mechanism based on renaming tokens in statements in the function
+  fnStatementTokens?: string[] | null,
 }
 /**
  * @param prop - property name
@@ -128,7 +132,7 @@ const visitNodes = <K>(
   }
 }
 
-const getTokens = (node: BabelNode): string[] | null => {
+const getFnStTypes = (node: BabelNode): string[] | null => {
   if (!isFunction(node)) {
     return null
   }
@@ -149,6 +153,14 @@ const getTokens = (node: BabelNode): string[] | null => {
   return result.length ? result.sort() : null
 }
 
+const getFnStTokens = (node: BabelNode): string [] | null => {
+  if (!isFunction(node)) {
+    return null
+  }
+
+  return null
+}
+
 const fnNodeFilter = (path: string, node: BabelNode): Signature | null => {
 
   if (node && (<any>node).__skip) {
@@ -159,7 +171,8 @@ const fnNodeFilter = (path: string, node: BabelNode): Signature | null => {
     return {
       type: 'fn',
       name: (node.id && node.id.name) || '[anonymous]',
-      tokens: getTokens(node),
+      fnStatementTypes: getFnStTypes(node),
+      fnStatementTokens: getFnStTokens(node),
     }
   }
   else if (isVariableDeclarator(node) ||
@@ -262,7 +275,12 @@ const fnNodeFilter = (path: string, node: BabelNode): Signature | null => {
     }
     if (name) {
       fnNode.__skip = true
-      return { type: 'fn', name, tokens: getTokens(fnNode) }
+      return {
+        type: 'fn',
+        name,
+        fnStatementTypes: getFnStTypes(fnNode),
+        fnStatementTokens: getFnStTokens(fnNode),
+      }
     }
   }
 
@@ -284,13 +302,18 @@ const collapseFnNamesTree = (
     }
 
     const fnName = fnNamesConcat(fnNameSoFar, fnDesc.data.name)
-    const tokens = fnDesc.data.tokens
-      ? fnDesc.data.tokens
+    const fnStatementTypes = fnDesc.data.fnStatementTypes
+      ? fnDesc.data.fnStatementTypes
       : fnDesc.node
-        ? getTokens(fnDesc.node)
+        ? getFnStTypes(fnDesc.node)
+        : null
+    const fnStatementTokens = fnDesc.data.fnStatementTokens
+      ? fnDesc.data.fnStatementTokens
+      : fnDesc.node
+        ? getFnStTokens(fnDesc.node)
         : null
 
-    const treeElem: Signature = { type: 'fn', name: fnName, tokens }
+    const treeElem: Signature = { type: 'fn', name: fnName, fnStatementTypes, fnStatementTokens }
 
     if (!fnDesc.c) {
       return treeElem
