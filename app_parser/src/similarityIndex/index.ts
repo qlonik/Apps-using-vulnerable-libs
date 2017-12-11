@@ -1,16 +1,10 @@
-import { pathExists, readdir } from 'fs-extra'
+import { pathExists, readdir, readJSON } from 'fs-extra'
 import { flatten, sortBy, unzip } from 'lodash'
 import { join } from 'path'
 import { Signature } from '../extractStructure'
 import { getNamesVersions, libDesc } from '../parseLibraries'
 import { chunk, resolveParallelGroups } from '../utils'
-import {
-  indexValue,
-  jaccardIndex,
-  makeSetOutOfArray,
-  makeSetOutOfFilePath,
-  similarityIndexToLib,
-} from '../utils/set'
+import { indexValue, jaccardIndex, makeSetOutOfArray, similarityIndexToLib, } from '../utils/set'
 
 
 export type Similarity = libDesc & {
@@ -25,16 +19,14 @@ export type JaccardSimilarity = libDesc & {
 
 type mergedSimilarity = Similarity & JaccardSimilarity
 
-export type getSimilaritiesOpts = {
-  signature: Signature,
-  libsPath: string,
-}
-
 export async function getSimilarities(
-  { signature, libsPath }: getSimilaritiesOpts): Promise<{ ourSim: Similarity[], jaccardSim: JaccardSimilarity[] }> {
+  { signature, libsPath }: {
+    signature: Signature[],
+    libsPath: string,
+  }): Promise<{ ourSim: Similarity[], jaccardSim: JaccardSimilarity[] }> {
 
   const libDescriptions = await getNamesVersions(libsPath)
-  const unknownSigSet = makeSetOutOfArray(signature)
+  const unknownFnNamesSet = makeSetOutOfArray(signature.map(v => v.name))
   const similarLazyPromises = libDescriptions.map(({ name, version }) => {
     return async (): Promise<mergedSimilarity[]> => {
       const sigFolder = join(libsPath, name, version, 'sigs')
@@ -45,13 +37,14 @@ export async function getSimilarities(
 
       const simFiles = await readdir(sigFolder)
       const similarityPromises = simFiles.map(async (file: string) => {
-        const libSigSet = await makeSetOutOfFilePath(join(sigFolder, file))
+        const libSignature: Signature[] = await readJSON(join(sigFolder, file))
+        const libFnNamesSet = makeSetOutOfArray(libSignature.map(v => v.name))
         return {
           name,
           version,
           file,
-          similarity: similarityIndexToLib(libSigSet, unknownSigSet),
-          jaccardIndex: jaccardIndex(libSigSet, unknownSigSet),
+          similarity: similarityIndexToLib(libFnNamesSet, unknownFnNamesSet),
+          jaccardIndex: jaccardIndex(libFnNamesSet, unknownFnNamesSet),
         }
       })
       return Promise.all(similarityPromises)
