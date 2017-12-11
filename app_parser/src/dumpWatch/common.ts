@@ -1,6 +1,8 @@
 import { fileDesc } from '../utils/files'
 
 
+export const LOG_NAMESPACE = 'wtchr'
+
 /*
  * Message types
  */

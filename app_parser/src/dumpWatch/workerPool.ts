@@ -4,10 +4,10 @@ import { createPool, Pool } from 'generic-pool'
 import { cpus } from "os"
 import { relative } from "path"
 import { stdoutLog } from '../utils/logger'
-import { LOG_NAMESPACE } from './index'
 import {
   clientMessage,
   clientMessageType,
+  LOG_NAMESPACE,
   messageFrom,
   serverMessage,
   serverMessageType

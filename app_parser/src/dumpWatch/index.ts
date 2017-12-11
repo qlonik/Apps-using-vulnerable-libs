@@ -5,6 +5,7 @@ import { stdoutLog } from '../utils/logger'
 import {
   clientMessage,
   clientMessageType,
+  LOG_NAMESPACE,
   messageFrom,
   serverMessage,
   serverMessageType,
@@ -12,8 +13,6 @@ import {
 import { ChildProcessWithLog, createAutoClosedPool, workerPool } from './workerPool'
 import Observable = require('zen-observable')
 
-
-export const LOG_NAMESPACE = 'wtchr'
 
 const LIB_PATH = '../data/sample_libs'
 const DUMP_PATH = '../data/lib_dump'
