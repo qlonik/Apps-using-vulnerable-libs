@@ -1,7 +1,7 @@
-import { inspect } from 'util'
 import { analyseLibFiles, extractMainFiles, extractSingleLibraryFromDump } from '../parseLibraries'
 import { assertNever } from '../utils'
 import { saveFiles } from '../utils/files'
+import { stdoutLog } from '../utils/logger'
 import { observableFromEventEmitter } from '../utils/observable'
 import {
   clientMessage,
@@ -11,15 +11,9 @@ import {
   serverMessage,
   serverMessageType
 } from './common'
-import debug = require('debug')
 
 
-debug.formatters.I = (v: any): string => {
-  return inspect(v, { depth: Infinity, colors: true, breakLength: 50 })
-    .split('\n').map((l) => '   ' + l).join('\n')
-}
-const log = debug('worker:' + process.pid)
-log.log = console.log.bind(console)
+const log = stdoutLog(`worker:${process.pid}`)
 log.enabled = false
 
 const processLibrary = async ({
