@@ -1,12 +1,11 @@
 import { ChildProcess, fork } from 'child_process'
 import { watch } from 'chokidar'
-import { IDebugger } from 'debug'
 import { createPool } from 'generic-pool'
 import { once } from 'lodash'
 import { cpus } from 'os'
 import { relative } from 'path'
-import { inspect } from 'util'
 import { fileDesc } from '../utils/files'
+import { stdoutLog } from '../utils/logger'
 import { createAutoClosedPool } from '../utils/pool'
 import {
   clientMessage,
@@ -15,7 +14,6 @@ import {
   serverMessage,
   serverMessageType,
 } from './messages'
-import debug = require('debug')
 import Observable = require('zen-observable')
 import Timer = NodeJS.Timer
 
@@ -36,19 +34,6 @@ const WORKER_SHUTDOWN_TIMEOUT = 3 * 1000
 const WORKER_WORKING_SHUTDOWN_TIMEOUT = 30 * 1000
 
 const CONSERVATIVE = false
-
-/*
- * Logger setup
- */
-debug.formatters.I = (v: any): string => {
-  return inspect(v, { depth: Infinity, colors: true, breakLength: 50 })
-    .split('\n').map((l) => '   ' + l).join('\n')
-}
-const stdoutLog = (namespace: string): IDebugger => {
-  const log = debug(namespace)
-  log.log = console.log.bind(console)
-  return log
-}
 
 /*
  * Creating observable out of event emitter to catch all events
