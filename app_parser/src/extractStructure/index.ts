@@ -319,7 +319,7 @@ export async function demo() {
   // 11 functions in the following snippet
   let source = `
   var fn, fn2
-  fn = function() {
+  fn = function () {
     'directive'
     'one more directive'
 
@@ -344,26 +344,30 @@ export async function demo() {
     function a(d = () => ({})) {
       b()
       // console.log('hi')
-      return function hello(param1, param2) {}
+      return function hello(param1, param2) {
+      }
     }
 
     var b = function name(par1, par2 = true) {
       console.log('hello')
-      return () => {}
+      return () => {
+      }
     }
 
     const c = () => ({})
 
-    ;(function() {
+    ;(function () {
       return '123'
     })()
-  }, fn2 = () => {}
+  }, fn2 = () => {
+  }
   fn(function () {
     'use strict'
     // console.log('hi')
   })
   var obj = {
-    insideObj() {}
+    insideObj() {
+    }
   }
   `
 
