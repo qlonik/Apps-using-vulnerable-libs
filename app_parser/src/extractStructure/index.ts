@@ -374,10 +374,10 @@ export async function demo() {
   // `, parsed)
 
   const tree = fnOnlyTreeCreator(parsed)
-  log(stripIndent`
-    Function only tree:
-    %I
-  `, tree)
+  // log(stripIndent`
+  //   Function only tree:
+  //   %I
+  // `, tree)
 
   const collapsedTree = collapseFnNamesTree(tree)
     .sort((a, b) => a.name.localeCompare(b.name))
