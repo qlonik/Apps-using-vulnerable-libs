@@ -316,28 +316,57 @@ export const extractStructure = async function (
 }
 
 export async function demo() {
-  // 10 functions in the following snippet
+  // 11 functions in the following snippet
   let source = `
   var fn, fn2
   fn = function() {
+    'directive'
+    'one more directive'
+
+    for (let i = 0, l = 10; i < l; i++) {
+      if (i % 2 === 0) {
+        continue
+      }
+      else if (i % 3 === 0) {
+        debugger
+        break
+      }
+      else {
+        console.log('bye')
+      }
+    }
+
+    let i = 3
+    do {
+      a(i--)
+    } while (i > 0)
+
     function a(d = () => ({})) {
       b()
       // console.log('hi')
       return function hello(param1, param2) {}
     }
-    var b = function name() {
+
+    var b = function name(par1, par2 = true) {
       console.log('hello')
       return () => {}
     }
+
     const c = () => ({})
+
+    ;(function() {
+      return '123'
+    })()
   }, fn2 = () => {}
   fn(function () {
+    'use strict'
     // console.log('hi')
   })
   var obj = {
     insideObj() {}
   }
   `
+
   const parsed = parse(source)
   // log(stripIndent`
   //   Parsed source tree:
