@@ -351,6 +351,7 @@ export async function demo() {
   `, tree)
 
   const collapsedTree = collapseFnNamesTree(tree)
+    .sort((a, b) => a.name.localeCompare(b.name))
   log(stripIndent`
     Signature for the file:
     %I
