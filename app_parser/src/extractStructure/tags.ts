@@ -1,0 +1,6 @@
+export const PARAM = 'pr'
+export const DIRECTIVE = 'dr'
+export const LITERAL = 'lt'
+export const STATEMENT = 'st'
+export const DECLARATION = 'de'
+export const EXPRESSION = 'ex'
