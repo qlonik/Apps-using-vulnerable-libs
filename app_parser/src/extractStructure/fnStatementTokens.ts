@@ -103,7 +103,8 @@ type EIR = {
 const getLiteralIR = (lit: Literal | null): EIR => {
   const descr: EIR = { title: LITERAL, type: null, pred: null }
 
-  if (lit === null) {}
+  if (lit === null) {
+  }
   else if (isStringLiteral(lit)) {
     descr.type = 'String'
   }
@@ -146,11 +147,10 @@ const getTokensFromLiteral = (lit: Literal | null): Many<string> => {
 
 const getLValIR = (lVal: LVal | null): EIR => {
   const descr: EIR = { title: PARAM, type: null, pred: null }
-  if (lVal === null) {
-    return descr
-  }
 
-  if (isIdentifier(lVal)) {
+  if (lVal === null) {
+  }
+  else if (isIdentifier(lVal)) {
     descr.type = 'Identifier'
     descr.pred = lVal.name
   }
@@ -171,10 +171,14 @@ const getLValIR = (lVal: LVal | null): EIR => {
     descr.type = 'Member'
     descr.pred = objName + '.' + propName
   }
-  else if (isRestElement(lVal)) {}
-  else if (isAssignmentPattern(lVal)) {}
-  else if (isArrayPattern(lVal)) {}
-  else if (isObjectPattern(lVal)) {}
+  else if (isRestElement(lVal)) {
+  }
+  else if (isAssignmentPattern(lVal)) {
+  }
+  else if (isArrayPattern(lVal)) {
+  }
+  else if (isObjectPattern(lVal)) {
+  }
   else {
     assertNever(lVal)
   }
@@ -204,9 +208,12 @@ const getTokensFromLVal = (lVal: LVal[] | LVal | null): Many<string> => {
 const getEIR = (expr: Expression | null): EIR => {
   let descr: EIR = { title: EXPRESSION, type: null, pred: null }
 
-  if (expr === null) {}
-  else if (isArrayExpression(expr)) {}
-  else if (isAssignmentExpression(expr)) {}
+  if (expr === null) {
+  }
+  else if (isArrayExpression(expr)) {
+  }
+  else if (isAssignmentExpression(expr)) {
+  }
   else if (isBinaryExpression(expr)) {
     descr.type = 'Binary'
     descr.pred = `a ${expr.operator} b`
@@ -224,7 +231,8 @@ const getEIR = (expr: Expression | null): EIR => {
       assertNever(expr.callee)
     }
   }
-  else if (isConditionalExpression(expr)) {}
+  else if (isConditionalExpression(expr)) {
+  }
   else if (isFunctionExpression(expr)) {
     const { pred } = getEIR(expr.id)
     descr.type = 'Function'
@@ -237,7 +245,6 @@ const getEIR = (expr: Expression | null): EIR => {
     descr.type = type
     descr.pred = pred
   }
-
   else if (isStringLiteral(expr) ||
            isNumericLiteral(expr) ||
            isBooleanLiteral(expr) ||
@@ -249,33 +256,53 @@ const getEIR = (expr: Expression | null): EIR => {
     descr.title = title
     descr.type = type
   }
-  else if (isLogicalExpression(expr)) {}
-  else if (isNewExpression(expr)) {}
+  else if (isLogicalExpression(expr)) {
+  }
+  else if (isNewExpression(expr)) {
+  }
   else if (isObjectExpression(expr)) {
     descr.type = 'Object'
   }
-  else if (isSequenceExpression(expr)) {}
-  else if (isThisExpression(expr)) {}
-  else if (isUnaryExpression(expr)) {}
+  else if (isSequenceExpression(expr)) {
+  }
+  else if (isThisExpression(expr)) {
+  }
+  else if (isUnaryExpression(expr)) {
+  }
   else if (isUpdateExpression(expr)) {
     descr.type = 'Update'
     descr.pred = expr.prefix ? `${expr.operator}a` : `a${expr.operator}`
   }
-  else if (isArrowFunctionExpression(expr)) {}
-  else if (isClassExpression(expr)) {}
-  else if (isMetaProperty(expr)) {}
-  else if (isSuper(expr)) {}
-  else if (isTaggedTemplateExpression(expr)) {}
-  else if (isYieldExpression(expr)) {}
-  else if (isTypeCastExpression(expr)) {}
-  else if (isJSXElement(expr)) {}
-  else if (isJSXEmptyExpression(expr)) {}
-  else if (isJSXIdentifier(expr)) {}
-  else if (isJSXMemberExpression(expr)) {}
-  else if (isParenthesizedExpression(expr)) {}
-  else if (isAwaitExpression(expr)) {}
-  else if (isBindExpression(expr)) {}
-  else if (isDoExpression(expr)) {}
+  else if (isArrowFunctionExpression(expr)) {
+  }
+  else if (isClassExpression(expr)) {
+  }
+  else if (isMetaProperty(expr)) {
+  }
+  else if (isSuper(expr)) {
+  }
+  else if (isTaggedTemplateExpression(expr)) {
+  }
+  else if (isYieldExpression(expr)) {
+  }
+  else if (isTypeCastExpression(expr)) {
+  }
+  else if (isJSXElement(expr)) {
+  }
+  else if (isJSXEmptyExpression(expr)) {
+  }
+  else if (isJSXIdentifier(expr)) {
+  }
+  else if (isJSXMemberExpression(expr)) {
+  }
+  else if (isParenthesizedExpression(expr)) {
+  }
+  else if (isAwaitExpression(expr)) {
+  }
+  else if (isBindExpression(expr)) {
+  }
+  else if (isDoExpression(expr)) {
+  }
   else {
     assertNever(expr)
   }
@@ -314,14 +341,16 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
   else if (isDebuggerStatement(st)) {
     return `${STATEMENT}:Debugger`
   }
-  else if (isDoWhileStatement(st)) {}
+  else if (isDoWhileStatement(st)) {
+  }
   else if (isEmptyStatement(st)) {
     return []
   }
   else if (isExpressionStatement(st)) {
     return getTokensFromExpression(st.expression)
   }
-  else if (isForInStatement(st)) {}
+  else if (isForInStatement(st)) {
+  }
   else if (isForStatement(st)) {
     return [`${STATEMENT}:For`]
       .concat(isExpression(st.init)
@@ -340,11 +369,16 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
       .concat(getTokensFromStatement(st.consequent))
       .concat(getTokensFromStatement(st.alternate))
   }
-  else if (isLabeledStatement(st)) {}
-  else if (isReturnStatement(st)) {}
-  else if (isSwitchStatement(st)) {}
-  else if (isThrowStatement(st)) {}
-  else if (isTryStatement(st)) {}
+  else if (isLabeledStatement(st)) {
+  }
+  else if (isReturnStatement(st)) {
+  }
+  else if (isSwitchStatement(st)) {
+  }
+  else if (isThrowStatement(st)) {
+  }
+  else if (isTryStatement(st)) {
+  }
   else if (isVariableDeclaration(st)) {
     return st.declarations.map((declaration) => {
       const id = getLValIR(declaration.id).pred
@@ -354,23 +388,38 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
       return `${DECLARATION}:Variable[${id} = ${init}]`
     })
   }
-  else if (isWhileStatement(st)) {}
-  else if (isWithStatement(st)) {}
-  else if (isClassDeclaration(st)) {}
-  else if (isExportAllDeclaration(st)) {}
-  else if (isExportDefaultDeclaration(st)) {}
-  else if (isExportNamedDeclaration(st)) {}
-  else if (isForOfStatement(st)) {}
-  else if (isImportDeclaration(st)) {}
-
-  else if (isDeclareClass(st)) {}
-  else if (isDeclareFunction(st)) {}
-  else if (isDeclareInterface(st)) {}
-  else if (isDeclareModule(st)) {}
-  else if (isDeclareTypeAlias(st)) {}
-  else if (isDeclareVariable(st)) {}
-  else if (isInterfaceDeclaration(st)) {}
-  else if (isTypeAlias(st)) {}
+  else if (isWhileStatement(st)) {
+  }
+  else if (isWithStatement(st)) {
+  }
+  else if (isClassDeclaration(st)) {
+  }
+  else if (isExportAllDeclaration(st)) {
+  }
+  else if (isExportDefaultDeclaration(st)) {
+  }
+  else if (isExportNamedDeclaration(st)) {
+  }
+  else if (isForOfStatement(st)) {
+  }
+  else if (isImportDeclaration(st)) {
+  }
+  else if (isDeclareClass(st)) {
+  }
+  else if (isDeclareFunction(st)) {
+  }
+  else if (isDeclareInterface(st)) {
+  }
+  else if (isDeclareModule(st)) {
+  }
+  else if (isDeclareTypeAlias(st)) {
+  }
+  else if (isDeclareVariable(st)) {
+  }
+  else if (isInterfaceDeclaration(st)) {
+  }
+  else if (isTypeAlias(st)) {
+  }
   else {
     assertNever(st)
   }
