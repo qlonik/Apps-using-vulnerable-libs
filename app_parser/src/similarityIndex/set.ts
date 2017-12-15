@@ -1,5 +1,5 @@
 import { readJSON } from 'fs-extra'
-import { curry } from 'lodash'
+import { clone, curry, pullAt, sortedIndexOf } from 'lodash'
 
 
 export function isSuperset<T>(a: Set<T>, b: Set<T>): boolean {
@@ -53,6 +53,45 @@ export const similarityIndexToLib = curry(<T>(lib: Set<T>, unknown: Set<T>): ind
   const den = lib.size
   return { val: num / den, num, den }
 })
+
+
+/**
+ * This function does not care about what elements in array represent. It just assumes that elements
+ * in both arrays have the same semantic. This function will find
+ * 'intersection' of two arrays (including repeating elements) and rest of elements in both arrays.
+ * This function returns variation of Jaccard index which is not made for sets, but made for
+ * arrays, which might have repeating elements.
+ *
+ * <b>NOTE:</b> elements in arrays have to be sorted
+ * <b>NOTE:</b> elements in arrays will be compared with '===' for equality.
+ */
+export const jaccardLikeForSortedArr = <T>(a: T[], b: T[]): indexValue => {
+
+  const aCloned = clone(a)
+  const aRest = [] // remaining elements
+  const intersection = []
+  const bCloned = clone(b) // remaining elements will be here after for-loop is done
+
+  for (let el of aCloned) {
+    const i = sortedIndexOf(bCloned, el)
+    if (i === -1) {
+      aRest.push(el)
+    }
+    else {
+      intersection.push(el)
+      pullAt(bCloned, i)
+    }
+  }
+
+  const num = intersection.length
+  const den = aRest.length + intersection.length + bCloned.length
+
+  return {
+    val: num / den,
+    num,
+    den,
+  }
+}
 
 
 export async function makeSetOutOfFilePath(filePath: string): Promise<Set<string>> {
