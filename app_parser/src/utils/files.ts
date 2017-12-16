@@ -41,11 +41,7 @@ export const myWriteJSON = async function (
   return await writeJSON(file, content, opts)
 }
 
-const saveOneFile = async (
-  fileDesc: fileDescOp,
-  {
-    conservative = true,
-  }: opts = {}): Promise<fileDesc> => {
+const saveOneFile = async (fileDesc: fileDescOp): Promise<fileDesc> => {
 
   const { cwd, dst } = fileDesc
   if (!fileDesc.type) {
@@ -56,7 +52,7 @@ const saveOneFile = async (
   }
 
   const dest = join(cwd, dst)
-  const destExists = conservative && await pathExists(dest)
+  const destExists = fileDesc.conservative && await pathExists(dest)
   if (destExists) {
     return { cwd, dst }
   }
@@ -100,7 +96,6 @@ const saveOneFile = async (
 export async function saveFiles(
   files: fileDescOp | fileDescOp[] | Promise<fileDescOp> | Promise<fileDescOp[]>,
   {
-    conservative = true,
     chunkLimit,
     chunkSize,
   }: opts = {}): Promise<fileDesc[]> {
@@ -108,7 +103,7 @@ export async function saveFiles(
   files = await files
 
   if (!Array.isArray(files)) {
-    return [await saveOneFile(files, { conservative })]
+    return [await saveOneFile(files)]
   }
 
   if (!files.length) {
@@ -116,7 +111,7 @@ export async function saveFiles(
   }
 
   const lazyFilesSaved = files.map((file) => {
-    return async () => saveOneFile(file, { conservative })
+    return async () => saveOneFile(file)
   })
   return await resolveAllOrInParallel(lazyFilesSaved, { chunkLimit, chunkSize })
 }
