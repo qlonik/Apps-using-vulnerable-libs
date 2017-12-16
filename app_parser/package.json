@@ -7,7 +7,7 @@
     "build": "tsc",
     "clean": "rm -rf lib",
     "clean:build": "npm run clean && npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run build && npx -n \"$NODE_DEBUG_OPTION\" nyc ava",
     "start": "npm run build && time node $NODE_DEBUG_OPTION lib/index.js",
     "parseJSON": "npm run build && time node $NODE_DEBUG_OPTION lib/parseJSON.js",
     "moveApps": "npm run build && time node $NODE_DEBUG_OPTION lib/appMover.js",
@@ -48,5 +48,22 @@
     "zen-observable": "^0.6.0"
   },
   "devDependencies": {
+    "ava": "^0.24.0",
+    "nyc": "^11.3.0"
+  },
+  "ava": {
+    "files": [
+      "lib/**/*spec.js"
+    ],
+    "source": [
+      "src/**/*.ts"
+    ],
+    "verbose": true
+  },
+  "nyc": {
+    "reporter": [
+      "html",
+      "text"
+    ]
   }
 }
