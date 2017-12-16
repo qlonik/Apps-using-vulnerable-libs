@@ -53,7 +53,7 @@
   },
   "ava": {
     "files": [
-      "lib/**/*spec.js"
+      "lib/**/*[sS]pec.js"
     ],
     "source": [
       "src/**/*.ts"
