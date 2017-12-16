@@ -24,7 +24,6 @@
     "@types/fs-extra": "^4.0.5",
     "@types/generic-pool": "^3.1.0",
     "@types/jsdom": "^11.0.4",
-    "@types/left-pad": "^1.1.2",
     "@types/lodash": "^4.14.85",
     "@types/node": "^8.0.53",
     "@types/request": "^2.0.8",
