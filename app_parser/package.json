@@ -5,9 +5,11 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
+    "watch:build": "tsc --watch",
     "clean": "rm -rf lib",
     "clean:build": "npm run clean && npm run build",
     "test": "npm run build && npx -n \"$NODE_DEBUG_OPTION\" nyc ava",
+    "watch:test": "ava --watch",
     "start": "npm run build && time node $NODE_DEBUG_OPTION lib/index.js",
     "parseJSON": "npm run build && time node $NODE_DEBUG_OPTION lib/parseJSON.js",
     "moveApps": "npm run build && time node $NODE_DEBUG_OPTION lib/appMover.js",
