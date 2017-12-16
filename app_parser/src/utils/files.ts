@@ -16,7 +16,10 @@ export enum fileOp {
   noop = 'noop',
 }
 
-export type fileDescOp = fileDesc & ({
+export type fileDescOp = fileDesc & {
+  // opts
+  conservative: boolean,
+} & ({
   type: fileOp.copy | fileOp.move,
   src: string,
 } | {
