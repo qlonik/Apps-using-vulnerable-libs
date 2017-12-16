@@ -61,6 +61,7 @@
     "verbose": true
   },
   "nyc": {
+    "all": true,
     "reporter": [
       "html",
       "text"
