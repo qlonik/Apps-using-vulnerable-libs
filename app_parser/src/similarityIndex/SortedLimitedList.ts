@@ -9,7 +9,7 @@ export class SortedLimitedList<T> {
   private limit = LIMIT
   private finished = false
 
-  constructor({ predicate, limit }: { predicate?: ValueIteratee<T>, limit?: number }) {
+  constructor({ predicate, limit }: { predicate?: ValueIteratee<T>, limit?: number } = {}) {
     if (predicate) {
       this.predicate = predicate
     }
