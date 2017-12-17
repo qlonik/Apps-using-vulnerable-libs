@@ -5,6 +5,10 @@ import debug = require('debug')
 /*
  * Logger setup
  */
+debug.formatters.i = (v: any): string => {
+  return '   ' + inspect(v, { depth: Infinity, colors: true })
+    .split('\n').map(s => s.trim()).join(' ');
+}
 debug.formatters.I = (v: any): string => {
   return inspect(v, { depth: Infinity, colors: true, breakLength: 50 })
     .split('\n').map((l) => '   ' + l).join('\n')
