@@ -44,22 +44,14 @@ export const myWriteJSON = async function (
 const saveOneFile = async (fileDesc: fileDescOp): Promise<fileDesc> => {
 
   const { cwd, dst } = fileDesc
-  if (!fileDesc.type) {
-    return { cwd, dst }
-  }
-  if (fileDesc.type === fileOp.noop) {
-    return { cwd, dst }
-  }
-
   const dest = join(cwd, dst)
-  const destExists = fileDesc.conservative && await pathExists(dest)
-  if (destExists) {
+  if (!fileDesc.type
+      || (fileDesc.type === fileOp.noop)
+      || (fileDesc.conservative && await pathExists(dest))) {
+
     return { cwd, dst }
   }
-
-  const destDir = dirname(dest)
-  await ensureDir(destDir)
-
+  await ensureDir(dirname(dest))
   if (fileDesc.type === fileOp.json) {
     const { json } = fileDesc
     await myWriteJSON({ content: json, file: dest })
@@ -68,23 +60,18 @@ const saveOneFile = async (fileDesc: fileDescOp): Promise<fileDesc> => {
     const { text } = fileDesc
     await writeFile(dest, text)
   }
-  else if ((fileDesc.type === fileOp.move || fileDesc.type === fileOp.copy)) {
-    const { src } = fileDesc
-    const sorc = join(cwd, src)
+  else if (fileDesc.type === fileOp.copy
+           || fileDesc.type === fileOp.move) {
 
     let operation: (src: string, dest: string, opts?: object) => Promise<void> = copy
-    switch (fileDesc.type) {
-      case fileOp.copy:
-        operation = copy
-        break
-      case fileOp.move:
-        operation = move
-        break
-      default:
-        assertNever(fileDesc.type)
+    if (fileDesc.type === fileOp.copy) {
+      operation = copy
     }
-
-    await operation(sorc, dest)
+    else if (fileDesc.type === fileOp.move) {
+      operation = move
+    }
+    const src = join(cwd, fileDesc.src)
+    await operation(src, dest)
   }
   else {
     assertNever(fileDesc.type)
