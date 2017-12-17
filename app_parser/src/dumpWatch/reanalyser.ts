@@ -1,5 +1,6 @@
 import { oneLine } from 'common-tags'
 import { getNamesVersions } from '../parseLibraries'
+import { isInBlacklist } from '../pkgBlacklist'
 import { onelineUtilInspect, stdoutLog } from '../utils/logger'
 import {
   clientMessage,
@@ -78,6 +79,11 @@ async function main() {
   log('started')
   const nameVersions = await getNamesVersions(LIB_PATH)
   const analysisPromises = nameVersions.map(({ name, version }) => {
+    if (isInBlacklist({ name, version })) {
+      log('got blacklisted %o, skipping...', `${name}@${version}`)
+      return Promise.resolve(null)
+    }
+
     return useExecutorsPool(reanalyseLibs({ libsPath: LIB_PATH, name, version }))
   })
   const analysis = await Promise.all(analysisPromises)
