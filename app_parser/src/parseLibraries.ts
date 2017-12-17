@@ -202,7 +202,7 @@ export async function extractMainFiles(
       }
       return acc
     }, <string[]>[])
-    .map(async (item) => await pathExists(join(libPath, item)) ? item : null)
+    .map(async (item) => await pathExists(join(libPath, item)) ? item : '')
 
   return <fileDescOp[]>(<string[]>await Promise.all(existingMainFilesLazy))
     .filter((el) => !!el)
