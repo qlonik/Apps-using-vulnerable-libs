@@ -16,15 +16,13 @@ import {
 const log = stdoutLog(`worker:${process.pid}`)
 log.enabled = false
 
-const processLibrary = async ({
-  filename,
-  libsPath,
-  dumpPath,
-}: {
-  filename: string,
-  libsPath: string,
-  dumpPath: string,
-}): Promise<processingResult> => {
+const processLibrary = async (
+  { filename, libsPath, dumpPath }: {
+    filename: string,
+    libsPath: string,
+    dumpPath: string,
+  }): Promise<processingResult> => {
+
   log('got %o', filename)
 
   let name
