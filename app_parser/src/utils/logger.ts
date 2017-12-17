@@ -14,3 +14,8 @@ export const stdoutLog = (namespace: string): IDebugger => {
   log.log = console.log.bind(console)
   return log
 }
+
+export const onelineUtilInspect = (v: any): string => {
+  return inspect(v, { colors: true })
+    .split('\n').map(s => s.trim()).join(' ')
+}
