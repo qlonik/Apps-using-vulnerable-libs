@@ -1,12 +1,12 @@
 import { watch } from 'chokidar'
 import { once } from 'lodash'
-import { fileDesc } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
 import {
   clientMessage,
   clientMessageType,
   LOG_NAMESPACE,
   messageFrom,
+  processingResult,
   serverMessage,
   serverMessageType,
 } from './common'
@@ -75,8 +75,6 @@ const processLibrary = (
       libsPath,
       filename,
     })
-
-    type processingResult = { filename: string, main?: fileDesc[], analysis?: fileDesc[] }
 
     const { main, analysis } = await new Promise<processingResult>(((resolve, reject) => {
       worker.once('message', (msg: clientMessage) => {
