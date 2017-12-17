@@ -17,16 +17,17 @@ export enum serverMessageType {
   shutdown,
 }
 
-export type serverMessage = { from: messageFrom.server } & ({
-  type: serverMessageType.startup,
-} | {
-  type: serverMessageType.shutdown,
-} | {
-  type: serverMessageType.process,
+export type serverMessage = { from: messageFrom.server } & (
+  { type: serverMessageType.startup } |
+  { type: serverMessageType.shutdown } |
+  ({ type: serverMessageType.process } & processRequest)
+  )
+
+export type processRequest = {
   libsPath: string,
   dumpPath: string,
   filename: string,
-})
+}
 
 export enum clientMessageType {
   startupDone,
@@ -34,13 +35,11 @@ export enum clientMessageType {
   delayShutdown,
 }
 
-export type clientMessage = { from: messageFrom.client } & ({
-  type: clientMessageType.delayShutdown,
-} | ({
-  type: clientMessageType.processingResult
-} & processingResult) | {
-  type: clientMessageType.startupDone,
-})
+export type clientMessage = { from: messageFrom.client } & (
+  { type: clientMessageType.delayShutdown } |
+  ({ type: clientMessageType.processingResult } & processingResult) |
+  { type: clientMessageType.startupDone }
+  )
 
 export type processingResult = {
   filename: string,
