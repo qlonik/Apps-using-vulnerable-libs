@@ -171,7 +171,12 @@ export async function extractMainFiles(
   if (conservative && await pathExists(libMainP)) {
     return (await readdir(libMainP))
       .sort()
-      .map((f): fileDescOp => ({ type: fileOp.noop, cwd: libPath, dst: join('mains', f) }))
+      .map((f): fileDescOp => ({
+        type: fileOp.noop,
+        cwd: libPath,
+        dst: join('mains', f),
+        conservative,
+      }))
   }
 
   let potentialMainFiles = await tryAsBowerPkg(libPackageP)
@@ -211,6 +216,7 @@ export async function extractMainFiles(
       cwd: libPath,
       src,
       dst: `mains/${leftPad(i)}.js`,
+      conservative,
     }))
 }
 
@@ -224,7 +230,7 @@ async function analyseOneLibFile(
   const content = await readFile(fileP, 'utf-8')
   const signature = await extractStructure({ content })
 
-  return { type: fileOp.json, cwd, dst: destSig, json: signature }
+  return { type: fileOp.json, cwd, dst: destSig, json: signature, conservative }
 }
 
 export async function analyseLibFiles(
