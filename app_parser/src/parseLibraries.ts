@@ -171,7 +171,7 @@ export async function extractMainFiles(
   if (conservative && await pathExists(libMainP)) {
     return (await readdir(libMainP))
       .sort()
-      .map((f) => (<fileDescOp>{ type: fileOp.noop, cwd: libPath, dst: join('mains', f) }))
+      .map((f): fileDescOp => ({ type: fileOp.noop, cwd: libPath, dst: join('mains', f) }))
   }
 
   let potentialMainFiles = await tryAsBowerPkg(libPackageP)
@@ -204,9 +204,14 @@ export async function extractMainFiles(
     }, <string[]>[])
     .map(async (item) => await pathExists(join(libPath, item)) ? item : '')
 
-  return <fileDescOp[]>(<string[]>await Promise.all(existingMainFilesLazy))
+  return (await Promise.all(existingMainFilesLazy))
     .filter((el) => !!el)
-    .map((src, i) => ({ type: fileOp.copy, cwd: libPath, src, dst: `mains/${leftPad(i)}.js` }))
+    .map((src, i): fileDescOp => ({
+      type: fileOp.copy,
+      cwd: libPath,
+      src,
+      dst: `mains/${leftPad(i)}.js`,
+    }))
 }
 
 async function analyseOneLibFile(
