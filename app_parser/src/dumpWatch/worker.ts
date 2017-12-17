@@ -1,3 +1,4 @@
+import { stripIndent } from 'common-tags'
 import { analyseLibFiles, extractMainFiles, extractSingleLibraryFromDump } from '../parseLibraries'
 import { assertNever } from '../utils'
 import { saveFiles } from '../utils/files'
@@ -40,13 +41,13 @@ const processLibrary = async (
   const main = await saveFiles(extractMainFiles({ libsPath, name, version }))
   const analysis = await saveFiles(analyseLibFiles(main))
 
-  log([
-    'finished %o' + (main.length ? '' : ' (no main files found!!!)'),
-    '   main files:',
-    '%I',
-    '   analysis files:',
-    '%I'
-  ].join('\n'), filename, main, analysis)
+  log(stripIndent`
+    finished %o${main.length ? '' : ' (no main files found!!!)'}
+       main files:
+    %I
+       analysis files:
+    %I
+  `, filename, main, analysis)
 
   return { filename, main, analysis }
 }
