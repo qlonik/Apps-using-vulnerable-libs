@@ -82,7 +82,7 @@ if (process.send) {
       next(msg: serverMessage) {
         log('Received %o msg', serverMessageType[msg.type])
         if (msg.type === serverMessageType.startup) {
-          replyToParent(<clientMessage>{
+          replyToParent({
             from: messageFrom.client,
             type: clientMessageType.startupDone,
           })
@@ -91,7 +91,7 @@ if (process.send) {
           const { libsPath, dumpPath, filename } = msg
           processing = processLibrary({ filename, libsPath, dumpPath })
             .then(({ filename, main, analysis }) => {
-              replyToParent(<clientMessage>{
+              replyToParent({
                 from: messageFrom.client,
                 type: clientMessageType.processingResult,
                 filename,
@@ -110,7 +110,7 @@ if (process.send) {
           // it is done performing the work. Therefore the worker will never be
           // requested to finish while it is working.
           else {
-            replyToParent(<clientMessage>{
+            replyToParent({
               from: messageFrom.client,
               type: clientMessageType.delayShutdown,
             })
