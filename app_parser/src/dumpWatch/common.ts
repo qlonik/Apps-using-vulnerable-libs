@@ -19,8 +19,8 @@ export enum serverMessageType {
 
 export type serverMessage = { from: messageFrom.server } & (
   { type: serverMessageType.startup } |
-  { type: serverMessageType.shutdown } |
-  ({ type: serverMessageType.process } & processRequest)
+  ({ type: serverMessageType.process } & processRequest) |
+  { type: serverMessageType.shutdown }
   )
 
 export type processRequest = {
@@ -36,9 +36,9 @@ export enum clientMessageType {
 }
 
 export type clientMessage = { from: messageFrom.client } & (
-  { type: clientMessageType.delayShutdown } |
+  { type: clientMessageType.startupDone } |
   ({ type: clientMessageType.processingResult } & processingResult) |
-  { type: clientMessageType.startupDone }
+  { type: clientMessageType.delayShutdown }
   )
 
 export type processingResult = {
