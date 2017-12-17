@@ -57,15 +57,12 @@ const useExecutorsPool = createAutoClosedPool(workerPool)
 /*
  * function performed by each executor
  */
-const processLibrary = ({
-  filename,
-  libsPath,
-  dumpPath,
-}: {
-  filename: string,
-  libsPath: string,
-  dumpPath: string,
-}) => {
+const processLibrary = (
+  { filename, libsPath, dumpPath }: {
+    filename: string,
+    libsPath: string,
+    dumpPath: string,
+  }) => {
 
   return async (worker: ChildProcessWithLog) => {
 
