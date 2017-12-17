@@ -1,5 +1,10 @@
-import { map, sortBy } from 'lodash'
+import { find, map, sortBy } from 'lodash'
+import { libDesc } from './parseLibraries'
+import { stdoutLog } from './utils/logger'
 
+
+const NAMESPACE = 'pkg.blacklist'
+const log = stdoutLog(NAMESPACE)
 
 export enum COMMENTS {
   oldArch = 'old archive format',
@@ -200,3 +205,19 @@ export const blacklist = sortBy(
     }
     return e
   }), ['name'])
+
+export const isInBlacklist = ({ name, version: v }: libDesc): string[] | boolean => {
+  const lib = find(blacklist, { name })
+  if (!lib) {
+    return false
+  }
+  if (lib.versions === '*') {
+    return true
+  }
+
+  const version = find(lib.versions, { v })
+  if (!version) {
+    return false
+  }
+  return version.comment
+}
