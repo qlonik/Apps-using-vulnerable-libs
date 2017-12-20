@@ -69,7 +69,7 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
         const scriptLocation = join(scriptFolder, 'libDesc.js')
         const infoFileLocation = join(scriptFolder, 'info.json')
         const fnSignFilePath = join(scriptFolder, 'libStructure.json')
-        const allSimilaritiesFilePath = join(scriptFolder, 'all-sims.json')
+        const similaritiesFilePath = join(scriptFolder, 'similarities.json')
 
         /**
          * Important object
@@ -138,10 +138,7 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
         await Promise.all([
           myWriteJSON({ file: infoFileLocation, content: infoObject }),
           myWriteJSON({ file: fnSignFilePath, content: signature }),
-          myWriteJSON({
-            file: allSimilaritiesFilePath,
-            content: sims,
-          }),
+          myWriteJSON({ file: similaritiesFilePath, content: sims }),
         ])
       }
     })
