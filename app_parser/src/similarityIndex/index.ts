@@ -35,8 +35,8 @@ export async function getSimilarities(
         return <mergedSimilarity[]>[]
       }
 
-      const simFiles = await readdir(sigFolder)
-      const similarityPromises = simFiles.map(async (file: string) => {
+      const sigFiles = await readdir(sigFolder)
+      const similarityPromises = sigFiles.map(async (file: string) => {
         const libSignature: Signature[] = await readJSON(join(sigFolder, file))
         const libFnNamesSet = makeSetOutOfArray(libSignature.map(v => v.name))
         return {
