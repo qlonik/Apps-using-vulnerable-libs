@@ -1,11 +1,10 @@
 import { copy, ensureDir, mkdirp, move, outputFile, pathExists, readFile } from 'fs-extra'
 import { JSDOM } from 'jsdom'
-import { take } from 'lodash'
 import { join } from 'path'
 import { URL } from 'url'
 
 import { extractStructure } from '../extractStructure'
-import { getSimilarities, getSimilarityToLibs } from '../similarityIndex'
+import { getSimilarityToLibs } from '../similarityIndex'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import {
@@ -13,7 +12,6 @@ import {
   AppsFolderParserFn,
   getAppsAndSections,
   IsAppTypeFn,
-  LIMIT_SIMILARITIES,
   MoveAppTypeFn,
 } from './index'
 
@@ -71,8 +69,6 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
         const scriptLocation = join(scriptFolder, 'libDesc.js')
         const infoFileLocation = join(scriptFolder, 'info.json')
         const fnSignFilePath = join(scriptFolder, 'libStructure.json')
-        const similaritiesFilePath = join(scriptFolder, 'similarities.json')
-        const jaccardSimilaritiesFilePath = join(scriptFolder, 'similarities-jaccard.json')
         const allSimilaritiesFilePath = join(scriptFolder, 'all-sims.json')
 
         /**
@@ -137,20 +133,11 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
         }
 
         const signature = await extractStructure({ content })
-        const { ourSim, jaccardSim } = await getSimilarities({ signature, libsPath })
         const sims = await getSimilarityToLibs({ signature, libsPath })
 
         await Promise.all([
           myWriteJSON({ file: infoFileLocation, content: infoObject }),
           myWriteJSON({ file: fnSignFilePath, content: signature }),
-          myWriteJSON({
-            file: similaritiesFilePath,
-            content: take(ourSim, LIMIT_SIMILARITIES),
-          }),
-          myWriteJSON({
-            file: jaccardSimilaritiesFilePath,
-            content: take(jaccardSim, LIMIT_SIMILARITIES),
-          }),
           myWriteJSON({
             file: allSimilaritiesFilePath,
             content: sims,
