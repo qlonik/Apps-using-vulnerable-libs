@@ -1,5 +1,5 @@
 import { copy, ensureDir, move, pathExists, writeFile, writeJSON } from 'fs-extra'
-import { dirname, join } from 'path'
+import { dirname, join, resolve } from 'path'
 import { assertNever, opts, resolveAllOrInParallel } from './index'
 
 
@@ -44,7 +44,7 @@ export const myWriteJSON = async function (
 const saveOneFile = async (fileDesc: fileDescOp): Promise<fileDesc> => {
 
   const { cwd, dst } = fileDesc
-  const dest = join(cwd, dst)
+  const dest = resolve(cwd, dst)
   if (!fileDesc.type
       || (fileDesc.type === fileOp.noop)
       || (fileDesc.conservative && await pathExists(dest))) {
@@ -70,7 +70,7 @@ const saveOneFile = async (fileDesc: fileDescOp): Promise<fileDesc> => {
     else if (fileDesc.type === fileOp.move) {
       operation = move
     }
-    const src = join(cwd, fileDesc.src)
+    const src = resolve(cwd, fileDesc.src)
     await operation(src, dest)
   }
   else {
