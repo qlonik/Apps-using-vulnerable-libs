@@ -5,7 +5,7 @@ import { join } from 'path'
 import { URL } from 'url'
 
 import { extractStructure } from '../extractStructure'
-import { getSimilarities } from '../similarityIndex'
+import { getSimilarities, getSimilarityToLibs } from '../similarityIndex'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import {
@@ -73,6 +73,7 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
         const fnSignFilePath = join(scriptFolder, 'libStructure.json')
         const similaritiesFilePath = join(scriptFolder, 'similarities.json')
         const jaccardSimilaritiesFilePath = join(scriptFolder, 'similarities-jaccard.json')
+        const allSimilaritiesFilePath = join(scriptFolder, 'all-sims.json')
 
         /**
          * Important object
@@ -137,6 +138,7 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
 
         const signature = await extractStructure({ content })
         const { ourSim, jaccardSim } = await getSimilarities({ signature, libsPath })
+        const sims = await getSimilarityToLibs({ signature, libsPath })
 
         await Promise.all([
           myWriteJSON({ file: infoFileLocation, content: infoObject }),
@@ -148,6 +150,10 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
           myWriteJSON({
             file: jaccardSimilaritiesFilePath,
             content: take(jaccardSim, LIMIT_SIMILARITIES),
+          }),
+          myWriteJSON({
+            file: allSimilaritiesFilePath,
+            content: sims,
           }),
         ])
       }
