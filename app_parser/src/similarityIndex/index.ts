@@ -125,15 +125,15 @@ export const librarySimilarityByFunctionStatementTokens = (
       }
 
       // remark: second for loop
-      const topName: nameProb[] = libCopy
+      const topName = libCopy
         .reduce((indexes, { name, fnStatementTokens: libToks }: Signature, libIndex) => {
           if (!libToks) {
             return indexes
           }
 
           // remark: third for loop (inside jaccardLike())
-          return indexes.push({ name, prob: jaccardLike(toks, libToks) })
-        }, new SortedLimitedList({ predicate: (o: nameProb) => -o.prob.val }))
+          return indexes.push({ name, index: libIndex, prob: jaccardLike(toks, libToks) })
+        }, new SortedLimitedList({ predicate: (o: nameProb & { index: number }) => -o.prob.val }))
         .value()
 
       // log('toks: %o', toks)
