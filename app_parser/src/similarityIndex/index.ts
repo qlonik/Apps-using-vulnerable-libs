@@ -1,15 +1,14 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
-import { clone, filter, flatten, head, sortBy, unzip } from 'lodash'
+import { clone, filter, head } from 'lodash'
 import { join } from 'path'
 import { Signature } from '../extractStructure'
 import { getNamesVersions, libDesc } from '../parseLibraries'
-import { chunk, resolveAllOrInParallel, resolveParallelGroups } from '../utils'
+import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
 import {
   indexValue,
   jaccardIndex,
   jaccardLikeForSortedArr,
-  makeSetOutOfArray,
   similarityIndexToLib,
 } from './set'
 import { SortedLimitedList } from './SortedLimitedList'
@@ -329,61 +328,5 @@ export const getSimilarityToLibs = async (
     fnNamesJaccard: fnNamesJaccard.value(),
     fnStTokens: fnStTokens.value(),
     fnStTypes: fnStTypes.value(),
-  }
-}
-
-export async function getSimilarities(
-  { signature, libsPath }: {
-    signature: Signature[],
-    libsPath: string,
-  }): Promise<{ ourSim: Similarity[], jaccardSim: JaccardSimilarity[] }> {
-
-  const libDescriptions = await getNamesVersions(libsPath)
-  const unknownFnNamesSet = makeSetOutOfArray(signature.map(v => v.name))
-  const similarLazyPromises = libDescriptions.map(({ name, version }) => {
-    return async (): Promise<mergedSimilarity[]> => {
-      const sigFolder = join(libsPath, name, version, 'sigs')
-
-      if (!await pathExists(sigFolder)) {
-        return <mergedSimilarity[]>[]
-      }
-
-      const sigFiles = await readdir(sigFolder)
-      const similarityPromises = sigFiles.map(async (file: string) => {
-        const libSignature: Signature[] = await readJSON(join(sigFolder, file))
-        const libFnNamesSet = makeSetOutOfArray(libSignature.map(v => v.name))
-        return {
-          name,
-          version,
-          file,
-          similarity: similarityIndexToLib(libFnNamesSet, unknownFnNamesSet),
-          jaccardIndex: jaccardIndex(libFnNamesSet, unknownFnNamesSet),
-        }
-      })
-      return Promise.all(similarityPromises)
-    }
-  })
-  const similar = await resolveParallelGroups(chunk(similarLazyPromises, 10))
-
-  const twoSimilaritiesZip: [Similarity, JaccardSimilarity][] = flatten(similar)
-    .map(({
-      name,
-      version,
-      file,
-      similarity,
-      jaccardIndex,
-    }: mergedSimilarity): [Similarity, JaccardSimilarity] => {
-
-      return [
-        { name, version, file, similarity },
-        { name, version, file, jaccardIndex },
-      ]
-    })
-  const [similarity, jaccardSimilarity] =
-    <[Similarity[], JaccardSimilarity[]]>unzip(twoSimilaritiesZip)
-
-  return {
-    ourSim: sortBy(similarity, (v: Similarity) => -v.similarity.val),
-    jaccardSim: sortBy(jaccardSimilarity, (v: JaccardSimilarity) => -v.jaccardIndex.val)
   }
 }
