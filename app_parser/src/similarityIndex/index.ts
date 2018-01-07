@@ -141,10 +141,7 @@ export const librarySimilarityByFunctionStatementTokens = (
 
       const topMatch = head(topName)
 
-      if (!topMatch) {
-        return acc
-      }
-      if (topMatch.prob.val === 0) {
+      if (!topMatch || topMatch.prob.val === 0) {
         return acc
       }
 
