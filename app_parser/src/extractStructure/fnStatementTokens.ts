@@ -452,7 +452,7 @@ export const getFnStatementTokens = (node: BabelNode): string[] | null => {
     result = result.concat(getTokensFromBlockStatement(body))
   }
 
-  return result.length ? result.sort() : null
+  return result.sort()
 }
 
 

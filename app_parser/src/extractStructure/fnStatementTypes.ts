@@ -21,6 +21,6 @@ export const getFnStatementTypes = (node: BabelNode): string[] | null => {
       .concat(statements.map(st => `t_${STATEMENT}:${st.type}`))
   }
 
-  return result.length ? result.sort() : null
+  return result.sort()
 }
 
