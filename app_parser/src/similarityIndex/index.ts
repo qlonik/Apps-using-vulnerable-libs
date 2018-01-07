@@ -149,7 +149,6 @@ export const librarySimilarityByFunctionStatementTokens = (
       pullAt(libCopy, index)
       return acc.concat({ name, prob })
     }, <nameProb[]>[])
-    .sort((a, b) => a.name.localeCompare(b.name))
 
   // const similarityToLib = jaccardIndex(
   //   new Set(possibleFnNames.map(v => v.name)),
