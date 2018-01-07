@@ -4,7 +4,7 @@ import {
   intersection,
   isSuperset,
   jaccardIndex,
-  jaccardLikeForSortedArr,
+  jaccardLike,
   similarityIndexToLib,
   union,
 } from './set'
@@ -64,7 +64,7 @@ test('jaccard like for sorted arrays', t => {
   const b = [2, 3, 4]
   const ex = { val: 0.5, num: 2, den: 4 }
 
-  t.deepEqual(ex, jaccardLikeForSortedArr(a, b))
+  t.deepEqual(ex, jaccardLike(a, b))
 })
 
 test('jaccard like for sorted arrays with repeating', t => {
@@ -72,5 +72,5 @@ test('jaccard like for sorted arrays with repeating', t => {
   const b = [2, 2, 3, 4]
   const ex = { val: 0.5, num: 3, den: 6 }
 
-  t.deepEqual(ex, jaccardLikeForSortedArr(a, b))
+  t.deepEqual(ex, jaccardLike(a, b))
 })

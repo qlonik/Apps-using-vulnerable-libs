@@ -8,7 +8,7 @@ import { stdoutLog } from '../utils/logger'
 import {
   indexValue,
   jaccardIndex,
-  jaccardLikeForSortedArr,
+  jaccardLike,
   similarityIndexToLib,
 } from './set'
 import { SortedLimitedList } from './SortedLimitedList'
@@ -89,7 +89,7 @@ export const librarySimilarityByFunctionNames = (
  *       the following:
  *       i.  Create similarity between list of tokens of the element from the unknown signature
  *           array and element from the library signature array. The similarity is created using
- *           {@link jaccardLikeForSortedArr | jaccardLikeForSortedArr()}.
+ *           {@link jaccardLike | jaccardLike()}.
  *       ii. Add the similarity index into SortedLimitedList for this element of the unknown
  *           signature array.
  *    c. After creating SortedLimitedList for this unknown function from signature array, we grab
@@ -100,7 +100,7 @@ export const librarySimilarityByFunctionNames = (
  *    e. Remove this matched function name from the copy of the library signature array.
  * 4. Sort the list of possible function names.
  * 5. Compare the list of possible function names (we just created) with the list of function names
- *    from the library signature using {@link jaccardLikeForSortedArr | jaccardLikeForSortedArr()}.
+ *    from the library signature using {@link jaccardLike | jaccardLike()}.
  * 6. Return this index from step 5 as the similarity index between unknown signature and known
  *    library signature.
  *
@@ -138,8 +138,8 @@ export const librarySimilarityByFunctionStatementTokens = (
             return indexes
           }
 
-          // remark: third for loop (inside jaccardLikeForSortedArr())
-          return indexes.push({ name, prob: jaccardLikeForSortedArr(toks, libToks) })
+          // remark: third for loop (inside jaccardLike())
+          return indexes.push({ name, prob: jaccardLike(toks, libToks) })
         }, new SortedLimitedList({ predicate: (o: nameProb) => -o.prob.val }))
         .value()
 
@@ -175,7 +175,7 @@ export const librarySimilarityByFunctionStatementTokens = (
   //   new Set(possibleFnNames.map(v => v.name)),
   //   new Set(lib.map(v => v.name)),
   // )
-  const similarityToLib = jaccardLikeForSortedArr(
+  const similarityToLib = jaccardLike(
     possibleFnNames.map(v => v.name),
     lib.map(v => v.name),
   )

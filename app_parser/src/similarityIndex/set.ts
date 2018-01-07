@@ -64,7 +64,7 @@ export const similarityIndexToLib = curry(<T>(lib: Set<T>, unknown: Set<T>): ind
  *
  * <b>NOTE:</b> elements in arrays will be compared with '===' for equality.
  */
-export const jaccardLikeForSortedArr = <T>(a: T[], b: T[]): indexValue => {
+export const jaccardLike = <T>(a: T[], b: T[]): indexValue => {
 
   const aCloned = clone(a)
   const aRest = [] // remaining elements
