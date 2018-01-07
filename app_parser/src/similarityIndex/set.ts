@@ -1,4 +1,4 @@
-import { clone, curry, pullAt, sortedIndexOf } from 'lodash'
+import { clone, curry, pullAt } from 'lodash'
 
 
 export function isSuperset<T>(a: Set<T>, b: Set<T>): boolean {
@@ -62,7 +62,6 @@ export const similarityIndexToLib = curry(<T>(lib: Set<T>, unknown: Set<T>): ind
  * arrays, which might have repeating elements.
  * This function will return 1 for two empty arrays.
  *
- * <b>NOTE:</b> elements in arrays have to be sorted
  * <b>NOTE:</b> elements in arrays will be compared with '===' for equality.
  */
 export const jaccardLikeForSortedArr = <T>(a: T[], b: T[]): indexValue => {
@@ -73,7 +72,7 @@ export const jaccardLikeForSortedArr = <T>(a: T[], b: T[]): indexValue => {
   const bRest = clone(b) // remaining elements will be here after for-loop is done
 
   for (let el of aCloned) {
-    const i = sortedIndexOf(bRest, el)
+    const i = bRest.indexOf(el)
     if (i === -1) {
       aRest.push(el)
     }
