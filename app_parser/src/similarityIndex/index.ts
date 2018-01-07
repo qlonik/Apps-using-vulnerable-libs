@@ -148,8 +148,9 @@ export const librarySimilarityByFunctionStatementTokens = (
         return acc
       }
 
-      pullAt(libCopy, topMatch.index)
-      return acc.concat(topMatch)
+      const { name, index, prob } = topMatch
+      pullAt(libCopy, index)
+      return acc.concat({ name, prob })
     }, <nameProb[]>[])
     .sort((a, b) => a.name.localeCompare(b.name))
 
