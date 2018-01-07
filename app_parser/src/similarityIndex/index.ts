@@ -19,13 +19,6 @@ export type Similarity = libDesc & {
   similarity: indexValue,
 }
 
-export type JaccardSimilarity = libDesc & {
-  file: string,
-  jaccardIndex: indexValue,
-}
-
-type mergedSimilarity = Similarity & JaccardSimilarity
-
 export type NewSimilarity = libDesc & {
   file: string,
   fnNamesSim: {
