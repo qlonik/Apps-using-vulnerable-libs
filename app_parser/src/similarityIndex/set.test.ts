@@ -1,7 +1,12 @@
 import { test } from 'ava'
 import {
-  difference, intersection, isSuperset, jaccardIndex, jaccardLikeForSortedArr,
-  similarityIndexToLib, union
+  difference,
+  intersection,
+  isSuperset,
+  jaccardIndex,
+  jaccardLikeForSortedArr,
+  similarityIndexToLib,
+  union,
 } from './set'
 
 
