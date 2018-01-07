@@ -60,6 +60,7 @@ export const similarityIndexToLib = curry(<T>(lib: Set<T>, unknown: Set<T>): ind
  * 'intersection' of two arrays (including repeating elements) and rest of elements in both arrays.
  * This function returns variation of Jaccard index which is not made for sets, but made for
  * arrays, which might have repeating elements.
+ * This function will return 1 for two empty arrays.
  *
  * <b>NOTE:</b> elements in arrays have to be sorted
  * <b>NOTE:</b> elements in arrays will be compared with '===' for equality.
@@ -86,7 +87,8 @@ export const jaccardLikeForSortedArr = <T>(a: T[], b: T[]): indexValue => {
   const den = aRest.length + intersection.length + bCloned.length
 
   return {
-    val: num / den,
+    // den === 0 only happens when both 'a' and 'b' were empty
+    val: den === 0 ? 1 : num / den,
     num,
     den,
   }
