@@ -1,5 +1,5 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
-import { clone, filter, head } from 'lodash'
+import { clone, head, pullAt } from 'lodash'
 import { join } from 'path'
 import { Signature } from '../extractStructure'
 import { getNamesVersions, libDesc } from '../parseLibraries'
@@ -116,7 +116,7 @@ export const librarySimilarityByFunctionStatementTokens = (
   } = {}): indexValue => {
 
   type nameProb = { name: string, prob: indexValue }
-  let libCopy = clone(lib)
+  const libCopy = clone(lib)
   // remark: first for loop
   const possibleFnNames = unknown
     .reduce((acc: nameProb[], { fnStatementTokens: toks }: Signature, unknownIndex) => {
@@ -148,18 +148,7 @@ export const librarySimilarityByFunctionStatementTokens = (
         return acc
       }
 
-      let excluded = false
-      libCopy = filter(libCopy, (o: Signature) => {
-        if (!excluded) {
-          const eq = o.name === topMatch.name
-          if (eq) {
-            excluded = true
-          }
-          return !eq
-        }
-
-        return excluded
-      })
+      pullAt(libCopy, topMatch.index)
       return acc.concat(topMatch)
     }, <nameProb[]>[])
     .sort((a, b) => a.name.localeCompare(b.name))
