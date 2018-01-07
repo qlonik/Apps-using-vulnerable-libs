@@ -1,4 +1,3 @@
-import { readJSON } from 'fs-extra'
 import { clone, curry, pullAt, sortedIndexOf } from 'lodash'
 
 
@@ -91,13 +90,4 @@ export const jaccardLikeForSortedArr = <T>(a: T[], b: T[]): indexValue => {
     num,
     den,
   }
-}
-
-
-export async function makeSetOutOfFilePath(filePath: string): Promise<Set<string>> {
-  return makeSetOutOfArray(await readJSON(filePath))
-}
-
-export function makeSetOutOfArray(arr: string[]): Set<string> {
-  return new Set(arr)
 }
