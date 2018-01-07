@@ -70,21 +70,21 @@ export const jaccardLikeForSortedArr = <T>(a: T[], b: T[]): indexValue => {
   const aCloned = clone(a)
   const aRest = [] // remaining elements
   const intersection = []
-  const bCloned = clone(b) // remaining elements will be here after for-loop is done
+  const bRest = clone(b) // remaining elements will be here after for-loop is done
 
   for (let el of aCloned) {
-    const i = sortedIndexOf(bCloned, el)
+    const i = sortedIndexOf(bRest, el)
     if (i === -1) {
       aRest.push(el)
     }
     else {
       intersection.push(el)
-      pullAt(bCloned, i)
+      pullAt(bRest, i)
     }
   }
 
   const num = intersection.length
-  const den = aRest.length + intersection.length + bCloned.length
+  const den = aRest.length + intersection.length + bRest.length
 
   return {
     // den === 0 only happens when both 'a' and 'b' were empty
