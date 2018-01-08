@@ -102,26 +102,18 @@ type nameProbIndex = nameProb & { index: number }
  *
  * @param unknown
  * @param lib
- * @param name
- * @param version
- * @param file
  * @returns
  */
 export const librarySimilarityByFunctionStatementTokens = (
   { unknown, lib }: {
     unknown: Signature[],
     lib: Signature[],
-  },
-  { name, version, file }: {
-    name?: string,
-    version?: string,
-    file?: string,
-  } = {}): indexValue => {
+  }): indexValue => {
 
   const libCopy = clone(lib)
   // remark: first for loop
   const possibleFnNames = unknown
-    .reduce((acc: nameProb[], { fnStatementTokens: toks }: Signature, unknownIndex) => {
+    .reduce((acc: nameProb[], { fnStatementTokens: toks }: Signature) => {
       if (!toks) {
         return acc
       }
@@ -138,11 +130,7 @@ export const librarySimilarityByFunctionStatementTokens = (
         }, new SortedLimitedList({ predicate: (o: nameProbIndex) => -o.prob.val }))
         .value()
 
-      // log('toks: %o', toks)
-      // log('top indexes:\n%i\n%i\n%i', topName[0], topName[1], topName[2])
-
       const topMatch = head(topName)
-
       if (!topMatch || topMatch.prob.val === 0) {
         const unmatched = { name: '__unmatched__', prob: { val: 1, num: -1, den: -1 } }
         return acc.concat(unmatched)
@@ -153,28 +141,10 @@ export const librarySimilarityByFunctionStatementTokens = (
       return acc.concat({ name, prob })
     }, <nameProb[]>[])
 
-  // const similarityToLib = jaccardIndex(
-  //   new Set(possibleFnNames.map(v => v.name)),
-  //   new Set(lib.map(v => v.name)),
-  // )
-  const similarityToLib = jaccardLike(
+  return jaccardLike(
     possibleFnNames.map(v => v.name),
     lib.map(v => v.name),
   )
-
-  // log('similarity of unknown lib to known lib: %o', similarityToLib)
-  if (possibleFnNames.length) {
-  //   log(stripIndents`
-  //     **** %o %o %o
-  //     -- unknown sig:
-  //       %i
-  //     -- lib sig:
-  //       %i
-  //     -- possible fn names:
-  //       %i
-  //     `, name, version, file, unknown, lib, possibleFnNames)
-  }
-  return similarityToLib
 }
 
 export const librarySimilarityByFunctionStatementTypes = (
@@ -236,8 +206,7 @@ export const getSimilarityToLib = async (
       version,
       file,
       fnNamesSim: librarySimilarityByFunctionNames({ unknown, lib }),
-      fnStTokensSim: librarySimilarityByFunctionStatementTokens({ unknown, lib },
-        { name, version, file }),
+      fnStTokensSim: librarySimilarityByFunctionStatementTokens({ unknown, lib }),
       fnStTypesSim: librarySimilarityByFunctionStatementTypes({ unknown, lib }),
     }
   })
@@ -276,8 +245,7 @@ export const getSimilarityToLibs = async (
   }) => {
 
   const predicate = (s: Similarity) => -s.similarity.val
-  // const libDescr = await getNamesVersions(libsPath)
-  const libDescr = [{ name: 'jquery', version: '2.1.1' }]
+  const libDescr = await getNamesVersions(libsPath)
   const { fnNamesOur, fnNamesJaccard, fnStTokens, fnStTypes } = await libDescr
     .reduce(async (acc, { name, version }) => {
       const { fnNamesOur, fnNamesJaccard, fnStTokens, fnStTypes } = await acc
