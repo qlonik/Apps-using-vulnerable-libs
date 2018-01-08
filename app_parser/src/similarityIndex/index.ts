@@ -68,6 +68,8 @@ export const librarySimilarityByFunctionNames = (
   }
 }
 
+type nameProb = { name: string, prob: indexValue }
+type nameProbIndex = nameProb & { index: number }
 /**
  * This function produces similarity index between two signature based on the function statement
  * tokens.
@@ -116,7 +118,6 @@ export const librarySimilarityByFunctionStatementTokens = (
     file?: string,
   } = {}): indexValue => {
 
-  type nameProb = { name: string, prob: indexValue }
   const libCopy = clone(lib)
   // remark: first for loop
   const possibleFnNames = unknown
@@ -134,7 +135,7 @@ export const librarySimilarityByFunctionStatementTokens = (
 
           // remark: third for loop (inside jaccardLike())
           return indexes.push({ name, index: libIndex, prob: jaccardLike(toks, libToks) })
-        }, new SortedLimitedList({ predicate: (o: nameProb & { index: number }) => -o.prob.val }))
+        }, new SortedLimitedList({ predicate: (o: nameProbIndex) => -o.prob.val }))
         .value()
 
       // log('toks: %o', toks)
