@@ -33,17 +33,29 @@ import { getFnStatementTypes } from './fnStatementTypes'
 const CONCAT_FNS_WITH = ':>>:'
 
 
+/**
+ * Extracted Signature for function
+ *
+ * <i>note:</i> there may be more signature types later on
+ *
+ * @param type - type of the signature. What this signature is for. This object always describes
+ *   signature of a function.
+ * @param name - possible name of function. For signature mechanism based on function names.
+ * @param fnStatementTypes - statement types in the function. For signature mechanism based on
+ *   statement types in the function.
+ * @param fnStatementTokens - tokens extracted from function statements. For signature mechanism
+ *   based on renaming tokens in statements in the function.
+ */
 export type Signature = {
   type: 'fn',
-  // for signature mechanism based on function names
   name: string,
-  // for signature mechanism based on statement types in the function
   fnStatementTypes?: string[] | null,
-  // for signature mechanism based on renaming tokens in statements in the function
   fnStatementTokens?: string[] | null,
 }
 /**
  * @param prop - property name
+ * @param data - custom data
+ * @param node - node of the AST
  * @param c - children
  */
 type TreePath<T> = {
