@@ -87,9 +87,10 @@ export const librarySimilarityByFunctionNames = (
  *           signature array.
  *    c. After creating SortedLimitedList for this unknown function from signature array, we grab
  *       top value from it.
- *    d. If the top match does not exist or if top match probability is equal to 0, then we skip
- *       this unknown function. This function is unmatched. Otherwise, we add this function name
- *       into array of possible function names.
+ *    d. If the top match does not exist or if top match probability is equal to 0, then we mark
+ *       this function as unmatched, by adding special dummy name '__unmatched__' into the array
+ *       of possible function names. Otherwise, we add this function name into array of possible
+ *       function names.
  *    e. Remove this matched function name from the copy of the library signature array.
  * 4. Sort the list of possible function names.
  * 5. Compare the list of possible function names (we just created) with the list of function names
@@ -142,7 +143,8 @@ export const librarySimilarityByFunctionStatementTokens = (
       const topMatch = head(topName)
 
       if (!topMatch || topMatch.prob.val === 0) {
-        return acc
+        const unmatched = { name: '__unmatched__', prob: { val: 1, num: -1, den: -1 } }
+        return acc.concat(unmatched)
       }
 
       const { name, index, prob } = topMatch
