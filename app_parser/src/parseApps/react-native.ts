@@ -42,13 +42,21 @@ export const moveDefinitelyReactNativeApps: MoveAppTypeFn = async function (
 
 export const parseScriptsFromReactNativeApp: AppParserFn = async function (
   { appPath, libsPath },
-  { debugDoLess = false, chunkLimit = 10, chunkSize = 10 }: opts = {}) {
+  {
+    debugDoLess = false,
+    chunkLimit = 10,
+    chunkSize = 10,
+  }: opts = {}) {
 
 }
 
 export const parseScriptsFromReactNativeApps: AppsFolderParserFn = async function (
   { allAppsPath, libsPath },
-  { debugDoLess = false, chunkLimit = 10, chunkSize = 5 }: opts = {}) {
+  {
+    debugDoLess = false,
+    chunkLimit = 10,
+    chunkSize = 5,
+  }: opts = {}) {
 
   const apps = await getAppsAndSections({ allAppsPath })
   const lazyAppAnalysis = apps.map((app) => {

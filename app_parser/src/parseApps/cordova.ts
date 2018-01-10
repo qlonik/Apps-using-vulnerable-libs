@@ -50,7 +50,11 @@ export const moveDefinitelyCordovaApps: MoveAppTypeFn = async function (
 
 export const parseScriptsFromCordovaApp: AppParserFn = async (
   { appPath, libsPath },
-  { debugDoLess = false, chunkLimit = 10, chunkSize = 10 }: opts = {}) => {
+  {
+    debugDoLess = false,
+    chunkLimit = 10,
+    chunkSize = 10,
+  }: opts = {}) => {
 
   const indexHtmlPath = join(appPath, 'extractedJs/index.html')
   const analysisFolderPath = join(appPath, 'jsAnalysis')
