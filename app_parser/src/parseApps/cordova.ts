@@ -1,4 +1,4 @@
-import { copy, ensureDir, mkdirp, move, outputFile, pathExists, readFile } from 'fs-extra'
+import { copy, mkdirp, move, pathExists, readFile } from 'fs-extra'
 import { JSDOM } from 'jsdom'
 import { join } from 'path'
 import { URL } from 'url'
@@ -6,7 +6,7 @@ import { URL } from 'url'
 import { extractStructure } from '../extractStructure'
 import { getSimilarityToLibs } from '../similarityIndex'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
-import { myWriteJSON } from '../utils/files'
+import { fileDescOp, fileOp, saveFiles } from '../utils/files'
 import {
   AppParserFn,
   AppsFolderParserFn,
@@ -54,6 +54,7 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
     debugDoLess = false,
     chunkLimit = 10,
     chunkSize = 10,
+    conservative = true,
   }: opts = {}) => {
 
   const indexHtmlPath = join(appPath, 'extractedJs/index.html')
@@ -67,13 +68,8 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
     return [...scriptTags].map((script: HTMLScriptElement, i) => {
       // for each script tag we do following
       return async () => {
-        const scriptFolder = join(analysisFolderPath, location, leftPad(i))
-        await ensureDir(scriptFolder)
-
-        const scriptLocation = join(scriptFolder, 'libDesc.js')
-        const infoFileLocation = join(scriptFolder, 'info.json')
-        const fnSignFilePath = join(scriptFolder, 'libStructure.json')
-        const similaritiesFilePath = join(scriptFolder, 'similarities.json')
+        const cwd = join(analysisFolderPath, location, leftPad(i))
+        const fileOps: fileDescOp[] = []
 
         /**
          * Important object
@@ -107,7 +103,13 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
           }
 
           if (url.protocol === 'file:') {
-            await copy(url.pathname, scriptLocation)
+            fileOps.push({
+              cwd,
+              dst: 'libDesc.js',
+              type: fileOp.copy,
+              src: url.pathname,
+              conservative,
+            })
             content = await readFile(url.pathname, 'utf-8')
           }
           else if (url.protocol === 'http:' || url.protocol === 'https:') {
@@ -122,7 +124,13 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
             type: 'content',
           }
 
-          await outputFile(scriptLocation, script.text)
+          fileOps.push({
+            cwd,
+            dst: 'libDesc.js',
+            type: fileOp.text,
+            text: script.text,
+            conservative,
+          })
           content = script.text
         }
         else {
@@ -139,11 +147,11 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
         const signature = await extractStructure({ content })
         const sims = await getSimilarityToLibs({ signature, libsPath })
 
-        await Promise.all([
-          myWriteJSON({ file: infoFileLocation, content: infoObject }),
-          myWriteJSON({ file: fnSignFilePath, content: signature }),
-          myWriteJSON({ file: similaritiesFilePath, content: sims }),
-        ])
+        const saved = await saveFiles(fileOps.concat([
+          { cwd, dst: 'info.json', type: fileOp.json, json: infoObject, conservative },
+          { cwd, dst: 'libStructure.json', type: fileOp.json, json: signature, conservative },
+          { cwd, dst: 'similarities.json', type: fileOp.json, json: sims, conservative: false }
+        ]))
       }
     })
   }
