@@ -319,9 +319,6 @@ export const extractStructure = async function (
   if (!content) return []
 
   const parsedContent = parse(content)
-  // const inspectedParsed = utilInspect(parsedContent, { depth: Infinity })
-  // console.log(inspectedParsed)
-
   const fnTree = fnOnlyTreeCreator(parsedContent)
   return collapseFnNamesTree(fnTree)
     .sort((a, b) => a.name.localeCompare(b.name))
