@@ -1,4 +1,4 @@
-import { copy, move, pathExists } from 'fs-extra'
+import { copy, move, pathExists, remove } from 'fs-extra'
 import { join } from 'path'
 import { opts, resolveAllOrInParallel } from '../utils'
 import {
@@ -30,12 +30,17 @@ export const moveDefinitelyReactNativeApps: MoveAppTypeFn = async function (
     }
 
     const dest = join(appTypePath, section, app, 'apktool.decomp')
-    const jsSrc = join(dest, 'assets', 'index.android.bundle')
-    const jsDest = join(dest, '..', 'extractedJs', 'index.android.bundle.js')
-    movePromises.push(async () => {
-      await move(src, dest)
-      await copy(jsSrc, jsDest)
-    })
+    if (await pathExists(dest)) {
+      movePromises.push(async () => remove(src))
+    }
+    else {
+      const jsSrc = join(dest, 'assets', 'index.android.bundle')
+      const jsDest = join(dest, '..', 'extractedJs', 'index.android.bundle.js')
+      movePromises.push(async () => {
+        await move(src, dest)
+        await copy(jsSrc, jsDest)
+      })
+    }
   }
   await resolveAllOrInParallel(movePromises, { chunkLimit, chunkSize })
 }

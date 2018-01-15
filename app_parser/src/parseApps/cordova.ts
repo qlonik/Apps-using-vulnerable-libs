@@ -1,4 +1,4 @@
-import { copy, mkdirp, move, pathExists, readFile } from 'fs-extra'
+import { copy, mkdirp, move, pathExists, readFile, remove } from 'fs-extra'
 import { JSDOM } from 'jsdom'
 import { join } from 'path'
 import { URL } from 'url'
@@ -38,12 +38,17 @@ export const moveDefinitelyCordovaApps: MoveAppTypeFn = async function (
     }
 
     const dest = join(appTypePath, section, app, 'apktool.decomp')
-    const jsSrc = join(dest, 'assets', 'www')
-    const jsDest = join(dest, '..', 'extractedJs')
-    movePromises.push(async () => {
-      await move(src, dest)
-      await copy(jsSrc, jsDest)
-    })
+    if (await pathExists(dest)) {
+      movePromises.push(async () => remove(src))
+    }
+    else {
+      const jsSrc = join(dest, 'assets', 'www')
+      const jsDest = join(dest, '..', 'extractedJs')
+      movePromises.push(async () => {
+        await move(src, dest)
+        await copy(jsSrc, jsDest)
+      })
+    }
   }
   await resolveAllOrInParallel(movePromises, { chunkLimit, chunkSize })
 }
