@@ -5,12 +5,7 @@ import { Signature } from '../extractStructure'
 import { getNamesVersions, libDesc } from '../parseLibraries'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
-import {
-  indexValue,
-  jaccardIndex,
-  jaccardLike,
-  similarityIndexToLib,
-} from './set'
+import { indexValue, jaccardIndex, jaccardLike, similarityIndexToLib } from './set'
 import { SortedLimitedList } from './SortedLimitedList'
 
 
@@ -280,21 +275,22 @@ export const getSimilarityToLibs = async (
   const { fnNamesOur, fnNamesJaccard, fnStTokens, fnStTypes } = await libDescr
     .reduce(async (acc, { name, version }) => {
       const { fnNamesOur, fnNamesJaccard, fnStTokens, fnStTypes } = await acc
-      ;(await getSimilarityToLib({ signature, libsPath, name, version }))
-        .forEach(({
-          name,
-          version,
-          file,
-          fnNamesSim: { ourIndex, jaccardIndex },
-          fnStTokensSim,
-          fnStTypesSim,
-        }) => {
+      const allSimsToLib = await getSimilarityToLib({ signature, libsPath, name, version })
 
-          fnNamesOur.push({ name, version, file, similarity: ourIndex })
-          fnNamesJaccard.push({ name, version, file, similarity: jaccardIndex })
-          fnStTokens.push({ name, version, file, similarity: fnStTokensSim })
-          fnStTypes.push({ name, version, file, similarity: fnStTypesSim })
-        })
+      allSimsToLib.forEach(({
+        name,
+        version,
+        file,
+        fnNamesSim: { ourIndex, jaccardIndex },
+        fnStTokensSim,
+        fnStTypesSim,
+      }) => {
+
+        fnNamesOur.push({ name, version, file, similarity: ourIndex })
+        fnNamesJaccard.push({ name, version, file, similarity: jaccardIndex })
+        fnStTokens.push({ name, version, file, similarity: fnStTokensSim })
+        fnStTypes.push({ name, version, file, similarity: fnStTypesSim })
+      })
 
       return { fnNamesOur, fnNamesJaccard, fnStTokens, fnStTypes }
     }, Promise.resolve({
