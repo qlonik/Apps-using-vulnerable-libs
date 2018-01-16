@@ -299,10 +299,9 @@ export const getSimilarityToLibs = async (
   })
   await resolveAllOrInParallel(lazySimilarityPromises)
 
-  return {
-    fnNamesOur: sllOfSims.fnNamesOur.value(),
-    fnNamesJaccard: sllOfSims.fnNamesJaccard.value(),
-    fnStTokens: sllOfSims.fnStTokens.value(),
-    fnStTypes: sllOfSims.fnStTypes.value(),
+  const result: { [key: string]: Similarity[] } = {}
+  for (let simName of Object.keys(sllOfSims)) {
+    result[simName] = sllOfSims[simName].value()
   }
+  return result
 }
