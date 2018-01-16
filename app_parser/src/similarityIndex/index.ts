@@ -271,13 +271,18 @@ export const getSimilarityToLibs = async (
   }) => {
 
   const predicate = (s: Similarity) => -s.similarity.val
-  const libDescr = await getNamesVersions(libsPath)
-  const { fnNamesOur, fnNamesJaccard, fnStTokens, fnStTypes } = await libDescr
-    .reduce(async (acc, { name, version }) => {
-      const { fnNamesOur, fnNamesJaccard, fnStTokens, fnStTypes } = await acc
-      const allSimsToLib = await getSimilarityToLib({ signature, libsPath, name, version })
+  const sllOfSims: { [key: string]: SortedLimitedList<Similarity> } = {
+    fnNamesOur: new SortedLimitedList({ predicate }),
+    fnNamesJaccard: new SortedLimitedList({ predicate }),
+    fnStTokens: new SortedLimitedList({ predicate }),
+    fnStTypes: new SortedLimitedList({ predicate }),
+  }
 
-      allSimsToLib.forEach(({
+  const libDescr = await getNamesVersions(libsPath)
+  const lazySimilarityPromises = libDescr.map(({ name, version }) => {
+    return async () => {
+      const sims = await getSimilarityToLib({ signature, libsPath, name, version })
+      sims.forEach(({
         name,
         version,
         file,
@@ -285,25 +290,19 @@ export const getSimilarityToLibs = async (
         fnStTokensSim,
         fnStTypesSim,
       }) => {
-
-        fnNamesOur.push({ name, version, file, similarity: ourIndex })
-        fnNamesJaccard.push({ name, version, file, similarity: jaccardIndex })
-        fnStTokens.push({ name, version, file, similarity: fnStTokensSim })
-        fnStTypes.push({ name, version, file, similarity: fnStTypesSim })
+        sllOfSims.fnNamesOur.push({ name, version, file, similarity: ourIndex })
+        sllOfSims.fnNamesJaccard.push({ name, version, file, similarity: jaccardIndex })
+        sllOfSims.fnStTokens.push({ name, version, file, similarity: fnStTokensSim })
+        sllOfSims.fnStTypes.push({ name, version, file, similarity: fnStTypesSim })
       })
-
-      return { fnNamesOur, fnNamesJaccard, fnStTokens, fnStTypes }
-    }, Promise.resolve({
-      fnNamesOur: new SortedLimitedList({ predicate }),
-      fnNamesJaccard: new SortedLimitedList({ predicate }),
-      fnStTokens: new SortedLimitedList({ predicate }),
-      fnStTypes: new SortedLimitedList({ predicate }),
-    }))
+    }
+  })
+  await resolveAllOrInParallel(lazySimilarityPromises)
 
   return {
-    fnNamesOur: fnNamesOur.value(),
-    fnNamesJaccard: fnNamesJaccard.value(),
-    fnStTokens: fnStTokens.value(),
-    fnStTypes: fnStTypes.value(),
+    fnNamesOur: sllOfSims.fnNamesOur.value(),
+    fnNamesJaccard: sllOfSims.fnNamesJaccard.value(),
+    fnStTokens: sllOfSims.fnStTokens.value(),
+    fnStTypes: sllOfSims.fnStTypes.value(),
   }
 }
