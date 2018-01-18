@@ -161,3 +161,54 @@ test.skip('variable declaration: other objects', checkTokensMacro,
   [
     `${DECLARATION}:Variable[b = ${EXPRESSION}:Object]`,
   ])
+
+test('if: single', checkTokensMacro,
+  stripIndent`
+    function a() {
+      if (i === 1) {}
+    }
+  `,
+  [
+    `${STATEMENT}:If`,
+  ])
+
+test('if: if else', checkTokensMacro,
+  stripIndent`
+    function a() {
+      if (i === 1) {}
+      else {}
+    }
+  `,
+  [
+    `${STATEMENT}:If`,
+  ])
+
+test('if: if else{if else}', checkTokensMacro,
+  stripIndent`
+    function a() {
+      if (i === 1) {}
+      else {
+        if (i === 2) {}
+        else {}
+      }
+    }
+  `,
+  [
+    `${STATEMENT}:If`,
+    `${STATEMENT}:If`,
+  ])
+
+test('if: if else-if else-if else', checkTokensMacro,
+  stripIndent`
+    function a() {
+      if (i === 1) {}
+      else if (i === 2) {}
+      else if (i === 3) {}
+      else {}
+    }
+  `,
+  [
+    `${STATEMENT}:If`,
+    `${STATEMENT}:Else-If`,
+    `${STATEMENT}:Else-If`,
+  ])
