@@ -61,6 +61,7 @@
     "source": [
       "lib/**/*.js"
     ],
+    "snapshotDir": "test/snapshots",
     "verbose": true
   },
   "nyc": {
