@@ -47,7 +47,6 @@ import {
   isJSXIdentifier,
   isJSXMemberExpression,
   isLabeledStatement,
-  isLiteral,
   isLogicalExpression,
   isMemberExpression,
   isMetaProperty,
@@ -221,14 +220,15 @@ const getEIR = (expr: Expression | null): EIR => {
   else if (isAssignmentExpression(expr)) {
   }
   else if (isBinaryExpression(expr)) {
+    const left = getTokensFromExpression(expr.left)
+    const right = getTokensFromExpression(expr.right)
     descr.type = 'Binary'
-    descr.pred = `a ${expr.operator} b`
+    descr.pred = `${left} ${expr.operator} ${right}`
   }
   else if (isCallExpression(expr)) {
     descr.type = 'Call'
     if (isExpression(expr.callee)) {
-      const { type, pred } = getEIR(expr.callee)
-      descr.pred = pred || type
+      descr.pred = getTokensFromExpression(expr.callee)
     }
     else if (isSuper(expr.callee)) {
       descr.pred = 'super'
@@ -240,9 +240,8 @@ const getEIR = (expr: Expression | null): EIR => {
   else if (isConditionalExpression(expr)) {
   }
   else if (isFunctionExpression(expr)) {
-    const { pred } = getEIR(expr.id)
     descr.type = 'Function'
-    descr.pred = pred || 'anonymous'
+    descr.pred = getTokensFromExpression(expr.id) || 'anonymous'
   }
   else if (isIdentifier(expr) ||
            isMemberExpression(expr)) {
@@ -276,8 +275,10 @@ const getEIR = (expr: Expression | null): EIR => {
   else if (isUnaryExpression(expr)) {
   }
   else if (isUpdateExpression(expr)) {
+    const op = expr.operator
+    const arg = getTokensFromExpression(expr.argument)
     descr.type = 'Update'
-    descr.pred = expr.prefix ? `${expr.operator}a` : `a${expr.operator}`
+    descr.pred = expr.prefix ? `${op}${arg}` : `${arg}${op}`
   }
   else if (isArrowFunctionExpression(expr)) {
   }
@@ -367,8 +368,8 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
       .concat(getTokensFromStatement(st.body))
   }
   else if (isFunctionDeclaration(st)) {
-    const { pred } = getEIR(st.id)
-    return `${DECLARATION}:Function[${pred || 'anonymous'}]`
+    const id = getTokensFromExpression(st.id) || 'anonymous'
+    return `${DECLARATION}:Function[${id}]`
   }
   else if (isIfStatement(st)) {
     /*
@@ -401,11 +402,7 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
   else if (isVariableDeclaration(st)) {
     return st.declarations.map((declaration) => {
       const id = getLValIR(declaration.id).pred
-      const init = declaration.init
-                   && (!isLiteral(declaration.init)
-                       && getEIR(declaration.init).type
-                       || getTokensFromExpression(declaration.init)
-                       || [])
+      const init = getTokensFromExpression(declaration.init)
       return `${DECLARATION}:Variable[${id}${init ? ` = ${init}` : ''}]`
     })
   }
