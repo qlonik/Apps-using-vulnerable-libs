@@ -382,9 +382,10 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
   else if (isVariableDeclaration(st)) {
     return st.declarations.map((declaration) => {
       const id = getLValIR(declaration.id).pred
-      const init = !isLiteral(declaration.init)
-                   && getEIR(declaration.init).type
-                   || getTokensFromExpression(declaration.init)
+      const init = declaration.init
+                   && (!isLiteral(declaration.init)
+                       && getEIR(declaration.init).type
+                       || getTokensFromExpression(declaration.init))
       return `${DECLARATION}:Variable[${id}${init ? ` = ${init}` : ''}]`
     })
   }
