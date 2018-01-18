@@ -23,6 +23,7 @@ const checkTokensMacro: Macro<TestContext> = async (
 test('empty', checkTokensMacro,
   stripIndent`
     function a() {
+      {}
     }
   `,
   [])
