@@ -222,3 +222,39 @@ test('if: if else-if else-if else', checkTokensMacro,
     `${STATEMENT}:Else-If`,
     `${STATEMENT}:Else-If`,
   ])
+
+test('function declaration', checkTokensMacro,
+  stripIndent`
+    function a() {
+      function b() {};
+    }
+  `,
+  [
+    `${DECLARATION}:Function[${EXPRESSION}:Identifier[b]]`,
+  ])
+
+test('function expression: \'function\' keyword', checkTokensMacro,
+  stripIndent`
+    function a() {
+      var b = function () {};
+      (function c() {});
+      (function () {});
+    }
+  `,
+  [
+    `${DECLARATION}:Variable[b = ${EXPRESSION}:Function[anonymous]]`,
+    `${EXPRESSION}:Function[${EXPRESSION}:Identifier[c]]`,
+    `${EXPRESSION}:Function[anonymous]`,
+  ])
+
+test('function expression: arrow function', checkTokensMacro,
+  stripIndent`
+    function a() {
+      var b = () => {};
+      (() => {});
+    }
+  `,
+  [
+    `${DECLARATION}:Variable[b = ${EXPRESSION}:ArrowFunction]`,
+    `${EXPRESSION}:ArrowFunction`,
+  ])
