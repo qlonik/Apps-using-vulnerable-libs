@@ -73,7 +73,7 @@ const pathConcat = (p: string, c: string | number): string => {
   return p.concat(typeof c === 'number' ? `[${c}]` : (p.length ? '.' + c : c))
 }
 
-const fnNamesConcat = (p: string, f: string): string => {
+export const fnNamesConcat = (p: string, f: string): string => {
   const st = p.length ? CONCAT_FNS_WITH : ''
   return p.concat(st).concat(f)
 }
