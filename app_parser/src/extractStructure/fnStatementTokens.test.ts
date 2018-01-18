@@ -60,6 +60,16 @@ test('literal', checkTokensMacro,
     `${LITERAL}:Template`,
   ])
 
+test('expression statement: with object', checkTokensMacro,
+  stripIndent`
+    function a() {
+      ({});
+    }
+  `,
+  [
+    `${EXPRESSION}:Object`,
+  ])
+
 ;[
   "+", "-", "/", "%", "*", "**", "&", "|", ">>", ">>>", "<<", "^", "==", "===", "!=", "!==", "in",
   "instanceof", ">", "<", ">=", "<=",
