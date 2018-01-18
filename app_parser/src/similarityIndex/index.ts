@@ -264,14 +264,16 @@ export const getSimilarityToLib = async (
  * @param libsPath
  * @returns
  */
+export type SimilarityTypes = 'fnNamesOur' | 'fnNamesJaccard' | 'fnStTokens' | 'fnStTypes'
+export type SimilarityToLibs = Record<SimilarityTypes, Similarity[]>
 export const getSimilarityToLibs = async (
   { signature, libsPath }: {
     signature: Signature[],
     libsPath: string,
-  }) => {
+  }): Promise<SimilarityToLibs> => {
 
   const predicate = (s: Similarity) => -s.similarity.val
-  const sllOfSims: { [key: string]: SortedLimitedList<Similarity> } = {
+  const sllOfSims: Record<SimilarityTypes, SortedLimitedList<Similarity>> = {
     fnNamesOur: new SortedLimitedList({ predicate }),
     fnNamesJaccard: new SortedLimitedList({ predicate }),
     fnStTokens: new SortedLimitedList({ predicate }),
@@ -299,9 +301,9 @@ export const getSimilarityToLibs = async (
   })
   await resolveAllOrInParallel(lazySimilarityPromises)
 
-  const result: { [key: string]: Similarity[] } = {}
-  for (let simName of Object.keys(sllOfSims)) {
-    result[simName] = sllOfSims[simName].value()
+  const result = <SimilarityToLibs>{}
+  for (let [name, sll] of Object.entries(sllOfSims)) {
+    result[<SimilarityTypes>name] = sll.value()
   }
   return result
 }
