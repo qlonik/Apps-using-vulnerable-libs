@@ -385,7 +385,7 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
       const init = !isLiteral(declaration.init)
                    && getEIR(declaration.init).type
                    || getTokensFromExpression(declaration.init)
-      return `${DECLARATION}:Variable[${id} = ${init}]`
+      return `${DECLARATION}:Variable[${id}${init ? ` = ${init}` : ''}]`
     })
   }
   else if (isWhileStatement(st)) {
