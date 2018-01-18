@@ -130,9 +130,9 @@ const getLiteralIR = (lit: Literal | null): EIR => {
   return descr
 }
 
-const getTokensFromLiteral = (lit: Literal | null): Many<string> => {
+const getTokensFromLiteral = (lit: Literal | null): string | null => {
   if (lit === null) {
-    return []
+    return null
   }
 
   const { title, type, pred } = getLiteralIR(lit)
@@ -186,9 +186,9 @@ const getLValIR = (lVal: LVal | null): EIR => {
   return descr
 }
 
-const getTokensFromLVal = (lVal: LVal | null): Many<string> => {
+const getTokensFromLVal = (lVal: LVal | null): string | null => {
   if (lVal === null) {
-    return []
+    return null
   }
 
   const { title, type, pred } = getLValIR(lVal)
@@ -316,9 +316,9 @@ const getEIR = (expr: Expression | null): EIR => {
   return descr
 }
 
-const getTokensFromExpression = (expr: Expression | null): Many<string> => {
+const getTokensFromExpression = (expr: Expression | null): string | null => {
   if (!expr) {
-    return []
+    return null
   }
 
   const { title, type, pred } = getEIR(expr)
@@ -353,17 +353,17 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
     return []
   }
   else if (isExpressionStatement(st)) {
-    return getTokensFromExpression(st.expression)
+    return getTokensFromExpression(st.expression) || []
   }
   else if (isForInStatement(st)) {
   }
   else if (isForStatement(st)) {
     return [`${STATEMENT}:For`]
       .concat(isExpression(st.init)
-        ? getTokensFromExpression(st.init)
+        ? (getTokensFromExpression(st.init) || [])
         : getTokensFromStatement(st.init))
-      .concat(getTokensFromExpression(st.test))
-      .concat(getTokensFromExpression(st.update))
+      .concat(getTokensFromExpression(st.test) || [])
+      .concat(getTokensFromExpression(st.update) || [])
       .concat(getTokensFromStatement(st.body))
   }
   else if (isFunctionDeclaration(st)) {
@@ -404,7 +404,8 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
       const init = declaration.init
                    && (!isLiteral(declaration.init)
                        && getEIR(declaration.init).type
-                       || getTokensFromExpression(declaration.init))
+                       || getTokensFromExpression(declaration.init)
+                       || [])
       return `${DECLARATION}:Variable[${id}${init ? ` = ${init}` : ''}]`
     })
   }
@@ -466,7 +467,7 @@ export const getFnStatementTokens = (node: BabelNode): string[] | null => {
   result = result.concat(getTokensFromLVals(params))
 
   if (isExpression(body)) {
-    result = result.concat(getTokensFromExpression(body))
+    result = result.concat(getTokensFromExpression(body) || [])
   }
   else if (isBlockStatement(body)) {
     result = result.concat(getTokensFromBlockStatement(body))
