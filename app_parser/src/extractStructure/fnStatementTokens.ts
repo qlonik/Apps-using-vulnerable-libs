@@ -365,7 +365,20 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
     return `${DECLARATION}:Function[${pred || 'anonymous'}]`
   }
   else if (isIfStatement(st)) {
-    return [`${STATEMENT}:If`]
+    /*
+     * Two cases:
+     *    1. if statement with else-if block
+     *    2. if statement with else block
+     *
+     * In the first case, the alternate for current if statement is another if statement, so we
+     * will push '${STATEMENT}:Else-If' into array of tokens to represent next if statement, and
+     * the '${STATEMENT}:If' to represent the first if statement in the chain of if statements
+     * will eventually be added from the last else-if in the chain.
+     *
+     * In the second case, the alternate for current if statement is not another if statement, so
+     * we will push '${STATEMENT}:If' into array of tokens to represent current if statement.
+     */
+    return [`${STATEMENT}:${isIfStatement(st.alternate) ? 'Else-' : ''}If`]
       .concat(getTokensFromStatement(st.consequent))
       .concat(getTokensFromStatement(st.alternate))
   }
