@@ -290,3 +290,39 @@ test('return statement: variable update', checkTokensMacro,
     `${DECLARATION}:Variable[i = ${LITERAL}:Numeric]`,
     `${STATEMENT}:Return[${EXPRESSION}:Update[++${EXPRESSION}:Identifier[i]]]`,
   ])
+
+test('debugger', checkTokensMacro,
+  stripIndent`
+    function a() {
+      debugger;
+    }
+  `,
+  [
+    `${STATEMENT}:Debugger`,
+  ])
+
+test('break', checkTokensMacro,
+  stripIndent`
+    function a() {
+      for (;;) {
+        break;
+      }
+    }
+  `,
+  [
+    `${STATEMENT}:For`,
+    `${STATEMENT}:Break`,
+  ])
+
+test('continue', checkTokensMacro,
+  stripIndent`
+    function a() {
+      for (;;) {
+        continue;
+      }
+    }
+  `,
+  [
+    `${STATEMENT}:For`,
+    `${STATEMENT}:Continue`,
+  ])
