@@ -258,3 +258,35 @@ test('function expression: arrow function', checkTokensMacro,
     `${DECLARATION}:Variable[b = ${EXPRESSION}:ArrowFunction]`,
     `${EXPRESSION}:ArrowFunction`,
   ])
+
+test('return statement: empty', checkTokensMacro,
+  stripIndent`
+    function a() {
+      return;
+    }
+  `,
+  [
+    `${STATEMENT}:Return`,
+  ])
+
+test('return statement: literal', checkTokensMacro,
+  stripIndent`
+    function a() {
+      return 1;
+    }
+  `,
+  [
+    `${STATEMENT}:Return[${LITERAL}:Numeric]`,
+  ])
+
+test('return statement: variable update', checkTokensMacro,
+  stripIndent`
+    function a() {
+      var i = 0;
+      return ++i;
+    }
+  `,
+  [
+    `${DECLARATION}:Variable[i = ${LITERAL}:Numeric]`,
+    `${STATEMENT}:Return[${EXPRESSION}:Update[++${EXPRESSION}:Identifier[i]]]`,
+  ])

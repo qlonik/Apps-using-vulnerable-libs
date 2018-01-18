@@ -391,6 +391,8 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
   else if (isLabeledStatement(st)) {
   }
   else if (isReturnStatement(st)) {
+    const returned = getTokensFromExpression(st.argument)
+    return [`${STATEMENT}:Return${returned ? `[${returned}]` : ''}`]
   }
   else if (isSwitchStatement(st)) {
   }
