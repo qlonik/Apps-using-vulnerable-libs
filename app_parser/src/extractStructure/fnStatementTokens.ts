@@ -289,6 +289,7 @@ const getEIR = (expr: Expression | null): EIR => {
     descr.pred = expr.prefix ? `${op}${arg}` : `${arg}${op}`
   }
   else if (isArrowFunctionExpression(expr)) {
+    descr.type = 'ArrowFunction'
   }
   else if (isClassExpression(expr)) {
   }
