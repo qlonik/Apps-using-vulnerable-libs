@@ -114,10 +114,20 @@ test('for: with initialization', checkTokensMacro,
     `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`,
   ])
 
-test('variable declaration: literals', checkTokensMacro,
+test('variable declaration: simple', checkTokensMacro,
   stripIndent`
     function a() {
       var b, c;
+    }
+  `,
+  [
+    `${DECLARATION}:Variable[b]`,
+    `${DECLARATION}:Variable[c]`,
+  ])
+
+test('variable declaration: literals', checkTokensMacro,
+  stripIndent`
+    function a() {
       let d = 1;
       var e = 'str';
       var f = false;
@@ -127,8 +137,6 @@ test('variable declaration: literals', checkTokensMacro,
     }
   `,
   [
-    `${DECLARATION}:Variable[b]`,
-    `${DECLARATION}:Variable[c]`,
     `${DECLARATION}:Variable[d = ${LITERAL}:Numeric]`,
     `${DECLARATION}:Variable[e = ${LITERAL}:String]`,
     `${DECLARATION}:Variable[f = ${LITERAL}:Boolean]`,
