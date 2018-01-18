@@ -326,3 +326,33 @@ test('continue', checkTokensMacro,
     `${STATEMENT}:For`,
     `${STATEMENT}:Continue`,
   ])
+
+test('call expression', checkTokensMacro,
+  stripIndent`
+    function a() {
+      b();
+      (() => {})();
+      (function c() {})();
+      (function () {})();
+    }
+  `,
+  [
+    `${EXPRESSION}:Call[${EXPRESSION}:Identifier[b]]`,
+    `${EXPRESSION}:Call[${EXPRESSION}:ArrowFunction]`,
+    `${EXPRESSION}:Call[${EXPRESSION}:Function[${EXPRESSION}:Identifier[c]]]`,
+    `${EXPRESSION}:Call[${EXPRESSION}:Function[anonymous]]`,
+  ])
+
+test.skip('call expression: super', checkTokensMacro,
+  stripIndent`
+    function a() {
+      class b {
+        constructor() {
+          super();
+        }
+      }
+    }
+  `,
+  [
+    `${EXPRESSION}:Call[super]`,
+  ])
