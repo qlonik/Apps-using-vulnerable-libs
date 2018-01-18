@@ -99,6 +99,21 @@ type EIR = {
   pred: string | null,
 }
 
+const collapseIR = (eir: EIR | null): string | null => {
+  if (eir === null || eir.origType === null) {
+    return null
+  }
+
+  const { title, origType, type, pred } = eir
+
+  if (!type) {
+    return `t_${title}:${origType}`
+  }
+  else {
+    return `${title}:${type}${pred ? `[${pred}]` : ''}`
+  }
+}
+
 const getLiteralIR = (lit: Literal | null): EIR => {
   const descr: EIR = {
     title: LITERAL,
@@ -135,18 +150,7 @@ const getLiteralIR = (lit: Literal | null): EIR => {
 }
 
 const getTokensFromLiteral = (lit: Literal | null): string | null => {
-  if (lit === null) {
-    return null
-  }
-
-  const { title, type, pred } = getLiteralIR(lit)
-
-  if (!type) {
-    return `t_${title}:${lit.type}`
-  }
-  else {
-    return `${title}:${type}${pred ? `[${pred}]` : ''}`
-  }
+  return collapseIR(getLiteralIR(lit))
 }
 
 const getLValIR = (lVal: LVal | null): EIR => {
@@ -196,18 +200,7 @@ const getLValIR = (lVal: LVal | null): EIR => {
 }
 
 const getTokensFromLVal = (lVal: LVal | null): string | null => {
-  if (lVal === null) {
-    return null
-  }
-
-  const { title, type, pred } = getLValIR(lVal)
-
-  if (!type) {
-    return `t_${title}:${lVal.type}`
-  }
-  else {
-    return `${title}:${type}${pred ? `[${pred}]` : ''}`
-  }
+  return collapseIR(getLValIR(lVal))
 }
 
 const getTokensFromLVals = (lVals: LVal[] | null): string[] => {
@@ -333,17 +326,7 @@ const getEIR = (expr: Expression | null): EIR => {
 }
 
 const getTokensFromExpression = (expr: Expression | null): string | null => {
-  if (!expr) {
-    return null
-  }
-
-  const { title, type, pred } = getEIR(expr)
-  if (!type) {
-    return `t_${title}:${expr.type}`
-  }
-  else {
-    return `${title}:${type}${pred ? `[${pred}]` : ''}`
-  }
+  return collapseIR(getEIR(expr))
 }
 
 const getTokensFromStatement = (st: Statement | null): Many<string> => {
