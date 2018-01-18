@@ -186,13 +186,9 @@ const getLValIR = (lVal: LVal | null): EIR => {
   return descr
 }
 
-const getTokensFromLVal = (lVal: LVal[] | LVal | null): Many<string> => {
+const getTokensFromLVal = (lVal: LVal | null): Many<string> => {
   if (lVal === null) {
     return []
-  }
-
-  if (Array.isArray(lVal)) {
-    return flatMap(lVal, getTokensFromLVal)
   }
 
   const { title, type, pred } = getLValIR(lVal)
@@ -203,6 +199,16 @@ const getTokensFromLVal = (lVal: LVal[] | LVal | null): Many<string> => {
   else {
     return `${title}:${type}${pred ? `[${pred}]` : ''}`
   }
+}
+
+const getTokensFromLVals = (lVals: LVal[] | null): string[] => {
+  if (lVals === null) {
+    return []
+  }
+
+  return lVals
+    .map(lVal => (getTokensFromLVal(lVal) || ''))
+    .filter(v => !!v)
 }
 
 const getEIR = (expr: Expression | null): EIR => {
@@ -457,7 +463,7 @@ export const getFnStatementTokens = (node: BabelNode): string[] | null => {
   let result: string[] = []
   const { params, body } = node
 
-  result = result.concat(getTokensFromLVal(params))
+  result = result.concat(getTokensFromLVals(params))
 
   if (isExpression(body)) {
     result = result.concat(getTokensFromExpression(body))
