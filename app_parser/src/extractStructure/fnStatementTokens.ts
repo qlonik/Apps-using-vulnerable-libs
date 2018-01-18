@@ -467,6 +467,9 @@ export const getFnStatementTokens = (node: BabelNode): string[] | null => {
   else if (isBlockStatement(body)) {
     result = result.concat(getTokensFromBlockStatement(body))
   }
+  else {
+    assertNever(body)
+  }
 
   return result.sort()
 }
