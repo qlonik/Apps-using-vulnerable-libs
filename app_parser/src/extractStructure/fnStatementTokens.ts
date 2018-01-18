@@ -94,13 +94,18 @@ const limitedLog = before(3, log)
 // EIR = Expression Internal Representation
 type EIR = {
   title: string,
+  origType: string | null,
   type: string | null,
   pred: string | null,
 }
 
-
 const getLiteralIR = (lit: Literal | null): EIR => {
-  const descr: EIR = { title: LITERAL, type: null, pred: null }
+  const descr: EIR = {
+    title: LITERAL,
+    origType: lit ? lit.type : null,
+    type: null,
+    pred: null,
+  }
 
   if (lit === null) {
   }
@@ -145,7 +150,12 @@ const getTokensFromLiteral = (lit: Literal | null): string | null => {
 }
 
 const getLValIR = (lVal: LVal | null): EIR => {
-  const descr: EIR = { title: PARAM, type: null, pred: null }
+  const descr: EIR = {
+    title: PARAM,
+    origType: lVal ? lVal.type : null,
+    type: null,
+    pred: null,
+  }
 
   if (lVal === null) {
   }
@@ -211,7 +221,12 @@ const getTokensFromLVals = (lVals: LVal[] | null): string[] => {
 }
 
 const getEIR = (expr: Expression | null): EIR => {
-  let descr: EIR = { title: EXPRESSION, type: null, pred: null }
+  let descr: EIR = {
+    title: EXPRESSION,
+    origType: expr ? expr.type : null,
+    type: null,
+    pred: null,
+  }
 
   if (expr === null) {
   }
