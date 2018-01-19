@@ -28,6 +28,16 @@ test('empty', checkTokensMacro,
   `,
   [])
 
+test('parameters', checkTokensMacro,
+  stripIndent`
+    function a(par1, par2) {
+    }
+  `,
+  [
+    `${PARAM}:Identifier[par1]`,
+    `${PARAM}:Identifier[par2]`,
+  ])
+
 test('directive', checkTokensMacro,
   stripIndent`
     function a() {
