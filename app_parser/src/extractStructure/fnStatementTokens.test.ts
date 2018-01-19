@@ -189,10 +189,12 @@ test('for: with statement body', checkTokensMacro,
     `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`,
   ])
 
-test('for: with initialization', checkTokensMacro,
+test('for: full test', checkTokensMacro,
   stripIndent`
     function a() {
-      for (var i = 0, l = 10; i < l; i++) {}
+      for (var i = 0, l = 10; i < l; i++) {
+        l--;
+      }
     }
   `,
   [
@@ -201,6 +203,7 @@ test('for: with initialization', checkTokensMacro,
     `${DECLARATION}:Variable[l = ${LITERAL}:Numeric]`,
     `${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] < ${EXPRESSION}:Identifier[l]]`,
     `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`,
+    `${EXPRESSION}:Update[${EXPRESSION}:Identifier[l]--]`,
   ])
 
 test('variable declaration: simple', checkTokensMacro,
