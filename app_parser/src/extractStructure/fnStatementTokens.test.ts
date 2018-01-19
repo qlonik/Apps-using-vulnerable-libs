@@ -121,6 +121,74 @@ test('for: basic', checkTokensMacro,
     `${STATEMENT}:For`,
   ])
 
+test('for: with statement init', checkTokensMacro,
+  stripIndent`
+    function a() {
+      for (var i = 0;;) {}
+    }
+  `,
+  [
+    `${STATEMENT}:For`,
+    `${DECLARATION}:Variable[i = ${LITERAL}:Numeric]`,
+  ])
+
+test('for: with expression init', checkTokensMacro,
+  stripIndent`
+    function a() {
+      for (i = 0;;) {}
+    }
+  `,
+  [
+    `${STATEMENT}:For`,
+    `${EXPRESSION}:Assignment[${PARAM}:Identifier[i] = ${LITERAL}:Numeric]`,
+  ])
+
+test('for: with test', checkTokensMacro,
+  stripIndent`
+    function a() {
+      for (;i < 10;) {}
+    }
+  `,
+  [
+    `${STATEMENT}:For`,
+    `${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] < ${LITERAL}:Numeric]`,
+  ])
+
+test('for: with update', checkTokensMacro,
+  stripIndent`
+    function a() {
+      for (;;i++) {}
+    }
+  `,
+  [
+    `${STATEMENT}:For`,
+    `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`,
+  ])
+
+test('for: with expression body', checkTokensMacro,
+  stripIndent`
+    function a() {
+      for (;;) i++;
+    }
+  `,
+  [
+    `${STATEMENT}:For`,
+    `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`,
+  ])
+
+test('for: with statement body', checkTokensMacro,
+  stripIndent`
+    function a() {
+      for (;;) {
+        i++;
+      }
+    }
+  `,
+  [
+    `${STATEMENT}:For`,
+    `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`,
+  ])
+
 test('for: with initialization', checkTokensMacro,
   stripIndent`
     function a() {
