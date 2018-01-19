@@ -226,6 +226,10 @@ const getEIR = (expr: Expression | null): EIR => {
   else if (isArrayExpression(expr)) {
   }
   else if (isAssignmentExpression(expr)) {
+    const left = getTokensFromLVal(expr.left)
+    const right = getTokensFromExpression(expr.right)
+    descr.type = 'Assignment'
+    descr.pred = `${left} ${expr.operator} ${right}`
   }
   else if (isBinaryExpression(expr)) {
     const left = getTokensFromExpression(expr.left)

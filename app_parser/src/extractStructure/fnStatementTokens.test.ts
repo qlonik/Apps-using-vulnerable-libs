@@ -2,7 +2,7 @@ import test, { Macro, TestContext } from 'ava'
 import { stripIndent } from 'common-tags'
 import { isPlainObject } from 'lodash'
 import { extractStructure } from './index'
-import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, STATEMENT } from './tags'
+import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
 
 
 const checkTokensMacro: Macro<TestContext> = async (
@@ -356,3 +356,31 @@ test.skip('call expression: super', checkTokensMacro,
   [
     `${EXPRESSION}:Call[super]`,
   ])
+
+;[
+  "=",
+  "+=",
+  "-=",
+  "*=",
+  "/=",
+  "%=",
+  "<<=",
+  ">>=",
+  ">>>=",
+  "|=",
+  "^=",
+  "&=",
+].forEach((op) => {
+  test(`assignment expression: "${op}"`, checkTokensMacro,
+    stripIndent`
+      function a() {
+        var a = 1, b = 1;
+        b ${op} a;
+      }
+    `,
+    [
+      `${DECLARATION}:Variable[a = ${LITERAL}:Numeric]`,
+      `${DECLARATION}:Variable[b = ${LITERAL}:Numeric]`,
+      `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] ${op} ${EXPRESSION}:Identifier[a]]`,
+    ])
+})
