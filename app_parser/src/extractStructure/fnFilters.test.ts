@@ -1,7 +1,8 @@
 import test from 'ava'
+import { isFunction } from 'babel-types'
 import { parse } from 'babylon';
 import { oneLineTrim, stripIndent } from 'common-tags'
-import { fnOnlyTreeCreator, Signature, TreePath } from './index'
+import { fnOnlyTreeCreator, rnDeclareFns, Signature, TreePath } from './index'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
 
 
@@ -111,4 +112,34 @@ test('fn filtered correctly', t => {
   }]
 
   t.deepEqual(expected, fnOnlyTreeCreator(parse(code)))
+})
+
+test('react-native: bundle filtered correctly', async t => {
+  const content = stripIndent`
+    !function a() {}(this)
+    !function b() {}(this)
+    !function c() {}(this)
+    __d('0', [], function () {
+      return 123;
+    })
+    __d(1, function () {
+      return 234;
+    })
+    __d(function () {
+      return 345;
+    }, 2)
+    __d(function () {
+      return 456;
+    }, 3, [])
+  `
+  const [first, second, third, fourth] = rnDeclareFns(parse(content))
+
+  t.is(first.data!.id, '0')
+  t.true(isFunction(<any>first.data!.factory))
+  t.is(second.data!.id, 1)
+  t.true(isFunction(<any>second.data!.factory))
+  t.is(third.data!.id, 2)
+  t.true(isFunction(<any>third.data!.factory))
+  t.is(fourth.data!.id, 3)
+  t.true(isFunction(<any>fourth.data!.factory))
 })
