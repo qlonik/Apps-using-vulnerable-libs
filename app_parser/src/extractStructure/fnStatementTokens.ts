@@ -122,6 +122,7 @@ const getLiteralIR = (lit: Literal | null): EIR => {
     pred: null,
   }
 
+  /* istanbul ignore if */
   if (lit === null) {
   }
   else if (isStringLiteral(lit)) {
@@ -143,6 +144,7 @@ const getLiteralIR = (lit: Literal | null): EIR => {
     descr.type = 'Template'
   }
   else {
+    /* istanbul ignore next */
     assertNever(lit)
   }
 
@@ -161,6 +163,7 @@ const getLValIR = (lVal: LVal | null): EIR => {
     pred: null,
   }
 
+  /* istanbul ignore if */
   if (lVal === null) {
   }
   else if (isIdentifier(lVal)) {
@@ -177,6 +180,7 @@ const getLValIR = (lVal: LVal | null): EIR => {
       objName = 'super'
     }
     else {
+      /* istanbul ignore next */
       assertNever(lVal.object)
     }
     const { pred: propName } = getEIR(lVal.property)
@@ -193,6 +197,7 @@ const getLValIR = (lVal: LVal | null): EIR => {
   else if (isObjectPattern(lVal)) {
   }
   else {
+    /* istanbul ignore next */
     assertNever(lVal)
   }
 
@@ -221,6 +226,7 @@ const getEIR = (expr: Expression | null): EIR => {
     pred: null,
   }
 
+  /* istanbul ignore if */
   if (expr === null) {
   }
   else if (isArrayExpression(expr)) {
@@ -246,6 +252,7 @@ const getEIR = (expr: Expression | null): EIR => {
       descr.pred = 'super'
     }
     else {
+      /* istanbul ignore next */
       assertNever(expr.callee)
     }
   }
@@ -324,6 +331,7 @@ const getEIR = (expr: Expression | null): EIR => {
   else if (isDoExpression(expr)) {
   }
   else {
+    /* istanbul ignore next */
     assertNever(expr)
   }
 
@@ -336,6 +344,7 @@ const getTokensFromExpression = (expr: Expression | null): string | null => {
 
 const getTokensFromStatement = (st: Statement | null): Many<string> => {
 
+  /* istanbul ignore if */
   if (st === null) {
     return []
   }
@@ -444,6 +453,7 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
   else if (isTypeAlias(st)) {
   }
   else {
+    /* istanbul ignore next */
     assertNever(st)
   }
 
@@ -475,6 +485,7 @@ export const getFnStatementTokens = (node: BabelNode): string[] | null => {
     result = result.concat(getTokensFromBlockStatement(body))
   }
   else {
+    /* istanbul ignore next */
     assertNever(body)
   }
 

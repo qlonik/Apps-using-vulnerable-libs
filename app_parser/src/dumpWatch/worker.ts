@@ -154,6 +154,7 @@ if (process.send) {
           }
         }
         else {
+          /* istanbul ignore next */
           assertNever(msg)
         }
       }

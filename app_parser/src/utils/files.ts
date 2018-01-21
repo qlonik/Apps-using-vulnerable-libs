@@ -74,6 +74,7 @@ const saveOneFile = async (fileDesc: fileDescOp): Promise<fileDesc> => {
     await operation(src, dest)
   }
   else {
+    /* istanbul ignore next */
     assertNever(fileDesc.type)
   }
 
