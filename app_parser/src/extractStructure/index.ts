@@ -123,7 +123,7 @@ const visitNodes = <K>(
     fn = undefined,
     includeNodes = false,
   }: {
-    fn?: (path: string, val: BabelNode) => K | null,
+    fn?: (path: string, val: BabelNode) => Signal<K>,
     includeNodes?: boolean,
   } = {}) => {
 
@@ -141,9 +141,11 @@ const visitNodes = <K>(
 
     return flatMap(entries, ([key, value]: [string | number, BabelNode]) => {
       const childPath = pathConcat(pathSoFar, key)
+      const filterFnSignal = typeof fn === 'function' ? fn(childPath, value) : null
+
       const result: TreePath<K> = {
         prop: childPath,
-        data: typeof fn === 'function' ? fn(childPath, value) : null,
+        data: filterFnSignal ? filterFnSignal.data : null,
       }
 
       if (includeNodes) {
@@ -154,7 +156,8 @@ const visitNodes = <K>(
         result.c = paths(value, childPath)
       }
 
-      if (result.data !== null) {
+      if (filterFnSignal !== null) {
+        const signal = filterFnSignal.signal
         return result
       }
       else if (result.c) {
@@ -167,19 +170,19 @@ const visitNodes = <K>(
   }
 }
 
-const fnNodeFilter = (path: string, node: BabelNode): Signature | null => {
+const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> => {
 
   if (node && (<any>node).__skip) {
-    return null
+    return new Signal<Signature>(Signals.continueRecursion, null)
   }
 
   if (isFunctionDeclaration(node) || isFunctionExpression(node)) {
-    return {
+    return new Signal<Signature>(Signals.continueRecursion, {
       type: 'fn',
       name: (node.id && node.id.name) || '[anonymous]',
       fnStatementTypes: getFnStatementTypes(node),
       fnStatementTokens: getFnStatementTokens(node),
-    }
+    })
   }
   else if (isVariableDeclarator(node) ||
            isAssignmentExpression(node) ||
@@ -282,16 +285,16 @@ const fnNodeFilter = (path: string, node: BabelNode): Signature | null => {
     }
     if (name) {
       fnNode.__skip = true
-      return {
+      return new Signal<Signature>(Signals.continueRecursion, {
         type: 'fn',
         name,
         fnStatementTypes: getFnStatementTypes(fnNode),
         fnStatementTokens: getFnStatementTokens(fnNode),
-      }
+      })
     }
   }
 
-  return null
+  return new Signal<Signature>(Signals.continueRecursion, null)
 }
 const fnOnlyTreeCreator = visitNodes<Signature>({ fn: fnNodeFilter })
 
