@@ -61,7 +61,7 @@ export type Signature = {
  */
 export type TreePath<T> = {
   prop: string,
-  data: T | null,
+  data: T,
   node?: BabelNode,
   c?: TreePath<T>[],
 }
@@ -146,21 +146,13 @@ export const visitNodes = <K>(
         data = null,
         signal = Signals.preventRecursion,
       } = typeof fn === 'function' ? fn(childPath, value) : {}
-
-      const result: TreePath<K> = {
-        prop: childPath,
-        data,
-      }
-
-      if (includeNodes) {
-        result.node = value
-      }
+      let children = null
 
       if (signal === Signals.continueRecursion) {
         if (value && typeof value === 'object') {
-          const children = paths(value, childPath)
-          if (children.length) {
-            result.c = children
+          const ch = paths(value, childPath)
+          if (ch.length) {
+            children = ch
           }
         }
       }
@@ -171,10 +163,23 @@ export const visitNodes = <K>(
       }
 
       if (data !== null) {
+        const result: TreePath<K> = {
+          prop: childPath,
+          data,
+        }
+
+        if (includeNodes) {
+          result.node = value
+        }
+
+        if (children) {
+          result.c = children
+        }
+
         return result
       }
-      else if (result.c) {
-        return result.c
+      else if (children) {
+        return children
       }
       else {
         return []
