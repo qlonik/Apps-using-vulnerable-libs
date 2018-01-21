@@ -27,7 +27,7 @@ export type fileDescOp = fileDesc & {
   text: string,
 } | {
   type: fileOp.json,
-  json: object,
+  json: any,
 } | {
   type: fileOp.noop,
 })
