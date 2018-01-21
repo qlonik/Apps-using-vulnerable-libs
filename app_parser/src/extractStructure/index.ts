@@ -25,6 +25,7 @@ import { parse } from 'babylon'
 import { stripIndent } from 'common-tags'
 import { flatMap, Many } from 'lodash'
 import { inspect as utilInspect } from 'util'
+import { assertNever } from '../utils'
 import { stdoutLog } from '../utils/logger'
 import { getFnStatementTokens } from './fnStatementTokens'
 import { getFnStatementTypes } from './fnStatementTypes'
@@ -141,23 +142,32 @@ const visitNodes = <K>(
 
     return flatMap(entries, ([key, value]: [string | number, BabelNode]) => {
       const childPath = pathConcat(pathSoFar, key)
-      const filterFnSignal = typeof fn === 'function' ? fn(childPath, value) : null
+      const {
+        data = null,
+        signal = Signals.continueRecursion,
+      } = typeof fn === 'function' ? fn(childPath, value) : {}
 
       const result: TreePath<K> = {
         prop: childPath,
-        data: filterFnSignal ? filterFnSignal.data : null,
+        data,
       }
 
       if (includeNodes) {
         result.node = value
       }
 
-      if (value && typeof value === 'object') {
-        result.c = paths(value, childPath)
+      if (signal === Signals.continueRecursion) {
+        if (value && typeof value === 'object') {
+          result.c = paths(value, childPath)
+        }
+      }
+      else if (signal === Signals.preventRecursion) {
+      }
+      else {
+        assertNever(signal)
       }
 
-      if (filterFnSignal !== null) {
-        const signal = filterFnSignal.signal
+      if (data !== null) {
         return result
       }
       else if (result.c) {
