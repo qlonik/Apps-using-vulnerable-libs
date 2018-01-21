@@ -59,7 +59,7 @@ export type Signature = {
  * @param node - node of the AST
  * @param c - children
  */
-type TreePath<T> = {
+export type TreePath<T> = {
   prop: string | number,
   data: T | null,
   node?: BabelNode,
@@ -96,12 +96,12 @@ const extractNameFromIdentifier = (node: Identifier): string => {
   return `'${node.name}'`
 }
 
-enum Signals {
+export enum Signals {
   preventRecursion = 'prevent-recursion',
   continueRecursion = 'continue-recursion',
 }
 
-class Signal<T> {
+export class Signal<T> {
   private __signal: Signals
   private __data: T | null
 
@@ -119,7 +119,7 @@ class Signal<T> {
   }
 }
 
-const visitNodes = <K>(
+export const visitNodes = <K>(
   {
     fn = undefined,
     includeNodes = false,
