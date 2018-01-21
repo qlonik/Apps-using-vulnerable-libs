@@ -124,7 +124,7 @@ export const visitNodes = <K>(
     fn = undefined,
     includeNodes = false,
   }: {
-    fn?: (path: string, val: BabelNode) => Signal<K>,
+    fn?: (path: string, val: any) => Signal<K>,
     includeNodes?: boolean,
   } = {}) => {
 
@@ -132,7 +132,7 @@ export const visitNodes = <K>(
     obj: object | Array<any>,
     pathSoFar: string = ''): TreePath<K>[] {
 
-    let entries: Array<[string | number, BabelNode]> = []
+    let entries: Array<[string | number, any]> = []
     if (Array.isArray(obj)) {
       entries = [...obj.entries()]
     }
@@ -140,7 +140,7 @@ export const visitNodes = <K>(
       entries = Object.entries(obj)
     }
 
-    return flatMap(entries, ([key, value]: [string | number, BabelNode]) => {
+    return flatMap(entries, ([key, value]: [string | number, any]) => {
       const childPath = pathConcat(pathSoFar, key)
       const {
         data = null,
