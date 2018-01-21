@@ -158,7 +158,10 @@ export const visitNodes = <K>(
 
       if (signal === Signals.continueRecursion) {
         if (value && typeof value === 'object') {
-          result.c = paths(value, childPath)
+          const children = paths(value, childPath)
+          if (children.length) {
+            result.c = children
+          }
         }
       }
       else if (signal === Signals.preventRecursion) {
