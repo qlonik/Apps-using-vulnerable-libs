@@ -1,12 +1,25 @@
-import test from 'ava'
+import test, { Macro, TestContext } from 'ava'
 import { stripIndent } from "common-tags"
 import { isPlainObject } from 'lodash'
 import { extractStructure } from './index'
 import { DIRECTIVE, STATEMENT } from './tags'
 
 
-test('statement types are correct', async t => {
-  const content = stripIndent`
+const checkTypesMacro: Macro<TestContext> = async (
+  t: TestContext, content: string, expected: string[]) => {
+
+  const [firstFn] = await extractStructure({ content })
+
+  t.true(isPlainObject(firstFn))
+  t.deepEqual(expected.sort(), firstFn.fnStatementTypes)
+
+  if (t.title !== 'empty' && expected.length === 0) {
+    t.fail('Expected array is empty. Test case is most likely missing.')
+  }
+}
+
+test('statement types are correct', checkTypesMacro,
+  stripIndent`
     function a() {
       'use strict';
 
@@ -22,19 +35,12 @@ test('statement types are correct', async t => {
 
       return a / c;
     }
-  `
-  const expected = [
+  `,
+  [
     `t_${DIRECTIVE}:use strict`,
     `t_${STATEMENT}:VariableDeclaration`,
     `t_${STATEMENT}:FunctionDeclaration`,
     `t_${STATEMENT}:VariableDeclaration`,
     `t_${STATEMENT}:ForStatement`,
     `t_${STATEMENT}:ReturnStatement`,
-  ]
-
-  const structure = await extractStructure({ content })
-  const [firstFn] = structure
-
-  t.true(isPlainObject(firstFn))
-  t.deepEqual(expected.sort(), firstFn.fnStatementTypes)
-})
+  ])
