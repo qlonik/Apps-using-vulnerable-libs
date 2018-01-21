@@ -60,7 +60,7 @@ export type Signature = {
  * @param c - children
  */
 export type TreePath<T> = {
-  prop: string | number,
+  prop: string,
   data: T | null,
   node?: BabelNode,
   c?: TreePath<T>[],
