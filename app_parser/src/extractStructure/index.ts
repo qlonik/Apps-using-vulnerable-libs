@@ -309,7 +309,7 @@ const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> => {
 
   return new Signal<Signature>(Signals.continueRecursion, null)
 }
-const fnOnlyTreeCreator = visitNodes<Signature>({ fn: fnNodeFilter })
+export const fnOnlyTreeCreator = visitNodes<Signature>({ fn: fnNodeFilter })
 
 const collapseFnNamesTree = (
   tree: TreePath<Signature>[],
