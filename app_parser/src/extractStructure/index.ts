@@ -144,7 +144,7 @@ export const visitNodes = <K>(
       const childPath = pathConcat(pathSoFar, key)
       const {
         data = null,
-        signal = Signals.continueRecursion,
+        signal = Signals.preventRecursion,
       } = typeof fn === 'function' ? fn(childPath, value) : {}
 
       const result: TreePath<K> = {
