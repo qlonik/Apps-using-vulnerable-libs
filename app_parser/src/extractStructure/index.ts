@@ -1,5 +1,6 @@
 import {
   Identifier,
+  isArrayExpression,
   isArrowFunctionExpression,
   isAssignmentExpression,
   isAssignmentPattern,
@@ -12,10 +13,13 @@ import {
   isLiteral,
   isMemberExpression,
   isNullLiteral,
+  isNumericLiteral,
+  isObjectExpression,
   isObjectMethod,
   isProperty,
   isRegExpLiteral,
   isReturnStatement,
+  isStringLiteral,
   isTemplateLiteral,
   isVariableDeclarator,
   Literal,
@@ -23,9 +27,9 @@ import {
 } from 'babel-types'
 import { parse } from 'babylon'
 import { stripIndent } from 'common-tags'
-import { flatMap, Many } from 'lodash'
+import { compact, flatMap, Many } from 'lodash'
 import { inspect as utilInspect } from 'util'
-import { assertNever } from '../utils'
+import { assertNever, resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
 import { getFnStatementTokens } from './fnStatementTokens'
 import { getFnStatementTypes } from './fnStatementTypes'
@@ -316,6 +320,83 @@ const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> => {
 }
 export const fnOnlyTreeCreator = visitNodes<Signature>({ fn: fnNodeFilter })
 
+type rnFactory = {
+  id: number | string,
+  factory: BabelNode,
+}
+
+const rnDeclareFnFilter = (path: string, node: BabelNode): Signal<rnFactory> => {
+  if (!isCallExpression(node)) {
+    return new Signal<rnFactory>(Signals.continueRecursion, null)
+  }
+
+  const callee = node.callee
+  const args = node.arguments
+
+  if (!isIdentifier(callee) || callee.name !== '__d') {
+    return new Signal<rnFactory>(Signals.continueRecursion, null)
+  }
+
+  // remark: args changed few times in react-native module system implementation
+  // at least three are known now: (from oldest to newest)
+  //    1. first = ID (String);
+  //       second = dependencies (Array);
+  //       third = factory (Object|Function);
+  //       ... few more params which are used as variables or private params
+  //    2. first = ID (Number);
+  //       second = factory (FactoryFn);
+  //          FactoryFn: (
+  //              global: Object,
+  //              require: RequireFn,
+  //              moduleObject: {exports: {}},
+  //              exports: {}
+  //          ) => void
+  //    3. first = factory (FactoryFn);
+  //          FactoryFn: (
+  //              global: Object,
+  //              require: RequireFn,
+  //              moduleObject: {exports: {}},
+  //              exports: {},
+  //              dependencyMap: Array
+  //          ) => void
+  //       second = ID (Number);
+  //       third = dependencyMap (Array);
+  const [first, second, third] = args
+
+  if (isStringLiteral(first)
+      && isArrayExpression(second)
+      && (isObjectExpression(third) || isFunction(third))) {
+
+    return new Signal<rnFactory>(Signals.preventRecursion, {
+      id: first.value,
+      factory: third,
+    })
+  }
+  else if (isNumericLiteral(first)
+           && isFunction(second)
+           && third === undefined) {
+
+    return new Signal<rnFactory>(Signals.preventRecursion, {
+      id: first.value,
+      factory: second,
+    })
+  }
+  else if (isFunction(first)
+           && isNumericLiteral(second)
+           && (isArrayExpression(third) || third === undefined)) {
+
+    return new Signal<rnFactory>(Signals.preventRecursion, {
+      id: second.value,
+      factory: first,
+    })
+  }
+  else {
+    console.log('UNKNOWN CONFIGURATION PASSED TO __d!!! INVESTIGATE!!!')
+    return new Signal<rnFactory>(Signals.preventRecursion, null)
+  }
+}
+export const rnDeclareFns = visitNodes({ fn: rnDeclareFnFilter })
+
 const collapseFnNamesTree = (
   tree: TreePath<Signature>[],
   fnNameSoFar: string = ''): Signature[] => {
@@ -366,6 +447,32 @@ export const extractStructure = async function (
   const fnTree = fnOnlyTreeCreator(parsedContent)
   return collapseFnNamesTree(fnTree)
     .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+export type rnSignature = {
+  id: number | string,
+  structure: Signature[],
+}
+export const parseRNBundle = async function (
+  { content }: { content: string }): Promise<rnSignature[]> {
+
+  if (!content) return []
+
+  const parsed = parse(content)
+  const declareFns = rnDeclareFns(parsed)
+
+  const lazyDeclareFnPromises = declareFns.map(({ data }) => {
+    return async () => {
+      if (data === null) {
+        return null
+      }
+
+      const { id, factory } = data
+      return { id, structure: await extractStructure({ content: factory }) }
+    }
+  })
+
+  return compact(await resolveAllOrInParallel(lazyDeclareFnPromises))
 }
 
 export async function demo() {
