@@ -1,5 +1,5 @@
 import test, { Macro, TestContext } from 'ava'
-import { stripIndent } from 'common-tags'
+import { oneLineTrim, stripIndent } from 'common-tags'
 import { isPlainObject } from 'lodash'
 import { extractStructure } from './index'
 import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
@@ -94,6 +94,20 @@ test('expression statement: with object', checkTokensMacro,
       `${EXPRESSION}:Binary[${LITERAL}:Numeric ${op} ${LITERAL}:Numeric]`,
     ])
 })
+
+test('binary expr: three elems', checkTokensMacro,
+  stripIndent`
+    function a() {
+      1 + 2 + 3;
+    }
+  `,
+  [
+    oneLineTrim`${EXPRESSION}:Binary[
+      ${EXPRESSION}:Binary[
+        ${LITERAL}:Numeric + ${LITERAL}:Numeric
+      ] + ${LITERAL}:Numeric
+    ]`,
+  ])
 
 test('update expr', checkTokensMacro,
   stripIndent`
