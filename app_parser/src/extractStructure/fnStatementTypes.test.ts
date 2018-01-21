@@ -44,3 +44,24 @@ test('statement types are correct', checkTypesMacro,
     `t_${STATEMENT}:ForStatement`,
     `t_${STATEMENT}:ReturnStatement`,
   ])
+
+test('statement types: function declaration without semicolon', checkTypesMacro,
+  stripIndent`
+    function a() {
+      function b() {}
+    }
+  `,
+  [
+    `t_${STATEMENT}:FunctionDeclaration`,
+  ])
+
+test('statement types: function declaration with semicolon', checkTypesMacro,
+  stripIndent`
+    function a() {
+      function b() {};
+    }
+  `,
+  [
+    `t_${STATEMENT}:FunctionDeclaration`,
+    `t_${STATEMENT}:EmptyStatement`,
+  ])
