@@ -120,6 +120,9 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
           else if (url.protocol === 'http:' || url.protocol === 'https:') {
             console.log('script referenced via http / https!')
           }
+          else {
+            console.log(`${location} script #${i} has an unknown src!`)
+          }
         }
         else if (script.text) {
           infoObject = {
