@@ -95,6 +95,29 @@ const extractNameFromIdentifier = (node: Identifier): string => {
   return `'${node.name}'`
 }
 
+enum Signals {
+  preventRecursion = 'prevent-recursion',
+  continueRecursion = 'continue-recursion',
+}
+
+class Signal<T> {
+  private __signal: Signals
+  private __data: T | null
+
+  constructor(s: Signals, d: T | null) {
+    this.__signal = s
+    this.__data = d
+  }
+
+  get signal() {
+    return this.__signal
+  }
+
+  get data() {
+    return this.__data
+  }
+}
+
 const visitNodes = <K>(
   {
     fn = undefined,
