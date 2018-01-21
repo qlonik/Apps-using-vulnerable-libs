@@ -355,14 +355,14 @@ const collapseFnNamesTree = (
 }
 
 export const extractStructure = async function (
-  { content }: { content: string }): Promise<Signature[]> {
+  { content }: { content: string | BabelNode | null }): Promise<Signature[]> {
 
   // TODO: try to parse with: esprima, acorn, espree, babylon
   // espree is based on acorn and is used by eslint
   // babylon is based on acorn and is used by babel
   if (!content) return []
 
-  const parsedContent = parse(content)
+  const parsedContent = typeof content === 'string' ? parse(content) : content
   const fnTree = fnOnlyTreeCreator(parsedContent)
   return collapseFnNamesTree(fnTree)
     .sort((a, b) => a.name.localeCompare(b.name))
