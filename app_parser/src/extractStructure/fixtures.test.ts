@@ -5,6 +5,7 @@ import { AppDescription } from '../parseApps'
 import { libDesc } from '../parseLibraries'
 import { extractStructure } from './index'
 
+
 export const TEST_LIBS_PATH = 'test/fixtures/libs'
 export const SAMPLE_LIB_DESC: libDesc = { name: 'sample', version: '1.0.0' }
 export const SAMPLE_LIB_PATH = join(TEST_LIBS_PATH, SAMPLE_LIB_DESC.name, SAMPLE_LIB_DESC.version)
