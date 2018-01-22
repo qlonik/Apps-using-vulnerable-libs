@@ -321,7 +321,7 @@ export const getSimilarityToLib = async (
  */
 export type SimilarityTypes = 'fnNamesOur' | 'fnNamesJaccard' | 'fnStTokens' | 'fnStTypes'
   | 'namesTokens'
-export type SimilarityToLibs = Record<SimilarityTypes, Similarity[]>
+export type SimilarityToLibs = Partial<Record<SimilarityTypes, Similarity[]>>
 export const getSimilarityToLibs = async (
   { signature, libsPath }: {
     signature: Signature[],
@@ -372,7 +372,10 @@ export const getSimilarityToLibs = async (
 
   const result = <SimilarityToLibs>{}
   for (let [name, sll] of Object.entries(sllOfSims)) {
-    result[<SimilarityTypes>name] = sll.value()
+    const val = sll.value()
+    if (val.length) {
+      result[<SimilarityTypes>name] = val
+    }
   }
   return result
 }
