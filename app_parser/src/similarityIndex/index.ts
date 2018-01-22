@@ -16,13 +16,13 @@ export type Similarity = libDesc & {
 
 export type NewSimilarity = libDesc & {
   file: string,
-  fnNamesSim: {
-    ourIndex: indexValue,
-    jaccardIndex: indexValue,
+  fnNamesSim?: {
+    ourIndex?: indexValue,
+    jaccardIndex?: indexValue,
   },
-  fnStTokensSim: indexValue,
-  fnStTypesSim: indexValue,
-  namesTokens: indexValue,
+  fnStTokensSim?: indexValue,
+  fnStTypesSim?: indexValue,
+  namesTokens?: indexValue,
 }
 
 
@@ -345,16 +345,26 @@ export const getSimilarityToLibs = async (
         name,
         version,
         file,
-        fnNamesSim: { ourIndex, jaccardIndex },
-        fnStTokensSim,
-        fnStTypesSim,
-        namesTokens,
+        fnNamesSim: { ourIndex = null, jaccardIndex = null } = {},
+        fnStTokensSim = null,
+        fnStTypesSim = null,
+        namesTokens = null,
       }) => {
-        sllOfSims.fnNamesOur.push({ name, version, file, similarity: ourIndex })
-        sllOfSims.fnNamesJaccard.push({ name, version, file, similarity: jaccardIndex })
-        sllOfSims.fnStTokens.push({ name, version, file, similarity: fnStTokensSim })
-        sllOfSims.fnStTypes.push({ name, version, file, similarity: fnStTypesSim })
-        sllOfSims.namesTokens.push({ name, version, file, similarity: namesTokens })
+        if (ourIndex) {
+          sllOfSims.fnNamesOur.push({ name, version, file, similarity: ourIndex })
+        }
+        if (jaccardIndex) {
+          sllOfSims.fnNamesJaccard.push({ name, version, file, similarity: jaccardIndex })
+        }
+        if (fnStTokensSim) {
+          sllOfSims.fnStTokens.push({ name, version, file, similarity: fnStTokensSim })
+        }
+        if (fnStTypesSim) {
+          sllOfSims.fnStTypes.push({ name, version, file, similarity: fnStTypesSim })
+        }
+        if (namesTokens) {
+          sllOfSims.namesTokens.push({ name, version, file, similarity: namesTokens })
+        }
       })
     }
   })
