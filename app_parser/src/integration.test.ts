@@ -29,6 +29,12 @@ test.serial.skip('Snowbuddy analysis works', async t => {
   const simsPath = join(TEST_SNOWBUDDY_PATH, 'jsAnalysis', 'head', '0000', 'similarities.json')
   const sims = <SimilarityToLibs>await readJSON(simsPath)
 
+  t.deepEqual([
+    'fnNamesOur',
+    'fnNamesJaccard',
+    'fnStTokens',
+    'fnStTypes',
+  ].sort(), Object.keys(sims).sort())
   t.deepEqual({
     name: 'jquery',
     version: '2.1.1',
