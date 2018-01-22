@@ -2,6 +2,7 @@ import { test } from 'ava'
 import { Signature } from '../extractStructure'
 import {
   librarySimilarityByFunctionNames,
+  librarySimilarityByFunctionNamesAndStatementTokens,
   librarySimilarityByFunctionStatementTokens,
   librarySimilarityByFunctionStatementTypes,
 } from './index'
@@ -122,6 +123,18 @@ test('librarySimilarityByFunctionStatementTypes', t => {
     LIB_SIG.map(s => s.name),
   )
   const result = librarySimilarityByFunctionStatementTypes({
+    unknown: UNKNOWN_SIG,
+    lib: LIB_SIG,
+  })
+  t.deepEqual(expected, result)
+})
+
+test('librarySimilarityByFunctionNamesAndStatementTokens', t => {
+  const expected = jaccardLike(
+    POSSIBLE_NAMES_BY_FN_ST_TOKENS.map(s => s.name),
+    LIB_SIG.map(s => s.name),
+  )
+  const result = librarySimilarityByFunctionNamesAndStatementTokens({
     unknown: UNKNOWN_SIG,
     lib: LIB_SIG,
   })
