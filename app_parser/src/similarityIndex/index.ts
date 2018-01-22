@@ -22,6 +22,7 @@ export type NewSimilarity = libDesc & {
   },
   fnStTokensSim: indexValue,
   fnStTypesSim: indexValue,
+  namesTokens: indexValue,
 }
 
 
@@ -287,6 +288,7 @@ export const getSimilarityToLib = async (
       fnNamesSim: librarySimilarityByFunctionNames({ unknown, lib }),
       fnStTokensSim: librarySimilarityByFunctionStatementTokens({ unknown, lib }),
       fnStTypesSim: librarySimilarityByFunctionStatementTypes({ unknown, lib }),
+      namesTokens: librarySimilarityByFunctionNamesAndStatementTokens({ unknown, lib }),
     }
   })
 }
@@ -318,6 +320,7 @@ export const getSimilarityToLib = async (
  * @returns
  */
 export type SimilarityTypes = 'fnNamesOur' | 'fnNamesJaccard' | 'fnStTokens' | 'fnStTypes'
+  | 'namesTokens'
 export type SimilarityToLibs = Record<SimilarityTypes, Similarity[]>
 export const getSimilarityToLibs = async (
   { signature, libsPath }: {
@@ -331,6 +334,7 @@ export const getSimilarityToLibs = async (
     fnNamesJaccard: new SortedLimitedList({ predicate }),
     fnStTokens: new SortedLimitedList({ predicate }),
     fnStTypes: new SortedLimitedList({ predicate }),
+    namesTokens: new SortedLimitedList({ predicate }),
   }
 
   const libDescr = await getNamesVersions(libsPath)
@@ -344,11 +348,13 @@ export const getSimilarityToLibs = async (
         fnNamesSim: { ourIndex, jaccardIndex },
         fnStTokensSim,
         fnStTypesSim,
+        namesTokens,
       }) => {
         sllOfSims.fnNamesOur.push({ name, version, file, similarity: ourIndex })
         sllOfSims.fnNamesJaccard.push({ name, version, file, similarity: jaccardIndex })
         sllOfSims.fnStTokens.push({ name, version, file, similarity: fnStTokensSim })
         sllOfSims.fnStTypes.push({ name, version, file, similarity: fnStTypesSim })
+        sllOfSims.namesTokens.push({ name, version, file, similarity: namesTokens })
       })
     }
   })
