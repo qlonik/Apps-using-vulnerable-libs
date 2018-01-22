@@ -34,6 +34,7 @@ test.serial.skip('Snowbuddy analysis works', async t => {
     'fnNamesJaccard',
     'fnStTokens',
     'fnStTypes',
+    'namesTokens',
   ].sort(), Object.keys(sims).sort())
   t.deepEqual({
     name: 'jquery',
@@ -65,4 +66,14 @@ test.serial.skip('Snowbuddy analysis works', async t => {
       den: 561,
     }
   }, head(sims.fnStTypes))
+  t.deepEqual({
+    name: 'jquery',
+    version: '2.1.1',
+    file: '0001.json',
+    similarity: {
+      val: 1,
+      num: 561,
+      den: 561,
+    }
+  }, head(sims.namesTokens))
 })
