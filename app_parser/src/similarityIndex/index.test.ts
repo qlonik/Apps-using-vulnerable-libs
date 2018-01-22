@@ -35,13 +35,13 @@ const UNKNOWN_SIG: Signature[] = [
   },
   {
     type: 'fn',
-    name: 'ee',
+    name: 'ee:>>:[anonymous]',
     fnStatementTokens: ['5a', '5b', '6a', '6b'],
     fnStatementTypes: ['t_5a', 't_5b', 't_6a', 't_6b']
   },
   {
     type: 'fn',
-    name: 'ff',
+    name: 'ff:>>:[anonymous]',
     fnStatementTokens: ['5a', '5c', '5d', '5d', '6c', '6d', '6d'],
     fnStatementTypes: ['t_5a', 't_5c', 't_5d', 't_5d', 't_6c', 't_6d', 't_6d']
   },
@@ -73,13 +73,13 @@ const LIB_SIG: Signature[] = [
   },
   {
     type: 'fn',
-    name: 'eee',
+    name: 'eee:>>:[anonymous]',
     fnStatementTokens: ['5a', '5b', '5c', '5c', '5d', '5d'],
     fnStatementTypes: ['t_5a', 't_5b', 't_5c', 't_5c', 't_5d', 't_5d']
   },
   {
     type: 'fn',
-    name: 'fff',
+    name: 'fff:>>:[anonymous]',
     fnStatementTokens: ['6a', '6b', '6c', '6d', '6d'],
     fnStatementTypes: ['t_6a', 't_6b', 't_6c', 't_6d', 't_6d']
   },
@@ -89,8 +89,8 @@ const POSSIBLE_NAMES_BY_FN_ST_TOKENS = [
   /* UNKNOWN_SIG[1] */ { name: 'bb', prob: { val: 3 / 5, num: 3, den: 5 } },
   /* UNKNOWN_SIG[2] */ { name: 'cc', prob: { val: 4 / 5, num: 4, den: 5 } },
   /* UNKNOWN_SIG[3] */ { name: '[anonymous]', prob: { val: 4 / 6, num: 4, den: 6 } },
-  /* UNKNOWN_SIG[4] */ { name: 'fff', prob: { val: 2 / 7, num: 2, den: 7 } },
-  /* UNKNOWN_SIG[5] */ { name: 'eee', prob: { val: 4 / 9, num: 4, den: 9 } },
+  /* UNKNOWN_SIG[4] */ { name: 'fff:>>:[anonymous]', prob: { val: 2 / 7, num: 2, den: 7 } },
+  /* UNKNOWN_SIG[5] */ { name: 'eee:>>:[anonymous]', prob: { val: 4 / 9, num: 4, den: 9 } },
 ]
 
 test('librarySimilarityByFunctionNames', t => {
