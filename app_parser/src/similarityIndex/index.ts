@@ -1,7 +1,7 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
-import { clone, head, pullAt } from 'lodash'
+import { clone, head, last, partition, pullAt } from 'lodash'
 import { join } from 'path'
-import { Signature } from '../extractStructure'
+import { fnNamesSplit, Signature } from '../extractStructure'
 import { getNamesVersions, libDesc } from '../parseLibraries'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
@@ -180,6 +180,59 @@ export const librarySimilarityByFunctionStatementTypes = (
     }, <nameProb[]>[])
 
   return jaccardLike(possibleFnNames.map(v => v.name), lib.map(v => v.name))
+}
+
+export const librarySimilarityByFunctionNamesAndStatementTokens = (
+  { unknown, lib }: {
+    unknown: Signature[],
+    lib: Signature[],
+  }): indexValue => {
+
+  const anonFnPartitioner = (s: Signature) => last(fnNamesSplit(s.name)) === '[anonymous]'
+  const [unknownAnonFnSigs, unknownNamedFnSigs] = partition(unknown, anonFnPartitioner)
+  const [libAnonFnSigs, libNamedFnSigs] = partition(lib, anonFnPartitioner)
+
+  type nameProbIndexOrigI = nameProbIndex & { origIndex: number }
+
+  const libAnonFnSigsCopy = clone(libAnonFnSigs).map((s: Signature, i) => ({ s, i }))
+  // remark: first for loop
+  const possibleMatches = unknownAnonFnSigs
+    .reduce((acc, { fnStatementTokens: toks }) => {
+      if (!toks) {
+        return acc
+      }
+
+      // remark: second for loop
+      const topMatches = libAnonFnSigsCopy
+        .reduce((sll, { i: origIndex, s: { name, fnStatementTokens: libToks } }, index) => {
+          if (!libToks) {
+            return sll
+          }
+
+          // remark: third for loop (inside jaccardLike())
+          return sll.push({ name, index, origIndex, prob: jaccardLike(toks, libToks) })
+        }, new SortedLimitedList({ predicate: (o: nameProbIndexOrigI) => -o.prob.val }))
+        .value()
+
+      const topMatch = head(topMatches)
+      if (!topMatch || topMatch.prob.val === 0) {
+        const unmatched = { name: '__unmatched__', index: -1, prob: { val: 1, num: -1, den: -1 } }
+        return acc.concat(unmatched)
+      }
+
+      const { name, index, origIndex, prob } = topMatch
+      pullAt(libAnonFnSigsCopy, index)
+      return acc.concat({ name, prob, index: origIndex })
+    }, <nameProbIndex[]>[])
+
+  const unknownNames = (<(string | number)[]>[])
+    .concat(unknownNamedFnSigs.map(v => v.name))
+    .concat(possibleMatches.map(v => v.index))
+  const libNames = (<(string | number)[]>[])
+    .concat(libNamedFnSigs.map(v => v.name))
+    .concat(libAnonFnSigs.map((_, i) => i))
+
+  return jaccardLike(unknownNames, libNames)
 }
 
 /**
