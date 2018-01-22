@@ -83,6 +83,10 @@ export const fnNamesConcat = (p: string, f: string): string => {
   return p.concat(st).concat(f)
 }
 
+export const fnNamesSplit = (n: string): string[] => {
+  return n.split(CONCAT_FNS_WITH)
+}
+
 const extractNameFromLiteral = (node: Literal): string => {
   if (isRegExpLiteral(node)) {
     return '*regexp literal*'
