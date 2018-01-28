@@ -1,4 +1,5 @@
 import req = require('request-promise-native')
+import { inspect } from 'util'
 
 // list of top depended upon from https://gist.github.com/anvaka/8e8fa57c7ee1350e3491
 const TOP_LIST = `
@@ -116,6 +117,8 @@ const FINISHED = [
   'less',
 ]
 
+const PROCESSING: string[] = []
+
 async function main() {
   const nameVersions = await TOP_LIST.reduce(async (acc, name) => {
     if (!name) {
@@ -126,13 +129,18 @@ async function main() {
       return acc
     }
 
+    PROCESSING.push(name)
+
     const json = JSON.parse(await req(`https://registry.npmjs.org/${name.replace('/', '%2F')}`))
     const versions = Object.keys(json.versions)
     return (await acc).concat(versions.map((version) => `${name}@${version}`))
   }, <Promise<string[]>>Promise.resolve([]))
-  return 'npm pack ' + nameVersions.join(' ')
+  return { cmd: 'npm pack ' + nameVersions.join(' '), processing: PROCESSING }
 }
 
 main()
-  .then((cmd) => console.log(cmd))
+  .then(({ cmd, processing }) => {
+    console.log(inspect(processing))
+    console.log(cmd)
+  })
   .catch((err) => console.log(err))
