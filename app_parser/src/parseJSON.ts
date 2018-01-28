@@ -126,7 +126,7 @@ async function main() {
       return acc
     }
 
-    const json = JSON.parse(await req(`https://registry.npmjs.org/${name}`))
+    const json = JSON.parse(await req(`https://registry.npmjs.org/${name.replace('/', '%2F')}`))
     const versions = Object.keys(json.versions)
     return (await acc).concat(versions.map((version) => `${name}@${version}`))
   }, <Promise<string[]>>Promise.resolve([]))
