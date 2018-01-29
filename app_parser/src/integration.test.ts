@@ -8,8 +8,8 @@ import { SimilarityToLibs } from './similarityIndex'
 import { saveFiles } from './utils/files'
 
 
-const LIBS_PATH = '../data/sample_libs.test-copy'
-const TEST_SNOWBUDDY_PATH = '../data/sample_apps/random/Snowbuddy-1.2.8.test-copy'
+const LIBS_PATH = 'test/fixtures/libs'
+const TEST_SNOWBUDDY_PATH = 'test/fixtures/apps/random/Snowbuddy-1.2.8'
 
 test.serial.skip('Snowbuddy analysis works', async t => {
   await saveFiles(
