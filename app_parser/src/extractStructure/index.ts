@@ -19,6 +19,9 @@ import { getFnStatementTypes } from './fnStatementTypes'
 import { Signal, Signals, TreePath, visitNodes } from './visitNodes'
 
 
+export { Signature }
+
+
 const CONCAT_FNS_WITH = ':>>:'
 
 
