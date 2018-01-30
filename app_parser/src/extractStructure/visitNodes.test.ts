@@ -1,6 +1,6 @@
 import { objectWithPropertySpy } from '../_helpers/objectWithPropertySpy'
 import { contextualize } from '../_helpers/testContext'
-import { Signal, Signals, visitNodes } from './index'
+import { Signal, Signals, visitNodes } from './visitNodes'
 
 
 const test = contextualize(() => {

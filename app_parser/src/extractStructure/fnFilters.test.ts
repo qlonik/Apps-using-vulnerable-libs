@@ -2,8 +2,9 @@ import test from 'ava'
 import { isFunction } from 'babel-types'
 import { parse } from 'babylon';
 import { oneLineTrim, stripIndent } from 'common-tags'
-import { fnOnlyTreeCreator, rnDeclareFns, Signature, TreePath } from './index'
+import { fnOnlyTreeCreator, rnDeclareFns, Signature } from './index'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
+import { TreePath } from './visitNodes'
 
 
 test('fn filtered correctly', t => {

@@ -29,10 +29,11 @@ import { parse } from 'babylon'
 import { stripIndent } from 'common-tags'
 import { compact, flatMap, Many } from 'lodash'
 import { inspect as utilInspect } from 'util'
-import { assertNever, resolveAllOrInParallel } from '../utils'
+import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
 import { getFnStatementTokens } from './fnStatementTokens'
 import { getFnStatementTypes } from './fnStatementTypes'
+import { Signal, Signals, TreePath, visitNodes } from './visitNodes'
 
 
 const CONCAT_FNS_WITH = ':>>:'
@@ -57,26 +58,9 @@ export type Signature = {
   fnStatementTypes?: string[] | null,
   fnStatementTokens?: string[] | null,
 }
-/**
- * @param prop - property name
- * @param data - custom data
- * @param node - node of the AST
- * @param c - children
- */
-export type TreePath<T> = {
-  prop: string,
-  data: T,
-  node?: BabelNode,
-  c?: TreePath<T>[],
-}
-
 
 const NAMESPACE = 'x.Struct'
 const log = stdoutLog(NAMESPACE)
-
-const pathConcat = (p: string, c: string | number): string => {
-  return p.concat(typeof c === 'number' ? `[${c}]` : (p.length ? '.' + c : c))
-}
 
 export const fnNamesConcat = (p: string, f: string): string => {
   const st = p.length ? CONCAT_FNS_WITH : ''
@@ -102,99 +86,6 @@ const extractNameFromLiteral = (node: Literal): string => {
 
 const extractNameFromIdentifier = (node: Identifier): string => {
   return `'${node.name}'`
-}
-
-export enum Signals {
-  preventRecursion = 'prevent-recursion',
-  continueRecursion = 'continue-recursion',
-}
-
-export class Signal<T> {
-  private __signal: Signals
-  private __data: T | null
-
-  constructor(s: Signals, d: T | null) {
-    this.__signal = s
-    this.__data = d
-  }
-
-  get signal() {
-    return this.__signal
-  }
-
-  get data() {
-    return this.__data
-  }
-}
-
-export const visitNodes = <K>(
-  {
-    fn = undefined,
-    includeNodes = false,
-  }: {
-    fn?: (path: string, val: any) => Signal<K>,
-    includeNodes?: boolean,
-  } = {}) => {
-
-  return function paths(
-    obj: object | Array<any>,
-    pathSoFar: string = ''): TreePath<K>[] {
-
-    let entries: Array<[string | number, any]> = []
-    if (Array.isArray(obj)) {
-      entries = [...obj.entries()]
-    }
-    else if (typeof obj === 'object') {
-      entries = Object.entries(obj)
-    }
-
-    return flatMap(entries, ([key, value]: [string | number, any]) => {
-      const childPath = pathConcat(pathSoFar, key)
-      const {
-        data = null,
-        signal = Signals.preventRecursion,
-      } = typeof fn === 'function' ? fn(childPath, value) : {}
-      let children = null
-
-      if (signal === Signals.continueRecursion) {
-        if (value && typeof value === 'object') {
-          const ch = paths(value, childPath)
-          if (ch.length) {
-            children = ch
-          }
-        }
-      }
-      else if (signal === Signals.preventRecursion) {
-      }
-      else {
-        /* istanbul ignore next */
-        assertNever(signal)
-      }
-
-      if (data !== null) {
-        const result: TreePath<K> = {
-          prop: childPath,
-          data,
-        }
-
-        if (includeNodes) {
-          result.node = value
-        }
-
-        if (children) {
-          result.c = children
-        }
-
-        return result
-      }
-      else if (children) {
-        return children
-      }
-      else {
-        return []
-      }
-    })
-  }
 }
 
 const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> => {
