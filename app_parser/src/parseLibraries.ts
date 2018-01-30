@@ -308,6 +308,11 @@ export async function extractSingleLibraryFromDump({
   return { name, version }
 }
 
+export async function getVersions(libsPath: string, name: string): Promise<libDesc[]> {
+  const versions = await readdir(join(libsPath, name))
+  return versions.map((version) => ({ name, version }))
+}
+
 
 
 /*
