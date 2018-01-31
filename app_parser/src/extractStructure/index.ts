@@ -4,19 +4,16 @@ import { stripIndent } from 'common-tags'
 import { compact, flatMap, Many } from 'lodash'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
-import { fnNodeFilter, Signature } from './nodeFilters/allFnsAndNames'
-import { rnDeclareFnFilter } from './nodeFilters/rnDeclareFn'
 import { getFnStatementTokens } from './fnStatementTokens'
 import { getFnStatementTypes } from './fnStatementTypes'
+import { fnNodeFilter, Signature } from './nodeFilters/allFnsAndNames'
+import { rnDeclareFnFilter } from './nodeFilters/rnDeclareFn'
 import { TreePath, visitNodes } from './visitNodes'
 
 
 export { Signature }
 
-
 const CONCAT_FNS_WITH = ':>>:'
-
-
 const NAMESPACE = 'x.Struct'
 const log = stdoutLog(NAMESPACE)
 
