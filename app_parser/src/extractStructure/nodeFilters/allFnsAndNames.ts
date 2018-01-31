@@ -44,8 +44,8 @@ import { Signal, Signals } from '../visitNodes'
 export type Signature = {
   type: 'fn',
   name: string,
-  fnStatementTypes?: string[] | null,
-  fnStatementTokens?: string[] | null,
+  fnStatementTypes: string[] | null,
+  fnStatementTokens: string[] | null,
 }
 
 const extractNameFromLiteral = (node: Literal): string => {

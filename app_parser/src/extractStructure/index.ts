@@ -4,8 +4,6 @@ import { stripIndent } from 'common-tags'
 import { compact, flatMap, Many } from 'lodash'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
-import { getFnStatementTokens } from './fnStatementTokens'
-import { getFnStatementTypes } from './fnStatementTypes'
 import { fnNodeFilter, Signature } from './nodeFilters/allFnsAndNames'
 import { rnDeclareFnFilter } from './nodeFilters/rnDeclareFn'
 import { TreePath, visitNodes } from './visitNodes'
@@ -47,17 +45,7 @@ const collapseFnNamesTree = (
     }
 
     const fnName = fnNamesConcat(fnNameSoFar, fnDesc.data.name)
-    const fnStatementTypes = fnDesc.data.fnStatementTypes
-      ? fnDesc.data.fnStatementTypes
-      : fnDesc.node
-        ? getFnStatementTypes(fnDesc.node)
-        : null
-    const fnStatementTokens = fnDesc.data.fnStatementTokens
-      ? fnDesc.data.fnStatementTokens
-      : fnDesc.node
-        ? getFnStatementTokens(fnDesc.node)
-        : null
-
+    const { fnStatementTypes, fnStatementTokens } = fnDesc.data
     const treeElem: Signature = { type: 'fn', name: fnName, fnStatementTypes, fnStatementTokens }
 
     if (!fnDesc.c) {
