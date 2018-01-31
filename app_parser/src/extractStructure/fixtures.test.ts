@@ -3,8 +3,11 @@ import { readFile, readJSON } from 'fs-extra'
 import { join } from "path"
 import { AppDescription } from '../parseApps'
 import { libDesc } from '../parseLibraries'
+import { myWriteJSON } from '../utils/files'
 import { extractStructure } from './index'
 
+
+const UPDATE_SIGNATURES = false
 
 export const TEST_LIBS_PATH = 'test/fixtures/libs'
 export const SAMPLE_LIB_DESC: libDesc = { name: 'sample', version: '1.0.0' }
@@ -18,8 +21,15 @@ export const SAMPLE_APP_PATH = join(TEST_APPS_PATH, SAMPLE_APP_DESC.section, SAM
 
 test('extracted lib structure didn\'t change', async t => {
   const srcContent = await readFile(join(SAMPLE_LIB_PATH, MAINS_PATH, '0000.js'), 'utf-8')
-  const sigContent = await readJSON(join(SAMPLE_LIB_PATH, SIGS_PATH, '0000.json'))
   const structure = await extractStructure({ content: srcContent })
+  let sigContent
+  if (UPDATE_SIGNATURES) {
+    await myWriteJSON({ content: structure, file: join(SAMPLE_LIB_PATH, SIGS_PATH, '0000.json') })
+    sigContent = structure
+  }
+  else {
+    sigContent = await readJSON(join(SAMPLE_LIB_PATH, SIGS_PATH, '0000.json'))
+  }
 
   t.snapshot(srcContent)
   t.snapshot(sigContent)
@@ -29,8 +39,15 @@ test('extracted lib structure didn\'t change', async t => {
 
 test('extracted app structure didn\'t change', async t => {
   const srcContent = await readFile(join(SAMPLE_APP_PATH, 'src.js'), 'utf-8')
-  const sigContent = await readJSON(join(SAMPLE_APP_PATH, 'structure.json'))
   const structure = await extractStructure({ content: srcContent })
+  let sigContent
+  if (UPDATE_SIGNATURES) {
+    await myWriteJSON({ content: structure, file: join(SAMPLE_APP_PATH, 'structure.json') })
+    sigContent = structure
+  }
+  else {
+    sigContent = await readJSON(join(SAMPLE_APP_PATH, 'structure.json'))
+  }
 
   t.snapshot(srcContent)
   t.snapshot(sigContent)
