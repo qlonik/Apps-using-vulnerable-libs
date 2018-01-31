@@ -5,6 +5,11 @@ import { compact, flatMap, Many } from 'lodash'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
 import { fnNodeFilter, Signature } from './nodeFilters/allFnsAndNames'
+import {
+  collapseLiteralValsTree,
+  literalValuesFilter,
+  SignatureLiteral,
+} from './nodeFilters/literalValues'
 import { rnDeclareFnFilter } from './nodeFilters/rnDeclareFn'
 import { TreePath, visitNodes } from './visitNodes'
 
@@ -26,6 +31,7 @@ export const fnNamesSplit = (n: string): string[] => {
 
 export const fnOnlyTreeCreator = visitNodes<Signature>({ fn: fnNodeFilter })
 export const rnDeclareFns = visitNodes({ fn: rnDeclareFnFilter })
+export const literalValues = visitNodes({ fn: literalValuesFilter })
 
 const collapseFnNamesTree = (
   tree: TreePath<Signature>[],
@@ -93,6 +99,15 @@ export const parseRNBundle = async function (
   })
 
   return compact(await resolveAllOrInParallel(lazyDeclareFnPromises))
+}
+
+export const extractLiteralStructure = async function (
+  { content }: { content: string | BabelNode | null }): Promise<SignatureLiteral[]> {
+
+  if (!content) return []
+
+  const parsed = typeof content === 'string' ? parse(content) : content
+  return collapseLiteralValsTree(literalValues(parsed))
 }
 
 export async function demo() {

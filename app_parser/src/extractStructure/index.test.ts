@@ -1,6 +1,12 @@
 import test from 'ava'
 import { stripIndent } from 'common-tags'
-import { extractStructure, fnNamesConcat, parseRNBundle, rnSignature } from './index'
+import {
+  extractLiteralStructure,
+  extractStructure,
+  fnNamesConcat,
+  parseRNBundle,
+  rnSignature,
+} from './index'
 import { DECLARATION, EXPRESSION, LITERAL, STATEMENT } from './tags'
 
 
@@ -128,4 +134,49 @@ test('react-native: signature created is correct', async t => {
   ]
 
   t.deepEqual(expected, await parseRNBundle({ content }))
+})
+
+test('literals: signature created is correct', async t => {
+  const content = stripIndent`
+    function a() {
+      var st1 = 'string one';
+      var nu1 = 12345;
+      var re1 = /re.?e/;
+      var te1 = \`template\`;
+
+      function b() {
+        var st2 = 'string two';
+        var nu2 = 123456;
+        var re2 = /er.+e/g;
+        var te2 = \`
+          template
+          template 2
+          '\${nu1 + nu2}'
+        \`
+      }
+
+      var common1 = true;
+      var common2 = false;
+      var common3 = null;
+      var common4 = 0;
+      var common5 = 1;
+    }
+  `
+  const sig = await extractLiteralStructure({ content })
+  const expectedVals = [
+    'string one',
+    12345,
+    '/re.?e/',
+    `template`,
+    'string two',
+    123456,
+    '/er.+e/g',
+    `
+      template
+      template 2
+      '...'
+    `
+  ].sort()
+
+  t.deepEqual(expectedVals, sig)
 })
