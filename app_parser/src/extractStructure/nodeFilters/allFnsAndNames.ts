@@ -62,7 +62,7 @@ const extractNameFromLiteral = (node: Literal): string => {
 }
 
 const extractNameFromIdentifier = (node: Identifier): string => {
-  return `'${node.name}'`
+  return `${node.name}`
 }
 
 export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> => {
