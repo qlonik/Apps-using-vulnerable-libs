@@ -2,8 +2,8 @@ import test from 'ava'
 import { isFunction } from 'babel-types'
 import { parse } from 'babylon';
 import { oneLineTrim, stripIndent } from 'common-tags'
-import { Signature } from './nodeFilters/allFnsAndNames'
 import { fnOnlyTreeCreator, rnDeclareFns } from './index'
+import { Signature } from './nodeFilters/allFnsAndNames'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
 import { TreePath } from './visitNodes'
 
