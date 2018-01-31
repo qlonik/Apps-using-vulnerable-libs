@@ -2,7 +2,7 @@ import test from 'ava'
 import { isFunction } from 'babel-types'
 import { parse } from 'babylon';
 import { oneLineTrim, stripIndent } from 'common-tags'
-import { fnOnlyTreeCreator, rnDeclareFns } from './index'
+import { fnOnlyTreeCreator, literalValues, rnDeclareFns } from './index'
 import { Signature } from './nodeFilters/allFnsAndNames'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
 import { TreePath } from './visitNodes'
@@ -144,4 +144,34 @@ test('react-native: bundle filtered correctly', async t => {
   t.true(isFunction(<any>third.data!.factory))
   t.is(fourth.data!.id, 3)
   t.true(isFunction(<any>fourth.data!.factory))
+})
+
+test('literals: extracted needed, skipped common', async t => {
+  const content = stripIndent`
+    function a() {
+      var st1 = 'string one';
+      var nu1 = 12345;
+      var re1 = /re.?e/;
+      var te1 = \`template\`;
+
+      function b() {
+        var st2 = 'string two';
+        var nu2 = 123456;
+        var re2 = /er.+e/g;
+        var te2 = \`
+          template
+          template 2
+          '\${nu1 + nu2}'
+        \`
+      }
+
+      var common1 = true;
+      var common2 = false;
+      var common3 = null;
+      var common4 = 0;
+      var common5 = 1;
+    }
+  `
+  const sig = literalValues(parse(content))
+  t.is(8, sig.length)
 })
