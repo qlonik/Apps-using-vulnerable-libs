@@ -82,7 +82,7 @@ test('fn filtered correctly', t => {
     prop: 'program.body[1].declarations[0]',
     data: {
       type: 'fn',
-      name: '\'b\'',
+      name: 'b',
       fnStatementTypes: fnB_types.sort(),
       fnStatementTokens: fnB_toks.sort(),
     },

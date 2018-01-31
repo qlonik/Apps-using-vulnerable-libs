@@ -99,7 +99,7 @@ test('react-native: signature created is correct', async t => {
       id: 1,
       structure: [{
         type: 'fn',
-        name: '\'a\'',
+        name: 'a',
         fnStatementTypes: [
           `t_${STATEMENT}:VariableDeclaration`,
         ],
@@ -108,7 +108,7 @@ test('react-native: signature created is correct', async t => {
         ],
       }, {
         type: 'fn',
-        name: fnNamesConcat('\'a\'', 'fn'),
+        name: fnNamesConcat('a', 'fn'),
         fnStatementTypes: [
           `t_${STATEMENT}:ReturnStatement`,
         ],
