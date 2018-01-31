@@ -1,7 +1,7 @@
 [
   {
     "type": "fn",
-    "name": "'fn1'",
+    "name": "fn1",
     "fnStatementTypes": [
       "t_dr:directive",
       "t_dr:one more directive",
@@ -37,17 +37,7 @@
   },
   {
     "type": "fn",
-    "name": "'fn1':>>:'c'",
-    "fnStatementTypes": [
-      "t_ex:ObjectExpression"
-    ],
-    "fnStatementTokens": [
-      "ex:Object"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "'fn1':>>:[anonymous]",
+    "name": "fn1:>>:[anonymous]",
     "fnStatementTypes": [
       "t_st:ReturnStatement"
     ],
@@ -57,7 +47,7 @@
   },
   {
     "type": "fn",
-    "name": "'fn1':>>:a",
+    "name": "fn1:>>:a",
     "fnStatementTypes": [
       "t_pr:AssignmentPattern",
       "t_st:ExpressionStatement",
@@ -71,7 +61,7 @@
   },
   {
     "type": "fn",
-    "name": "'fn1':>>:a:>>:'d'",
+    "name": "fn1:>>:a:>>:d",
     "fnStatementTypes": [
       "t_ex:ObjectExpression"
     ],
@@ -81,7 +71,7 @@
   },
   {
     "type": "fn",
-    "name": "'fn1':>>:a:>>:hello",
+    "name": "fn1:>>:a:>>:hello",
     "fnStatementTypes": [
       "t_pr:Identifier",
       "t_pr:Identifier"
@@ -93,7 +83,17 @@
   },
   {
     "type": "fn",
-    "name": "'fn1':>>:name",
+    "name": "fn1:>>:c",
+    "fnStatementTypes": [
+      "t_ex:ObjectExpression"
+    ],
+    "fnStatementTokens": [
+      "ex:Object"
+    ]
+  },
+  {
+    "type": "fn",
+    "name": "fn1:>>:name",
     "fnStatementTypes": [
       "t_pr:AssignmentPattern",
       "t_pr:Identifier",
@@ -109,7 +109,7 @@
   },
   {
     "type": "fn",
-    "name": "'fn1':>>:name:>>:[anonymous]",
+    "name": "fn1:>>:name:>>:[anonymous]",
     "fnStatementTypes": [],
     "fnStatementTokens": []
   },
