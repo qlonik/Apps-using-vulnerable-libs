@@ -2,7 +2,7 @@ import test from 'ava'
 import { stripIndent } from 'common-tags'
 import {
   extractLiteralStructure,
-  extractStructure,
+  extractFunctionStructure,
   fnNamesConcat,
   parseRNBundle,
   rnSignature,
@@ -26,7 +26,7 @@ test('number of functions is correct', async t => {
     (function () {})()
     (() => {})()
   `
-  const structure = await extractStructure({ content })
+  const structure = await extractFunctionStructure({ content })
 
   t.is(10, structure.length)
 })
@@ -39,7 +39,7 @@ test('names are correct', async t => {
       }
     }
   `
-  const structure = await extractStructure({ content })
+  const structure = await extractFunctionStructure({ content })
   const names = structure.map(f => f.name)
 
   const firstFnName = 'a'

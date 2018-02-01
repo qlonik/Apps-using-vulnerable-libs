@@ -3,7 +3,7 @@ import { JSDOM } from 'jsdom'
 import { join } from 'path'
 import { URL } from 'url'
 
-import { extractStructure } from '../extractStructure'
+import { extractFunctionStructure } from '../extractStructure'
 import { getSimilarityToLibs } from '../similarityIndex'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { fileDescOp, fileOp, saveFiles } from '../utils/files'
@@ -152,7 +152,7 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
           }
         }
 
-        const signature = await extractStructure({ content })
+        const signature = await extractFunctionStructure({ content })
         const sims = await getSimilarityToLibs({ signature, libsPath })
 
         const saved = await saveFiles(fileOps.concat([

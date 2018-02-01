@@ -61,7 +61,7 @@ const collapseFnNamesTree = (
   })
 }
 
-export const extractStructure = async function (
+export const extractFunctionStructure = async function (
   { content }: { content: string | BabelNode | null }): Promise<Signature[]> {
 
   // TODO: try to parse with: esprima, acorn, espree, babylon
@@ -94,7 +94,7 @@ export const parseRNBundle = async function (
       }
 
       const { id, factory } = data
-      return { id, structure: await extractStructure({ content: factory }) }
+      return { id, structure: await extractFunctionStructure({ content: factory }) }
     }
   })
 

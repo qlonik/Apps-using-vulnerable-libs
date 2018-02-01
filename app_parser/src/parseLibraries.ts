@@ -1,7 +1,7 @@
 import { copy, ensureDir, move, pathExists, readdir, readFile, readJSON, remove } from 'fs-extra'
 import { basename, dirname, extname, join, relative, resolve } from 'path'
 import { inspect } from 'util'
-import { extractStructure } from './extractStructure'
+import { extractFunctionStructure } from './extractStructure'
 import {
   chunk,
   leftPad,
@@ -228,7 +228,7 @@ async function analyseOneLibFile(
   const destSig = `sigs/${leftPad(i)}.json`
   const fileP = join(cwd, dst)
   const content = await readFile(fileP, 'utf-8')
-  const signature = await extractStructure({ content })
+  const signature = await extractFunctionStructure({ content })
 
   return { type: fileOp.json, cwd, dst: destSig, json: signature, conservative }
 }
@@ -361,7 +361,7 @@ async function parseLibraryInPath(
     const script = await readFile(libScriptPath, 'utf-8')
     await myWriteJSON({
       file: join(libPath, 'libDesc.sig.json'),
-      content: await extractStructure({ content: script })
+      content: await extractFunctionStructure({ content: script })
     })
   }
   if (mainPathMin !== null && await pathExists(mainPathMin)) {
@@ -371,7 +371,7 @@ async function parseLibraryInPath(
     const script = await readFile(libMinScriptPath, 'utf-8')
     await myWriteJSON({
       file: join(libPath, 'libDesc.min.sig.json'),
-      content: await extractStructure({ content: script }),
+      content: await extractFunctionStructure({ content: script }),
     })
   }
 }
