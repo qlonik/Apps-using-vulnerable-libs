@@ -7,6 +7,7 @@ import {
   clientMessageType,
   LOG_NAMESPACE,
   messageFrom,
+  reanalyseLibRequest,
   reanalysisResult,
   serverMessage,
   serverMessageType
@@ -20,11 +21,7 @@ const log = stdoutLog(LOG_NAMESPACE)
 const useExecutorsPool = createAutoClosedPool(workerPool)
 
 const reanalyseLibs = (
-  { libsPath, name, version }: {
-    libsPath: string,
-    name: string,
-    version: string,
-  }) => {
+  { libsPath, name, version }: reanalyseLibRequest) => {
 
   return async (worker: ChildProcessWithLog) => {
 

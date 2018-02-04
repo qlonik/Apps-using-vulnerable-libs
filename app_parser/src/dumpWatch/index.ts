@@ -7,6 +7,7 @@ import {
   LOG_NAMESPACE,
   messageFrom,
   processingResult,
+  processRequest,
   serverMessage,
   serverMessageType,
 } from './common'
@@ -58,11 +59,7 @@ const useExecutorsPool = createAutoClosedPool(workerPool)
  * function performed by each executor
  */
 const processLibrary = (
-  { filename, libsPath, dumpPath }: {
-    filename: string,
-    libsPath: string,
-    dumpPath: string,
-  }) => {
+  { filename, libsPath, dumpPath }: processRequest) => {
 
   return async (worker: ChildProcessWithLog) => {
 

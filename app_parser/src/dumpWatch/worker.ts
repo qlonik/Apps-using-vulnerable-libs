@@ -9,6 +9,9 @@ import {
   clientMessageType,
   messageFrom,
   processingResult,
+  processRequest,
+  reanalyseLibRequest,
+  reanalysisResult,
   serverMessage,
   serverMessageType
 } from './common'
@@ -18,11 +21,7 @@ const log = stdoutLog(`worker:${process.pid}`)
 log.enabled = false
 
 const processLibrary = async (
-  { filename, libsPath, dumpPath }: {
-    filename: string,
-    libsPath: string,
-    dumpPath: string,
-  }): Promise<processingResult> => {
+  { filename, libsPath, dumpPath }: processRequest): Promise<processingResult> => {
 
   log('got %o', filename)
 
@@ -53,11 +52,7 @@ const processLibrary = async (
 }
 
 const reanalyseLibrary = async (
-  { libsPath, name, version }: {
-    libsPath: string,
-    name: string,
-    version: string,
-  }) => {
+  { libsPath, name, version }: reanalyseLibRequest): Promise<reanalysisResult> => {
 
   log('reanalysing %o %o', name, version)
 
