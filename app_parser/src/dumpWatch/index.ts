@@ -58,11 +58,8 @@ const useExecutorsPool = createAutoClosedPool(workerPool)
 /*
  * function performed by each executor
  */
-const processLibrary = (
-  { filename, libsPath, dumpPath }: processRequest) => {
-
+const processLibrary = ({ filename, libsPath, dumpPath }: processRequest) => {
   return async (worker: ChildProcessWithLog) => {
-
     // log('(w:%o) got %o', worker.pid, filename)
 
     worker.send(<serverMessage>{
@@ -73,7 +70,7 @@ const processLibrary = (
       filename,
     })
 
-    const { main, analysis } = await new Promise<processingResult>(((resolve, reject) => {
+    const { main, analysis } = await new Promise<processingResult>((resolve, reject) => {
       worker.once('message', (msg: clientMessage) => {
         if (msg.type === clientMessageType.processingResult) {
           resolve({ filename: msg.filename, main: msg.main, analysis: msg.analysis })
@@ -82,7 +79,7 @@ const processLibrary = (
           reject(new Error('wrong message type received'))
         }
       })
-    }))
+    })
 
     if (!main || !analysis) {
       log('(w:%o) The file %o left untouched. Could not parse filename', worker.pid, filename)

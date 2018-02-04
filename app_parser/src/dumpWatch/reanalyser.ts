@@ -20,11 +20,8 @@ const LIB_PATH = '../data/sample_libs'
 const log = stdoutLog(LOG_NAMESPACE)
 const useExecutorsPool = createAutoClosedPool(workerPool)
 
-const reanalyseLibs = (
-  { libsPath, name, version }: reanalyseLibRequest) => {
-
+const reanalyseLibs = ({ libsPath, name, version }: reanalyseLibRequest) => {
   return async (worker: ChildProcessWithLog) => {
-
     log('(w:%o) got %o', worker.pid, `${name}@${version}`)
 
     worker.send(<serverMessage>{
