@@ -1,6 +1,5 @@
 import { Node as BabelNode } from 'babel-types'
 import { parse } from 'babylon'
-import { stripIndent } from 'common-tags'
 import { compact, flatMap, Many } from 'lodash'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
@@ -62,6 +61,9 @@ const collapseFnNamesTree = (
     .sort((a, b) => a.name.localeCompare(b.name))
 }
 
+/**
+ * @deprecated
+ */
 export const extractFunctionStructure = async function (
   { content }: { content: string | BabelNode | null }): Promise<Signature[]> {
 
@@ -75,10 +77,16 @@ export const extractFunctionStructure = async function (
   return collapseFnNamesTree(fnTree)
 }
 
+/**
+ * @deprecated
+ */
 export type rnSignature = {
   id: number | string,
   structure: Signature[],
 }
+/**
+ * @deprecated
+ */
 export const parseRNBundle = async function (
   { content }: { content: string }): Promise<rnSignature[]> {
 
@@ -101,6 +109,9 @@ export const parseRNBundle = async function (
   return compact(await resolveAllOrInParallel(lazyDeclareFnPromises))
 }
 
+/**
+ * @deprecated
+ */
 export const extractLiteralStructure = async function (
   { content }: { content: string | BabelNode | null }): Promise<SignatureLiteral[]> {
 
@@ -110,3 +121,42 @@ export const extractLiteralStructure = async function (
   return collapseLiteralValsTree(literalValues(parsed))
 }
 
+// todo: refactor existing types rather than alias them
+export type FunctionSignature = Signature
+export type LiteralSignature = SignatureLiteral
+export type signatureNew = {
+  functionSignature: FunctionSignature[],
+  literalSignature: LiteralSignature[],
+}
+export type rnSignatureNew = signatureNew & {
+  id: number | string,
+}
+const _extractStructure = function (
+  { content }: { content: string | BabelNode }): signatureNew {
+
+  const parsed = typeof content === 'string' ? parse(content) : content
+
+  const functionSignature = collapseFnNamesTree(fnOnlyTreeCreator(parsed))
+  const literalSignature = collapseLiteralValsTree(literalValues(parsed))
+
+  return { functionSignature, literalSignature }
+}
+
+export const extractStructure = function (
+  { content }: { content: string }): signatureNew | null {
+
+  if (!content) return null
+  return _extractStructure({ content })
+}
+
+export const extractReactNativeStructure = function (
+  { content }: { content: string }): rnSignatureNew[] | null {
+
+  if (!content) return null
+  return rnDeclareFns(parse(content))
+    .map(({ data }) => {
+      const { id, factory } = data
+      const structure = _extractStructure({ content: factory })
+      return { id, ...structure }
+    })
+}
