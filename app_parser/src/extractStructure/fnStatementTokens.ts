@@ -360,7 +360,7 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
   } else if (isTryStatement(st)) {
   } else if (isVariableDeclaration(st)) {
     return st.declarations.map((declaration) => {
-      const id = getLValIR(declaration.id).pred
+      const id = getTokensFromLVal(declaration.id)
       const init = getTokensFromExpression(declaration.init)
       return `${DECLARATION}:Variable[${id}${init ? ` = ${init}` : ''}]`
     })
