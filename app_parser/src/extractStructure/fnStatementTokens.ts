@@ -335,6 +335,8 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
     const id = getTokensFromExpression(st.id) || 'anonymous'
     return `${DECLARATION}:Function[${id}]`
   } else if (isIfStatement(st)) {
+    // todo: add detailed predicate info
+    // this is the one that is in square brackets in other places -- []
     /*
      * Two cases:
      *    1. if statement with else-if block
