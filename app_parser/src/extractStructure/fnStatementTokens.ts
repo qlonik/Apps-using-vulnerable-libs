@@ -62,6 +62,7 @@ import {
   isRestElement,
   isReturnStatement,
   isSequenceExpression,
+  isSpreadElement,
   isStringLiteral,
   isSuper,
   isSwitchStatement,
@@ -224,7 +225,19 @@ const getEIR = (expr: Expression | null): EIR => {
   } else if (isCallExpression(expr)) {
     descr.type = 'Call'
     if (isExpression(expr.callee)) {
-      descr.pred = getTokensFromExpression(expr.callee)
+      const args = expr.arguments
+        .map((arg) => {
+          if (isSpreadElement(arg)) {
+            return `...${getTokensFromExpression(arg.argument)}`
+          } else if (isExpression(arg)) {
+            return getTokensFromExpression(arg)
+          } else {
+            /* istanbul ignore next */
+            assertNever(arg)
+          }
+        })
+        .join(', ')
+      descr.pred = getTokensFromExpression(expr.callee) + `(${args})`
     } else if (isSuper(expr.callee)) {
       descr.pred = 'super'
     } else {
