@@ -1,213 +1,227 @@
-[
-  {
-    "type": "fn",
-    "name": "[anonymous]",
-    "fnStatementTypes": [
-      "t_dr:use strict"
-    ],
-    "fnStatementTokens": [
-      "dr:use strict"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "fn1",
-    "fnStatementTypes": [
-      "t_dr:directive",
-      "t_dr:one more directive",
-      "t_st:DoWhileStatement",
-      "t_st:ExpressionStatement",
-      "t_st:ForStatement",
-      "t_st:FunctionDeclaration",
-      "t_st:VariableDeclaration",
-      "t_st:VariableDeclaration",
-      "t_st:VariableDeclaration"
-    ],
-    "fnStatementTokens": [
-      "de:Function[ex:Identifier[a]]",
-      "de:Variable[b = ex:Function[ex:Identifier[name]]]",
-      "de:Variable[c = ex:ArrowFunction]",
-      "de:Variable[i = lt:Numeric]",
-      "de:Variable[i = lt:Numeric]",
-      "de:Variable[l = lt:Numeric]",
-      "dr:directive",
-      "dr:one more directive",
-      "ex:Binary[ex:Identifier[i] < ex:Identifier[l]]",
-      "ex:Call[ex:Function[anonymous]]",
-      "ex:Call[ex:Member[console.log]]",
-      "ex:Update[ex:Identifier[i]++]",
-      "st:Break",
-      "st:Continue",
-      "st:Debugger",
-      "st:Else-If",
-      "st:For",
-      "st:If",
-      "t_st:DoWhileStatement"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "fn1:>>:[anonymous]",
-    "fnStatementTypes": [
-      "t_st:ReturnStatement"
-    ],
-    "fnStatementTokens": [
-      "st:Return[lt:String]"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "fn1:>>:a",
-    "fnStatementTypes": [
-      "t_pr:AssignmentPattern",
-      "t_st:ExpressionStatement",
-      "t_st:ReturnStatement"
-    ],
-    "fnStatementTokens": [
-      "ex:Call[ex:Identifier[b]]",
-      "st:Return[ex:Function[ex:Identifier[hello]]]",
-      "t_pr:AssignmentPattern"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "fn1:>>:a:>>:d",
-    "fnStatementTypes": [
-      "t_ex:ObjectExpression"
-    ],
-    "fnStatementTokens": [
-      "ex:Object"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "fn1:>>:a:>>:hello",
-    "fnStatementTypes": [
-      "t_pr:Identifier",
-      "t_pr:Identifier"
-    ],
-    "fnStatementTokens": [
-      "pr:Identifier[param1]",
-      "pr:Identifier[param2]"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "fn1:>>:c",
-    "fnStatementTypes": [
-      "t_ex:ObjectExpression"
-    ],
-    "fnStatementTokens": [
-      "ex:Object"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "fn1:>>:name",
-    "fnStatementTypes": [
-      "t_pr:AssignmentPattern",
-      "t_pr:Identifier",
-      "t_st:ExpressionStatement",
-      "t_st:ReturnStatement"
-    ],
-    "fnStatementTokens": [
-      "ex:Call[ex:Member[console.log]]",
-      "pr:Identifier[par1]",
-      "st:Return[ex:ArrowFunction]",
-      "t_pr:AssignmentPattern"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "fn1:>>:name:>>:[anonymous]",
-    "fnStatementTypes": [],
-    "fnStatementTokens": []
-  },
-  {
-    "type": "fn",
-    "name": "fn2",
-    "fnStatementTypes": [],
-    "fnStatementTokens": []
-  },
-  {
-    "type": "fn",
-    "name": "fn3",
-    "fnStatementTypes": [
-      "t_pr:Identifier",
-      "t_st:ReturnStatement",
-      "t_st:VariableDeclaration"
-    ],
-    "fnStatementTokens": [
-      "de:Variable[var1 = lt:Numeric]",
-      "pr:Identifier[param]",
-      "st:Return[ex:Binary[ex:Identifier[var1] + ex:Identifier[param]]]"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "fn4",
-    "fnStatementTypes": [
-      "t_dr:use strict",
-      "t_pr:Identifier",
-      "t_st:ThrowStatement"
-    ],
-    "fnStatementTokens": [
-      "dr:use strict",
-      "pr:Identifier[msg]",
-      "t_st:ThrowStatement"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "fn5",
-    "fnStatementTypes": [
-      "t_pr:Identifier",
-      "t_st:ForStatement",
-      "t_st:VariableDeclaration"
-    ],
-    "fnStatementTokens": [
-      "de:Variable[arrCopy = t_ex:ArrayExpression]",
-      "de:Variable[i = lt:Numeric]",
-      "de:Variable[l = ex:Member[arr.length]]",
-      "ex:Assignment[pr:Member[arrCopy.i] = ex:Call[ex:Identifier[fn3]]]",
-      "ex:Binary[ex:Identifier[i] < ex:Identifier[l]]",
-      "ex:Update[ex:Identifier[i]++]",
-      "pr:Identifier[arr]",
-      "st:For"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "fn6",
-    "fnStatementTypes": [
-      "t_st:ForStatement",
-      "t_st:FunctionDeclaration",
-      "t_st:ReturnStatement",
-      "t_st:VariableDeclaration"
-    ],
-    "fnStatementTokens": [
-      "de:Function[ex:Identifier[helperFn]]",
-      "de:Variable[arr = t_ex:ArrayExpression]",
-      "de:Variable[i = lt:Numeric]",
-      "ex:Binary[ex:Identifier[i] < lt:Numeric]",
-      "ex:Call[ex:Member[arr.push]]",
-      "ex:Call[ex:Member[arr.push]]",
-      "ex:Update[ex:Identifier[i]++]",
-      "st:For",
-      "st:If",
-      "st:Return[ex:Identifier[arr]]"
-    ]
-  },
-  {
-    "type": "fn",
-    "name": "fn6:>>:helperFn",
-    "fnStatementTypes": [
-      "t_pr:Identifier",
-      "t_st:ReturnStatement"
-    ],
-    "fnStatementTokens": [
-      "pr:Identifier[i]",
-      "st:Return[ex:Binary[ex:Identifier[i] + lt:Numeric]]"
-    ]
-  }
-]
+{
+  "functionSignature": [
+    {
+      "type": "fn",
+      "name": "[anonymous]",
+      "fnStatementTypes": [
+        "t_dr:use strict"
+      ],
+      "fnStatementTokens": [
+        "dr:use strict"
+      ]
+    },
+    {
+      "type": "fn",
+      "name": "fn1",
+      "fnStatementTypes": [
+        "t_dr:directive",
+        "t_dr:one more directive",
+        "t_st:DoWhileStatement",
+        "t_st:ExpressionStatement",
+        "t_st:ForStatement",
+        "t_st:FunctionDeclaration",
+        "t_st:VariableDeclaration",
+        "t_st:VariableDeclaration",
+        "t_st:VariableDeclaration"
+      ],
+      "fnStatementTokens": [
+        "de:Function[ex:Identifier[a]]",
+        "de:Variable[b = ex:Function[ex:Identifier[name]]]",
+        "de:Variable[c = ex:ArrowFunction]",
+        "de:Variable[i = lt:Numeric]",
+        "de:Variable[i = lt:Numeric]",
+        "de:Variable[l = lt:Numeric]",
+        "dr:directive",
+        "dr:one more directive",
+        "ex:Binary[ex:Identifier[i] < ex:Identifier[l]]",
+        "ex:Call[ex:Function[anonymous]]",
+        "ex:Call[ex:Member[console.log]]",
+        "ex:Update[ex:Identifier[i]++]",
+        "st:Break",
+        "st:Continue",
+        "st:Debugger",
+        "st:Else-If",
+        "st:For",
+        "st:If",
+        "t_st:DoWhileStatement"
+      ]
+    },
+    {
+      "type": "fn",
+      "name": "fn1:>>:[anonymous]",
+      "fnStatementTypes": [
+        "t_st:ReturnStatement"
+      ],
+      "fnStatementTokens": [
+        "st:Return[lt:String]"
+      ]
+    },
+    {
+      "type": "fn",
+      "name": "fn1:>>:a",
+      "fnStatementTypes": [
+        "t_pr:AssignmentPattern",
+        "t_st:ExpressionStatement",
+        "t_st:ReturnStatement"
+      ],
+      "fnStatementTokens": [
+        "ex:Call[ex:Identifier[b]]",
+        "st:Return[ex:Function[ex:Identifier[hello]]]",
+        "t_pr:AssignmentPattern"
+      ]
+    },
+    {
+      "type": "fn",
+      "name": "fn1:>>:a:>>:d",
+      "fnStatementTypes": [
+        "t_ex:ObjectExpression"
+      ],
+      "fnStatementTokens": [
+        "ex:Object"
+      ]
+    },
+    {
+      "type": "fn",
+      "name": "fn1:>>:a:>>:hello",
+      "fnStatementTypes": [
+        "t_pr:Identifier",
+        "t_pr:Identifier"
+      ],
+      "fnStatementTokens": [
+        "pr:Identifier[param1]",
+        "pr:Identifier[param2]"
+      ]
+    },
+    {
+      "type": "fn",
+      "name": "fn1:>>:c",
+      "fnStatementTypes": [
+        "t_ex:ObjectExpression"
+      ],
+      "fnStatementTokens": [
+        "ex:Object"
+      ]
+    },
+    {
+      "type": "fn",
+      "name": "fn1:>>:name",
+      "fnStatementTypes": [
+        "t_pr:AssignmentPattern",
+        "t_pr:Identifier",
+        "t_st:ExpressionStatement",
+        "t_st:ReturnStatement"
+      ],
+      "fnStatementTokens": [
+        "ex:Call[ex:Member[console.log]]",
+        "pr:Identifier[par1]",
+        "st:Return[ex:ArrowFunction]",
+        "t_pr:AssignmentPattern"
+      ]
+    },
+    {
+      "type": "fn",
+      "name": "fn1:>>:name:>>:[anonymous]",
+      "fnStatementTypes": [],
+      "fnStatementTokens": []
+    },
+    {
+      "type": "fn",
+      "name": "fn2",
+      "fnStatementTypes": [],
+      "fnStatementTokens": []
+    },
+    {
+      "type": "fn",
+      "name": "fn3",
+      "fnStatementTypes": [
+        "t_pr:Identifier",
+        "t_st:ReturnStatement",
+        "t_st:VariableDeclaration"
+      ],
+      "fnStatementTokens": [
+        "de:Variable[var1 = lt:Numeric]",
+        "pr:Identifier[param]",
+        "st:Return[ex:Binary[ex:Identifier[var1] + ex:Identifier[param]]]"
+      ]
+    },
+    {
+      "type": "fn",
+      "name": "fn4",
+      "fnStatementTypes": [
+        "t_dr:use strict",
+        "t_pr:Identifier",
+        "t_st:ThrowStatement"
+      ],
+      "fnStatementTokens": [
+        "dr:use strict",
+        "pr:Identifier[msg]",
+        "t_st:ThrowStatement"
+      ]
+    },
+    {
+      "type": "fn",
+      "name": "fn5",
+      "fnStatementTypes": [
+        "t_pr:Identifier",
+        "t_st:ForStatement",
+        "t_st:VariableDeclaration"
+      ],
+      "fnStatementTokens": [
+        "de:Variable[arrCopy = t_ex:ArrayExpression]",
+        "de:Variable[i = lt:Numeric]",
+        "de:Variable[l = ex:Member[arr.length]]",
+        "ex:Assignment[pr:Member[arrCopy.i] = ex:Call[ex:Identifier[fn3]]]",
+        "ex:Binary[ex:Identifier[i] < ex:Identifier[l]]",
+        "ex:Update[ex:Identifier[i]++]",
+        "pr:Identifier[arr]",
+        "st:For"
+      ]
+    },
+    {
+      "type": "fn",
+      "name": "fn6",
+      "fnStatementTypes": [
+        "t_st:ForStatement",
+        "t_st:FunctionDeclaration",
+        "t_st:ReturnStatement",
+        "t_st:VariableDeclaration"
+      ],
+      "fnStatementTokens": [
+        "de:Function[ex:Identifier[helperFn]]",
+        "de:Variable[arr = t_ex:ArrayExpression]",
+        "de:Variable[i = lt:Numeric]",
+        "ex:Binary[ex:Identifier[i] < lt:Numeric]",
+        "ex:Call[ex:Member[arr.push]]",
+        "ex:Call[ex:Member[arr.push]]",
+        "ex:Update[ex:Identifier[i]++]",
+        "st:For",
+        "st:If",
+        "st:Return[ex:Identifier[arr]]"
+      ]
+    },
+    {
+      "type": "fn",
+      "name": "fn6:>>:helperFn",
+      "fnStatementTypes": [
+        "t_pr:Identifier",
+        "t_st:ReturnStatement"
+      ],
+      "fnStatementTokens": [
+        "pr:Identifier[i]",
+        "st:Return[ex:Binary[ex:Identifier[i] + lt:Numeric]]"
+      ]
+    }
+  ],
+  "literalSignature": [
+    10,
+    10,
+    "123",
+    123,
+    2,
+    2,
+    3,
+    3,
+    "bye",
+    "hello"
+  ]
+}
