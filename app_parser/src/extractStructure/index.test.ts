@@ -13,7 +13,7 @@ import {
 import { DECLARATION, EXPRESSION, LITERAL, STATEMENT } from './tags'
 
 
-test('library: extracted correct signature', t => {
+test('library: extracted correct signature', async t => {
   const content = stripIndent`
     function a() {
       var st1 = 'string one';
@@ -50,7 +50,7 @@ test('library: extracted correct signature', t => {
     (function () {})()
     (() => {})()
   `
-  const signature = extractStructure({ content })!
+  const signature = (await extractStructure({ content }))!
   t.true(signature !== null)
 
   const { functionSignature, literalSignature } = signature
@@ -92,7 +92,7 @@ test('library: extracted correct signature', t => {
   t.deepEqual(expectedLiterals, literalSignature)
 })
 
-test('react-native: extracted correct signature', t => {
+test('react-native: extracted correct signature', async t => {
   const content = stripIndent`
     !function a() {}(this)
     !function b() {}(this)
@@ -119,7 +119,7 @@ test('react-native: extracted correct signature', t => {
       return 456;
     }, 3, [])
   `
-  const structure = extractReactNativeStructure({ content })!
+  const structure = (await extractReactNativeStructure({ content }))!
   t.true(structure !== null)
 
   const expected: rnSignatureNew[] = [

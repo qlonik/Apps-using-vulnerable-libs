@@ -142,15 +142,15 @@ const _extractStructure = function (
   return { functionSignature, literalSignature }
 }
 
-export const extractStructure = function (
-  { content }: { content: string }): signatureNew | null {
+export const extractStructure = async function (
+  { content }: { content: string }): Promise<signatureNew | null> {
 
   if (!content) return null
   return _extractStructure({ content })
 }
 
-export const extractReactNativeStructure = function (
-  { content }: { content: string }): rnSignatureNew[] | null {
+export const extractReactNativeStructure = async function (
+  { content }: { content: string }): Promise<rnSignatureNew[] | null> {
 
   if (!content) return null
   return rnDeclareFns(parse(content))
