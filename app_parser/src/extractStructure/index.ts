@@ -59,6 +59,7 @@ const collapseFnNamesTree = (
     }
     return [treeElem].concat(collapseFnNamesTree(fnDesc.c, fnName))
   })
+    .sort((a, b) => a.name.localeCompare(b.name))
 }
 
 export const extractFunctionStructure = async function (
@@ -72,7 +73,6 @@ export const extractFunctionStructure = async function (
   const parsedContent = typeof content === 'string' ? parse(content) : content
   const fnTree = fnOnlyTreeCreator(parsedContent)
   return collapseFnNamesTree(fnTree)
-    .sort((a, b) => a.name.localeCompare(b.name))
 }
 
 export type rnSignature = {
