@@ -7,6 +7,7 @@ import { extractFunctionStructure } from '../extractStructure'
 import { getSimilarityToLibs } from '../similarityIndex'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { fileDescOp, fileOp, saveFiles } from '../utils/files'
+import { stdoutLog } from '../utils/logger'
 import {
   AppParserFn,
   AppsFolderParserFn,
@@ -15,6 +16,9 @@ import {
   MoveAppTypeFn,
 } from './index'
 
+
+const NAMESPACE = 'cordova'
+const log = stdoutLog(NAMESPACE)
 
 export const isCordovaApp: IsAppTypeFn = async function (
   { appPath }): Promise<boolean> {
@@ -186,10 +190,14 @@ export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
 
   const apps = await getAppsAndSections({ allAppsPath })
   const lazyAppAnalysis = apps.map((app) => {
-    return async () => parseScriptsFromCordovaApp({
-      appPath: join(allAppsPath, app.section, app.app),
-      libsPath,
-    }, { conservative })
+    return async () => {
+      const appResults = await parseScriptsFromCordovaApp({
+        appPath: join(allAppsPath, app.section, app.app),
+        libsPath,
+      }, { conservative })
+      log('finished %o/%o', app.section, app.app)
+      return appResults
+    }
   })
   if (debugDoLess) {
     await Promise.all([
