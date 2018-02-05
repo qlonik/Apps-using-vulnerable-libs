@@ -143,16 +143,14 @@ const _extractStructure = function (
 }
 
 export const extractStructure = async function (
-  { content }: { content: string }): Promise<signatureNew | null> {
+  { content }: { content: string }): Promise<signatureNew> {
 
-  if (!content) return null
   return _extractStructure({ content })
 }
 
 export const extractReactNativeStructure = async function (
-  { content }: { content: string }): Promise<rnSignatureNew[] | null> {
+  { content }: { content: string }): Promise<rnSignatureNew[]> {
 
-  if (!content) return null
   return rnDeclareFns(parse(content))
     .map(({ data }) => {
       const { id, factory } = data
