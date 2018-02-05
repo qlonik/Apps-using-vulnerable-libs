@@ -1,14 +1,15 @@
 import test, { Macro, TestContext } from 'ava'
 import { stripIndent } from "common-tags"
 import { isPlainObject } from 'lodash'
-import { extractFunctionStructure } from './index'
+import { extractStructure } from './index'
 import { DIRECTIVE, STATEMENT } from './tags'
 
 
 const checkTypesMacro: Macro<TestContext> = async (
   t: TestContext, content: string, expected: string[]) => {
 
-  const [firstFn] = await extractFunctionStructure({ content })
+  const structure = await extractStructure({ content })
+  const [firstFn] = structure.functionSignature
 
   t.true(isPlainObject(firstFn))
   t.deepEqual(expected.sort(), firstFn.fnStatementTypes)
