@@ -177,7 +177,12 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
 
 export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
   { allAppsPath, libsPath },
-  { debugDoLess = false, chunkLimit = 2, chunkSize = 1, conservative = true }: opts = {}) => {
+  {
+    debugDoLess = false,
+    conservative = true,
+    chunkLimit = 2,
+    chunkSize = 1,
+  }: opts = {}) => {
 
   const apps = await getAppsAndSections({ allAppsPath })
   const lazyAppAnalysis = apps.map((app) => {
