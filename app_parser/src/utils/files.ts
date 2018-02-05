@@ -63,15 +63,13 @@ const saveOneFile = async (fileDesc: fileDescOp): Promise<fileDesc> => {
   else if (fileDesc.type === fileOp.copy
            || fileDesc.type === fileOp.move) {
 
-    let operation: (src: string, dest: string, opts?: object) => Promise<void> = copy
+    const src = resolve(cwd, fileDesc.src)
     if (fileDesc.type === fileOp.copy) {
-      operation = copy
+      await copy(src, dest)
     }
     else if (fileDesc.type === fileOp.move) {
-      operation = move
+      await move(src, dest)
     }
-    const src = resolve(cwd, fileDesc.src)
-    await operation(src, dest)
   }
   else {
     /* istanbul ignore next */
