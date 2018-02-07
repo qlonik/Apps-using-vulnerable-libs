@@ -1,8 +1,8 @@
 import test from 'ava'
 import { stripIndent } from 'common-tags'
 import {
-  extractLiteralStructure,
   extractFunctionStructure,
+  extractLiteralStructure,
   extractReactNativeStructure,
   extractStructure,
   fnNamesConcat,
