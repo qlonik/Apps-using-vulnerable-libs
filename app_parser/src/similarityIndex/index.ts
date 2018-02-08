@@ -1,7 +1,7 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
 import { clone, head, last, partition, pullAt } from 'lodash'
 import { join } from 'path'
-import { fnNamesSplit, Signature } from '../extractStructure'
+import { fnNamesSplit, FunctionSignature, signatureNew } from '../extractStructure'
 import { getNamesVersions, libDesc } from '../parseLibraries'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
@@ -46,9 +46,9 @@ const log = stdoutLog(NAMESPACE)
  * @returns
  */
 export const librarySimilarityByFunctionNames = (
-  { unknown, lib }: {
-    unknown: Signature[],
-    lib: Signature[],
+  { unknown: { functionSignature: unknown }, lib: { functionSignature: lib } }: {
+    unknown: signatureNew,
+    lib: signatureNew,
   }): { ourIndex: indexValue, jaccardIndex: indexValue } => {
 
   //todo
@@ -101,22 +101,22 @@ type nameProbIndex = nameProb & { index: number }
  * @returns
  */
 export const librarySimilarityByFunctionStatementTokens = (
-  { unknown, lib }: {
-    unknown: Signature[],
-    lib: Signature[],
+  { unknown: { functionSignature: unknown }, lib: { functionSignature: lib } }: {
+    unknown: signatureNew,
+    lib: signatureNew,
   }): indexValue => {
 
   const libCopy = clone(lib)
   // remark: first for loop
   const possibleFnNames = unknown
-    .reduce((acc: nameProb[], { fnStatementTokens: toks }: Signature) => {
+    .reduce((acc: nameProb[], { fnStatementTokens: toks }: FunctionSignature) => {
       if (!toks) {
         return acc
       }
 
       // remark: second for loop
       const topName = libCopy
-        .reduce((indexes, { name, fnStatementTokens: libToks }: Signature, libIndex) => {
+        .reduce((indexes, { name, fnStatementTokens: libToks }: FunctionSignature, libIndex) => {
           if (!libToks) {
             return indexes
           }
@@ -144,22 +144,22 @@ export const librarySimilarityByFunctionStatementTokens = (
 }
 
 export const librarySimilarityByFunctionStatementTypes = (
-  { unknown, lib }: {
-    unknown: Signature[],
-    lib: Signature[],
+  { unknown: { functionSignature: unknown }, lib: { functionSignature: lib } }: {
+    unknown: signatureNew,
+    lib: signatureNew,
   }): indexValue => {
 
   const libCopy = clone(lib)
   // remark: first for loop
   const possibleFnNames = unknown
-    .reduce((acc: nameProb[], { fnStatementTypes: types }: Signature) => {
+    .reduce((acc: nameProb[], { fnStatementTypes: types }: FunctionSignature) => {
       if (!types) {
         return acc
       }
 
       // remark: second for loop
       const topName = libCopy
-        .reduce((indexes, { name, fnStatementTypes: libTypes }: Signature, libIndex) => {
+        .reduce((indexes, { name, fnStatementTypes: libTypes }: FunctionSignature, libIndex) => {
           if (!libTypes) {
             return indexes
           }
@@ -184,18 +184,18 @@ export const librarySimilarityByFunctionStatementTypes = (
 }
 
 export const librarySimilarityByFunctionNamesAndStatementTokens = (
-  { unknown, lib }: {
-    unknown: Signature[],
-    lib: Signature[],
+  { unknown: { functionSignature: unknown }, lib: { functionSignature: lib } }: {
+    unknown: signatureNew,
+    lib: signatureNew,
   }): indexValue => {
 
-  const anonFnPartitioner = (s: Signature) => last(fnNamesSplit(s.name)) === '[anonymous]'
+  const anonFnPartitioner = (s: FunctionSignature) => last(fnNamesSplit(s.name)) === '[anonymous]'
   const [unknownAnonFnSigs, unknownNamedFnSigs] = partition(unknown, anonFnPartitioner)
   const [libAnonFnSigs, libNamedFnSigs] = partition(lib, anonFnPartitioner)
 
   type nameProbIndexOrigI = nameProbIndex & { origIndex: number }
 
-  const libAnonFnSigsCopy = clone(libAnonFnSigs).map((s: Signature, i) => ({ s, i }))
+  const libAnonFnSigsCopy = clone(libAnonFnSigs).map((s: FunctionSignature, i) => ({ s, i }))
   // remark: first for loop
   const possibleMatches = unknownAnonFnSigs
     .reduce((acc, { fnStatementTokens: toks }) => {
@@ -261,7 +261,7 @@ export const librarySimilarityByFunctionNamesAndStatementTokens = (
  */
 export const getSimilarityToLib = async (
   { signature: unknown, libsPath, name, version }: {
-    signature: Signature[],
+    signature: signatureNew,
     libsPath: string,
     name: string,
     version: string,
@@ -275,7 +275,7 @@ export const getSimilarityToLib = async (
   const sigsProm = sigFilePaths.map((sigFile) => async () => {
     return {
       file: sigFile,
-      signature: <Signature[]>await readJSON(join(sigsPath, sigFile)),
+      signature: <signatureNew>await readJSON(join(sigsPath, sigFile)),
     }
   })
   const signatures = await resolveAllOrInParallel(sigsProm)
@@ -324,7 +324,7 @@ export type SimilarityTypes = 'fnNamesOur' | 'fnNamesJaccard' | 'fnStTokens' | '
 export type SimilarityToLibs = Partial<Record<SimilarityTypes, Similarity[]>>
 export const getSimilarityToLibs = async (
   { signature, libsPath }: {
-    signature: Signature[],
+    signature: signatureNew,
     libsPath: string,
   }): Promise<SimilarityToLibs> => {
 

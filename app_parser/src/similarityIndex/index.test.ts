@@ -101,7 +101,9 @@ test('librarySimilarityByFunctionNames', t => {
     ourIndex: similarityIndexToLib(libNameSet, unknownNameSet),
     jaccardIndex: jaccardIndexFn(libNameSet, unknownNameSet),
   }
-  const result = librarySimilarityByFunctionNames({ unknown: UNKNOWN_SIG, lib: LIB_SIG })
+  const unknown = { functionSignature: UNKNOWN_SIG, literalSignature: [] }
+  const lib = { functionSignature: LIB_SIG, literalSignature: [] }
+  const result = librarySimilarityByFunctionNames({ unknown, lib })
   t.deepEqual(expected, result)
 })
 
@@ -110,10 +112,9 @@ test('librarySimilarityByFunctionStatementTokens', t => {
     POSSIBLE_NAMES_BY_FN_ST_TOKENS.map(s => s.name),
     LIB_SIG.map(s => s.name),
   )
-  const result = librarySimilarityByFunctionStatementTokens({
-    unknown: UNKNOWN_SIG,
-    lib: LIB_SIG,
-  })
+  const unknown = { functionSignature: UNKNOWN_SIG, literalSignature: [] }
+  const lib = { functionSignature: UNKNOWN_SIG, literalSignature: [] }
+  const result = librarySimilarityByFunctionStatementTokens({ unknown, lib })
   t.deepEqual(expected, result)
 })
 
@@ -122,10 +123,9 @@ test('librarySimilarityByFunctionStatementTypes', t => {
     POSSIBLE_NAMES_BY_FN_ST_TOKENS.map(s => s.name),
     LIB_SIG.map(s => s.name),
   )
-  const result = librarySimilarityByFunctionStatementTypes({
-    unknown: UNKNOWN_SIG,
-    lib: LIB_SIG,
-  })
+  const unknown = { functionSignature: UNKNOWN_SIG, literalSignature: [] }
+  const lib = { functionSignature: LIB_SIG, literalSignature: [] }
+  const result = librarySimilarityByFunctionStatementTypes({ unknown, lib })
   t.deepEqual(expected, result)
 })
 
@@ -134,9 +134,8 @@ test('librarySimilarityByFunctionNamesAndStatementTokens', t => {
     POSSIBLE_NAMES_BY_FN_ST_TOKENS.map(s => s.name),
     LIB_SIG.map(s => s.name),
   )
-  const result = librarySimilarityByFunctionNamesAndStatementTokens({
-    unknown: UNKNOWN_SIG,
-    lib: LIB_SIG,
-  })
+  const unknown = { functionSignature: UNKNOWN_SIG, literalSignature: [] }
+  const lib = { functionSignature: LIB_SIG, literalSignature: [] }
+  const result = librarySimilarityByFunctionNamesAndStatementTokens({ unknown, lib })
   t.deepEqual(expected, result)
 })

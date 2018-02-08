@@ -1,6 +1,6 @@
 import { ensureDir, move, pathExists, readdir, readFile, readJSON, remove } from 'fs-extra'
 import { basename, dirname, extname, join, relative, resolve } from 'path'
-import { extractFunctionStructure } from './extractStructure'
+import { extractStructure } from './extractStructure'
 import { leftPad, opts, resolveAllOrInParallel, tgzUnpack } from './utils'
 import { fileDesc, fileDescOp, fileOp } from './utils/files'
 
@@ -219,7 +219,7 @@ async function analyseOneLibFile(
   const destSig = `sigs/${leftPad(i)}.json`
   const fileP = join(cwd, dst)
   const content = await readFile(fileP, 'utf-8')
-  const signature = await extractFunctionStructure({ content })
+  const signature = await extractStructure({ content })
 
   return { type: fileOp.json, cwd, dst: destSig, json: signature, conservative }
 }
