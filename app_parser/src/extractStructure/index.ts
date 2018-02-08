@@ -13,8 +13,6 @@ import { rnDeclareFnFilter } from './nodeFilters/rnDeclareFn'
 import { TreePath, visitNodes } from './visitNodes'
 
 
-export { Signature }
-
 const CONCAT_FNS_WITH = ':>>:'
 const NAMESPACE = 'x.Struct'
 const log = stdoutLog(NAMESPACE)
@@ -28,19 +26,19 @@ export const fnNamesSplit = (n: string): string[] => {
   return n.split(CONCAT_FNS_WITH)
 }
 
-export const fnOnlyTreeCreator = visitNodes<Signature>({ fn: fnNodeFilter })
+export const fnOnlyTreeCreator = visitNodes<FunctionSignature>({ fn: fnNodeFilter })
 export const rnDeclareFns = visitNodes({ fn: rnDeclareFnFilter })
 export const literalValues = visitNodes({ fn: literalValuesFilter })
 
 const collapseFnNamesTree = (
-  tree: TreePath<Signature>[],
-  fnNameSoFar: string = ''): Signature[] => {
+  tree: TreePath<FunctionSignature>[],
+  fnNameSoFar: string = ''): FunctionSignature[] => {
 
   if (!tree.length) {
     return []
   }
 
-  return flatMap(tree, (fnDesc: TreePath<Signature>): Many<Signature> => {
+  return flatMap(tree, (fnDesc: TreePath<FunctionSignature>): Many<FunctionSignature> => {
     if (fnDesc.data === null) {
       if (fnDesc.c) {
         return collapseFnNamesTree(fnDesc.c)
@@ -51,7 +49,12 @@ const collapseFnNamesTree = (
 
     const fnName = fnNamesConcat(fnNameSoFar, fnDesc.data.name)
     const { fnStatementTypes, fnStatementTokens } = fnDesc.data
-    const treeElem: Signature = { type: 'fn', name: fnName, fnStatementTypes, fnStatementTokens }
+    const treeElem: FunctionSignature = {
+      type: 'fn',
+      name: fnName,
+      fnStatementTypes,
+      fnStatementTokens,
+    }
 
     if (!fnDesc.c) {
       return treeElem
@@ -65,7 +68,7 @@ const collapseFnNamesTree = (
  * @deprecated
  */
 export const extractFunctionStructure = async function (
-  { content }: { content: string | BabelNode | null }): Promise<Signature[]> {
+  { content }: { content: string | BabelNode | null }): Promise<FunctionSignature[]> {
 
   // TODO: try to parse with: esprima, acorn, espree, babylon
   // espree is based on acorn and is used by eslint
