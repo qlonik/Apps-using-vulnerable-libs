@@ -3,7 +3,7 @@ import Observable = require('zen-observable')
 
 
 export const observableFromEventEmitter = (ee: EventEmitter, ev: string) => {
-  return new Observable((observer) => {
+  return new Observable<any>((observer) => {
     const onMsgCb = (...args: any[]) => {
       observer.next(args)
     }
