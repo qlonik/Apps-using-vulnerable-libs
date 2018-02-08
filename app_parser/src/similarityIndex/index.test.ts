@@ -1,5 +1,5 @@
 import { test } from 'ava'
-import { Signature } from '../extractStructure'
+import { FunctionSignature } from '../extractStructure'
 import {
   librarySimilarityByFunctionNames,
   librarySimilarityByFunctionNamesAndStatementTokens,
@@ -9,7 +9,7 @@ import {
 import { jaccardIndex as jaccardIndexFn, jaccardLike, similarityIndexToLib } from './set'
 
 
-const UNKNOWN_SIG: Signature[] = [
+const UNKNOWN_SIG: FunctionSignature[] = [
   {
     type: 'fn',
     name: 'aa',
@@ -47,7 +47,7 @@ const UNKNOWN_SIG: Signature[] = [
     fnStatementTypes: ['t_5a', 't_5c', 't_5d', 't_5d', 't_6c', 't_6d', 't_6d']
   },
 ]
-const LIB_SIG: Signature[] = [
+const LIB_SIG: FunctionSignature[] = [
   {
     type: 'fn',
     name: 'aa',
