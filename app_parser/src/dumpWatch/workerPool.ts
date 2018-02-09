@@ -22,7 +22,6 @@ const WORKER_MIN_AT_LEAST = 1
 const WORKER_MAX_AT_LEAST = 3
 const WORKER_EVICTION_TIMEOUT = 10 * 1000
 const WORKER_IDLE_SHUTDOWN_TIMEOUT = 30 * 1000
-const BEGINNING_PORT = 23000
 
 
 /*
@@ -44,6 +43,7 @@ type msgFromWorker = { from: messageFrom.client, id: string, data: clientMessage
 export class WorkerInstance {
   static WORKER_STARTUP_TIMEOUT = 3 * 1000
   static WORKER_SHUTDOWN_TIMEOUT = 3 * 1000
+  static BEGINNING_PORT = 23000
 
   private static size = -1
 
@@ -68,7 +68,7 @@ export class WorkerInstance {
       if (!el.startsWith('--inspect')) {
         return el
       }
-      return el.replace(/=(\d+)/, `=${BEGINNING_PORT + size}`)
+      return el.replace(/=(\d+)/, `=${WorkerInstance.BEGINNING_PORT + size}`)
     })
 
     this._worker = fork(worker, [], { execArgv })
