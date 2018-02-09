@@ -98,56 +98,56 @@ if (process.send) {
         subscription = subscrb
       },
       next(msg: serverMessage) {
-          log('Received %o msg', serverMessageType[msg.data.type])
-          if (msg.data.type === serverMessageType.startup) {
-            replyToParent({
-              from: messageFrom.client,
-              id: msg.id,
-              data: {
-                type: clientMessageType.startupDone,
-              }
+        log('Received %o msg', serverMessageType[msg.data.type])
+        if (msg.data.type === serverMessageType.startup) {
+          replyToParent({
+            from: messageFrom.client,
+            id: msg.id,
+            data: {
+              type: clientMessageType.startupDone,
+            }
+          })
+        }
+        else if (msg.data.type === serverMessageType.process) {
+          const { libsPath, dumpPath, filename } = msg.data
+          processing = processLibrary({ filename, libsPath, dumpPath })
+            .then(({ filename, main, analysis }) => {
+              replyToParent({
+                from: messageFrom.client,
+                id: msg.id,
+                data: {
+                  type: clientMessageType.processingResult,
+                  filename,
+                  main,
+                  analysis,
+                },
+              })
+              processing = null
             })
-          }
-          else if (msg.data.type === serverMessageType.process) {
-            const { libsPath, dumpPath, filename } = msg.data
-            processing = processLibrary({ filename, libsPath, dumpPath })
-              .then(({ filename, main, analysis }) => {
-                replyToParent({
-                  from: messageFrom.client,
-                  id: msg.id,
-                  data: {
-                    type: clientMessageType.processingResult,
-                    filename,
-                    main,
-                    analysis,
-                  },
-                })
-                processing = null
+        }
+        else if (msg.data.type === serverMessageType.reanalyseLib) {
+          const { libsPath, name, version } = msg.data
+          reanalyseLibrary({ libsPath, name, version })
+            .then(({ name, version, analysis }) => {
+              replyToParent({
+                from: messageFrom.client,
+                id: msg.id,
+                data: {
+                  type: clientMessageType.reanalysisResult,
+                  name,
+                  version,
+                  analysis,
+                },
               })
-          }
-          else if (msg.data.type === serverMessageType.reanalyseLib) {
-            const { libsPath, name, version } = msg.data
-            reanalyseLibrary({ libsPath, name, version })
-              .then(({ name, version, analysis }) => {
-                replyToParent({
-                  from: messageFrom.client,
-                  id: msg.id,
-                  data: {
-                    type: clientMessageType.reanalysisResult,
-                    name,
-                    version,
-                    analysis,
-                  },
-                })
-              })
-          }
-          else if (msg.data.type === serverMessageType.shutdown) {
-            terminateWorker()
-          }
-          else {
-            /* istanbul ignore next */
-            assertNever(msg.data)
-          }
+            })
+        }
+        else if (msg.data.type === serverMessageType.shutdown) {
+          terminateWorker()
+        }
+        else {
+          /* istanbul ignore next */
+          assertNever(msg.data)
+        }
       }
     })
 }
