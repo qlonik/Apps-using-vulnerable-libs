@@ -1,17 +1,8 @@
 import { watch } from 'chokidar'
 import { once } from 'lodash'
 import { stdoutLog } from '../utils/logger'
-import {
-  clientMessage,
-  clientMessageType,
-  LOG_NAMESPACE,
-  messageFrom,
-  processingResult,
-  processRequest,
-  serverMessage,
-  serverMessageType,
-} from './common'
-import { ChildProcessWithLog, createAutoClosedPool, workerPool } from './workerPool'
+import { LOG_NAMESPACE, processingResult, processRequest, serverMessageType } from './common'
+import { createAutoClosedPool, WorkerInstance, workerPool } from './workerPool'
 import Observable = require('zen-observable')
 
 
@@ -59,26 +50,14 @@ const useExecutorsPool = createAutoClosedPool(workerPool)
  * function performed by each executor
  */
 const processLibrary = ({ filename, libsPath, dumpPath }: processRequest) => {
-  return async (worker: ChildProcessWithLog) => {
+  return async (worker: WorkerInstance) => {
     // log('(w:%o) got %o', worker.pid, filename)
 
-    worker.send(<serverMessage>{
-      from: messageFrom.server,
+    const { main, analysis } = <processingResult> await worker.send({
       type: serverMessageType.process,
       dumpPath,
       libsPath,
       filename,
-    })
-
-    const { main, analysis } = await new Promise<processingResult>((resolve, reject) => {
-      worker.once('message', (msg: clientMessage) => {
-        if (msg.type === clientMessageType.processingResult) {
-          resolve({ filename: msg.filename, main: msg.main, analysis: msg.analysis })
-        }
-        else {
-          reject(new Error('wrong message type received'))
-        }
-      })
     })
 
     if (!main || !analysis) {

@@ -2,17 +2,8 @@ import { oneLine } from 'common-tags'
 import { getNamesVersions } from '../parseLibraries'
 import { isInBlacklist } from '../pkgBlacklist'
 import { onelineUtilInspect, stdoutLog } from '../utils/logger'
-import {
-  clientMessage,
-  clientMessageType,
-  LOG_NAMESPACE,
-  messageFrom,
-  reanalyseLibRequest,
-  reanalysisResult,
-  serverMessage,
-  serverMessageType
-} from './common'
-import { ChildProcessWithLog, createAutoClosedPool, workerPool } from './workerPool'
+import { LOG_NAMESPACE, reanalyseLibRequest, reanalysisResult, serverMessageType } from './common'
+import { createAutoClosedPool, WorkerInstance, workerPool } from './workerPool'
 
 
 const LIB_PATH = '../data/sample_libs'
@@ -21,28 +12,16 @@ const log = stdoutLog(LOG_NAMESPACE)
 const useExecutorsPool = createAutoClosedPool(workerPool)
 
 const reanalyseLibs = ({ libsPath, name, version }: reanalyseLibRequest) => {
-  return async (worker: ChildProcessWithLog) => {
+  return async (worker: WorkerInstance) => {
     log('(w:%o) got %o', worker.pid, `${name}@${version}`)
 
-    worker.send(<serverMessage>{
-      from: messageFrom.server,
-      type: serverMessageType.reanalyseLib,
-      libsPath,
-      name,
-      version,
-    })
-
     const { name: nameBack, version: versionBack, analysis } =
-      await new Promise<reanalysisResult>(((resolve, reject) => {
-        worker.once('message', (msg: clientMessage) => {
-          if (msg.type === clientMessageType.reanalysisResult) {
-            resolve({ name: msg.name, version: msg.version, analysis: msg.analysis })
-          }
-          else {
-            reject(new Error('wrong message type received'))
-          }
-        })
-      }))
+      <reanalysisResult> await worker.send({
+        type: serverMessageType.reanalyseLib,
+        libsPath,
+        name,
+        version,
+      })
 
     if (!analysis) {
       log(oneLine`
