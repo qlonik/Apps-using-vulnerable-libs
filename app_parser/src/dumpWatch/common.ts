@@ -72,3 +72,29 @@ export type reanalysisResult = {
   version: string,
   analysis?: fileDesc[],
 }
+
+export type MessagesMap<ServerMsg, ClientMsg> = {
+  [x: string]: [ServerMsg, ClientMsg],
+}
+
+export type WorkerFunctionsMap<T extends MessagesMap<any, any>> = {
+  [S in keyof T]: (o: T[S][0]) => T[S][1]
+  }
+
+export type serverMessage3<Msg extends MessagesMap<any, any>, Type extends keyof Msg> = {
+  from: messageFrom.server,
+  id: string,
+  type: Type,
+  data: Msg[Type][0],
+}
+export type clientMessage3<Msg extends MessagesMap<any, any>, Type extends keyof Msg> = {
+  from: messageFrom.client,
+  id: string,
+  type: Type,
+  data: Msg[Type][1],
+}
+
+export type messages = {
+  process: [processRequest, processingResult],
+  reanalyse: [reanalyseLibRequest, reanalysisResult],
+}
