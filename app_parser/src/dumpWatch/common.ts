@@ -78,7 +78,7 @@ export type MessagesMap<ServerMsg, ClientMsg> = {
 }
 
 export type WorkerFunctionsMap<T extends MessagesMap<any, any>> = {
-  [S in keyof T]: (o: T[S][0]) => T[S][1]
+  [S in keyof T]: (o: T[S][0]) => (T[S][1] | Promise<T[S][1]>)
   }
 
 export type serverMessage3<Msg extends MessagesMap<any, any>, Type extends keyof Msg> = {
