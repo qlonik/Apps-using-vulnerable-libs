@@ -44,7 +44,7 @@ export class WorkerInstance<M extends MessagesMap<any, any>> {
   static WORKER_SHUTDOWN_TIMEOUT = 3 * 1000
   static BEGINNING_PORT = 23000
 
-  private static size = -1
+  private static size = 0
 
   public pid: number
   public log: IDebugger
@@ -61,7 +61,7 @@ export class WorkerInstance<M extends MessagesMap<any, any>> {
   private _unsubscribeEventsLoggers: () => void
 
   constructor(worker: string = WORKER_PATH, log: string = LOG_NAMESPACE) {
-    const size = ++WorkerInstance.size
+    const size = WorkerInstance.size++
     // rewrite debug port for child worker, if we started main process with IntelliJ debugger
     const execArgv = process.execArgv.map((el) => {
       if (!el.startsWith('--inspect')) {
