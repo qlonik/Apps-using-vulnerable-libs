@@ -12,6 +12,8 @@ import {
   messages,
   MessagesMap,
   serverMessage3,
+  shutdownMsg,
+  startupMsg,
 } from './common'
 import uuid = require('uuid/v4')
 import Observable = require('zen-observable')
@@ -144,12 +146,9 @@ export class WorkerInstance<M extends MessagesMap<any, any>> {
   }
 
   private _sendStartup() {
-    const data = {
-      from: messageFrom.server,
+    const data: startupMsg = {
       id: uuid(),
-      data: {
-        type: serverMessageType.startup,
-      },
+      type: 'up',
     }
 
     return new Promise((resolve, reject) => {
@@ -175,12 +174,9 @@ export class WorkerInstance<M extends MessagesMap<any, any>> {
   }
 
   private _sendShutdown() {
-    const data = {
-      from: messageFrom.server,
+    const data: shutdownMsg = {
       id: uuid(),
-      data: {
-        type: serverMessageType.shutdown,
-      },
+      type: 'down',
     }
 
     return new Promise((resolve, reject) => {

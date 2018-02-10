@@ -93,6 +93,14 @@ export type clientMessage3<Msg extends MessagesMap<any, any>, Type extends keyof
   type: Type,
   data: Msg[Type][1],
 }
+export type startupMsg = {
+  id: string,
+  type: 'up',
+}
+export type shutdownMsg = {
+  id: string,
+  type: 'down',
+}
 
 export type messages = {
   process: [processRequest, processingResult],
