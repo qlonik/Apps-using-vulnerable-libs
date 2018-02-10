@@ -1,7 +1,7 @@
 import { watch } from 'chokidar'
 import { once } from 'lodash'
 import { stdoutLog } from '../utils/logger'
-import { LOG_NAMESPACE, processingResult, processRequest, serverMessageType } from './common'
+import { LOG_NAMESPACE, messages, processRequest } from './common'
 import { createAutoClosedPool, WorkerInstance, workerPool } from './workerPool'
 import Observable = require('zen-observable')
 
@@ -50,15 +50,10 @@ const useExecutorsPool = createAutoClosedPool(workerPool)
  * function performed by each executor
  */
 const processLibrary = ({ filename, libsPath, dumpPath }: processRequest) => {
-  return async (worker: WorkerInstance) => {
+  return async (worker: WorkerInstance<messages>) => {
     // log('(w:%o) got %o', worker.pid, filename)
 
-    const { main, analysis } = <processingResult> await worker.send({
-      type: serverMessageType.process,
-      dumpPath,
-      libsPath,
-      filename,
-    })
+    const { main, analysis } = await worker.send('process', { dumpPath, libsPath, filename })
 
     if (!main || !analysis) {
       log('(w:%o) The file %o left untouched. Could not parse filename', worker.pid, filename)
