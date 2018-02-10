@@ -116,3 +116,6 @@ export const resolveAllOrInParallel = async function <T>(
 export function assertNever(x: never): never {
   throw new Error("Unexpected object: " + x)
 }
+
+export const objectHasKey =
+  <T extends { [x: string]: any }>(o: T, k: string): k is keyof T => k in o
