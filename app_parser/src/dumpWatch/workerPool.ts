@@ -41,7 +41,7 @@ export const createAutoClosedPool = <T>(pool: Pool<T>) => {
   }
 }
 
-export class WorkerInstance<M extends MessagesMap<any, any>> {
+export class WorkerInstance<M extends MessagesMap> {
   static WORKER_STARTUP_TIMEOUT = 3 * 1000
   static WORKER_SHUTDOWN_TIMEOUT = 3 * 1000
   static BEGINNING_PORT = 23000
@@ -209,7 +209,7 @@ export class WorkerInstance<M extends MessagesMap<any, any>> {
     this._unsubscribeEventsLoggers()
   }
 
-  static async create<T extends MessagesMap<any, any>>(
+  static async create<T extends MessagesMap>(
     worker: string = WORKER_PATH,
     log: string = LOG_NAMESPACE) {
 
