@@ -143,6 +143,37 @@ export class WorkerInstance {
     })
   }
 
+  private _sendStartup() {
+    const data = {
+      from: messageFrom.server,
+      id: uuid(),
+      data: {
+        type: serverMessageType.startup,
+      },
+    }
+
+    return new Promise((resolve, reject) => {
+      this._worker.send(data, (err) => {
+        if (err) {
+          return reject('error sending message')
+        }
+
+        const subscription = this._msgObs
+          .filter(({ id }) => id === data.id)
+          .subscribe({
+            next() {
+              subscription.unsubscribe()
+              resolve()
+            },
+            error(err) {
+              subscription.unsubscribe()
+              reject(`error in _sendStartup(): ${err.message}\n${err.stack}`)
+            },
+          })
+      })
+    })
+  }
+
   private _sendShutdown() {
     const data = {
       from: messageFrom.server,
@@ -189,18 +220,13 @@ export class WorkerInstance {
       setTimeout(reject, this.WORKER_STARTUP_TIMEOUT, new Error('startup timed-out'))
     })
     const startWorker = async () => {
-      const res = <clientMessage2Data> await w.send({ type: serverMessageType.startup })
-
-      if (res.type !== clientMessageType.startupDone) {
-        throw new Error('something is wrong')
-      }
-
-      w.log('started')
-      return w
+      return w._sendStartup()
     }
 
     try {
-      return <WorkerInstance> await Promise.race([timeout(), startWorker()])
+      await Promise.race([timeout(), startWorker()])
+      w.log('started')
+      return w
     }
     catch (err) {
       w.log(`Error during creation: '${err.message}'. Destroying...\n${err.stack}`)
