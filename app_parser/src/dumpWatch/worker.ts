@@ -5,15 +5,14 @@ import { saveFiles } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
 import { observableFromEventEmitter } from '../utils/observable'
 import {
-  clientMessage,
-  clientMessageType,
+  clientMessage3,
   messageFrom,
+  messages,
   processingResult,
   processRequest,
   reanalyseLibRequest,
   reanalysisResult,
-  serverMessage,
-  serverMessageType
+  serverMessage3
 } from './common'
 
 
@@ -69,8 +68,14 @@ const reanalyseLibrary = async (
   return { name, version, analysis }
 }
 
-const replyToParent = (msg: clientMessage) => {
-  log('Replying with %o msg', clientMessageType[msg.data.type])
+type tmpServerMsgType = serverMessage3<messages, keyof messages>
+  | { from: messageFrom.server, id: string, type: 'up' }
+  | { from: messageFrom.server, id: string, type: 'down' }
+type tmpClientMsgType = clientMessage3<messages, keyof messages>
+  | { from: messageFrom.client, id: string, type: 'up' }
+  | { from: messageFrom.client, id: string, type: 'down' }
+const replyToParent = (msg: tmpClientMsgType) => {
+  log('Replying with %o msg', msg.type)
   process.send!(msg)
 }
 
@@ -91,32 +96,30 @@ if (process.send) {
   }
 
   observableFromEventEmitter(process, 'message')
-    .map((event) => (<[serverMessage, any]>event)[0])
+    .map((event) => (<[serverMessage3<messages, any>, any]>event)[0])
     .subscribe({
       start(subscrb: ZenObservable.Subscription) {
         log('Started listening')
         subscription = subscrb
       },
-      next(msg: serverMessage) {
-        log('Received %o msg', serverMessageType[msg.data.type])
-        if (msg.data.type === serverMessageType.startup) {
+      next(msg: tmpServerMsgType) {
+        log('Received %o msg', msg.type)
+        if (msg.type === 'up') {
           replyToParent({
             from: messageFrom.client,
             id: msg.id,
-            data: {
-              type: clientMessageType.startupDone,
-            }
+            type: msg.type,
           })
         }
-        else if (msg.data.type === serverMessageType.process) {
-          const { libsPath, dumpPath, filename } = msg.data
+        else if (msg.type === 'process') {
+          const { libsPath, dumpPath, filename } = <processRequest>msg.data
           processing = processLibrary({ filename, libsPath, dumpPath })
             .then(({ filename, main, analysis }) => {
               replyToParent({
                 from: messageFrom.client,
                 id: msg.id,
+                type: msg.type,
                 data: {
-                  type: clientMessageType.processingResult,
                   filename,
                   main,
                   analysis,
@@ -125,15 +128,15 @@ if (process.send) {
               processing = null
             })
         }
-        else if (msg.data.type === serverMessageType.reanalyseLib) {
-          const { libsPath, name, version } = msg.data
+        else if (msg.type === 'reanalyse') {
+          const { libsPath, name, version } = <reanalyseLibRequest>msg.data
           reanalyseLibrary({ libsPath, name, version })
             .then(({ name, version, analysis }) => {
               replyToParent({
                 from: messageFrom.client,
                 id: msg.id,
+                type: msg.type,
                 data: {
-                  type: clientMessageType.reanalysisResult,
                   name,
                   version,
                   analysis,
@@ -141,12 +144,12 @@ if (process.send) {
               })
             })
         }
-        else if (msg.data.type === serverMessageType.shutdown) {
+        else if (msg.type === 'down') {
           terminateWorker()
         }
         else {
           /* istanbul ignore next */
-          assertNever(msg.data)
+          assertNever(msg.type)
         }
       }
     })
