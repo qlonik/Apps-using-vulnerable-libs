@@ -6,12 +6,12 @@ import { relative } from "path"
 import { stdoutLog } from '../utils/logger'
 import { observableFromEventEmitter } from '../utils/observable'
 import {
-  clientMessage2Data,
-  clientMessageType,
+  clientMessage3,
   LOG_NAMESPACE,
   messageFrom,
-  serverMessage2Data,
-  serverMessageType
+  messages,
+  MessagesMap,
+  serverMessage3,
 } from './common'
 import uuid = require('uuid/v4')
 import Observable = require('zen-observable')
@@ -39,8 +39,7 @@ export const createAutoClosedPool = <T>(pool: Pool<T>) => {
   }
 }
 
-type msgFromWorker = { from: messageFrom.client, id: string, data: clientMessage2Data }
-export class WorkerInstance {
+export class WorkerInstance<M extends MessagesMap<any, any>> {
   static WORKER_STARTUP_TIMEOUT = 3 * 1000
   static WORKER_SHUTDOWN_TIMEOUT = 3 * 1000
   static BEGINNING_PORT = 23000
@@ -56,7 +55,7 @@ export class WorkerInstance {
   private _disObs: Observable<void>
   private _clsObs: Observable<[number, string]>
   private _extObs: Observable<[number, string]>
-  private _msgObs: Observable<msgFromWorker>
+  private _msgObs: Observable<clientMessage3<M, keyof M>>
 
   private _eventsLog: IDebugger
   private _unsubscribeEventsLoggers: () => void
@@ -83,7 +82,7 @@ export class WorkerInstance {
     this._extObs = observableFromEventEmitter(this._worker, 'exit')
       .map(([code, signal]): [number, string] => ([code, signal]))
     this._msgObs = observableFromEventEmitter(this._worker, 'message')
-      .map(([msg]): msgFromWorker => msg)
+      .map(([msg]): clientMessage3<M, keyof M> => msg)
 
     this.log = stdoutLog(`${log}:worker:${this._worker.pid}`)
     this._eventsLog = stdoutLog(this.log.namespace + ':ev')
@@ -114,23 +113,24 @@ export class WorkerInstance {
     }
   }
 
-  send(msg: serverMessage2Data): Promise<clientMessage2Data> {
-    const data = {
+  send<T extends keyof M>(type: T, data: M[T][0]): Promise<M[T][1]> {
+    const serverMsg: serverMessage3<M, T> = {
       from: messageFrom.server,
       id: uuid(),
-      data: msg,
+      type,
+      data,
     }
 
     return new Promise((resolve, reject) => {
-      this._worker.send(data, (err) => {
+      this._worker.send(serverMsg, (err) => {
         if (err) {
           return reject('error sending message')
         }
 
         const subscription = this._msgObs
-          .filter(({ id }) => id === data.id)
+          .filter(({ id }) => id === serverMsg.id)
           .subscribe({
-            next(msg: msgFromWorker) {
+            next(msg: clientMessage3<M, T>) {
               subscription.unsubscribe()
               resolve(msg.data)
             },
@@ -213,8 +213,11 @@ export class WorkerInstance {
     this._unsubscribeEventsLoggers()
   }
 
-  static async create(worker: string = WORKER_PATH, log: string = LOG_NAMESPACE) {
-    const w = new WorkerInstance(worker, log)
+  static async create<T extends MessagesMap<any, any>>(
+    worker: string = WORKER_PATH,
+    log: string = LOG_NAMESPACE) {
+
+    const w = new WorkerInstance<T>(worker, log)
 
     const timeout = () => new Promise<never>((_,reject) => {
       setTimeout(reject, this.WORKER_STARTUP_TIMEOUT, new Error('startup timed-out'))
@@ -235,11 +238,11 @@ export class WorkerInstance {
     }
   }
 
-  static async destroy(w: WorkerInstance): Promise<undefined> {
+  static async destroy(w: WorkerInstance<any>): Promise<undefined> {
     const timeout = () => new Promise<never>((_, reject) => {
       setTimeout(reject, this.WORKER_SHUTDOWN_TIMEOUT, new Error('graceful shutdown timed-out'))
     })
-    const stopWorker = async (worker: WorkerInstance) => {
+    const stopWorker = async (worker: WorkerInstance<any>) => {
       return worker._sendShutdown()
     }
 
@@ -263,7 +266,7 @@ export class WorkerInstance {
  * Creating pool of analysis executors
  */
 const maxCPUs = cpus().length
-export const workerPool = createPool<WorkerInstance>({
+export const workerPool = createPool<WorkerInstance<messages>>({
   create: () => WorkerInstance.create(WORKER_PATH, LOG_NAMESPACE),
   destroy: (w) => WorkerInstance.destroy(w),
 }, {
