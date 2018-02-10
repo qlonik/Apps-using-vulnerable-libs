@@ -252,8 +252,8 @@ export class WorkerInstance<M extends MessagesMap<any, any>> {
       return
     }
     catch (err) {
-      w._kill()
       w.log(`Error during destruction: '${err.message}'. Killing...\n${err.stack}`)
+      w._kill()
       return
     }
     finally {
