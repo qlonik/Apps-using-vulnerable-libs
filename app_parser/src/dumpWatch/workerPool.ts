@@ -88,7 +88,6 @@ export class WorkerInstance<M extends MessagesMap> {
 
     this.log = stdoutLog(`${log}:worker:${this._worker.pid}`)
     this._eventsLog = stdoutLog(this.log.namespace + ':ev')
-    this._eventsLog.enabled = false
 
     const errObsSubs = this._errObs.subscribe((err) => {
       this._eventsLog('error (name, message)=(%o, %o)\n%I', err.name, err.message, err)
