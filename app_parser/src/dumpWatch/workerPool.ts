@@ -219,7 +219,7 @@ export class WorkerInstance<M extends MessagesMap<any, any>> {
 
     const w = new WorkerInstance<T>(worker, log)
 
-    const timeout = () => new Promise<never>((_,reject) => {
+    const timeout = () => new Promise<never>((_, reject) => {
       setTimeout(reject, this.WORKER_STARTUP_TIMEOUT, new Error('startup timed-out'))
     })
     const startWorker = async () => {
