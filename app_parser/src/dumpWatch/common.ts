@@ -84,13 +84,13 @@ export type WorkerFunctionsMap<T extends MessagesMap> = {
   }
 
 export type serverMessage3<Msg extends MessagesMap, Type extends keyof Msg> = {
-  from: messageFrom.server,
+  from: messageFrom,
   id: string,
   type: Type,
   data: Msg[Type][0],
 }
 export type clientMessage3<Msg extends MessagesMap, Type extends keyof Msg> = {
-  from: messageFrom.client,
+  from: messageFrom,
   id: string,
   type: Type,
   data: Msg[Type][1],

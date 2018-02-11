@@ -9,6 +9,7 @@ import { stdoutLog } from '../utils/logger'
 import { observableFromEventEmitter } from '../utils/observable'
 import {
   clientMessage3,
+  messageFrom,
   messages,
   MessagesMap,
   processingResult,
@@ -168,15 +169,23 @@ class WorkerExecutor<M extends MessagesMap> {
             assertNever(type)
           }
 
-          const res = fns[type](data)
+          type fnResult = M[keyof M][1]
+          const handleData = (data: fnResult) => {
+            const reply: clientMessage3<M, keyof M> = {
+              from: messageFrom.client,
+              type,
+              id,
+              data,
+            }
+            this._send(reply)
+          }
 
+          const res: fnResult | Promise<fnResult> = fns[type](data)
           if (res instanceof Promise) {
-            res.then((val) => {
-              this._send(val)
-            })
+            res.then((d) => handleData(d))
           }
           else {
-            this._send(res)
+            handleData(res)
           }
         },
         error: errHandler,
