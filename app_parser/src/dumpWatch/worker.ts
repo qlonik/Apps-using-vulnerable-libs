@@ -173,8 +173,8 @@ class WorkerExecutor<M extends MessagesMap> {
           const handleData = (data: fnResult) => {
             const reply: clientMessage3<M, keyof M> = {
               from: messageFrom.client,
-              type,
               id,
+              type,
               data,
             }
             this._send(reply)
