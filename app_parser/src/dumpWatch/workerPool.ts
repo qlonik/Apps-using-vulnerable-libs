@@ -61,7 +61,7 @@ export class WorkerInstance<M extends MessagesMap> {
   private _eventsLog: IDebugger
   private _unsubscribeEventsLoggers: () => void
 
-  constructor(worker: string = WORKER_PATH) {
+  constructor(worker: string) {
     const size = WorkerInstance.size++
     // rewrite debug port for child worker, if we started main process with IntelliJ debugger
     const execArgv = process.execArgv.map((el) => {
@@ -207,7 +207,7 @@ export class WorkerInstance<M extends MessagesMap> {
     this._unsubscribeEventsLoggers()
   }
 
-  static async create<T extends MessagesMap>(worker: string = WORKER_PATH) {
+  static async create<T extends MessagesMap>(worker: string) {
     const w = new WorkerInstance<T>(worker)
 
     const timeout = () => new Promise<never>((_, reject) => {
