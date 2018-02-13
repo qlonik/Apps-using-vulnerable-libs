@@ -7,7 +7,6 @@ import { stdoutLog } from '../utils/logger'
 import { observableFromEventEmitter } from '../utils/observable'
 import {
   clientMessage3,
-  LOG_NAMESPACE,
   messageFrom,
   messages,
   MessagesMap,
@@ -62,7 +61,7 @@ export class WorkerInstance<M extends MessagesMap> {
   private _eventsLog: IDebugger
   private _unsubscribeEventsLoggers: () => void
 
-  constructor(worker: string = WORKER_PATH, log: string = LOG_NAMESPACE) {
+  constructor(worker: string = WORKER_PATH) {
     const size = WorkerInstance.size++
     // rewrite debug port for child worker, if we started main process with IntelliJ debugger
     const execArgv = process.execArgv.map((el) => {
@@ -86,8 +85,8 @@ export class WorkerInstance<M extends MessagesMap> {
     this._msgObs = observableFromEventEmitter(this._worker, 'message')
       .map(([msg]): clientMessage3<M, keyof M> => msg)
 
-    this.log = stdoutLog(`${log}:worker:${this._worker.pid}`)
-    this._eventsLog = stdoutLog(this.log.namespace + ':ev')
+    this.log = stdoutLog(`w_instance:${this._worker.pid}`)
+    this._eventsLog = stdoutLog(`${this.log.namespace}:ev`)
 
     const errObsSubs = this._errObs.subscribe((err) => {
       this._eventsLog('error (name, message)=(%o, %o)\n%I', err.name, err.message, err)
@@ -208,11 +207,8 @@ export class WorkerInstance<M extends MessagesMap> {
     this._unsubscribeEventsLoggers()
   }
 
-  static async create<T extends MessagesMap>(
-    worker: string = WORKER_PATH,
-    log: string = LOG_NAMESPACE) {
-
-    const w = new WorkerInstance<T>(worker, log)
+  static async create<T extends MessagesMap>(worker: string = WORKER_PATH) {
+    const w = new WorkerInstance<T>(worker)
 
     const timeout = () => new Promise<never>((_, reject) => {
       setTimeout(reject, this.WORKER_STARTUP_TIMEOUT, new Error('startup timed-out'))
@@ -262,7 +258,7 @@ export class WorkerInstance<M extends MessagesMap> {
  */
 const maxCPUs = cpus().length
 export const workerPool = createPool<WorkerInstance<messages>>({
-  create: () => WorkerInstance.create(WORKER_PATH, LOG_NAMESPACE),
+  create: () => WorkerInstance.create(WORKER_PATH),
   destroy: (w) => WorkerInstance.destroy(w),
 }, {
   min: Math.max(Math.floor((maxCPUs - 1) / 2), WORKER_MIN_AT_LEAST),
