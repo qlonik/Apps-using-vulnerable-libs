@@ -1,8 +1,9 @@
 import { watch } from 'chokidar'
 import { once } from 'lodash'
 import { stdoutLog } from '../utils/logger'
+import { createAutoClosedPool, WorkerInstance } from '../utils/workerPool'
 import { LOG_NAMESPACE, messages, processRequest } from './common'
-import { createAutoClosedPool, WorkerInstance, workerPool } from './workerPool'
+import { workerPool } from './workerPool'
 import Observable = require('zen-observable')
 
 

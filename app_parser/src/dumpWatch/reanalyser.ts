@@ -2,8 +2,9 @@ import { oneLine } from 'common-tags'
 import { getNamesVersions } from '../parseLibraries'
 import { isInBlacklist } from '../pkgBlacklist'
 import { onelineUtilInspect, stdoutLog } from '../utils/logger'
+import { createAutoClosedPool, WorkerInstance } from '../utils/workerPool'
 import { LOG_NAMESPACE, messages, reanalyseLibRequest } from './common'
-import { createAutoClosedPool, WorkerInstance, workerPool } from './workerPool'
+import { workerPool } from './workerPool'
 
 
 const LIB_PATH = '../data/sample_libs'

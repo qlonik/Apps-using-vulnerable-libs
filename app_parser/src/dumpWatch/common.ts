@@ -1,4 +1,5 @@
 import { fileDesc } from '../utils/files'
+import { FROM as messageFrom } from '../utils/workerPool/types'
 
 
 export const LOG_NAMESPACE = 'wtchr'
@@ -6,11 +7,6 @@ export const LOG_NAMESPACE = 'wtchr'
 /*
  * Message types
  */
-export enum messageFrom {
-  server,
-  client,
-}
-
 export enum serverMessageType {
   startup,
   process,
@@ -71,38 +67,6 @@ export type reanalysisResult = {
   name: string,
   version: string,
   analysis?: fileDesc[],
-}
-
-export type ServerMsg = any
-export type ClientMsg = any
-export type MessagesMap = {
-  [x: string]: [ServerMsg, ClientMsg],
-}
-
-export type WorkerFunctionsMap<T extends MessagesMap> = {
-  [S in keyof T]: (o: T[S][0]) => (T[S][1] | Promise<T[S][1]>)
-  }
-
-export type ServerClientMessage
-  <Msg extends MessagesMap,
-    Type extends keyof Msg,
-    From extends messageFrom> = {
-  from: From,
-  id: string,
-  type: Type,
-  data: Msg[Type][From],
-}
-export type serverMessage3<Msg extends MessagesMap, Type extends keyof Msg> =
-  ServerClientMessage<Msg, Type, messageFrom.server>
-export type clientMessage3<Msg extends MessagesMap, Type extends keyof Msg> =
-  ServerClientMessage<Msg, Type, messageFrom.client>
-export type startupMsg = {
-  id: string,
-  type: 'up',
-}
-export type shutdownMsg = {
-  id: string,
-  type: 'down',
 }
 
 export type messages = {
