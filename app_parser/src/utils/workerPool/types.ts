@@ -31,7 +31,7 @@ export type ServerClientMessage
   type: Type,
   data: Msg[Type][From],
 }
-export type serverMessage3<Msg extends MessagesMap, Type extends keyof Msg> =
+export type serverMessage3<Msg extends MessagesMap, Type extends keyof Msg = keyof Msg> =
   ServerClientMessage<Msg, Type, FROM.server>
-export type clientMessage3<Msg extends MessagesMap, Type extends keyof Msg> =
+export type clientMessage3<Msg extends MessagesMap, Type extends keyof Msg = keyof Msg> =
   ServerClientMessage<Msg, Type, FROM.client>

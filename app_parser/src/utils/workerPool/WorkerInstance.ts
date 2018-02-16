@@ -26,7 +26,7 @@ export class WorkerInstance<M extends MessagesMap> {
   private _disObs: Observable<void>
   private _clsObs: Observable<[number, string]>
   private _extObs: Observable<[number, string]>
-  private _msgObs: Observable<clientMessage3<M, keyof M>>
+  private _msgObs: Observable<clientMessage3<M>>
 
   private _eventsLog: IDebugger
   private _unsubscribeEventsLoggers: () => void
@@ -53,7 +53,7 @@ export class WorkerInstance<M extends MessagesMap> {
     this._extObs = observableFromEventEmitter(this._worker, 'exit')
       .map(([code, signal]): [number, string] => ([code, signal]))
     this._msgObs = observableFromEventEmitter(this._worker, 'message')
-      .map(([msg]): clientMessage3<M, keyof M> => msg)
+      .map(([msg]): clientMessage3<M> => msg)
 
     this.log = stdoutLog(`w_instance:${this._worker.pid}`)
     this._eventsLog = stdoutLog(`${this.log.namespace}:ev`)

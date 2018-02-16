@@ -16,7 +16,7 @@ import {
 import Observable = require('zen-observable')
 
 
-type messagesFromServer<Msg extends MessagesMap, Type extends keyof Msg> =
+type messagesFromServer<Msg extends MessagesMap, Type extends keyof Msg = keyof Msg> =
   startupMsg | shutdownMsg | serverMessage3<Msg, Type>
 type msgHandle = NetSocket | NetServer | undefined
 
@@ -26,7 +26,7 @@ export class WorkerExecutor<M extends MessagesMap> {
   private _bExObs: Observable<number>
   private _disObs: Observable<void>
   private _extObs: Observable<number>
-  private _msgObs: Observable<messagesFromServer<M, keyof M>>
+  private _msgObs: Observable<messagesFromServer<M>>
   private _wrnObs: Observable<Error>
   private _SIGINT_obs: Observable<string>
 
@@ -41,7 +41,7 @@ export class WorkerExecutor<M extends MessagesMap> {
     this._extObs = observableFromEventEmitter(process, 'exit')
       .map(([code]: [number]) => code)
     this._msgObs = observableFromEventEmitter(process, 'message')
-      .map(([msg, handle]: [messagesFromServer<M, keyof M>, msgHandle]) => msg)
+      .map(([msg, handle]: [messagesFromServer<M>, msgHandle]) => msg)
     this._wrnObs = observableFromEventEmitter(process, 'warning')
       .map(([warning]: [Error]) => warning)
 
@@ -74,7 +74,7 @@ export class WorkerExecutor<M extends MessagesMap> {
     const SIGINT_ObsSubs = this._SIGINT_obs.subscribe(signalSubsriber)
 
     const upDownMsgFilter =
-      (msg: messagesFromServer<M, keyof M>) => msg.type === 'up' || msg.type === 'down'
+      (msg: messagesFromServer<M>) => msg.type === 'up' || msg.type === 'down'
     const errHandler = (err: Error) => {
       this.log(`error in message subscription: '${err.message}'\n${err.stack}`)
     }
@@ -100,7 +100,7 @@ export class WorkerExecutor<M extends MessagesMap> {
     const taskMsgSubs = this._msgObs
       .filter(negate(upDownMsgFilter))
       .subscribe({
-        next: (msg: serverMessage3<M, keyof M>) => {
+        next: (msg: serverMessage3<M>) => {
           const id = msg.id
           const type: keyof M = msg.type
           const data: M[keyof M][0] = msg.data
@@ -111,7 +111,7 @@ export class WorkerExecutor<M extends MessagesMap> {
 
           type fnResult = M[keyof M][1]
           const handleData = (data: fnResult) => {
-            const reply: clientMessage3<M, keyof M> = {
+            const reply: clientMessage3<M> = {
               from: messageFrom.client,
               id,
               type,
@@ -145,7 +145,7 @@ export class WorkerExecutor<M extends MessagesMap> {
     }
   }
 
-  private _send(msg: clientMessage3<M, keyof M> | startupMsg) {
+  private _send(msg: clientMessage3<M> | startupMsg) {
     process.send!(msg)
   }
 
