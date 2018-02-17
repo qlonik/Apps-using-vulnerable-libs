@@ -6,6 +6,10 @@
     "sourceMap": true,
     "outDir": "./lib",
     "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "*": [ "src/types/*" ]
+    },
     "strict": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
