@@ -5,6 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
+    "bin": "npm run build && node $NODE_DEBUG_OPTION lib/bin",
     "watch:build": "tsc --watch",
     "clean": "rm -rf lib",
     "clean:build": "npm run clean && npm run build",
@@ -33,6 +34,7 @@
     "@types/request-promise-native": "^1.0.10",
     "@types/tar": "^4.0.0",
     "@types/uuid": "^3.4.3",
+    "@types/yargs": "^11.0.0",
     "@types/zen-observable": "^0.5.3",
     "babel-types": "^6.26.0",
     "babylon": "^6.18.0",
@@ -50,6 +52,7 @@
     "tar": "^4.0.2",
     "typescript": "^2.7.2",
     "uuid": "^3.2.1",
+    "yargs": "^11.0.0",
     "zen-observable": "^0.6.0"
   },
   "devDependencies": {
