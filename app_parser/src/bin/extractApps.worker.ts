@@ -13,7 +13,7 @@ worker<messages>({
 
     await mkdirp(outDir)
 
-    shell.exec(`apktool d ${JSON.stringify(apkIn)}, -qfo ${JSON.stringify(outDir)}`,
+    shell.exec(`apktool d ${JSON.stringify(apkIn)} -qfo ${JSON.stringify(outDir)}`,
       { silent: true })
 
     return true
