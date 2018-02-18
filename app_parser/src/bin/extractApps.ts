@@ -64,6 +64,7 @@ async function main() {
     }
 
     if (sections_fin.includes(section)) {
+      log('skp %o (already finished)', section)
       continue
     }
 
