@@ -1,10 +1,11 @@
-import { pathExists, readdir, remove } from 'fs-extra'
-import { basename, extname, join } from 'path'
+import { readdir, remove } from 'fs-extra'
+import { join } from 'path'
 import { The } from 'typical-mini'
 import { MessagesMap, Pool, pool as poolFactory } from 'workerpool'
 import { AppDescription } from '../parseApps'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
+import { getWorkerPath } from '../utils/worker'
 
 
 export type messages = The<MessagesMap, {
@@ -49,16 +50,8 @@ let terminating: Promise<void>
 let pool: Pool<messages>
 
 async function main() {
-  const ext = extname(__filename)
-  const name = basename(__filename, ext)
-  const wPath = join(__dirname, `${name}.worker${ext}`)
-  const wExists = await pathExists(wPath)
-
+  const wPath = await getWorkerPath(__filename)
   const sections_todo = await readdir(INPUT_FOLDER)
-
-  if (!wExists) {
-    throw new Error('no worker present')
-  }
 
   if (!terminating) {
     pool = poolFactory(wPath, { minWorkers: 1 })
