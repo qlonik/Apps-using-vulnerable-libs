@@ -33,7 +33,7 @@ declare module 'workerpool' {
     exec<M extends keyof T>(m: M, p: T[M][0]): Promise<T[M][1]>
     exec<P extends any[], R>(fn: Fn<P, R>, p: P): Promise<R>
 
-    proxy(): Promise<WorkerFunctionsMap<T>>
+    proxy(): Promise<ProxiedWorkerFunctionsMap<T>>
 
     stats(): Stats
 
@@ -46,6 +46,10 @@ declare module 'workerpool' {
 
   type WorkerFunctionsMap<T extends MessagesMap> = {
     [S in keyof T]: Fn<T[S][0], T[S][1] | Promise<T[S][1]>>
+    }
+
+  type ProxiedWorkerFunctionsMap<T extends MessagesMap> = {
+    [S in keyof T]: Fn<T[S][0], Promise<T[S][1]>>
     }
 
   interface PoolOptions {
