@@ -1,7 +1,6 @@
 import { Node as BabelNode } from 'babel-types'
 import { parse } from 'babylon'
-import { compact, flatMap, Many } from 'lodash'
-import { resolveAllOrInParallel } from '../utils'
+import { flatMap, Many } from 'lodash'
 import { stdoutLog } from '../utils/logger'
 import { fnNodeFilter, Signature } from './nodeFilters/allFnsAndNames'
 import {
@@ -62,66 +61,6 @@ const collapseFnNamesTree = (
     return [treeElem].concat(collapseFnNamesTree(fnDesc.c, fnName))
   })
     .sort((a, b) => a.name.localeCompare(b.name))
-}
-
-/**
- * @deprecated
- */
-export const extractFunctionStructure = async function (
-  { content }: { content: string | BabelNode | null }): Promise<FunctionSignature[]> {
-
-  // TODO: try to parse with: esprima, acorn, espree, babylon
-  // espree is based on acorn and is used by eslint
-  // babylon is based on acorn and is used by babel
-  if (!content) return []
-
-  const parsedContent = typeof content === 'string' ? parse(content) : content
-  const fnTree = fnOnlyTreeCreator(parsedContent)
-  return collapseFnNamesTree(fnTree)
-}
-
-/**
- * @deprecated
- */
-export type rnSignature = {
-  id: number | string,
-  structure: Signature[],
-}
-/**
- * @deprecated
- */
-export const parseRNBundle = async function (
-  { content }: { content: string }): Promise<rnSignature[]> {
-
-  if (!content) return []
-
-  const parsed = parse(content)
-  const declareFns = rnDeclareFns(parsed)
-
-  const lazyDeclareFnPromises = declareFns.map(({ data }) => {
-    return async () => {
-      if (data === null) {
-        return null
-      }
-
-      const { id, factory } = data
-      return { id, structure: await extractFunctionStructure({ content: factory }) }
-    }
-  })
-
-  return compact(await resolveAllOrInParallel(lazyDeclareFnPromises))
-}
-
-/**
- * @deprecated
- */
-export const extractLiteralStructure = async function (
-  { content }: { content: string | BabelNode | null }): Promise<SignatureLiteral[]> {
-
-  if (!content) return []
-
-  const parsed = typeof content === 'string' ? parse(content) : content
-  return collapseLiteralValsTree(literalValues(parsed))
 }
 
 // todo: refactor existing types rather than alias them
