@@ -8,7 +8,7 @@ import {
   isStringLiteral,
   Node as BabelNode
 } from 'babel-types'
-import { Signal, Signals } from '../visitNodes'
+import { Signal } from '../visitNodes'
 
 
 type rnFactory = {
@@ -18,14 +18,14 @@ type rnFactory = {
 
 export const rnDeclareFnFilter = (path: string, node: BabelNode): Signal<rnFactory> => {
   if (!isCallExpression(node)) {
-    return new Signal<rnFactory>(Signals.continueRecursion, null)
+    return Signal.continue<rnFactory>(null)
   }
 
   const callee = node.callee
   const args = node.arguments
 
   if (!isIdentifier(callee) || callee.name !== '__d') {
-    return new Signal<rnFactory>(Signals.continueRecursion, null)
+    return Signal.continue<rnFactory>(null)
   }
 
   // remark: args changed few times in react-native module system implementation
@@ -58,7 +58,7 @@ export const rnDeclareFnFilter = (path: string, node: BabelNode): Signal<rnFacto
       && isArrayExpression(second)
       && (isObjectExpression(third) || isFunction(third))) {
 
-    return new Signal<rnFactory>(Signals.preventRecursion, {
+    return Signal.stop<rnFactory>({
       id: first.value,
       factory: third,
     })
@@ -67,7 +67,7 @@ export const rnDeclareFnFilter = (path: string, node: BabelNode): Signal<rnFacto
            && isFunction(second)
            && third === undefined) {
 
-    return new Signal<rnFactory>(Signals.preventRecursion, {
+    return Signal.stop<rnFactory>({
       id: first.value,
       factory: second,
     })
@@ -76,13 +76,13 @@ export const rnDeclareFnFilter = (path: string, node: BabelNode): Signal<rnFacto
            && isNumericLiteral(second)
            && (isArrayExpression(third) || third === undefined)) {
 
-    return new Signal<rnFactory>(Signals.preventRecursion, {
+    return Signal.stop<rnFactory>({
       id: second.value,
       factory: first,
     })
   }
   else {
     console.log('UNKNOWN CONFIGURATION PASSED TO __d!!! INVESTIGATE!!!')
-    return new Signal<rnFactory>(Signals.preventRecursion, null)
+    return Signal.stop<rnFactory>(null)
   }
 }

@@ -25,7 +25,7 @@ import { stripIndent } from 'common-tags'
 import { inspect as utilInspect } from 'util'
 import { getFnStatementTokens } from '../fnStatementTokens';
 import { getFnStatementTypes } from '../fnStatementTypes'
-import { Signal, Signals } from '../visitNodes'
+import { Signal } from '../visitNodes'
 
 
 /**
@@ -68,11 +68,11 @@ const extractNameFromIdentifier = (node: Identifier): string => {
 export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> => {
 
   if (node && (<any>node).__skip) {
-    return new Signal<Signature>(Signals.continueRecursion, null)
+    return Signal.continue<Signature>(null)
   }
 
   if (isFunctionDeclaration(node) || isFunctionExpression(node)) {
-    return new Signal<Signature>(Signals.continueRecursion, {
+    return Signal.continue<Signature>({
       type: 'fn',
       name: (node.id && node.id.name) || '[anonymous]',
       fnStatementTypes: getFnStatementTypes(node),
@@ -180,7 +180,7 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
     }
     if (name) {
       fnNode.__skip = true
-      return new Signal<Signature>(Signals.continueRecursion, {
+      return Signal.continue<Signature>({
         type: 'fn',
         name,
         fnStatementTypes: getFnStatementTypes(fnNode),
@@ -189,5 +189,5 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
     }
   }
 
-  return new Signal<Signature>(Signals.continueRecursion, null)
+  return Signal.continue<Signature>(null)
 }

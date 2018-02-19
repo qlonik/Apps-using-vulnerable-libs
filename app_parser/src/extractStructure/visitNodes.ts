@@ -26,7 +26,7 @@ export class Signal<T> {
   private __signal: Signals
   private __data: T | null
 
-  constructor(s: Signals, d: T | null) {
+  private constructor(s: Signals, d: T | null) {
     this.__signal = s
     this.__data = d
   }
@@ -37,6 +37,14 @@ export class Signal<T> {
 
   get data() {
     return this.__data
+  }
+
+  static continue<T>(data: T | null) {
+    return new Signal<T>(Signals.continueRecursion, data)
+  }
+
+  static stop<T>(data: T | null) {
+    return new Signal<T>(Signals.preventRecursion, data)
   }
 }
 

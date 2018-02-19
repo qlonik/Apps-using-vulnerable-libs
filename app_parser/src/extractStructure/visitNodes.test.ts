@@ -1,6 +1,6 @@
 import { objectWithPropertySpy } from '../_helpers/objectWithPropertySpy'
 import { contextualize } from '../_helpers/testContext'
-import { Signal, Signals, visitNodes } from './visitNodes'
+import { Signal, visitNodes } from './visitNodes'
 
 
 const test = contextualize(() => {
@@ -71,7 +71,7 @@ test('filter returns null', t => {
   const { tree, getSpy, setSpy } = t.context
 
   const iterator = visitNodes({
-    fn: () => new Signal<any>(Signals.continueRecursion, null),
+    fn: () => Signal.continue<any>(null),
   })
   const result = iterator(tree)
 
@@ -84,7 +84,7 @@ test('filter returns null and include nodes', t => {
   const { tree, getSpy, setSpy } = t.context
 
   const iterator = visitNodes({
-    fn: () => new Signal<any>(Signals.continueRecursion, null),
+    fn: () => Signal.continue<any>(null),
     includeNodes: true,
   })
   const result = iterator(tree)
@@ -100,13 +100,13 @@ test('filter returns some data and continues recursion', t => {
   const iterator = visitNodes({
     fn: (path, val) => {
       if (path === 'a.g' || path === 'a.g[1].i' || path === 'o') {
-        return new Signal(Signals.continueRecursion, {
+        return Signal.continue({
           path,
           data: val,
         })
       }
 
-      return new Signal<any>(Signals.continueRecursion, null)
+      return Signal.continue<any>(null)
     },
   })
   const result = iterator(tree)
@@ -132,13 +132,13 @@ test('filter returns some data and prevents recursion', t => {
   const iterator = visitNodes({
     fn: (path, val) => {
       if (path === 'a.g' || path === 'a.g[1].i' || path === 'o') {
-        return new Signal(Signals.preventRecursion, {
+        return Signal.stop({
           path,
           data: val,
         })
       }
 
-      return new Signal<any>(Signals.continueRecursion, null)
+      return Signal.continue<any>(null)
     },
   })
   const result = iterator(tree)
@@ -160,13 +160,13 @@ test('filter returns spied object', t => {
   const iterator = visitNodes({
     fn: (path, val) => {
       if (path === `o.p.${prop}`) {
-        return new Signal(Signals.preventRecursion, {
+        return Signal.stop({
           path,
           data: val,
         })
       }
 
-      return new Signal<any>(Signals.continueRecursion, null)
+      return Signal.continue<any>(null)
     },
   })
   const result = iterator(tree)
