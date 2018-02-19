@@ -21,12 +21,20 @@ const stop = (data: SignatureLiteral | null) => {
 export const literalValuesFilter = (path: string, node: BabelNode): Signal<SignatureLiteral> => {
 
   if (isStringLiteral(node)) {
-    return stop(node.value)
+    const val = node.value
+
+    if (val === '') {
+      return stop(null)
+    }
+
+    return stop(val)
   }
   else if (isNumericLiteral(node)) {
     const val = node.value
 
-    if (Math.abs(val) === 0 || Math.abs(val) === 1) {
+    if (val === -1 || val === 0 || val === 1 || val === 2 ||
+        val === 3 || val === 4 || val === 5) {
+
       return stop(null)
     }
 
