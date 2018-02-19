@@ -1,8 +1,8 @@
 import { ensureDir, move, pathExists, readdir, readFile, readJSON, remove } from 'fs-extra'
 import { basename, dirname, extname, join, relative, resolve } from 'path'
-import { extractStructure } from './extractStructure'
-import { leftPad, opts, resolveAllOrInParallel, tgzUnpack } from './utils'
-import { fileDesc, fileDescOp, fileOp } from './utils/files'
+import { extractStructure } from '../extractStructure'
+import { leftPad, opts, resolveAllOrInParallel, tgzUnpack } from '../utils'
+import { fileDesc, fileDescOp, fileOp } from '../utils/files'
 
 
 export type libDesc = {
