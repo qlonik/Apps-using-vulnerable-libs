@@ -5,6 +5,9 @@ import { leftPad, opts, resolveAllOrInParallel, tgzUnpack } from '../utils'
 import { fileDesc, fileDescOp, fileOp } from '../utils/files'
 
 
+export { getNamesVersions, getVersions } from './getters'
+
+
 export type libDesc = {
   name: string,
   version: string,
@@ -297,19 +300,4 @@ export async function extractSingleLibraryFromDump({
   }
 
   return { name, version }
-}
-
-export async function getVersions(libsPath: string, name: string): Promise<libDesc[]> {
-  const versions = await readdir(join(libsPath, name))
-  return versions.map((version) => ({ name, version }))
-}
-
-export async function getNamesVersions(libsPath: string): Promise<libDesc[]> {
-  const libs = await readdir(libsPath)
-  return await libs.reduce(async (acc, name) => {
-    const versions = await readdir(join(libsPath, name))
-    const path = join(libsPath, name)
-    const libVers = versions.map((version) => ({ path: join(path, version), name, version }))
-    return (await acc).concat(libVers)
-  }, <Promise<libDesc[]>> Promise.resolve([]))
 }
