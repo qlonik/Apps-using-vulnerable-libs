@@ -49,6 +49,7 @@ export async function getLibNames(libsPath: string, name?: string): Promise<libN
     const names = await readdir(libsPath)
     return names
       .filter((name) => !name.startsWith('_'))
+      .sort()
       .map((name) => ({ name }))
   }
 }
@@ -67,6 +68,7 @@ export async function getLibNameVersions(
     else {
       const versions = (await readdir(libPath(libsPath, name)))
         .filter((version) => !version.startsWith('_'))
+        .sort()
         .map((version) => ({ name, version }))
       return (await acc).concat(versions)
     }
@@ -92,6 +94,7 @@ export async function getLibNameVersionSigFiles(
       }
       const files = (await readdir(sigsPath))
         .filter((file) => !file.startsWith('_'))
+        .sort()
         .map((file) => ({ name, version, file }))
       return (await acc).concat(files)
     }
