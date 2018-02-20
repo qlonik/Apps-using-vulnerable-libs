@@ -1,20 +1,18 @@
-import { pathExists, readdir, readJSON } from 'fs-extra'
 import { clone, head, last, partition, pullAt } from 'lodash'
-import { join } from 'path'
 import { fnNamesSplit, FunctionSignature, signatureNew } from '../extractStructure'
-import { getNamesVersions, libDesc } from '../parseLibraries'
+import { getLibNameVersions, getLibNameVersionSigContents, libNameVersion } from '../parseLibraries'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
 import { indexValue, jaccardIndex, jaccardLike, similarityIndexToLib } from './set'
 import { SortedLimitedList } from './SortedLimitedList'
 
 
-export type Similarity = libDesc & {
+export type Similarity = libNameVersion & {
   file: string,
   similarity: indexValue,
 }
 
-export type NewSimilarity = libDesc & {
+export type NewSimilarity = libNameVersion & {
   file: string,
   fnNamesSim?: {
     ourIndex?: indexValue,
@@ -267,18 +265,8 @@ export const getSimilarityToLib = async (
     version: string,
   }): Promise<NewSimilarity[]> => {
 
-  const sigsPath = join(libsPath, name, version, 'sigs')
-  if (!await pathExists(sigsPath)) {
-    return []
-  }
-  const sigFilePaths = (await readdir(sigsPath)).sort()
-  const sigsProm = sigFilePaths.map((sigFile) => async () => {
-    return {
-      file: sigFile,
-      signature: <signatureNew>await readJSON(join(sigsPath, sigFile)),
-    }
-  })
-  const signatures = await resolveAllOrInParallel(sigsProm)
+  const signatures = (await getLibNameVersionSigContents(libsPath, name, version))
+    .map(({ name, version, file, sig }) => ({ name, version, file, signature: sig }))
 
   return signatures.map(({ file, signature: lib }) => {
     return {
@@ -337,7 +325,7 @@ export const getSimilarityToLibs = async (
     namesTokens: new SortedLimitedList({ predicate }),
   }
 
-  const libDescr = await getNamesVersions(libsPath)
+  const libDescr = await getLibNameVersions(libsPath)
   const lazySimilarityPromises = libDescr.map(({ name, version }) => {
     return async () => {
       const sims = await getSimilarityToLib({ signature, libsPath, name, version })

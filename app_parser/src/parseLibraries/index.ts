@@ -3,15 +3,10 @@ import { basename, dirname, extname, join, relative, resolve } from 'path'
 import { extractStructure } from '../extractStructure'
 import { leftPad, opts, resolveAllOrInParallel, tgzUnpack } from '../utils'
 import { fileDesc, fileDescOp, fileOp } from '../utils/files'
+import { libNameVersion } from './getters'
 
 
-export { getNamesVersions, getVersions } from './getters'
-
-
-export type libDesc = {
-  name: string,
-  version: string,
-}
+export * from './getters'
 
 enum PKG_TYPE {
   bower,
@@ -20,7 +15,7 @@ enum PKG_TYPE {
   guessed,
 }
 
-function extractNameVersionFromFilename(filename: string): libDesc | null {
+function extractNameVersionFromFilename(filename: string): libNameVersion | null {
   const nameVersionRegex = /(.*)-(\d+\.\d+\.\d+.*)\.tgz/
   const match = nameVersionRegex.exec(filename)
   if (match === null) {
@@ -132,7 +127,7 @@ async function tryAsNodePkg(
  */
 async function tryAsGuessedPkg(
   pkgPath: string,
-  { name, version }: libDesc,
+  { name, version }: libNameVersion,
   { log }: opts = {}): Promise<string[] | null> {
 
   return [
@@ -155,7 +150,7 @@ function getMinJs(path: string | null) {
 }
 
 export async function extractMainFiles(
-  { libsPath, name, version }: { libsPath: string } & libDesc,
+  { libsPath, name, version }: { libsPath: string } & libNameVersion,
   { conservative = true }: opts = {}): Promise<fileDescOp[]> {
 
   const libPath = join(libsPath, name, version)
@@ -261,7 +256,7 @@ export async function extractSingleLibraryFromDump({
   libsPath: string,
   filename: string,
   opts?: opts,
-}): Promise<libDesc> {
+}): Promise<libNameVersion> {
 
   const libDesc = extractNameVersionFromFilename(filename)
   if (libDesc === null) {

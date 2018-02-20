@@ -2,7 +2,8 @@ import test from 'ava'
 import { readFile, readJSON } from 'fs-extra'
 import { join } from "path"
 import { AppDescription } from '../parseApps'
-import { libDesc } from '../parseLibraries'
+import { libNameVersion } from '../parseLibraries'
+import { SIG_FOLDER as SIGS_PATH } from '../parseLibraries/constants'
 import { myWriteJSON } from '../utils/files'
 import { extractStructure } from './index'
 
@@ -10,10 +11,9 @@ import { extractStructure } from './index'
 const UPDATE_SIGNATURES = false
 
 export const TEST_LIBS_PATH = 'test/fixtures/libs'
-export const SAMPLE_LIB_DESC: libDesc = { name: 'sample', version: '1.0.0' }
+export const SAMPLE_LIB_DESC: libNameVersion = { name: 'sample', version: '1.0.0' }
 export const SAMPLE_LIB_PATH = join(TEST_LIBS_PATH, SAMPLE_LIB_DESC.name, SAMPLE_LIB_DESC.version)
 export const MAINS_PATH = 'mains'
-export const SIGS_PATH = 'sigs'
 
 export const TEST_APPS_PATH = 'test/fixtures/apps'
 export const SAMPLE_APP_DESC: AppDescription = { section: 's0', app: 'sample' }

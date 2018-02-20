@@ -1,5 +1,5 @@
 import { find, map, sortBy } from 'lodash'
-import { libDesc } from './parseLibraries'
+import { libNameVersion } from './parseLibraries'
 import { stdoutLog } from './utils/logger'
 
 
@@ -206,7 +206,7 @@ export const blacklist = sortBy(
     return e
   }), ['name'])
 
-export const isInBlacklist = ({ name, version: v }: libDesc): string[] | boolean => {
+export const isInBlacklist = ({ name, version: v }: libNameVersion): string[] | boolean => {
   const lib = find(blacklist, { name })
   if (!lib) {
     return false

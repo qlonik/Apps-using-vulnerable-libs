@@ -3,7 +3,6 @@ import { join } from 'path'
 import { signatureNew } from '../extractStructure'
 import { resolveAllOrInParallel } from '../utils'
 import { SIG_FOLDER } from './constants'
-import { libDesc } from './index'
 
 
 export type libName = {
@@ -104,8 +103,4 @@ export async function getLibNameVersionSigContents(
       return { name, version, file, sig }
     }
   }))
-}
-
-export async function getNamesVersions(libsPath: string): Promise<libDesc[]> {
-  return getLibNameVersions(libsPath)
 }

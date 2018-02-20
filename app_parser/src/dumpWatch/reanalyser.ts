@@ -1,5 +1,5 @@
 import { oneLine } from 'common-tags'
-import { getNamesVersions } from '../parseLibraries'
+import { getLibNameVersions } from '../parseLibraries'
 import { isInBlacklist } from '../pkgBlacklist'
 import { onelineUtilInspect, stdoutLog } from '../utils/logger'
 import { createAutoClosedPool, WorkerInstance } from '../utils/workerPool'
@@ -49,7 +49,7 @@ const reanalyseLibs = ({ libsPath, name, version }: reanalyseLibRequest) => {
 
 async function main() {
   log('started')
-  const nameVersions = await getNamesVersions(LIB_PATH)
+  const nameVersions = await getLibNameVersions(LIB_PATH)
   const analysisPromises = nameVersions.map(({ name, version }) => {
     if (isInBlacklist({ name, version })) {
       log('got blacklisted %o, skipping...', `${name}@${version}`)
