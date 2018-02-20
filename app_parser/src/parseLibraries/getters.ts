@@ -15,7 +15,7 @@ export type libNameVersionSigFile = libNameVersion & {
   file: string,
 }
 export type libNameVersionSigContent = libNameVersionSigFile & {
-  sig: signatureNew,
+  signature: signatureNew,
 }
 
 export function libPath(
@@ -99,8 +99,8 @@ export async function getLibNameVersionSigContents(
   const files = await getLibNameVersionSigFiles(libsPath, name, version, file)
   return resolveAllOrInParallel(files.map(({ name, version, file }) => {
     return async () => {
-      const sig = <signatureNew> await readJSON(libPath(libsPath, name, version, file))
-      return { name, version, file, sig }
+      const signature = <signatureNew> await readJSON(libPath(libsPath, name, version, file))
+      return { name, version, file, signature }
     }
   }))
 }

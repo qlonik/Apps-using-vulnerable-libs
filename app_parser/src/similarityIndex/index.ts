@@ -265,9 +265,7 @@ export const getSimilarityToLib = async (
     version: string,
   }): Promise<NewSimilarity[]> => {
 
-  const signatures = (await getLibNameVersionSigContents(libsPath, name, version))
-    .map(({ name, version, file, sig }) => ({ name, version, file, signature: sig }))
-
+  const signatures = await getLibNameVersionSigContents(libsPath, name, version)
   return signatures.map(({ file, signature: lib }) => {
     return {
       name,
