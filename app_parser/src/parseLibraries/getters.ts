@@ -37,7 +37,7 @@ export function libPath(
 
 export async function getLibNames(libsPath: string, name?: string): Promise<libName[]> {
   if (name) {
-    if (!await pathExists(libPath(libsPath, name))) {
+    if (name.startsWith('_') || !await pathExists(libPath(libsPath, name))) {
       return []
     }
     return [{ name }]
@@ -47,7 +47,9 @@ export async function getLibNames(libsPath: string, name?: string): Promise<libN
       return []
     }
     const names = await readdir(libsPath)
-    return names.map((name) => ({ name }))
+    return names
+      .filter((name) => !name.startsWith('_'))
+      .map((name) => ({ name }))
   }
 }
 
@@ -57,14 +59,16 @@ export async function getLibNameVersions(
   const names = await getLibNames(libsPath, name)
   return names.reduce(async (acc, { name }) => {
     if (version) {
-      if (!await pathExists(libPath(libsPath, name, version))) {
+      if (version.startsWith('_') || !await pathExists(libPath(libsPath, name, version))) {
         return await acc
       }
       return (await acc).concat({ name, version })
     }
     else {
-      const versions = await readdir(libPath(libsPath, name))
-      return (await acc).concat(versions.map((version) => ({ name, version })))
+      const versions = (await readdir(libPath(libsPath, name)))
+        .filter((version) => !version.startsWith('_'))
+        .map((version) => ({ name, version }))
+      return (await acc).concat(versions)
     }
   }, <Promise<libNameVersion[]>> Promise.resolve([]))
 }
@@ -76,7 +80,7 @@ export async function getLibNameVersionSigFiles(
   const libs = await getLibNameVersions(libsPath, name, version)
   return libs.reduce(async (acc, { name, version }) => {
     if (file) {
-      if (!await pathExists(libPath(libsPath, name, version, file))) {
+      if (file.startsWith('_') || !await pathExists(libPath(libsPath, name, version, file))) {
         return await acc
       }
       return (await acc).concat({ name, version, file })
@@ -86,8 +90,10 @@ export async function getLibNameVersionSigFiles(
       if (!await pathExists(sigsPath)) {
         return await acc
       }
-      const files = await readdir(sigsPath)
-      return (await acc).concat(files.map((file) => ({ name, version, file })))
+      const files = (await readdir(sigsPath))
+        .filter((file) => !file.startsWith('_'))
+        .map((file) => ({ name, version, file }))
+      return (await acc).concat(files)
     }
   }, <Promise<libNameVersionSigFile[]>> Promise.resolve([]))
 }
