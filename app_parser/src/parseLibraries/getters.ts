@@ -37,7 +37,9 @@ export function libPath(
 
 export async function getLibNames(libsPath: string, name?: string): Promise<libName[]> {
   if (name) {
-    if (name.startsWith('_') || !await pathExists(libPath(libsPath, name))) {
+    if (name.startsWith('_') || name.endsWith('.lock') ||
+        !await pathExists(libPath(libsPath, name))) {
+
       return []
     }
     return [{ name }]
@@ -48,7 +50,7 @@ export async function getLibNames(libsPath: string, name?: string): Promise<libN
     }
     const names = await readdir(libsPath)
     return names
-      .filter((name) => !name.startsWith('_'))
+      .filter((name) => !name.startsWith('_') || !name.endsWith('.lock'))
       .sort()
       .map((name) => ({ name }))
   }
