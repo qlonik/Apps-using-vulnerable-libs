@@ -1,9 +1,12 @@
 import { ensureDir, move, pathExists, readdir, readFile, readJSON, remove } from 'fs-extra'
 import { basename, dirname, extname, join, relative, resolve } from 'path'
-import { extractStructure } from '../extractStructure'
+import { lock } from 'proper-lockfile'
+import { extractStructure, LiteralSignature } from '../extractStructure'
+import { union } from '../similarityIndex/set'
 import { leftPad, opts, resolveAllOrInParallel, tgzUnpack } from '../utils'
-import { fileDesc, fileDescOp, fileOp } from '../utils/files'
-import { libNameVersion } from './getters'
+import { fileDesc, fileDescOp, fileOp, saveFiles } from '../utils/files'
+import { LIB_LITERAL_SIGNATURE_FILE } from './constants'
+import { getLibNameVersionSigContents, libNameVersion, libPath } from './getters'
 
 
 export * from './getters'
@@ -295,4 +298,32 @@ export async function extractSingleLibraryFromDump({
   }
 
   return { name, version }
+}
+
+export async function updateUnionLiteralSignature(
+  { libsPath, name, version }: { libsPath: string } & libNameVersion,
+  {}: opts = {}): Promise<void> {
+
+  const sigs = await getLibNameVersionSigContents(libsPath, name, version)
+  const libraryPath = libPath(libsPath, name)
+  const litSigPath = join(libraryPath, LIB_LITERAL_SIGNATURE_FILE)
+  const release = await lock(libraryPath, { retries: 10 })
+
+  const libLitSigPrevContent = await pathExists(litSigPath) ? await readJSON(litSigPath) : []
+  const libLitSig: Set<LiteralSignature> = new Set(libLitSigPrevContent)
+
+  const libLitSigUpd = sigs.reduce((acc, { signature: { literalSignature } }) => {
+    const currentLibLiteralSigSet = new Set(literalSignature)
+    return union(acc, currentLibLiteralSigSet)
+  }, libLitSig)
+
+  const saveContent: fileDescOp = {
+    cwd: libraryPath,
+    dst: LIB_LITERAL_SIGNATURE_FILE,
+    conservative: false,
+    type: fileOp.json,
+    json: [...libLitSigUpd],
+  }
+  await saveFiles(saveContent)
+  return await release()
 }
