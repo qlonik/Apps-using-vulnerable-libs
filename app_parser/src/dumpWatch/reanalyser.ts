@@ -14,7 +14,6 @@ const useExecutorsPool = createAutoClosedPool(workerPool)
 
 const reanalyseLibs = ({ libsPath, name, version }: reanalyseLibRequest) => {
   return async (worker: WorkerInstance<messages>) => {
-    log('(w:%o) got %o', worker.pid, `${name}@${version}`)
 
     const { name: nameBack, version: versionBack, analysis } = await worker.send('reanalyse', {
       libsPath,
