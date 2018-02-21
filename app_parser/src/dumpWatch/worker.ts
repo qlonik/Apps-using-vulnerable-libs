@@ -1,5 +1,10 @@
 import { stripIndent } from 'common-tags'
-import { analyseLibFiles, extractMainFiles, extractSingleLibraryFromDump } from '../parseLibraries'
+import {
+  analyseLibFiles,
+  extractMainFiles,
+  extractSingleLibraryFromDump,
+  updateUnionLiteralSignature,
+} from '../parseLibraries'
 import { saveFiles } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
 import { WorkerExecutor } from '../utils/workerPool'
@@ -34,6 +39,9 @@ const processLibrary = async (
 
   const main = await saveFiles(extractMainFiles({ libsPath, name, version }))
   const analysis = await saveFiles(analyseLibFiles(main))
+  if (analysis.length) {
+    await updateUnionLiteralSignature({ libsPath, name, version })
+  }
 
   log(stripIndent`
     finished %o${main.length ? '' : ' (no main files found!!!)'}
@@ -54,6 +62,9 @@ const reanalyseLibrary = async (
   const main = await saveFiles(extractMainFiles({ libsPath, name, version },
     { conservative: true }))
   const analysis = await saveFiles(analyseLibFiles(main, { conservative: false }))
+  if (analysis.length) {
+    await updateUnionLiteralSignature({ libsPath, name, version })
+  }
 
   log(stripIndent`
     finished %o %o${main.length ? '' : ' (no main files found!!!)'}
