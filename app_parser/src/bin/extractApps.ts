@@ -33,6 +33,31 @@ const EXTRACTED_JS = '/home/nvolodin/Auvl/data/done/js'
 const FINISHED_APK = '/home/nvolodin/Auvl/data/done/apks'
 
 const sections_fin = [
+  // done using this script
+  '20170726-a_b',
+  '20170726-c_com.ah',
+  '20170726-com.ai_com.ao',
+  '20170726-com.ap',
+  '20170726-com.aq_com.az',
+  '20170726-com.b',
+  '20170726-com.c',
+  '20170726-com.d',
+  '20170726-com.e',
+  '20170726-com.f',
+  '20170726-com.g',
+  '20170726-com.h',
+  '20170726-com.i',
+  '20170726-com.j',
+  '20170726-com.k',
+  '20170726-com.l',
+  '20170726-com.m',
+  '20170726-com.n',
+  '20170726-com.o',
+  '20170726-com.s',
+  '20170726-d-z',
+
+
+  // were done using old script
   '20170726-com0',
   '20170726-com.p',
   '20170726-com.q',
@@ -41,7 +66,6 @@ const sections_fin = [
   '20170726-com.u',
   '20170726-com.w',
   '20170726-com.x',
-  '20170726-d-z',
 ]
 
 const log = stdoutLog('extract-apps')
