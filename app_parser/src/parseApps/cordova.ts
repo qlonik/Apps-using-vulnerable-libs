@@ -1,4 +1,4 @@
-import { copy, mkdirp, move, pathExists, readFile, remove } from 'fs-extra'
+import { mkdirp, pathExists, readFile } from 'fs-extra'
 import { JSDOM } from 'jsdom'
 import { join } from 'path'
 import { URL } from 'url'
@@ -8,13 +8,8 @@ import { getSimilarityToLibs } from '../similarityIndex'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { fileDescOp, fileOp, saveFiles } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
-import {
-  AppParserFn,
-  AppsFolderParserFn,
-  getAppsAndSections,
-  IsAppTypeFn,
-  MoveAppTypeFn,
-} from './index'
+import { APP_TYPES, getApps } from './getters'
+import { AppParserFn, AppsFolderParserFn, IsAppTypeFn } from './index'
 
 
 const NAMESPACE = 'cordova'
@@ -160,14 +155,14 @@ export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
     chunkSize = 1,
   }: opts = {}) => {
 
-  const apps = await getAppsAndSections({ allAppsPath })
-  const lazyAppAnalysis = apps.map((app) => {
+  const apps = await getApps(allAppsPath, APP_TYPES.cordova)
+  const lazyAppAnalysis = apps.map(({ type, section, app }) => {
     return async () => {
       const appResults = await parseScriptsFromCordovaApp({
-        appPath: join(allAppsPath, app.section, app.app),
+        appPath: join(allAppsPath, type, section, app),
         libsPath,
       }, { conservative })
-      log('finished %o/%o', app.section, app.app)
+      log('finished %o/%o/%o', type, section, app)
       return appResults
     }
   })

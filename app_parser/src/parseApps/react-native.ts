@@ -1,13 +1,8 @@
-import { copy, move, pathExists, remove } from 'fs-extra'
+import { pathExists } from 'fs-extra'
 import { join } from 'path'
 import { opts, resolveAllOrInParallel } from '../utils'
-import {
-  AppParserFn,
-  AppsFolderParserFn,
-  getAppsAndSections,
-  IsAppTypeFn,
-  MoveAppTypeFn
-} from './index'
+import { APP_TYPES, getApps } from './getters'
+import { AppParserFn, AppsFolderParserFn, IsAppTypeFn } from './index'
 
 
 export const isReactNativeApp: IsAppTypeFn = async function (
@@ -35,10 +30,10 @@ export const parseScriptsFromReactNativeApps: AppsFolderParserFn = async functio
     chunkSize = 5,
   }: opts = {}) {
 
-  const apps = await getAppsAndSections({ allAppsPath })
-  const lazyAppAnalysis = apps.map((app) => {
+  const apps = await getApps(allAppsPath, APP_TYPES.reactNative)
+  const lazyAppAnalysis = apps.map(({ type, section, app }) => {
     return async () => parseScriptsFromReactNativeApp({
-      appPath: join(allAppsPath, app.section, app.app),
+      appPath: join(allAppsPath, type, section, app),
       libsPath,
     })
   })
