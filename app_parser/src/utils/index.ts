@@ -1,7 +1,7 @@
+import debug from 'debug'
+import leftPadOrig from 'left-pad'
 import { dirname } from 'path'
 import { extract } from 'tar'
-import debug = require('debug')
-import leftPadOrig = require('left-pad')
 
 
 const pendingPromise = function <T>(): Promise<T> {

@@ -1,10 +1,10 @@
 import { watch } from 'chokidar'
 import { once } from 'lodash'
+import Observable from 'zen-observable'
 import { stdoutLog } from '../utils/logger'
 import { createAutoClosedPool, WorkerInstance } from '../utils/workerPool'
 import { LOG_NAMESPACE, messages, processRequest } from './common'
 import { workerPool } from './workerPool'
-import Observable = require('zen-observable')
 
 
 const LIB_PATH = '../data/sample_libs'

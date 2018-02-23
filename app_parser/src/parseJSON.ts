@@ -1,4 +1,4 @@
-import req = require('request-promise-native')
+import req from 'request-promise-native'
 import { inspect } from 'util'
 
 // list of top depended upon from https://gist.github.com/anvaka/8e8fa57c7ee1350e3491

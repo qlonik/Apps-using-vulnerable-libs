@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import Observable = require('zen-observable')
+import Observable from 'zen-observable'
 
 
 export const observableFromEventEmitter = (ee: EventEmitter, ev: string) => {

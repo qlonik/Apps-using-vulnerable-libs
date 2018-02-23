@@ -1,5 +1,7 @@
 import { ChildProcess, fork } from "child_process"
 import { IDebugger } from 'debug'
+import uuid from 'uuid/v4'
+import Observable from 'zen-observable'
 import { stdoutLog } from '../logger'
 import { observableFromEventEmitter } from '../observable'
 import {
@@ -10,8 +12,6 @@ import {
   shutdownMsg,
   startupMsg
 } from './types'
-import uuid = require('uuid/v4')
-import Observable = require('zen-observable')
 
 
 export class WorkerInstance<M extends MessagesMap> {

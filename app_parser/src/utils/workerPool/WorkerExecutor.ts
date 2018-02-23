@@ -1,6 +1,7 @@
 import { IDebugger } from 'debug'
 import { negate } from 'lodash'
 import { Server as NetServer, Socket as NetSocket } from 'net'
+import Observable from 'zen-observable'
 import { assertNever, objectHasKey } from '../index'
 import { stdoutLog } from '../logger'
 import { observableFromEventEmitter } from '../observable'
@@ -13,7 +14,6 @@ import {
   startupMsg,
   WorkerFunctionsMap
 } from './types'
-import Observable = require('zen-observable')
 
 
 type messagesFromServer<Msg extends MessagesMap, Type extends keyof Msg = keyof Msg> =

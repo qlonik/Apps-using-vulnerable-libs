@@ -3,7 +3,7 @@ import { join } from 'path'
 import { worker } from 'workerpool'
 import { isCordovaApp, isReactNativeApp } from '../parseApps'
 import { APP_TYPE, messages } from './extractApps'
-import shell = require('shelljs')
+import shell from 'shelljs'
 
 
 worker<messages>({

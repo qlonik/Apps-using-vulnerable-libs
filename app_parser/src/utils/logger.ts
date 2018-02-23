@@ -1,6 +1,5 @@
-import { IDebugger } from 'debug'
+import debug, { IDebugger } from 'debug'
 import { inspect } from "util"
-import debug = require('debug')
 
 /*
  * Logger setup

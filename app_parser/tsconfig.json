@@ -11,6 +11,7 @@
       "*": [ "src/types/*" ]
     },
     "strict": true,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },

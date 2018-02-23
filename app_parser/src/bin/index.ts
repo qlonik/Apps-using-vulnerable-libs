@@ -1,6 +1,6 @@
+import Module from 'module'
 import { resolve } from 'path'
-import Module = require('module')
-import yargs = require('yargs')
+import * as yargs from 'yargs'
 
 
 const argv = yargs

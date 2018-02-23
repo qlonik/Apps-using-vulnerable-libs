@@ -1,6 +1,6 @@
+import parse from 'extract-comments'
 import { join } from 'path'
 import { myWriteJSON } from '../utils/files'
-import parse = require('extract-comments')
 
 
 export const extractComments = async function (

@@ -1,5 +1,5 @@
 declare module 'shelljs-exec-proxy' {
-  import shelljs = require('shelljs');
+  import shelljs from 'shelljs';
 
   interface exec {
     (...command: string[]): shelljs.ExecOutputReturnValue;
