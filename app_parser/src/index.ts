@@ -10,8 +10,8 @@ import {
 const LIB_PATH = '../data/sample_libs'
 
 const ALL_APPS_PATH = '../data/sample_apps/everything'
-const CORDOVA_APPS_PATH = '../data/sample_apps/cordova'
-const REACT_NATIVE_APPS_PATH = '../data/sample_apps/react-native'
+const CORDOVA_APPS_PATH = '../data/sample_apps'
+const REACT_NATIVE_APPS_PATH = '../data/sample_apps'
 
 const parseScriptsFromSnowbuddy = () => parseScriptsFromCordovaApp({
   appPath: join(ALL_APPS_PATH, '../random/Snowbuddy-1.2.8'),
