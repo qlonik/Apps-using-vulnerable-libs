@@ -2,6 +2,9 @@
   "name": "app_parser",
   "version": "0.1.0",
   "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
@@ -16,9 +19,6 @@
     "parseJSON": "npm run build && time node $NODE_DEBUG_OPTION lib/parseJSON.js",
     "watch:lib_dump": "npm run build && node $NODE_DEBUG_OPTION lib/dumpWatch"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@types/babylon": "^6.16.2",
     "@types/chokidar": "^1.7.3",
