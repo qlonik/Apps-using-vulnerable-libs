@@ -2,7 +2,6 @@ import { readdir, remove } from 'fs-extra'
 import { join } from 'path'
 import { The } from 'typical-mini'
 import { MessagesMap, Pool, pool as poolFactory } from 'workerpool'
-import { AppDescription } from '../parseApps'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
 import { getWorkerPath } from '../utils/worker'
@@ -10,13 +9,13 @@ import { getWorkerPath } from '../utils/worker'
 
 export type messages = The<MessagesMap, {
   extractApp: [
-    [{ inputPath: string, outputPath: string } & AppDescription],
+    [{ inputPath: string, outputPath: string, section: string, app: string }],
     boolean],
   moveDecompApp: [
-    [{ inputPath: string, outputPath: string } & AppDescription],
+    [{ inputPath: string, outputPath: string, section: string, app: string }],
     APP_TYPE],
   copyApk: [
-    [{ inputPath: string, outputPath: string, type: APP_TYPE } & AppDescription],
+    [{ inputPath: string, outputPath: string, type: APP_TYPE, section: string, app: string }],
     boolean],
 }>
 
