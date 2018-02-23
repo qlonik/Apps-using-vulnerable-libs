@@ -1,7 +1,7 @@
 import test from 'ava'
 import { readFile, readJSON } from 'fs-extra'
 import { join } from "path"
-import { AppDescription } from '../parseApps'
+import { APP_TYPES, appDesc } from '../parseApps'
 import { libNameVersion } from '../parseLibraries'
 import { SIG_FOLDER as SIGS_PATH } from '../parseLibraries/constants'
 import { myWriteJSON } from '../utils/files'
@@ -16,7 +16,7 @@ export const SAMPLE_LIB_PATH = join(TEST_LIBS_PATH, SAMPLE_LIB_DESC.name, SAMPLE
 export const MAINS_PATH = 'mains'
 
 export const TEST_APPS_PATH = 'test/fixtures/apps'
-export const SAMPLE_APP_DESC: AppDescription = { section: 's0', app: 'sample' }
+export const SAMPLE_APP_DESC: appDesc = { type: APP_TYPES.cordova, section: 's0', app: 'sample' }
 export const SAMPLE_APP_PATH = join(TEST_APPS_PATH, SAMPLE_APP_DESC.section, SAMPLE_APP_DESC.app)
 
 test('extracted lib structure didn\'t change', async t => {
