@@ -1,7 +1,8 @@
-import debug from 'debug'
+import { IDebugger } from 'debug'
 import leftPadOrig from 'left-pad'
 import { dirname } from 'path'
 import { extract } from 'tar'
+import { stdoutLog } from './logger'
 
 
 const pendingPromise = function <T>(): Promise<T> {
@@ -71,7 +72,7 @@ export const chunk = function <T>(arr: T[], len: number): T[][] {
  * @async
  */
 export const resolveParallelGroups = async function <T>(arr: (() => Promise<T>)[][]): Promise<T[]> {
-  const rpgLog = debug('resParGr')
+  const rpgLog = stdoutLog('resParGr')
   return arr.reduce(async (acc, chunk, i) => {
     rpgLog(`chunk ${leftPad(i)}`)
     const accResults = await acc
@@ -91,7 +92,7 @@ export type opts = {
   conservative?: boolean,
   chunkLimit?: number,
   chunkSize?: number,
-  log?: debug.IDebugger,
+  log?: IDebugger,
 }
 
 export const resolveAllOrInParallel = async function <T>(
