@@ -30,5 +30,6 @@ export async function getAppsAndSections(
 }
 
 
+export * from './getters'
 export * from './cordova'
 export * from './react-native'
