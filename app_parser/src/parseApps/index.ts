@@ -1,9 +1,7 @@
-import { ensureDir, move, readdir } from 'fs-extra'
+import { readdir } from 'fs-extra'
 import { join } from 'path'
-import { opts, resolveAllOrInParallel } from '../utils'
+import { opts } from '../utils'
 
-
-export const LIMIT_SIMILARITIES = 100
 
 export interface AppDescription {
   section: string,
@@ -12,9 +10,6 @@ export interface AppDescription {
 
 export type IsAppTypeFn =
   (p: { appPath: string }) => Promise<boolean>
-
-export type MoveAppTypeFn =
-  (p: { appTypePath: string, allAppsPath: string }, opts?: opts) => Promise<any>
 
 export type AppsFolderParserFn =
   (p: { allAppsPath: string, libsPath: string }, opts?: opts) => Promise<any>
@@ -32,35 +27,6 @@ export async function getAppsAndSections(
     return apps.map((app) => ({ section: appSection, app }))
   }))
   return (<AppDescription[]>[]).concat(...appsNonFlat)
-}
-
-/**
- * Used to move files of the app in the app folder into subfolder 'apktool.decomp'
- *
- * @param {string} allAppsPath
- * @param {number} chunkLimit
- * @param {number} chunkSize
- * @returns {Promise<any[]>}
- *
- * @deprecated
- */
-export const appsReformat = async function (
-  { allAppsPath }: { allAppsPath: string },
-  { chunkLimit = 10, chunkSize = 5 }: opts = {}) {
-
-  const appSections = await getAppsAndSections({ allAppsPath })
-
-  const pr = appSections.map(({ section, app }) => async () => {
-    const appPath = join(allAppsPath, section, app)
-    const dest = join(appPath, 'apktool.decomp')
-    await ensureDir(dest)
-    const files = (await readdir(appPath)).filter((file) => file !== 'apktool.decomp')
-    await Promise.all(files.map(async (file) => {
-      await move(join(appPath, file), join(dest, file))
-    }))
-  })
-
-  return await resolveAllOrInParallel(pr, { chunkLimit, chunkSize })
 }
 
 

@@ -29,34 +29,6 @@ export const isCordovaApp: IsAppTypeFn = async function (
   return await pathExists(indexHtmlPath) && await pathExists(cordovaJsPath)
 }
 
-export const moveDefinitelyCordovaApps: MoveAppTypeFn = async function (
-  { appTypePath, allAppsPath },
-  { chunkLimit = 10, chunkSize = 10 }: opts = {}): Promise<void> {
-
-  const apps = await getAppsAndSections({ allAppsPath })
-  const movePromises = []
-  for (let { section, app } of apps) {
-    const src = join(allAppsPath, section, app)
-    if (!await isCordovaApp({ appPath: src })) {
-      continue
-    }
-
-    const dest = join(appTypePath, section, app, 'apktool.decomp')
-    if (await pathExists(dest)) {
-      movePromises.push(async () => remove(src))
-    }
-    else {
-      const jsSrc = join(dest, 'assets', 'www')
-      const jsDest = join(dest, '..', 'extractedJs')
-      movePromises.push(async () => {
-        await move(src, dest)
-        await copy(jsSrc, jsDest)
-      })
-    }
-  }
-  await resolveAllOrInParallel(movePromises, { chunkLimit, chunkSize })
-}
-
 export const parseScriptsFromCordovaApp: AppParserFn = async (
   { appPath, libsPath },
   {

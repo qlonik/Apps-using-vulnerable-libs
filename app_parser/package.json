@@ -14,7 +14,6 @@
     "start": "npm run build && time node $NODE_DEBUG_OPTION lib/index.js",
     "reanalyseLibs": "npm run build && node $NODE_DEBUG_OPTION lib/dumpWatch/reanalyser",
     "parseJSON": "npm run build && time node $NODE_DEBUG_OPTION lib/parseJSON.js",
-    "moveApps": "npm run build && time node $NODE_DEBUG_OPTION lib/appMover.js",
     "watch:lib_dump": "npm run build && node $NODE_DEBUG_OPTION lib/dumpWatch"
   },
   "keywords": [],

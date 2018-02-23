@@ -17,34 +17,6 @@ export const isReactNativeApp: IsAppTypeFn = async function (
   return await pathExists(join(...bundlePath))
 }
 
-export const moveDefinitelyReactNativeApps: MoveAppTypeFn = async function (
-  { appTypePath, allAppsPath },
-  { chunkLimit = 10, chunkSize = 10 }: opts = {}): Promise<void> {
-
-  const apps = await getAppsAndSections({ allAppsPath })
-  const movePromises = []
-  for (let { section, app } of apps) {
-    const src = join(allAppsPath, section, app)
-    if (!await isReactNativeApp({ appPath: src })) {
-      continue
-    }
-
-    const dest = join(appTypePath, section, app, 'apktool.decomp')
-    if (await pathExists(dest)) {
-      movePromises.push(async () => remove(src))
-    }
-    else {
-      const jsSrc = join(dest, 'assets', 'index.android.bundle')
-      const jsDest = join(dest, '..', 'extractedJs', 'index.android.bundle.js')
-      movePromises.push(async () => {
-        await move(src, dest)
-        await copy(jsSrc, jsDest)
-      })
-    }
-  }
-  await resolveAllOrInParallel(movePromises, { chunkLimit, chunkSize })
-}
-
 export const parseScriptsFromReactNativeApp: AppParserFn = async function (
   { appPath, libsPath },
   {
