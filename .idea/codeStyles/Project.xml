@@ -19,9 +19,13 @@
     </HTMLCodeStyleSettings>
     <JSCodeStyleSettings>
       <option name="USE_SEMICOLON_AFTER_STATEMENT" value="false" />
+      <option name="FORCE_SEMICOLON_STYLE" value="true" />
+      <option name="USE_DOUBLE_QUOTES" value="false" />
+      <option name="FORCE_QUOTE_STYlE" value="true" />
       <option name="IMPORT_SORT_MODULE_NAME" value="true" />
     </JSCodeStyleSettings>
     <JSON>
+      <option name="OBJECT_WRAPPING" value="5" />
       <option name="ARRAY_WRAPPING" value="5" />
     </JSON>
     <Properties>
@@ -30,6 +34,8 @@
     </Properties>
     <TypeScriptCodeStyleSettings>
       <option name="USE_SEMICOLON_AFTER_STATEMENT" value="false" />
+      <option name="FORCE_SEMICOLON_STYLE" value="true" />
+      <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false" />
       <option name="USE_DOUBLE_QUOTES" value="false" />
       <option name="SPACES_WITHIN_OBJECT_LITERAL_BRACES" value="true" />
       <option name="SPACES_WITHIN_IMPORTS" value="true" />
@@ -57,7 +63,6 @@
     </codeStyleSettings>
     <codeStyleSettings language="JavaScript">
       <indentOptions>
-        <option name="INDENT_SIZE" value="2" />
         <option name="TAB_SIZE" value="2" />
       </indentOptions>
     </codeStyleSettings>
@@ -71,8 +76,7 @@
     <codeStyleSettings language="TypeScript">
       <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
       <option name="KEEP_BLANK_LINES_IN_CODE" value="3" />
-      <option name="BLANK_LINES_AFTER_IMPORTS" value="2" />
-      <option name="ELSE_ON_NEW_LINE" value="true" />
+      <option name="BLANK_LINES_AROUND_METHOD_IN_INTERFACE" value="0" />
       <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
       <option name="ALIGN_MULTILINE_BINARY_OPERATION" value="true" />
       <option name="CALL_PARAMETERS_WRAP" value="1" />
