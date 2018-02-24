@@ -1,3 +1,4 @@
+import { kebabCase } from 'lodash'
 import Module from 'module'
 import { resolve } from 'path'
 import * as yargs from 'yargs'
@@ -11,7 +12,8 @@ const argv = yargs
   })
   .help().argv
 
-const replExt = argv.script.replace(/.(t|j)sx?$/, '.js')
+const kebabCaseName = kebabCase(argv.script)
+const replExt = kebabCaseName.replace(/.(t|j)sx?$/, '.js')
 const jsScript = `${replExt}${replExt.endsWith('.js') ? '' : '.js'}`
 const scriptPath = resolve(__dirname, jsScript)
 
