@@ -62,8 +62,19 @@
   "devDependencies": {
     "@types/sinon": "^4.1.3",
     "ava": "^0.24.0",
+    "eslint": "^4.18.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-nibble": "^4.2.1",
+    "eslint-plugin-ava": "^4.5.1",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-prettier": "^2.6.0",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-typescript": "^0.9.0",
+    "eslint-plugin-unicorn": "^4.0.2",
     "nyc": "^11.3.0",
-    "sinon": "^4.1.6"
+    "prettier": "^1.10.2",
+    "sinon": "^4.1.6",
+    "typescript-eslint-parser": "^14.0.0"
   },
   "ava": {
     "files": [
@@ -81,5 +92,137 @@
       "html",
       "text"
     ]
-  }
+  },
+  "eslintConfig": {
+    "env": {
+      "es6": true,
+      "node": true
+    },
+    "parser": "typescript-eslint-parser",
+    "parserOptions": {
+      "ecmaVersion": 2017,
+      "sourceType": "module"
+    },
+    "plugins": [
+      "ava",
+      "import",
+      "prettier",
+      "promise",
+      "typescript",
+      "unicorn"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:ava/recommended",
+      "plugin:import/recommended",
+      "plugin:prettier/recommended",
+      "plugin:promise/recommended",
+      "plugin:unicorn/recommended"
+    ],
+    "settings": {
+      "import/resolver": {
+        "node": {
+          "extensions": [
+            ".js",
+            ".ts"
+          ]
+        }
+      }
+    },
+    "rules": {
+      "no-undef": "off",
+      "prettier/prettier": [
+        "error",
+        {
+          "printWidth": 100,
+          "semi": false,
+          "singleQuote": true,
+          "trailingComma": "all",
+          "arrowParens": "always"
+        }
+      ],
+      "typescript/adjacent-overload-signatures": "error",
+      "typescript/class-name-casing": "error",
+      "typescript/explicit-member-accessibility": "error",
+      "typescript/interface-name-prefix": "error",
+      "typescript/member-naming": [
+        "error",
+        {
+          "private": "^_|^constructor$"
+        }
+      ],
+      "typescript/member-ordering": [
+        "error",
+        {
+          "default": [
+            "public-static-field",
+            "static-field",
+            "protected-static-field",
+            "private-static-field",
+            "public-instance-field",
+            "instance-field",
+            "protected-instance-field",
+            "private-instance-field",
+            "public-field",
+            "field",
+            "protected-field",
+            "private-field",
+            "public-constructor",
+            "constructor",
+            "protected-constructor",
+            "private-constructor",
+            "private-method",
+            "private-instance-method",
+            "private-static-method",
+            "protected-method",
+            "protected-instance-method",
+            "protected-static-method",
+            "public-method",
+            "method",
+            "public-instance-method",
+            "instance-method",
+            "public-static-method",
+            "static-method"
+          ]
+        }
+      ],
+      "typescript/no-angle-bracket-type-assertion": "error",
+      "typescript/no-namespace": [
+        "error",
+        {
+          "allowDeclarations": true
+        }
+      ],
+      "typescript/no-parameter-properties": "error",
+      "typescript/no-triple-slash-reference": "error",
+      "typescript/no-unused-vars": "error",
+      "typescript/no-use-before-define": "error",
+      "typescript/type-annotation-spacing": "error",
+      "unicorn/import-index": "off"
+    },
+    "overrides": [
+      {
+        "files": [
+          "*.test.ts"
+        ],
+        "rules": {
+          "prettier/prettier": [
+            "error",
+            {
+              "printWidth": 100,
+              "semi": false,
+              "singleQuote": true,
+              "trailingComma": "all"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "eslintIgnore": [
+    "lib/",
+    "coverage/",
+    "test/fixtures/",
+    "test/snapshots/"
+  ]
 }
