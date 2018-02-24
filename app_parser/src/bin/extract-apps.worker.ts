@@ -1,9 +1,9 @@
 import { copy, mkdirp, move, remove } from 'fs-extra'
 import { join } from 'path'
+import shell from 'shelljs'
 import { worker } from 'workerpool'
 import { isCordovaApp, isReactNativeApp } from '../parseApps'
 import { APP_TYPE, messages } from './extract-apps'
-import shell from 'shelljs'
 
 worker<messages>({
   extractApp: async ({ inputPath, outputPath, section, app }) => {
