@@ -6,6 +6,7 @@
   "author": "",
   "license": "MIT",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "build": "tsc",
     "bin": "npm run build && node $NODE_DEBUG_OPTION lib/bin",
