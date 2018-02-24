@@ -125,7 +125,8 @@
         "node": {
           "extensions": [
             ".js",
-            ".ts"
+            ".ts",
+            ".d.ts"
           ]
         }
       }
