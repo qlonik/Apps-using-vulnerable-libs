@@ -127,9 +127,17 @@
             ".js",
             ".ts",
             ".d.ts"
+          ],
+          "moduleDirectory": [
+            "node_modules",
+            "src/types"
           ]
         }
-      }
+      },
+      "import/external-module-folders": [
+        "node_modules",
+        "src/types"
+      ]
     },
     "rules": {
       "no-undef": "off",
