@@ -5,7 +5,6 @@ import { isCordovaApp, isReactNativeApp } from '../parseApps'
 import { APP_TYPE, messages } from './extractApps'
 import shell from 'shelljs'
 
-
 worker<messages>({
   extractApp: async ({ inputPath, outputPath, section, app }) => {
     const apkIn = join(inputPath, section, app)
@@ -13,8 +12,9 @@ worker<messages>({
 
     await mkdirp(outDir)
 
-    shell.exec(`apktool d ${JSON.stringify(apkIn)} -qfo ${JSON.stringify(outDir)}`,
-      { silent: true })
+    shell.exec(`apktool d ${JSON.stringify(apkIn)} -qfo ${JSON.stringify(outDir)}`, {
+      silent: true,
+    })
 
     return true
   },
@@ -29,16 +29,14 @@ worker<messages>({
       await move(inAppPath, outAppPath, { overwrite: true })
       await remove(appPath)
       return APP_TYPE.cordova
-    }
-    else if (await isReactNativeApp({ appPath })) {
+    } else if (await isReactNativeApp({ appPath })) {
       const inAppPath = join(appPath, 'assets', 'index.android.bundle')
       const outAppPath = join(outputPath, 'react-native', section, app, 'bundle.js')
 
       await move(inAppPath, outAppPath, { overwrite: true })
       await remove(appPath)
       return APP_TYPE.reactNative
-    }
-    else {
+    } else {
       await remove(appPath)
       return APP_TYPE.removed
     }
@@ -51,5 +49,5 @@ worker<messages>({
     await copy(apkPath, outputApkPath)
 
     return true
-  }
+  },
 })

@@ -1,13 +1,14 @@
 import { Macro, test, TestContext } from 'ava'
-import { stripIndent } from "common-tags"
+import { stripIndent } from 'common-tags'
 import { isPlainObject } from 'lodash'
 import { extractStructure } from './index'
 import { DIRECTIVE, STATEMENT } from './tags'
 
-
 const checkTypesMacro: Macro<TestContext> = async (
-  t: TestContext, content: string, expected: string[]) => {
-
+  t: TestContext,
+  content: string,
+  expected: string[],
+) => {
   const structure = await extractStructure({ content })
   const [firstFn] = structure.functionSignature
 
@@ -19,7 +20,9 @@ const checkTypesMacro: Macro<TestContext> = async (
   }
 }
 
-test('statement types are correct', checkTypesMacro,
+test(
+  'statement types are correct',
+  checkTypesMacro,
   stripIndent`
     function a() {
       'use strict';
@@ -44,25 +47,27 @@ test('statement types are correct', checkTypesMacro,
     `t_${STATEMENT}:VariableDeclaration`,
     `t_${STATEMENT}:ForStatement`,
     `t_${STATEMENT}:ReturnStatement`,
-  ])
+  ],
+)
 
-test('statement types: function declaration without semicolon', checkTypesMacro,
+test(
+  'statement types: function declaration without semicolon',
+  checkTypesMacro,
   stripIndent`
     function a() {
       function b() {}
     }
   `,
-  [
-    `t_${STATEMENT}:FunctionDeclaration`,
-  ])
+  [`t_${STATEMENT}:FunctionDeclaration`],
+)
 
-test('statement types: function declaration with semicolon', checkTypesMacro,
+test(
+  'statement types: function declaration with semicolon',
+  checkTypesMacro,
   stripIndent`
     function a() {
       function b() {};
     }
   `,
-  [
-    `t_${STATEMENT}:FunctionDeclaration`,
-    `t_${STATEMENT}:EmptyStatement`,
-  ])
+  [`t_${STATEMENT}:FunctionDeclaration`, `t_${STATEMENT}:EmptyStatement`],
+)

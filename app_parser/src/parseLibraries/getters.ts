@@ -4,23 +4,20 @@ import { signatureNew } from '../extractStructure'
 import { resolveAllOrInParallel } from '../utils'
 import { SIG_FOLDER } from './constants'
 
-
 export type libName = {
-  name: string,
+  name: string
 }
 export type libNameVersion = libName & {
-  version: string,
+  version: string
 }
 export type libNameVersionSigFile = libNameVersion & {
-  file: string,
+  file: string
 }
 export type libNameVersionSigContent = libNameVersionSigFile & {
-  signature: signatureNew,
+  signature: signatureNew
 }
 
-export function libPath(
-  libsPath: string, name?: string, version?: string, file?: string): string {
-
+export function libPath(libsPath: string, name?: string, version?: string, file?: string): string {
   let path = libsPath
   if (name) {
     path = join(path, name)
@@ -37,14 +34,15 @@ export function libPath(
 
 export async function getLibNames(libsPath: string, name?: string): Promise<libName[]> {
   if (name) {
-    if (name.startsWith('_') || name.endsWith('.lock') ||
-        !await pathExists(libPath(libsPath, name))) {
-
+    if (
+      name.startsWith('_') ||
+      name.endsWith('.lock') ||
+      !await pathExists(libPath(libsPath, name))
+    ) {
       return []
     }
     return [{ name }]
-  }
-  else {
+  } else {
     if (!await pathExists(libPath(libsPath))) {
       return []
     }
@@ -57,8 +55,10 @@ export async function getLibNames(libsPath: string, name?: string): Promise<libN
 }
 
 export async function getLibNameVersions(
-  libsPath: string, name?: string, version?: string): Promise<libNameVersion[]> {
-
+  libsPath: string,
+  name?: string,
+  version?: string,
+): Promise<libNameVersion[]> {
   const names = await getLibNames(libsPath, name)
   return names.reduce(async (acc, { name }) => {
     if (version) {
@@ -66,21 +66,22 @@ export async function getLibNameVersions(
         return await acc
       }
       return (await acc).concat({ name, version })
-    }
-    else {
+    } else {
       const versions = (await readdir(libPath(libsPath, name)))
         .filter((version) => !version.startsWith('_'))
         .sort()
         .map((version) => ({ name, version }))
       return (await acc).concat(versions)
     }
-  }, <Promise<libNameVersion[]>> Promise.resolve([]))
+  }, Promise.resolve([] as libNameVersion[]))
 }
 
 export async function getLibNameVersionSigFiles(
-  libsPath: string, name?: string, version?: string,
-  file?: string): Promise<libNameVersionSigFile[]> {
-
+  libsPath: string,
+  name?: string,
+  version?: string,
+  file?: string,
+): Promise<libNameVersionSigFile[]> {
   const libs = await getLibNameVersions(libsPath, name, version)
   return libs.reduce(async (acc, { name, version }) => {
     if (file) {
@@ -88,8 +89,7 @@ export async function getLibNameVersionSigFiles(
         return await acc
       }
       return (await acc).concat({ name, version, file })
-    }
-    else {
+    } else {
       const sigsPath = join(libPath(libsPath, name, version), SIG_FOLDER)
       if (!await pathExists(sigsPath)) {
         return await acc
@@ -100,18 +100,22 @@ export async function getLibNameVersionSigFiles(
         .map((file) => ({ name, version, file }))
       return (await acc).concat(files)
     }
-  }, <Promise<libNameVersionSigFile[]>> Promise.resolve([]))
+  }, Promise.resolve([] as libNameVersionSigFile[]))
 }
 
 export async function getLibNameVersionSigContents(
-  libsPath: string, name?: string, version?: string,
-  file?: string): Promise<libNameVersionSigContent[]> {
-
+  libsPath: string,
+  name?: string,
+  version?: string,
+  file?: string,
+): Promise<libNameVersionSigContent[]> {
   const files = await getLibNameVersionSigFiles(libsPath, name, version, file)
-  return resolveAllOrInParallel(files.map(({ name, version, file }) => {
-    return async () => {
-      const signature = <signatureNew> await readJSON(libPath(libsPath, name, version, file))
-      return { name, version, file, signature }
-    }
-  }))
+  return resolveAllOrInParallel(
+    files.map(({ name, version, file }) => {
+      return async () => {
+        const signature = (await readJSON(libPath(libsPath, name, version, file))) as signatureNew
+        return { name, version, file, signature }
+      }
+    }),
+  )
 }

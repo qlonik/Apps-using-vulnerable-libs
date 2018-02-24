@@ -1,4 +1,4 @@
-import test from 'ava'
+import { test } from 'ava'
 import { stripIndent } from 'common-tags'
 import {
   extractReactNativeStructure,
@@ -7,7 +7,6 @@ import {
   rnSignatureNew,
 } from './index'
 import { DECLARATION, EXPRESSION, LITERAL, STATEMENT } from './tags'
-
 
 test('library: extracted correct signature', async t => {
   const content = stripIndent`
@@ -83,7 +82,7 @@ test('library: extracted correct signature', async t => {
       template
       template 2
       '...'
-    `
+    `,
   ].sort()
   t.deepEqual(expectedLiterals, literalSignature)
 })
@@ -121,69 +120,57 @@ test('react-native: extracted correct signature', async t => {
   const expected: rnSignatureNew[] = [
     {
       id: '0',
-      functionSignature: [{
-        type: 'fn',
-        name: 'a',
-        fnStatementTypes: [
-          `t_${STATEMENT}:FunctionDeclaration`,
-        ],
-        fnStatementTokens: [
-          `${DECLARATION}:Function[${EXPRESSION}:Identifier[b]]`
-        ],
-      }, {
-        type: 'fn',
-        name: fnNamesConcat('a', 'b'),
-        fnStatementTypes: [],
-        fnStatementTokens: [],
-      }, {
-        type: 'fn',
-        name: 'c',
-        fnStatementTypes: [],
-        fnStatementTokens: [],
-      }],
-      literalSignature: [
-        123,
+      functionSignature: [
+        {
+          type: 'fn',
+          name: 'a',
+          fnStatementTypes: [`t_${STATEMENT}:FunctionDeclaration`],
+          fnStatementTokens: [`${DECLARATION}:Function[${EXPRESSION}:Identifier[b]]`],
+        },
+        {
+          type: 'fn',
+          name: fnNamesConcat('a', 'b'),
+          fnStatementTypes: [],
+          fnStatementTokens: [],
+        },
+        {
+          type: 'fn',
+          name: 'c',
+          fnStatementTypes: [],
+          fnStatementTokens: [],
+        },
       ],
+      literalSignature: [123],
     },
     {
       id: 1,
-      functionSignature: [{
-        type: 'fn',
-        name: 'a',
-        fnStatementTypes: [
-          `t_${STATEMENT}:VariableDeclaration`,
-        ],
-        fnStatementTokens: [
-          `${DECLARATION}:Variable[b = ${EXPRESSION}:Function[${EXPRESSION}:Identifier[fn]]]`,
-        ],
-      }, {
-        type: 'fn',
-        name: fnNamesConcat('a', 'fn'),
-        fnStatementTypes: [
-          `t_${STATEMENT}:ReturnStatement`,
-        ],
-        fnStatementTokens: [
-          `${STATEMENT}:Return[${LITERAL}:Numeric]`,
-        ],
-      }],
-      literalSignature: [
-        123,
-        234,
+      functionSignature: [
+        {
+          type: 'fn',
+          name: 'a',
+          fnStatementTypes: [`t_${STATEMENT}:VariableDeclaration`],
+          fnStatementTokens: [
+            `${DECLARATION}:Variable[b = ${EXPRESSION}:Function[${EXPRESSION}:Identifier[fn]]]`,
+          ],
+        },
+        {
+          type: 'fn',
+          name: fnNamesConcat('a', 'fn'),
+          fnStatementTypes: [`t_${STATEMENT}:ReturnStatement`],
+          fnStatementTokens: [`${STATEMENT}:Return[${LITERAL}:Numeric]`],
+        },
       ],
+      literalSignature: [123, 234],
     },
     {
       id: 2,
       functionSignature: [],
-      literalSignature: [
-        345,
-      ],
+      literalSignature: [345],
     },
     {
       id: 3,
       functionSignature: [],
-      literalSignature: [
-        456,
-      ],
+      literalSignature: [456],
     },
   ]
   t.deepEqual(expected, structure)

@@ -1,15 +1,15 @@
 declare module 'shelljs-exec-proxy' {
-  import shelljs from 'shelljs';
+  import Shelljs from 'shelljs'
 
-  interface exec {
-    (...command: string[]): shelljs.ExecOutputReturnValue;
-    [k: string]: exec;
+  interface Exec {
+    (...command: string[]): Shelljs.ExecOutputReturnValue
+    [k: string]: Exec
   }
 
-  interface shelljs {
-    [k: string]: exec
+  interface Shelljs {
+    [k: string]: Exec
   }
 
-  const exported: shelljs
+  const exported: Shelljs
   export = exported
 }

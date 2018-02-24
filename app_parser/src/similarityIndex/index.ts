@@ -2,30 +2,24 @@ import { clone, head, last, partition, pullAt } from 'lodash'
 import { fnNamesSplit, FunctionSignature, signatureNew } from '../extractStructure'
 import { getLibNameVersions, getLibNameVersionSigContents, libNameVersion } from '../parseLibraries'
 import { resolveAllOrInParallel } from '../utils'
-import { stdoutLog } from '../utils/logger'
 import { indexValue, jaccardIndex, jaccardLike, similarityIndexToLib } from './set'
 import { SortedLimitedList } from './SortedLimitedList'
 
-
 export type Similarity = libNameVersion & {
-  file: string,
-  similarity: indexValue,
+  file: string
+  similarity: indexValue
 }
 
 export type NewSimilarity = libNameVersion & {
-  file: string,
+  file: string
   fnNamesSim?: {
-    ourIndex?: indexValue,
-    jaccardIndex?: indexValue,
-  },
-  fnStTokensSim?: indexValue,
-  fnStTypesSim?: indexValue,
-  namesTokens?: indexValue,
+    ourIndex?: indexValue
+    jaccardIndex?: indexValue
+  }
+  fnStTokensSim?: indexValue
+  fnStTypesSim?: indexValue
+  namesTokens?: indexValue
 }
-
-
-const NAMESPACE = 'similarity'
-const log = stdoutLog(NAMESPACE)
 
 /**
  * This function returns similarity metric by function names. It produces two indexes - one is our
@@ -43,15 +37,16 @@ const log = stdoutLog(NAMESPACE)
  * @param lib
  * @returns
  */
-export const librarySimilarityByFunctionNames = (
-  { unknown: { functionSignature: unknown }, lib: { functionSignature: lib } }: {
-    unknown: signatureNew,
-    lib: signatureNew,
-  }): { ourIndex: indexValue, jaccardIndex: indexValue } => {
-
+export const librarySimilarityByFunctionNames = ({
+  unknown: { functionSignature: unknown },
+  lib: { functionSignature: lib },
+}: {
+  unknown: signatureNew
+  lib: signatureNew
+}): { ourIndex: indexValue; jaccardIndex: indexValue } => {
   //todo
-  const unknownNamesSet = new Set(unknown.map(s => s.name))
-  const libNamesSet = new Set(lib.map(s => s.name))
+  const unknownNamesSet = new Set(unknown.map((s) => s.name))
+  const libNamesSet = new Set(lib.map((s) => s.name))
 
   const ourVal = similarityIndexToLib(libNamesSet, unknownNamesSet)
   const jaccardVal = jaccardIndex(libNamesSet, unknownNamesSet)
@@ -62,7 +57,7 @@ export const librarySimilarityByFunctionNames = (
   }
 }
 
-type nameProb = { name: string, prob: indexValue }
+type nameProb = { name: string; prob: indexValue }
 type nameProbIndex = nameProb & { index: number }
 /**
  * This function produces similarity index between two signature based on the function statement
@@ -98,16 +93,17 @@ type nameProbIndex = nameProb & { index: number }
  * @param lib
  * @returns
  */
-export const librarySimilarityByFunctionStatementTokens = (
-  { unknown: { functionSignature: unknown }, lib: { functionSignature: lib } }: {
-    unknown: signatureNew,
-    lib: signatureNew,
-  }): indexValue => {
-
+export const librarySimilarityByFunctionStatementTokens = ({
+  unknown: { functionSignature: unknown },
+  lib: { functionSignature: lib },
+}: {
+  unknown: signatureNew
+  lib: signatureNew
+}): indexValue => {
   const libCopy = clone(lib)
   // remark: first for loop
-  const possibleFnNames = unknown
-    .reduce((acc: nameProb[], { fnStatementTokens: toks }: FunctionSignature) => {
+  const possibleFnNames = unknown.reduce(
+    (acc: nameProb[], { fnStatementTokens: toks }: FunctionSignature) => {
       if (!toks) {
         return acc
       }
@@ -133,24 +129,24 @@ export const librarySimilarityByFunctionStatementTokens = (
       const { name, index, prob } = topMatch
       pullAt(libCopy, index)
       return acc.concat({ name, prob })
-    }, <nameProb[]>[])
-
-  return jaccardLike(
-    possibleFnNames.map(v => v.name),
-    lib.map(v => v.name),
+    },
+    [] as nameProb[],
   )
+
+  return jaccardLike(possibleFnNames.map((v) => v.name), lib.map((v) => v.name))
 }
 
-export const librarySimilarityByFunctionStatementTypes = (
-  { unknown: { functionSignature: unknown }, lib: { functionSignature: lib } }: {
-    unknown: signatureNew,
-    lib: signatureNew,
-  }): indexValue => {
-
+export const librarySimilarityByFunctionStatementTypes = ({
+  unknown: { functionSignature: unknown },
+  lib: { functionSignature: lib },
+}: {
+  unknown: signatureNew
+  lib: signatureNew
+}): indexValue => {
   const libCopy = clone(lib)
   // remark: first for loop
-  const possibleFnNames = unknown
-    .reduce((acc: nameProb[], { fnStatementTypes: types }: FunctionSignature) => {
+  const possibleFnNames = unknown.reduce(
+    (acc: nameProb[], { fnStatementTypes: types }: FunctionSignature) => {
       if (!types) {
         return acc
       }
@@ -176,17 +172,20 @@ export const librarySimilarityByFunctionStatementTypes = (
       const { name, index, prob } = topMatch
       pullAt(libCopy, index)
       return acc.concat({ name, prob })
-    }, <nameProb[]>[])
+    },
+    [] as nameProb[],
+  )
 
-  return jaccardLike(possibleFnNames.map(v => v.name), lib.map(v => v.name))
+  return jaccardLike(possibleFnNames.map((v) => v.name), lib.map((v) => v.name))
 }
 
-export const librarySimilarityByFunctionNamesAndStatementTokens = (
-  { unknown: { functionSignature: unknown }, lib: { functionSignature: lib } }: {
-    unknown: signatureNew,
-    lib: signatureNew,
-  }): indexValue => {
-
+export const librarySimilarityByFunctionNamesAndStatementTokens = ({
+  unknown: { functionSignature: unknown },
+  lib: { functionSignature: lib },
+}: {
+  unknown: signatureNew
+  lib: signatureNew
+}): indexValue => {
   const anonFnPartitioner = (s: FunctionSignature) => last(fnNamesSplit(s.name)) === '[anonymous]'
   const [unknownAnonFnSigs, unknownNamedFnSigs] = partition(unknown, anonFnPartitioner)
   const [libAnonFnSigs, libNamedFnSigs] = partition(lib, anonFnPartitioner)
@@ -195,8 +194,8 @@ export const librarySimilarityByFunctionNamesAndStatementTokens = (
 
   const libAnonFnSigsCopy = clone(libAnonFnSigs).map((s: FunctionSignature, i) => ({ s, i }))
   // remark: first for loop
-  const possibleMatches = unknownAnonFnSigs
-    .reduce((acc, { fnStatementTokens: toks }) => {
+  const possibleMatches = unknownAnonFnSigs.reduce(
+    (acc, { fnStatementTokens: toks }) => {
       if (!toks) {
         return acc
       }
@@ -222,13 +221,15 @@ export const librarySimilarityByFunctionNamesAndStatementTokens = (
       const { name, index, origIndex, prob } = topMatch
       pullAt(libAnonFnSigsCopy, index)
       return acc.concat({ name, prob, index: origIndex })
-    }, <nameProbIndex[]>[])
+    },
+    [] as nameProbIndex[],
+  )
 
-  const unknownNames = (<(string | number)[]>[])
-    .concat(unknownNamedFnSigs.map(v => v.name))
-    .concat(possibleMatches.map(v => v.index))
-  const libNames = (<(string | number)[]>[])
-    .concat(libNamedFnSigs.map(v => v.name))
+  const unknownNames = ([] as (string | number)[])
+    .concat(unknownNamedFnSigs.map((v) => v.name))
+    .concat(possibleMatches.map((v) => v.index))
+  const libNames = ([] as (string | number)[])
+    .concat(libNamedFnSigs.map((v) => v.name))
     .concat(libAnonFnSigs.map((_, i) => i))
 
   return jaccardLike(unknownNames, libNames)
@@ -257,14 +258,17 @@ export const librarySimilarityByFunctionNamesAndStatementTokens = (
  * @param version
  * @returns
  */
-export const getSimilarityToLib = async (
-  { signature: unknown, libsPath, name, version }: {
-    signature: signatureNew,
-    libsPath: string,
-    name: string,
-    version: string,
-  }): Promise<NewSimilarity[]> => {
-
+export const getSimilarityToLib = async ({
+  signature: unknown,
+  libsPath,
+  name,
+  version,
+}: {
+  signature: signatureNew
+  libsPath: string
+  name: string
+  version: string
+}): Promise<NewSimilarity[]> => {
   const signatures = await getLibNameVersionSigContents(libsPath, name, version)
   return signatures.map(({ file, signature: lib }) => {
     return {
@@ -305,15 +309,20 @@ export const getSimilarityToLib = async (
  * @param libsPath
  * @returns
  */
-export type SimilarityTypes = 'fnNamesOur' | 'fnNamesJaccard' | 'fnStTokens' | 'fnStTypes'
+export type SimilarityTypes =
+  | 'fnNamesOur'
+  | 'fnNamesJaccard'
+  | 'fnStTokens'
+  | 'fnStTypes'
   | 'namesTokens'
 export type SimilarityToLibs = Partial<Record<SimilarityTypes, Similarity[]>>
-export const getSimilarityToLibs = async (
-  { signature, libsPath }: {
-    signature: signatureNew,
-    libsPath: string,
-  }): Promise<SimilarityToLibs> => {
-
+export const getSimilarityToLibs = async ({
+  signature,
+  libsPath,
+}: {
+  signature: signatureNew
+  libsPath: string
+}): Promise<SimilarityToLibs> => {
   const predicate = (s: Similarity) => -s.similarity.val
   const sllOfSims: Record<SimilarityTypes, SortedLimitedList<Similarity>> = {
     fnNamesOur: new SortedLimitedList({ predicate }),
@@ -327,40 +336,42 @@ export const getSimilarityToLibs = async (
   const lazySimilarityPromises = libDescr.map(({ name, version }) => {
     return async () => {
       const sims = await getSimilarityToLib({ signature, libsPath, name, version })
-      sims.forEach(({
-        name,
-        version,
-        file,
-        fnNamesSim: { ourIndex = null, jaccardIndex = null } = {},
-        fnStTokensSim = null,
-        fnStTypesSim = null,
-        namesTokens = null,
-      }) => {
-        if (ourIndex) {
-          sllOfSims.fnNamesOur.push({ name, version, file, similarity: ourIndex })
-        }
-        if (jaccardIndex) {
-          sllOfSims.fnNamesJaccard.push({ name, version, file, similarity: jaccardIndex })
-        }
-        if (fnStTokensSim) {
-          sllOfSims.fnStTokens.push({ name, version, file, similarity: fnStTokensSim })
-        }
-        if (fnStTypesSim) {
-          sllOfSims.fnStTypes.push({ name, version, file, similarity: fnStTypesSim })
-        }
-        if (namesTokens) {
-          sllOfSims.namesTokens.push({ name, version, file, similarity: namesTokens })
-        }
-      })
+      sims.forEach(
+        ({
+          name,
+          version,
+          file,
+          fnNamesSim: { ourIndex = null, jaccardIndex = null } = {},
+          fnStTokensSim = null,
+          fnStTypesSim = null,
+          namesTokens = null,
+        }) => {
+          if (ourIndex) {
+            sllOfSims.fnNamesOur.push({ name, version, file, similarity: ourIndex })
+          }
+          if (jaccardIndex) {
+            sllOfSims.fnNamesJaccard.push({ name, version, file, similarity: jaccardIndex })
+          }
+          if (fnStTokensSim) {
+            sllOfSims.fnStTokens.push({ name, version, file, similarity: fnStTokensSim })
+          }
+          if (fnStTypesSim) {
+            sllOfSims.fnStTypes.push({ name, version, file, similarity: fnStTypesSim })
+          }
+          if (namesTokens) {
+            sllOfSims.namesTokens.push({ name, version, file, similarity: namesTokens })
+          }
+        },
+      )
     }
   })
   await resolveAllOrInParallel(lazySimilarityPromises)
 
-  const result = <SimilarityToLibs>{}
+  const result = {} as SimilarityToLibs
   for (let [name, sll] of Object.entries(sllOfSims)) {
     const val = sll.value()
-    if (val.length) {
-      result[<SimilarityTypes>name] = val
+    if (val.length > 0) {
+      result[name as SimilarityTypes] = val
     }
   }
   return result

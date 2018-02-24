@@ -4,8 +4,7 @@ import { dirname } from 'path'
 import { extract } from 'tar'
 import { stdoutLog } from './logger'
 
-
-const pendingPromise = function <T>(): Promise<T> {
+const pendingPromise = function<T>(): Promise<T> {
   let outResolve = (v?: T) => {}
   let outReject = (e?: Error) => {}
   const prom: any = new Promise((resolve, reject) => {
@@ -30,13 +29,13 @@ export const leftPad = (s: string | number, l: number = 4): string => {
   return leftPadOrig(s, l, '0')
 }
 // chunking function
-export const chunk = function <T>(arr: T[], len: number): T[][] {
+export const chunk = function<T>(arr: T[], len: number): T[][] {
   let i = 0
   const chunks: T[][] = []
   const n = arr.length
 
   while (i < n) {
-    chunks.push(arr.slice(i, i += len))
+    chunks.push(arr.slice(i, (i += len)))
   }
 
   return chunks
@@ -71,41 +70,35 @@ export const chunk = function <T>(arr: T[], len: number): T[][] {
  *
  * @async
  */
-export const resolveParallelGroups = async function <T>(arr: (() => Promise<T>)[][]): Promise<T[]> {
+export const resolveParallelGroups = async function<T>(arr: (() => Promise<T>)[][]): Promise<T[]> {
   const rpgLog = stdoutLog('resParGr')
   return arr.reduce(async (acc, chunk, i) => {
     rpgLog(`chunk ${leftPad(i)}`)
     const accResults = await acc
-    const chunkResults = await Promise.all(chunk.map(fn => fn()))
+    const chunkResults = await Promise.all(chunk.map((fn) => fn()))
     return accResults.concat(chunkResults)
-  }, <Promise<T[]>> Promise.resolve([]))
+  }, Promise.resolve([] as T[]))
 }
 
-export const tgzUnpack = async function (
-  file: string, cwd: string = dirname(file)) {
-
+export const tgzUnpack = async function(file: string, cwd: string = dirname(file)) {
   return extract({ file, cwd })
 }
 
 export type opts = {
-  debugDoLess?: boolean,
-  conservative?: boolean,
-  chunkLimit?: number,
-  chunkSize?: number,
-  log?: IDebugger,
+  debugDoLess?: boolean
+  conservative?: boolean
+  chunkLimit?: number
+  chunkSize?: number
+  log?: IDebugger
 }
 
-export const resolveAllOrInParallel = async function <T>(
+export const resolveAllOrInParallel = async function<T>(
   arr: (() => Promise<T>)[],
-  {
-    chunkLimit = 15,
-    chunkSize = 10,
-  }: opts = {}): Promise<T[]> {
-
+  { chunkLimit = 15, chunkSize = 10 }: opts = {},
+): Promise<T[]> {
   if (arr.length < chunkLimit) {
-    return await Promise.all(arr.map(fn => fn()))
-  }
-  else {
+    return await Promise.all(arr.map((fn) => fn()))
+  } else {
     return await resolveParallelGroups(chunk(arr, chunkSize))
   }
 }
@@ -115,8 +108,8 @@ export const resolveAllOrInParallel = async function <T>(
  * with the exhaustiveness of if/switch statements.
  */
 export function assertNever(x: never): never {
-  throw new Error("Unexpected object: " + x)
+  throw new Error('Unexpected object: ' + x)
 }
 
-export const objectHasKey =
-  <T extends { [x: string]: any }>(o: T, k: string): k is keyof T => k in o
+export const objectHasKey = <T extends { [x: string]: any }>(o: T, k: string): k is keyof T =>
+  k in o

@@ -1,19 +1,20 @@
 import { test } from 'ava'
 import { SortedLimitedList } from './SortedLimitedList'
 
-
 test('adds and sorts for simple types', t => {
   const sllAsc = new SortedLimitedList<number>()
+  // prettier-ignore
   const valAsc = sllAsc.push(1).push(2).push(3).push(4).push(5).value()
   t.deepEqual([1, 2, 3, 4, 5], valAsc)
 
   const sllDesc = new SortedLimitedList<number>({ predicate: n => -n })
+  // prettier-ignore
   const valDesc = sllDesc.push(1).push(2).push(3).push(4).push(5).value()
   t.deepEqual([5, 4, 3, 2, 1], valDesc)
 })
 
 test('adds and sorts for complicated types', t => {
-  type o = { a: string, b: { c: number, d: string } }
+  type o = { a: string; b: { c: number; d: string } }
   const o1: o = { a: 'a', b: { c: 1, d: '1' } }
   const o2: o = { a: 'b', b: { c: 2, d: '2' } }
   const o3: o = { a: 'c', b: { c: 3, d: '3' } }

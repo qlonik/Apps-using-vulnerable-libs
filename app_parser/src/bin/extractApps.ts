@@ -6,25 +6,26 @@ import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
 import { getWorkerPath } from '../utils/worker'
 
-
-export type messages = The<MessagesMap, {
-  extractApp: [
-    [{ inputPath: string, outputPath: string, section: string, app: string }],
-    boolean],
-  moveDecompApp: [
-    [{ inputPath: string, outputPath: string, section: string, app: string }],
-    APP_TYPE],
-  copyApk: [
-    [{ inputPath: string, outputPath: string, type: APP_TYPE, section: string, app: string }],
-    boolean],
-}>
+export type messages = The<
+  MessagesMap,
+  {
+    extractApp: [[{ inputPath: string; outputPath: string; section: string; app: string }], boolean]
+    moveDecompApp: [
+      [{ inputPath: string; outputPath: string; section: string; app: string }],
+      APP_TYPE
+    ]
+    copyApk: [
+      [{ inputPath: string; outputPath: string; type: APP_TYPE; section: string; app: string }],
+      boolean
+    ]
+  }
+>
 
 export enum APP_TYPE {
   removed = 'removed',
   cordova = 'cordova',
   reactNative = 'react-native',
 }
-
 
 const INPUT_FOLDER = '/gi-pool/appdata-ro'
 const TMP_FOLDER = '/home/nvolodin/Auvl/data/tmp'
@@ -54,7 +55,6 @@ const sections_fin = [
   '20170726-com.o',
   '20170726-com.s',
   '20170726-d-z',
-
 
   // were done using old script
   '20170726-com0',
@@ -95,15 +95,15 @@ async function main() {
     const appsPromises = appNames.map((app) => {
       return async () => {
         await pool.exec('extractApp', [
-          { inputPath: INPUT_FOLDER, outputPath: TMP_FOLDER, section, app }
+          { inputPath: INPUT_FOLDER, outputPath: TMP_FOLDER, section, app },
         ])
         const type = await pool.exec('moveDecompApp', [
-          { inputPath: TMP_FOLDER, outputPath: EXTRACTED_JS, section, app }
+          { inputPath: TMP_FOLDER, outputPath: EXTRACTED_JS, section, app },
         ])
 
         if (type !== APP_TYPE.removed) {
           await pool.exec('copyApk', [
-            { inputPath: INPUT_FOLDER, outputPath: FINISHED_APK, type, section, app }
+            { inputPath: INPUT_FOLDER, outputPath: FINISHED_APK, type, section, app },
           ])
         }
 
@@ -117,12 +117,17 @@ async function main() {
     const cordovaAppsLen = cordovaApps.length
     const reactNativeAppsLen = reactNativeApps.length
 
-    log(`fin %o (cr=%o)+(rn=%o)=(total=%o)`,
-      section, cordovaAppsLen, reactNativeAppsLen, cordovaAppsLen + reactNativeAppsLen)
+    log(
+      `fin %o (cr=%o)+(rn=%o)=(total=%o)`,
+      section,
+      cordovaAppsLen,
+      reactNativeAppsLen,
+      cordovaAppsLen + reactNativeAppsLen,
+    )
 
     const sectionTmpDir = join(TMP_FOLDER, section)
     const tmpDirContents = await readdir(sectionTmpDir)
-    if (!tmpDirContents.length) {
+    if (tmpDirContents.length === 0) {
       await remove(sectionTmpDir)
     }
   }
@@ -134,8 +139,7 @@ if (require.main === module) {
   process.on('SIGINT', () => {
     if (pool) {
       terminating = pool.terminate()
-    }
-    else {
+    } else {
       terminating = Promise.resolve()
     }
   })

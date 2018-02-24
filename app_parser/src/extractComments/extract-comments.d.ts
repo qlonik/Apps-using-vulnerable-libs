@@ -28,44 +28,37 @@ declare module 'extract-comments' {
     /*
      * Extract comments from the given string
      */
-    (
-      str: string,
-      options?: extractModule.OptionsObject,
-      transform?: extractModule.transformFn): extractModule.BlockComment[]
+    (str: string, options?: OptionsObject, transform?: transformFn): BlockComment[]
 
-    block(str: string, options?: extractModule.OptionsObject): extractModule.BlockComment[]
+    block(str: string, options?: OptionsObject): BlockComment[]
 
-    line(str: string, options?: extractModule.OptionsObject): extractModule.BlockComment[]
+    line(str: string, options?: OptionsObject): BlockComment[]
 
-    first(str: string, options?: extractModule.OptionsObject): extractModule.BlockComment[]
+    first(str: string, options?: OptionsObject): BlockComment[]
   }
 
-  namespace extractModule {
-    export type transformFn = (comment: object /*  */, options: OptionsObject) => string
+  type transformFn = (comment: object /*  */, options: OptionsObject) => string
 
-    export interface OptionsObject {
-      first?: boolean,
-      banner?: boolean,
-      line?: boolean,
-      block?: boolean,
-      silent?: boolean,
-      context?: boolean,
-      stripProtected?: boolean,
-      keepProtected?: boolean,
-      filter?: (token: object /* token from npm module 'esprima-extract-comments' */) => boolean,
+  interface OptionsObject {
+    first?: boolean
+    banner?: boolean
+    line?: boolean
+    block?: boolean
+    silent?: boolean
+    context?: boolean
+    stripProtected?: boolean
+    keepProtected?: boolean
+    filter?: (token: object /* token from npm module 'esprima-extract-comments' */) => boolean
+  }
 
-    }
+  class BlockComment {
+    public type: string
+    public range: object
+    public loc: { start: { line: number; pos: number }; end: { line: number; pos: number } }
+    public raw: string
+    public value: string
+    public code?: object
 
-    export class BlockComment {
-      type: string
-      range: object
-      loc: { start: { line: number, pos: number }, end: { line: number, pos: number } }
-      raw: string
-      value: string
-      code?: object
-
-      constructor(str: string, token: any /* todo change */)
-
-    }
+    public constructor(str: string, token: any /* todo change */)
   }
 }

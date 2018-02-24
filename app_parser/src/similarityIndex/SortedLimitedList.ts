@@ -1,25 +1,24 @@
 import { Many, sortedLastIndex, sortedLastIndexBy, ValueIteratee } from 'lodash'
 
-
 const LIMIT = 100
 
 export class SortedLimitedList<T> {
-  private arr: T[] = []
-  private predicate: ValueIteratee<T> | null = null
-  private limit = LIMIT
-  private finished = false
+  private _arr: T[] = []
+  private _predicate: ValueIteratee<T> | null = null
+  private _limit = LIMIT
+  private _finished = false
 
-  constructor({ predicate, limit }: { predicate?: ValueIteratee<T>, limit?: number } = {}) {
+  public constructor({ predicate, limit }: { predicate?: ValueIteratee<T>; limit?: number } = {}) {
     if (predicate) {
-      this.predicate = predicate
+      this._predicate = predicate
     }
     if (limit) {
-      this.limit = limit
+      this._limit = limit
     }
   }
 
-  push(el: Many<T>) {
-    if (this.finished) {
+  public push(el: Many<T>) {
+    if (this._finished) {
       throw new Error('Cannot push into finished SortedLimitedList')
     }
 
@@ -28,32 +27,32 @@ export class SortedLimitedList<T> {
       return this
     }
 
-    const i = this.predicate
-      ? sortedLastIndexBy(this.arr, el, this.predicate)
-      : sortedLastIndex(this.arr, el)
+    const i = this._predicate
+      ? sortedLastIndexBy(this._arr, el, this._predicate)
+      : sortedLastIndex(this._arr, el)
 
-    for (let j = this.arr.length; j > i; j--) {
-      this.arr[j] = this.arr[j - 1]
+    for (let j = this._arr.length; j > i; j--) {
+      this._arr[j] = this._arr[j - 1]
     }
-    this.arr[i] = el
+    this._arr[i] = el
 
-    while (this.arr.length > this.limit) {
-      this.arr.pop()
+    while (this._arr.length > this._limit) {
+      this._arr.pop()
     }
 
     return this
   }
 
-  value(): T[] {
-    if (this.finished) {
+  public value(): T[] {
+    if (this._finished) {
       throw new Error('Cannot get value of finished SortedLimitedList')
     }
 
-    const val = this.arr
-    this.finished = true
-    delete this.arr
-    delete this.predicate
-    delete this.limit
+    const val = this._arr
+    this._finished = true
+    delete this._arr
+    delete this._predicate
+    delete this._limit
 
     return val
   }

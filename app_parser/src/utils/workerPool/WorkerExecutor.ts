@@ -2,7 +2,7 @@ import { IDebugger } from 'debug'
 import { negate } from 'lodash'
 import { Server as NetServer, Socket as NetSocket } from 'net'
 import Observable from 'zen-observable'
-import { assertNever, objectHasKey } from '../index'
+import { assertNever, objectHasKey } from '..'
 import { stdoutLog } from '../logger'
 import { observableFromEventEmitter } from '../observable'
 import {
@@ -12,12 +12,13 @@ import {
   serverMessage3,
   shutdownMsg,
   startupMsg,
-  WorkerFunctionsMap
+  WorkerFunctionsMap,
 } from './types'
 
-
 type messagesFromServer<Msg extends MessagesMap, Type extends keyof Msg = keyof Msg> =
-  startupMsg | shutdownMsg | serverMessage3<Msg, Type>
+  | startupMsg
+  | shutdownMsg
+  | serverMessage3<Msg, Type>
 type msgHandle = NetSocket | NetServer | undefined
 
 export class WorkerExecutor<M extends MessagesMap> {
@@ -31,23 +32,20 @@ export class WorkerExecutor<M extends MessagesMap> {
   private _SIGINT_obs: Observable<string>
 
   private _eventsLog: IDebugger
-  private _unsubscribeEventsLoggers: () => void
 
-  constructor(fns: WorkerFunctionsMap<M>) {
-    this._bExObs = observableFromEventEmitter(process, 'beforeExit')
-      .map(([code]: [number]) => code)
-    this._disObs = observableFromEventEmitter(process, 'disconnect')
-      .map(() => {})
-    this._extObs = observableFromEventEmitter(process, 'exit')
-      .map(([code]: [number]) => code)
-    this._msgObs = observableFromEventEmitter(process, 'message')
-      .map(([msg, handle]: [messagesFromServer<M>, msgHandle]) => msg)
-    this._wrnObs = observableFromEventEmitter(process, 'warning')
-      .map(([warning]: [Error]) => warning)
+  private constructor(fns: WorkerFunctionsMap<M>) {
+    this._bExObs = observableFromEventEmitter(process, 'beforeExit').map(([code]: [number]) => code)
+    this._disObs = observableFromEventEmitter(process, 'disconnect').map(() => {})
+    this._extObs = observableFromEventEmitter(process, 'exit').map(([code]: [number]) => code)
+    this._msgObs = observableFromEventEmitter(process, 'message').map(
+      ([msg]: [messagesFromServer<M>, msgHandle]) => msg,
+    )
+    this._wrnObs = observableFromEventEmitter(process, 'warning').map(
+      ([warning]: [Error]) => warning,
+    )
 
     const signalObsMapper = ([signal]: [string]) => signal
-    this._SIGINT_obs = observableFromEventEmitter(process, 'SIGINT')
-      .map(signalObsMapper)
+    this._SIGINT_obs = observableFromEventEmitter(process, 'SIGINT').map(signalObsMapper)
 
     this.log = stdoutLog(`w_executor:${process.pid}`)
     this._eventsLog = stdoutLog(`${this.log.namespace}:ev`)
@@ -73,63 +71,55 @@ export class WorkerExecutor<M extends MessagesMap> {
     }
     const SIGINT_ObsSubs = this._SIGINT_obs.subscribe(signalSubsriber)
 
-    const upDownMsgFilter =
-      (msg: messagesFromServer<M>) => msg.type === 'up' || msg.type === 'down'
+    const upDownMsgFilter = (msg: messagesFromServer<M>) => msg.type === 'up' || msg.type === 'down'
     const errHandler = (err: Error) => {
       this.log(`error in message subscription: '${err.message}'\n${err.stack}`)
     }
 
-    const upDownMsgSubs = this._msgObs
-      .filter(upDownMsgFilter)
-      .subscribe({
-        next: (msg: startupMsg | shutdownMsg) => {
-          const { id, type } = msg
+    const upDownMsgSubs = this._msgObs.filter(upDownMsgFilter).subscribe({
+      next: (msg: startupMsg | shutdownMsg) => {
+        const { id, type } = msg
 
-          if (type === 'up') {
-            this._send({ id, type })
-          }
-          else if (type === 'down') {
-            this._terminate()
-          }
-          else {
-            assertNever(type)
-          }
-        },
-        error: errHandler,
-      })
-    const taskMsgSubs = this._msgObs
-      .filter(negate(upDownMsgFilter))
-      .subscribe({
-        next: (msg: serverMessage3<M>) => {
-          const id = msg.id
-          const type: keyof M = msg.type
-          const data: M[keyof M][0] = msg.data
+        if (type === 'up') {
+          this._send({ id, type })
+        } else if (type === 'down') {
+          this._terminate()
+        } else {
+          assertNever(type)
+        }
+      },
+      error: errHandler,
+    })
+    const taskMsgSubs = this._msgObs.filter(negate(upDownMsgFilter)).subscribe({
+      next: (msg: serverMessage3<M>) => {
+        const id = msg.id
+        const type: keyof M = msg.type
+        const data: M[keyof M][0] = msg.data
 
-          if (!objectHasKey(fns, type)) {
-            assertNever(type)
-          }
+        if (!objectHasKey(fns, type)) {
+          assertNever(type)
+        }
 
-          type fnResult = M[keyof M][1]
-          const handleData = (data: fnResult) => {
-            const reply: clientMessage3<M> = {
-              from: messageFrom.client,
-              id,
-              type,
-              data,
-            }
-            this._send(reply)
+        type fnResult = M[keyof M][1]
+        const handleData = (data: fnResult) => {
+          const reply: clientMessage3<M> = {
+            from: messageFrom.client,
+            id,
+            type,
+            data,
           }
+          this._send(reply)
+        }
 
-          const res: fnResult | Promise<fnResult> = fns[type](data)
-          if (res instanceof Promise) {
-            res.then((d) => handleData(d))
-          }
-          else {
-            handleData(res)
-          }
-        },
-        error: errHandler,
-      })
+        const res: fnResult | Promise<fnResult> = fns[type](data)
+        if (res instanceof Promise) {
+          res.then((d) => handleData(d))
+        } else {
+          handleData(res)
+        }
+      },
+      error: errHandler,
+    })
 
     this._unsubscribeEventsLoggers = () => {
       bExObsSubs.unsubscribe()
@@ -145,6 +135,8 @@ export class WorkerExecutor<M extends MessagesMap> {
     }
   }
 
+  private _unsubscribeEventsLoggers: () => void
+
   private _send(msg: clientMessage3<M> | startupMsg) {
     process.send!(msg)
   }
@@ -155,7 +147,7 @@ export class WorkerExecutor<M extends MessagesMap> {
     process.disconnect()
   }
 
-  static init<M extends MessagesMap>(fnMap: WorkerFunctionsMap<M>) {
+  public static init<M extends MessagesMap>(fnMap: WorkerFunctionsMap<M>) {
     if (!process.send) {
       throw new Error(`cannot require or run outside of 'fork()'`)
     }

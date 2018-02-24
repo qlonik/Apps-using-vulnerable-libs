@@ -1,12 +1,11 @@
 import test from 'ava'
 import { isFunction } from 'babel-types'
-import { parse } from 'babylon';
+import { parse } from 'babylon'
 import { oneLineTrim, stripIndent } from 'common-tags'
 import { fnOnlyTreeCreator, literalValues, rnDeclareFns } from './index'
 import { Signature } from './nodeFilters/allFnsAndNames'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
 import { TreePath } from './visitNodes'
-
 
 test('fn filtered correctly', t => {
   const fnB1 = stripIndent`
@@ -19,10 +18,7 @@ test('fn filtered correctly', t => {
     `${DECLARATION}:Variable[c = ${LITERAL}:String]`,
     `${STATEMENT}:Return[${EXPRESSION}:Identifier[c]]`,
   ]
-  const fnB1_types = [
-    `t_${STATEMENT}:VariableDeclaration`,
-    `t_${STATEMENT}:ReturnStatement`,
-  ]
+  const fnB1_types = [`t_${STATEMENT}:VariableDeclaration`, `t_${STATEMENT}:ReturnStatement`]
 
   const fnB2 = stripIndent`
     function fn2(param) {
@@ -33,10 +29,7 @@ test('fn filtered correctly', t => {
     `${PARAM}:Identifier[param]`,
     `${STATEMENT}:Return[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[param] + ${LITERAL}:String]]`,
   ]
-  const fnB2_types = [
-    `t_${PARAM}:Identifier`,
-    `t_${STATEMENT}:ReturnStatement`,
-  ]
+  const fnB2_types = [`t_${PARAM}:Identifier`, `t_${STATEMENT}:ReturnStatement`]
 
   const fnB = stripIndent`
     function () {
@@ -48,10 +41,7 @@ test('fn filtered correctly', t => {
     `${DECLARATION}:Function[${EXPRESSION}:Identifier[fn1]]`,
     `${EXPRESSION}:Call[${EXPRESSION}:Function[${EXPRESSION}:Identifier[fn2]]]`,
   ]
-  const fnB_types = [
-    `t_${STATEMENT}:FunctionDeclaration`,
-    `t_${STATEMENT}:ExpressionStatement`,
-  ]
+  const fnB_types = [`t_${STATEMENT}:FunctionDeclaration`, `t_${STATEMENT}:ExpressionStatement`]
 
   const fnD = stripIndent`
     function fn3() {
@@ -69,54 +59,58 @@ test('fn filtered correctly', t => {
       ]
     `,
   ]
-  const fnD_types = [
-    `t_${STATEMENT}:ReturnStatement`,
-  ]
+  const fnD_types = [`t_${STATEMENT}:ReturnStatement`]
 
   const code = stripIndent`
       var a = '1';
       var b = ${fnB}
       var d = ${fnD}
     `
-  const expected: TreePath<Signature>[] = [{
-    prop: 'program.body[1].declarations[0]',
-    data: {
-      type: 'fn',
-      name: 'b',
-      fnStatementTypes: fnB_types.sort(),
-      fnStatementTokens: fnB_toks.sort(),
-    },
-    c: [{
-      prop: 'program.body[1].declarations[0].init.body.body[0]',
+  const expected: TreePath<Signature>[] = [
+    {
+      prop: 'program.body[1].declarations[0]',
       data: {
         type: 'fn',
-        name: 'fn1',
-        fnStatementTypes: fnB1_types.sort(),
-        fnStatementTokens: fnB1_toks.sort(),
+        name: 'b',
+        fnStatementTypes: fnB_types.sort(),
+        fnStatementTokens: fnB_toks.sort(),
       },
-    }, {
-      prop: 'program.body[1].declarations[0].init.body.body[1].expression.callee',
+      c: [
+        {
+          prop: 'program.body[1].declarations[0].init.body.body[0]',
+          data: {
+            type: 'fn',
+            name: 'fn1',
+            fnStatementTypes: fnB1_types.sort(),
+            fnStatementTokens: fnB1_toks.sort(),
+          },
+        },
+        {
+          prop: 'program.body[1].declarations[0].init.body.body[1].expression.callee',
+          data: {
+            type: 'fn',
+            name: 'fn2',
+            fnStatementTypes: fnB2_types.sort(),
+            fnStatementTokens: fnB2_toks.sort(),
+          },
+        },
+      ],
+    },
+    {
+      prop: 'program.body[2].declarations[0]',
       data: {
         type: 'fn',
-        name: 'fn2',
-        fnStatementTypes: fnB2_types.sort(),
-        fnStatementTokens: fnB2_toks.sort(),
+        name: 'fn3',
+        fnStatementTypes: fnD_types.sort(),
+        fnStatementTokens: fnD_toks.sort(),
       },
-    }],
-  }, {
-    prop: 'program.body[2].declarations[0]',
-    data: {
-      type: 'fn',
-      name: 'fn3',
-      fnStatementTypes: fnD_types.sort(),
-      fnStatementTokens: fnD_toks.sort(),
     },
-  }]
+  ]
 
   t.deepEqual(expected, fnOnlyTreeCreator(parse(code)))
 })
 
-test('react-native: bundle filtered correctly', async t => {
+test('react-native: bundle filtered correctly', t => {
   const content = stripIndent`
     !function a() {}(this)
     !function b() {}(this)
@@ -137,16 +131,16 @@ test('react-native: bundle filtered correctly', async t => {
   const [first, second, third, fourth] = rnDeclareFns(parse(content))
 
   t.is(first.data!.id, '0')
-  t.true(isFunction(<any>first.data!.factory))
+  t.true(isFunction(first.data!.factory as any))
   t.is(second.data!.id, 1)
-  t.true(isFunction(<any>second.data!.factory))
+  t.true(isFunction(second.data!.factory as any))
   t.is(third.data!.id, 2)
-  t.true(isFunction(<any>third.data!.factory))
+  t.true(isFunction(third.data!.factory as any))
   t.is(fourth.data!.id, 3)
-  t.true(isFunction(<any>fourth.data!.factory))
+  t.true(isFunction(fourth.data!.factory as any))
 })
 
-test('literals: extracted needed, skipped common', async t => {
+test('literals: extracted needed, skipped common', t => {
   const content = stripIndent`
     function a() {
       var st1 = 'string one';

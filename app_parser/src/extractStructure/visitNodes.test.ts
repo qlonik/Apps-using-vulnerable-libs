@@ -2,7 +2,6 @@ import { objectWithPropertySpy } from '../_helpers/objectWithPropertySpy'
 import { contextualize } from '../_helpers/testContext'
 import { Signal, visitNodes } from './visitNodes'
 
-
 const test = contextualize(() => {
   const value = 42
   const { getSpy, setSpy, propName, obj } = objectWithPropertySpy(value)
@@ -16,6 +15,7 @@ const test = contextualize(() => {
         f: 234,
       },
       g: [
+        // prettier-ignore
         { h: 1, i: 2, j: 3 },
         { h: 2, i: 3, j: 4 },
         { h: 3, i: 4, j: 5 },
@@ -43,7 +43,6 @@ const test = contextualize(() => {
     tree,
   }
 })
-
 
 test('empty options', t => {
   const { tree, getSpy, setSpy } = t.context
@@ -113,17 +112,25 @@ test('filter returns some data and continues recursion', t => {
 
   t.true(getSpy.calledOnce)
   t.true(setSpy.notCalled)
-  t.deepEqual([{
-    prop: 'a.g',
-    data: { path: 'a.g', data: tree.a.g },
-    c: [{
-      prop: 'a.g[1].i',
-      data: { path: 'a.g[1].i', data: tree.a.g[1].i },
-    }],
-  }, {
-    prop: 'o',
-    data: { path: 'o', data: tree.o },
-  }], result)
+  t.deepEqual(
+    [
+      {
+        prop: 'a.g',
+        data: { path: 'a.g', data: tree.a.g },
+        c: [
+          {
+            prop: 'a.g[1].i',
+            data: { path: 'a.g[1].i', data: tree.a.g[1].i },
+          },
+        ],
+      },
+      {
+        prop: 'o',
+        data: { path: 'o', data: tree.o },
+      },
+    ],
+    result,
+  )
 })
 
 test('filter returns some data and prevents recursion', t => {
@@ -145,13 +152,19 @@ test('filter returns some data and prevents recursion', t => {
 
   t.true(getSpy.notCalled)
   t.true(setSpy.notCalled)
-  t.deepEqual([{
-    prop: 'a.g',
-    data: { path: 'a.g', data: tree.a.g },
-  }, {
-    prop: 'o',
-    data: { path: 'o', data: tree.o },
-  }], result)
+  t.deepEqual(
+    [
+      {
+        prop: 'a.g',
+        data: { path: 'a.g', data: tree.a.g },
+      },
+      {
+        prop: 'o',
+        data: { path: 'o', data: tree.o },
+      },
+    ],
+    result,
+  )
 })
 
 test('filter returns spied object', t => {
@@ -173,9 +186,13 @@ test('filter returns spied object', t => {
 
   t.true(getSpy.calledOnce)
   t.true(setSpy.notCalled)
-  t.deepEqual([{
-    prop: `o.p.${prop}`,
-    data: { path: `o.p.${prop}`, data: value },
-  }], result)
+  t.deepEqual(
+    [
+      {
+        prop: `o.p.${prop}`,
+        data: { path: `o.p.${prop}`, data: value },
+      },
+    ],
+    result,
+  )
 })
-

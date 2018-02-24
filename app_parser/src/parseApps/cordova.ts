@@ -2,45 +2,37 @@ import { mkdirp, pathExists, readFile } from 'fs-extra'
 import { JSDOM } from 'jsdom'
 import { join } from 'path'
 import { URL } from 'url'
-
 import { extractStructure } from '../extractStructure'
 import { getSimilarityToLibs } from '../similarityIndex'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { fileDescOp, fileOp, saveFiles } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
 import { APP_TYPES, getApps } from './getters'
-import { AppParserFn, AppsFolderParserFn, IsAppTypeFn } from './index'
-
+import { AppParserFn, AppsFolderParserFn, IsAppTypeFn } from '.'
 
 const NAMESPACE = 'cordova'
 const log = stdoutLog(NAMESPACE)
 
-export const isCordovaApp: IsAppTypeFn = async function (
-  { appPath }): Promise<boolean> {
-
+export const isCordovaApp: IsAppTypeFn = async function({ appPath }): Promise<boolean> {
   const indexHtmlPath = join(appPath, ...['assets', 'www', 'index.html'])
   const cordovaJsPath = join(appPath, ...['assets', 'www', 'cordova.js'])
 
-  return await pathExists(indexHtmlPath) && await pathExists(cordovaJsPath)
+  return (await pathExists(indexHtmlPath)) && (await pathExists(cordovaJsPath))
 }
 
 export const parseScriptsFromCordovaApp: AppParserFn = async (
   { appPath, libsPath },
-  {
-    debugDoLess = false,
-    chunkLimit = 10,
-    chunkSize = 10,
-    conservative = true,
-  }: opts = {}) => {
-
+  { debugDoLess = false, chunkLimit = 10, chunkSize = 10, conservative = true }: opts = {},
+) => {
   const indexHtmlPath = join(appPath, 'extractedJs/index.html')
   const analysisFolderPath = join(appPath, 'jsAnalysis')
   await mkdirp(analysisFolderPath)
   const { window: { document } } = await JSDOM.fromFile(indexHtmlPath)
 
   const parseScriptTags = (location: 'head' | 'body') => {
-    const scriptTags = <NodeListOf<HTMLScriptElement>>
-      document.querySelectorAll(`${location} script`)
+    const scriptTags = document.querySelectorAll(`${location} script`) as NodeListOf<
+      HTMLScriptElement
+    >
     return [...scriptTags].map((script: HTMLScriptElement, i) => {
       // for each script tag we do following
       return async () => {
@@ -51,19 +43,22 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
          * Important object
          */
         let infoObject: {
-          scriptTagLocation: string,
-          scriptTagIndex: number,
-        } & ({
-          type: 'src',
-          originalSrc: string,
-          originalPath: string,
-          originalProtocol: string,
-        } | {
-          type: 'content',
-        } | {
-          type: 'unknown',
-          tagKeys: string[],
-        })
+          scriptTagLocation: string
+          scriptTagIndex: number
+        } & (
+          | {
+              type: 'src'
+              originalSrc: string
+              originalPath: string
+              originalProtocol: string
+            }
+          | {
+              type: 'content'
+            }
+          | {
+              type: 'unknown'
+              tagKeys: string[]
+            })
         let content: string = ''
 
         if (script.src) {
@@ -87,15 +82,12 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
               conservative,
             })
             content = await readFile(url.pathname, 'utf-8')
-          }
-          else if (url.protocol === 'http:' || url.protocol === 'https:') {
+          } else if (url.protocol === 'http:' || url.protocol === 'https:') {
             console.log('script referenced via http / https!')
-          }
-          else {
+          } else {
             console.log(`${location} script #${i} has an unknown src!`)
           }
-        }
-        else if (script.text) {
+        } else if (script.text) {
           infoObject = {
             scriptTagLocation: location,
             scriptTagIndex: i,
@@ -111,8 +103,7 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
             conservative,
           })
           content = script.text
-        }
-        else {
+        } else {
           console.log(`something unknown with ${location} script #${i}`)
           infoObject = {
             scriptTagLocation: location,
@@ -126,11 +117,13 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
         const signature = await extractStructure({ content })
         const sims = await getSimilarityToLibs({ signature, libsPath })
 
-        const saved = await saveFiles(fileOps.concat([
-          { cwd, dst: 'info.json', type: fileOp.json, json: infoObject, conservative },
-          { cwd, dst: 'libStructure.json', type: fileOp.json, json: signature, conservative },
-          { cwd, dst: 'similarities.json', type: fileOp.json, json: sims, conservative: false }
-        ]))
+        const saved = await saveFiles(
+          fileOps.concat([
+            { cwd, dst: 'info.json', type: fileOp.json, json: infoObject, conservative },
+            { cwd, dst: 'libStructure.json', type: fileOp.json, json: signature, conservative },
+            { cwd, dst: 'similarities.json', type: fileOp.json, json: sims, conservative: false },
+          ]),
+        )
       }
     })
   }
@@ -139,8 +132,7 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
   let contents
   if (debugDoLess) {
     contents = [await lazyScriptTags[0](), await lazyScriptTags[1]()]
-  }
-  else {
+  } else {
     contents = await resolveAllOrInParallel(lazyScriptTags, { chunkLimit, chunkSize })
   }
   // console.log(contents.map(s => s.length <= 1000 ? s : s.length))
@@ -148,31 +140,25 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
 
 export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
   { allAppsPath, libsPath },
-  {
-    debugDoLess = false,
-    conservative = true,
-    chunkLimit = 2,
-    chunkSize = 1,
-  }: opts = {}) => {
-
+  { debugDoLess = false, conservative = true, chunkLimit = 2, chunkSize = 1 }: opts = {},
+) => {
   const apps = await getApps(allAppsPath, APP_TYPES.cordova)
   const lazyAppAnalysis = apps.map(({ type, section, app }) => {
     return async () => {
-      const appResults = await parseScriptsFromCordovaApp({
-        appPath: join(allAppsPath, type, section, app),
-        libsPath,
-      }, { conservative })
+      const appResults = await parseScriptsFromCordovaApp(
+        {
+          appPath: join(allAppsPath, type, section, app),
+          libsPath,
+        },
+        { conservative },
+      )
       log('finished %o/%o/%o', type, section, app)
       return appResults
     }
   })
   if (debugDoLess) {
-    await Promise.all([
-      lazyAppAnalysis[0](),
-      lazyAppAnalysis[1](),
-    ])
-  }
-  else {
+    await Promise.all([lazyAppAnalysis[0](), lazyAppAnalysis[1]()])
+  } else {
     await resolveAllOrInParallel(lazyAppAnalysis, { chunkLimit, chunkSize })
   }
 }

@@ -6,7 +6,6 @@ import { createAutoClosedPool, WorkerInstance } from '../utils/workerPool'
 import { LOG_NAMESPACE, messages, reanalyseLibRequest } from './common'
 import { workerPool } from './workerPool'
 
-
 const LIB_PATH = '../data/sample_libs'
 
 const log = stdoutLog(LOG_NAMESPACE)
@@ -14,7 +13,6 @@ const useExecutorsPool = createAutoClosedPool(workerPool)
 
 const reanalyseLibs = ({ libsPath, name, version }: reanalyseLibRequest) => {
   return async (worker: WorkerInstance<messages>) => {
-
     const { name: nameBack, version: versionBack, analysis } = await worker.send('reanalyse', {
       libsPath,
       name,
@@ -22,24 +20,30 @@ const reanalyseLibs = ({ libsPath, name, version }: reanalyseLibRequest) => {
     })
 
     if (!analysis) {
-      log(oneLine`
+      log(
+        oneLine`
         (w:%o)
         No analysis files produced for lib %o
-      `, worker.pid, `${name}@${version}`)
-    }
-    else {
+      `,
+        worker.pid,
+        `${name}@${version}`,
+      )
+    } else {
       const nvSame = nameBack === name && versionBack === version
-      const args = (<any[]>[])
+      const args = ([] as any[])
         .concat(worker.pid, `${name}@${version}`)
         .concat(nvSame ? [] : `${nameBack}@${versionBack}`)
         .concat(onelineUtilInspect({ analysis }))
 
-      log(oneLine`
+      log(
+        oneLine`
         (w:%o) fin %o
         ${nvSame ? '' : '(recv %o)'}
         ${analysis.length ? '' : '(no analysis files produced)'}
         %s
-      `, ...args)
+      `,
+        ...args,
+      )
     }
 
     return analysis
@@ -66,8 +70,6 @@ async function main() {
   return analysis
 }
 
-
 main()
   .then(() => log('Everything is done!'))
   .catch((err) => log(`Some global error:\n${err}\n${err.stack}`))
-

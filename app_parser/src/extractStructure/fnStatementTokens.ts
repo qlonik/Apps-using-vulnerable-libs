@@ -79,13 +79,12 @@ import {
   Literal,
   LVal,
   Node as BabelNode,
-  Statement
+  Statement,
 } from 'babel-types'
 import { before, flatMap, Many } from 'lodash'
 import { assertNever } from '../utils'
 import { stdoutLog } from '../utils/logger'
 import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
-
 
 const NAMESPACE = 'x.tokens'
 const log = stdoutLog(NAMESPACE)
@@ -93,10 +92,10 @@ const limitedLog = before(3, log)
 
 // EIR = Expression Internal Representation
 type EIR = {
-  title: string,
-  origType: string | null,
-  type: string | null,
-  pred: string | null,
+  title: string
+  origType: string | null
+  type: string | null
+  pred: string | null
 }
 
 const collapseIR = (eir: EIR | null): string | null => {
@@ -108,8 +107,7 @@ const collapseIR = (eir: EIR | null): string | null => {
 
   if (!type) {
     return `t_${title}:${origType}`
-  }
-  else {
+  } else {
     return `${title}:${type}${pred ? `[${pred}]` : ''}`
   }
 }
@@ -124,26 +122,19 @@ const getLiteralIR = (lit: Literal | null): EIR => {
 
   /* istanbul ignore if */
   if (lit === null) {
-  }
-  else if (isStringLiteral(lit)) {
+  } else if (isStringLiteral(lit)) {
     descr.type = 'String'
-  }
-  else if (isNumericLiteral(lit)) {
+  } else if (isNumericLiteral(lit)) {
     descr.type = 'Numeric'
-  }
-  else if (isBooleanLiteral(lit)) {
+  } else if (isBooleanLiteral(lit)) {
     descr.type = 'Boolean'
-  }
-  else if (isNullLiteral(lit)) {
+  } else if (isNullLiteral(lit)) {
     descr.type = 'Null'
-  }
-  else if (isRegExpLiteral(lit)) {
+  } else if (isRegExpLiteral(lit)) {
     descr.type = 'RegExp'
-  }
-  else if (isTemplateLiteral(lit)) {
+  } else if (isTemplateLiteral(lit)) {
     descr.type = 'Template'
-  }
-  else {
+  } else {
     /* istanbul ignore next */
     assertNever(lit)
   }
@@ -165,21 +156,17 @@ const getLValIR = (lVal: LVal | null): EIR => {
 
   /* istanbul ignore if */
   if (lVal === null) {
-  }
-  else if (isIdentifier(lVal)) {
+  } else if (isIdentifier(lVal)) {
     descr.type = 'Identifier'
     descr.pred = lVal.name
-  }
-  else if (isMemberExpression(lVal)) {
+  } else if (isMemberExpression(lVal)) {
     let objName
     if (isExpression(lVal.object)) {
       const { pred } = getEIR(lVal.object)
       objName = pred
-    }
-    else if (isSuper(lVal.object)) {
+    } else if (isSuper(lVal.object)) {
       objName = 'super'
-    }
-    else {
+    } else {
       /* istanbul ignore next */
       assertNever(lVal.object)
     }
@@ -187,16 +174,11 @@ const getLValIR = (lVal: LVal | null): EIR => {
 
     descr.type = 'Member'
     descr.pred = objName + '.' + propName
-  }
-  else if (isRestElement(lVal)) {
-  }
-  else if (isAssignmentPattern(lVal)) {
-  }
-  else if (isArrayPattern(lVal)) {
-  }
-  else if (isObjectPattern(lVal)) {
-  }
-  else {
+  } else if (isRestElement(lVal)) {
+  } else if (isAssignmentPattern(lVal)) {
+  } else if (isArrayPattern(lVal)) {
+  } else if (isObjectPattern(lVal)) {
+  } else {
     /* istanbul ignore next */
     assertNever(lVal)
   }
@@ -213,9 +195,7 @@ const getTokensFromLVals = (lVals: LVal[] | null): string[] => {
     return []
   }
 
-  return lVals
-    .map(lVal => (getTokensFromLVal(lVal) || ''))
-    .filter(v => !!v)
+  return lVals.map((lVal) => getTokensFromLVal(lVal) || '').filter((v) => !!v)
 }
 
 const getEIR = (expr: Expression | null): EIR => {
@@ -228,109 +208,75 @@ const getEIR = (expr: Expression | null): EIR => {
 
   /* istanbul ignore if */
   if (expr === null) {
-  }
-  else if (isArrayExpression(expr)) {
-  }
-  else if (isAssignmentExpression(expr)) {
+  } else if (isArrayExpression(expr)) {
+  } else if (isAssignmentExpression(expr)) {
     const left = getTokensFromLVal(expr.left)
     const right = getTokensFromExpression(expr.right)
     descr.type = 'Assignment'
     descr.pred = `${left} ${expr.operator} ${right}`
-  }
-  else if (isBinaryExpression(expr)) {
+  } else if (isBinaryExpression(expr)) {
     const left = getTokensFromExpression(expr.left)
     const right = getTokensFromExpression(expr.right)
     descr.type = 'Binary'
     descr.pred = `${left} ${expr.operator} ${right}`
-  }
-  else if (isCallExpression(expr)) {
+  } else if (isCallExpression(expr)) {
     descr.type = 'Call'
     if (isExpression(expr.callee)) {
       descr.pred = getTokensFromExpression(expr.callee)
-    }
-    else if (isSuper(expr.callee)) {
+    } else if (isSuper(expr.callee)) {
       descr.pred = 'super'
-    }
-    else {
+    } else {
       /* istanbul ignore next */
       assertNever(expr.callee)
     }
-  }
-  else if (isConditionalExpression(expr)) {
-  }
-  else if (isFunctionExpression(expr)) {
+  } else if (isConditionalExpression(expr)) {
+  } else if (isFunctionExpression(expr)) {
     descr.type = 'Function'
     descr.pred = getTokensFromExpression(expr.id) || 'anonymous'
-  }
-  else if (isIdentifier(expr) ||
-           isMemberExpression(expr)) {
-
+  } else if (isIdentifier(expr) || isMemberExpression(expr)) {
     const { type, pred } = getLValIR(expr)
     descr.type = type
     descr.pred = pred
-  }
-  else if (isStringLiteral(expr) ||
-           isNumericLiteral(expr) ||
-           isBooleanLiteral(expr) ||
-           isNullLiteral(expr) ||
-           isRegExpLiteral(expr) ||
-           isTemplateLiteral(expr)) {
-
+  } else if (
+    isStringLiteral(expr) ||
+    isNumericLiteral(expr) ||
+    isBooleanLiteral(expr) ||
+    isNullLiteral(expr) ||
+    isRegExpLiteral(expr) ||
+    isTemplateLiteral(expr)
+  ) {
     const { title, type } = getLiteralIR(expr)
     descr.title = title
     descr.type = type
-  }
-  else if (isLogicalExpression(expr)) {
-  }
-  else if (isNewExpression(expr)) {
-  }
-  else if (isObjectExpression(expr)) {
+  } else if (isLogicalExpression(expr)) {
+  } else if (isNewExpression(expr)) {
+  } else if (isObjectExpression(expr)) {
     descr.type = 'Object'
-  }
-  else if (isSequenceExpression(expr)) {
-  }
-  else if (isThisExpression(expr)) {
-  }
-  else if (isUnaryExpression(expr)) {
-  }
-  else if (isUpdateExpression(expr)) {
+  } else if (isSequenceExpression(expr)) {
+  } else if (isThisExpression(expr)) {
+  } else if (isUnaryExpression(expr)) {
+  } else if (isUpdateExpression(expr)) {
     const op = expr.operator
     const arg = getTokensFromExpression(expr.argument)
     descr.type = 'Update'
     descr.pred = expr.prefix ? `${op}${arg}` : `${arg}${op}`
-  }
-  else if (isArrowFunctionExpression(expr)) {
+  } else if (isArrowFunctionExpression(expr)) {
     descr.type = 'ArrowFunction'
-  }
-  else if (isClassExpression(expr)) {
-  }
-  else if (isMetaProperty(expr)) {
-  }
-  else if (isSuper(expr)) {
-  }
-  else if (isTaggedTemplateExpression(expr)) {
-  }
-  else if (isYieldExpression(expr)) {
-  }
-  else if (isTypeCastExpression(expr)) {
-  }
-  else if (isJSXElement(expr)) {
-  }
-  else if (isJSXEmptyExpression(expr)) {
-  }
-  else if (isJSXIdentifier(expr)) {
-  }
-  else if (isJSXMemberExpression(expr)) {
-  }
-  else if (isParenthesizedExpression(expr)) {
-  }
-  else if (isAwaitExpression(expr)) {
-  }
-  else if (isBindExpression(expr)) {
-  }
-  else if (isDoExpression(expr)) {
-  }
-  else {
+  } else if (isClassExpression(expr)) {
+  } else if (isMetaProperty(expr)) {
+  } else if (isSuper(expr)) {
+  } else if (isTaggedTemplateExpression(expr)) {
+  } else if (isYieldExpression(expr)) {
+  } else if (isTypeCastExpression(expr)) {
+  } else if (isJSXElement(expr)) {
+  } else if (isJSXEmptyExpression(expr)) {
+  } else if (isJSXIdentifier(expr)) {
+  } else if (isJSXMemberExpression(expr)) {
+  } else if (isParenthesizedExpression(expr)) {
+  } else if (isAwaitExpression(expr)) {
+  } else if (isBindExpression(expr)) {
+  } else if (isDoExpression(expr)) {
+  } else {
     /* istanbul ignore next */
     assertNever(expr)
   }
@@ -343,47 +289,37 @@ const getTokensFromExpression = (expr: Expression | null): string | null => {
 }
 
 const getTokensFromStatement = (st: Statement | null): Many<string> => {
-
   /* istanbul ignore if */
   if (st === null) {
     return []
-  }
-  else if (isBlockStatement(st)) {
+  } else if (isBlockStatement(st)) {
     return getTokensFromBlockStatement(st)
-  }
-  else if (isBreakStatement(st)) {
+  } else if (isBreakStatement(st)) {
     return `${STATEMENT}:Break`
-  }
-  else if (isContinueStatement(st)) {
+  } else if (isContinueStatement(st)) {
     return `${STATEMENT}:Continue`
-  }
-  else if (isDebuggerStatement(st)) {
+  } else if (isDebuggerStatement(st)) {
     return `${STATEMENT}:Debugger`
-  }
-  else if (isDoWhileStatement(st)) {
-  }
-  else if (isEmptyStatement(st)) {
+  } else if (isDoWhileStatement(st)) {
+  } else if (isEmptyStatement(st)) {
     return []
-  }
-  else if (isExpressionStatement(st)) {
+  } else if (isExpressionStatement(st)) {
     return getTokensFromExpression(st.expression) || []
-  }
-  else if (isForInStatement(st)) {
-  }
-  else if (isForStatement(st)) {
+  } else if (isForInStatement(st)) {
+  } else if (isForStatement(st)) {
     return [`${STATEMENT}:For`]
-      .concat(isExpression(st.init)
-        ? (getTokensFromExpression(st.init) || [])
-        : getTokensFromStatement(st.init))
+      .concat(
+        isExpression(st.init)
+          ? getTokensFromExpression(st.init) || []
+          : getTokensFromStatement(st.init),
+      )
       .concat(getTokensFromExpression(st.test) || [])
       .concat(getTokensFromExpression(st.update) || [])
       .concat(getTokensFromStatement(st.body))
-  }
-  else if (isFunctionDeclaration(st)) {
+  } else if (isFunctionDeclaration(st)) {
     const id = getTokensFromExpression(st.id) || 'anonymous'
     return `${DECLARATION}:Function[${id}]`
-  }
-  else if (isIfStatement(st)) {
+  } else if (isIfStatement(st)) {
     /*
      * Two cases:
      *    1. if statement with else-if block
@@ -400,59 +336,36 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
     return [`${STATEMENT}:${isIfStatement(st.alternate) ? 'Else-' : ''}If`]
       .concat(getTokensFromStatement(st.consequent))
       .concat(getTokensFromStatement(st.alternate))
-  }
-  else if (isLabeledStatement(st)) {
-  }
-  else if (isReturnStatement(st)) {
+  } else if (isLabeledStatement(st)) {
+  } else if (isReturnStatement(st)) {
     const returned = getTokensFromExpression(st.argument)
     return [`${STATEMENT}:Return${returned ? `[${returned}]` : ''}`]
-  }
-  else if (isSwitchStatement(st)) {
-  }
-  else if (isThrowStatement(st)) {
-  }
-  else if (isTryStatement(st)) {
-  }
-  else if (isVariableDeclaration(st)) {
+  } else if (isSwitchStatement(st)) {
+  } else if (isThrowStatement(st)) {
+  } else if (isTryStatement(st)) {
+  } else if (isVariableDeclaration(st)) {
     return st.declarations.map((declaration) => {
       const id = getLValIR(declaration.id).pred
       const init = getTokensFromExpression(declaration.init)
       return `${DECLARATION}:Variable[${id}${init ? ` = ${init}` : ''}]`
     })
-  }
-  else if (isWhileStatement(st)) {
-  }
-  else if (isWithStatement(st)) {
-  }
-  else if (isClassDeclaration(st)) {
-  }
-  else if (isExportAllDeclaration(st)) {
-  }
-  else if (isExportDefaultDeclaration(st)) {
-  }
-  else if (isExportNamedDeclaration(st)) {
-  }
-  else if (isForOfStatement(st)) {
-  }
-  else if (isImportDeclaration(st)) {
-  }
-  else if (isDeclareClass(st)) {
-  }
-  else if (isDeclareFunction(st)) {
-  }
-  else if (isDeclareInterface(st)) {
-  }
-  else if (isDeclareModule(st)) {
-  }
-  else if (isDeclareTypeAlias(st)) {
-  }
-  else if (isDeclareVariable(st)) {
-  }
-  else if (isInterfaceDeclaration(st)) {
-  }
-  else if (isTypeAlias(st)) {
-  }
-  else {
+  } else if (isWhileStatement(st)) {
+  } else if (isWithStatement(st)) {
+  } else if (isClassDeclaration(st)) {
+  } else if (isExportAllDeclaration(st)) {
+  } else if (isExportDefaultDeclaration(st)) {
+  } else if (isExportNamedDeclaration(st)) {
+  } else if (isForOfStatement(st)) {
+  } else if (isImportDeclaration(st)) {
+  } else if (isDeclareClass(st)) {
+  } else if (isDeclareFunction(st)) {
+  } else if (isDeclareInterface(st)) {
+  } else if (isDeclareModule(st)) {
+  } else if (isDeclareTypeAlias(st)) {
+  } else if (isDeclareVariable(st)) {
+  } else if (isInterfaceDeclaration(st)) {
+  } else if (isTypeAlias(st)) {
+  } else {
     /* istanbul ignore next */
     assertNever(st)
   }
@@ -464,7 +377,7 @@ const getTokensFromBlockStatement = (blockStatement: BlockStatement): string[] =
   const { directives = [], body: statements } = blockStatement
 
   return directives
-    .map(d => `${DIRECTIVE}:${d.value.value}`)
+    .map((d) => `${DIRECTIVE}:${d.value.value}`)
     .concat(flatMap(statements, getTokensFromStatement))
 }
 
@@ -480,16 +393,12 @@ export const getFnStatementTokens = (node: BabelNode): string[] | null => {
 
   if (isExpression(body)) {
     result = result.concat(getTokensFromExpression(body) || [])
-  }
-  else if (isBlockStatement(body)) {
+  } else if (isBlockStatement(body)) {
     result = result.concat(getTokensFromBlockStatement(body))
-  }
-  else {
+  } else {
     /* istanbul ignore next */
     assertNever(body)
   }
 
   return result.sort()
 }
-
-

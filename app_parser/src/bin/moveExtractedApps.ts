@@ -3,7 +3,6 @@ import { join } from 'path'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
 
-
 const CORDOVA_FOLDER = '/home/nvolodin/Auvl/data/sample_apps/cordova'
 const REACT_NATIVE_FOLDER = '/home/nvolodin/Auvl/data/sample_apps/react-native'
 const APKS_FOLDER = '/gi-pool/appdata-ro'
@@ -35,7 +34,7 @@ async function main() {
       log('cordova - fin %o', section)
 
       const sectionFolderContents = await readdir(sectionPath)
-      if (!sectionFolderContents.length) {
+      if (sectionFolderContents.length === 0) {
         await remove(sectionPath)
       }
     }
@@ -48,8 +47,13 @@ async function main() {
       const appNames = await readdir(sectionPath)
       const appPromises = appNames.map((app) => {
         return async () => {
-          const jsPath = join(REACT_NATIVE_FOLDER, section, app, 'extractedJs',
-            'index.android.bundle.js')
+          const jsPath = join(
+            REACT_NATIVE_FOLDER,
+            section,
+            app,
+            'extractedJs',
+            'index.android.bundle.js',
+          )
           const jsDestPath = join(EXTRACTED_JS, 'react-native', section, app, 'bundle.js')
 
           const apkPath = join(APKS_FOLDER, section, app)
@@ -64,7 +68,7 @@ async function main() {
       log('react-native - fin %o', section)
 
       const sectionFolderContents = await readdir(sectionPath)
-      if (!sectionFolderContents.length) {
+      if (sectionFolderContents.length === 0) {
         await remove(sectionPath)
       }
     }

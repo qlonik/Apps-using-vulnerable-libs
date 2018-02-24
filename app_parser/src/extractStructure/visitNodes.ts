@@ -2,19 +2,17 @@ import { Node as BabelNode } from 'babel-types'
 import { flatMap } from 'lodash'
 import { assertNever } from '../utils'
 
-
 /**
  * @param prop - property name
  * @param data - custom data
  * @param node - node of the AST
  * @param c - children
  */
-
 export type TreePath<T> = {
-  prop: string,
-  data: T,
-  node?: BabelNode,
-  c?: TreePath<T>[],
+  prop: string
+  data: T
+  node?: BabelNode
+  c?: TreePath<T>[]
 }
 
 export enum Signals {
@@ -31,67 +29,57 @@ export class Signal<T> {
     this.__data = d
   }
 
-  get signal() {
+  public get signal() {
     return this.__signal
   }
 
-  get data() {
+  public get data() {
     return this.__data
   }
 
-  static continue<T>(data: T | null) {
+  public static continue<T>(data: T | null) {
     return new Signal<T>(Signals.continueRecursion, data)
   }
 
-  static stop<T>(data: T | null) {
+  public static stop<T>(data: T | null) {
     return new Signal<T>(Signals.preventRecursion, data)
   }
 }
 
 const pathConcat = (p: string, c: string | number): string => {
-  return p.concat(typeof c === 'number' ? `[${c}]` : (p.length ? '.' + c : c))
+  return p.concat(typeof c === 'number' ? `[${c}]` : p.length ? '.' + c : c)
 }
 
-export const visitNodes = <K>(
-  {
-    fn = undefined,
-    includeNodes = false,
-  }: {
-    fn?: (path: string, val: any) => Signal<K>,
-    includeNodes?: boolean,
-  } = {}) => {
-
-  return function paths(
-    obj: object | Array<any>,
-    pathSoFar: string = ''): TreePath<K>[] {
-
+export const visitNodes = <K>({
+  fn = undefined,
+  includeNodes = false,
+}: {
+  fn?: (path: string, val: any) => Signal<K>
+  includeNodes?: boolean
+} = {}) => {
+  return function paths(obj: object | Array<any>, pathSoFar: string = ''): TreePath<K>[] {
     let entries: Array<[string | number, any]> = []
     if (Array.isArray(obj)) {
       entries = [...obj.entries()]
-    }
-    else if (typeof obj === 'object') {
+    } else if (typeof obj === 'object') {
       entries = Object.entries(obj)
     }
 
     return flatMap(entries, ([key, value]: [string | number, any]) => {
       const childPath = pathConcat(pathSoFar, key)
-      const {
-        data = null,
-        signal = Signals.preventRecursion,
-      } = typeof fn === 'function' ? fn(childPath, value) : {}
+      const { data = null, signal = Signals.preventRecursion } =
+        typeof fn === 'function' ? fn(childPath, value) : {}
       let children = null
 
       if (signal === Signals.continueRecursion) {
         if (value && typeof value === 'object') {
           const ch = paths(value, childPath)
-          if (ch.length) {
+          if (ch.length > 0) {
             children = ch
           }
         }
-      }
-      else if (signal === Signals.preventRecursion) {
-      }
-      else {
+      } else if (signal === Signals.preventRecursion) {
+      } else {
         /* istanbul ignore next */
         assertNever(signal)
       }
@@ -111,11 +99,9 @@ export const visitNodes = <K>(
         }
 
         return result
-      }
-      else if (children) {
+      } else if (children) {
         return children
-      }
-      else {
+      } else {
         return []
       }
     })

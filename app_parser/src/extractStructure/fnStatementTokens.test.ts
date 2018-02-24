@@ -4,10 +4,11 @@ import { isPlainObject } from 'lodash'
 import { extractStructure } from './index'
 import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
 
-
 const checkTokensMacro: Macro<TestContext> = async (
-  t: TestContext, content: string, expected: string[]) => {
-
+  t: TestContext,
+  content: string,
+  expected: string[],
+) => {
   const structure = await extractStructure({ content })
   const [firstFn] = structure.functionSignature
 
@@ -20,37 +21,42 @@ const checkTokensMacro: Macro<TestContext> = async (
   }
 }
 
-test('empty', checkTokensMacro,
+test(
+  'empty',
+  checkTokensMacro,
   stripIndent`
     function a() {
       {}
     }
   `,
-  [])
+  [],
+)
 
-test('parameters', checkTokensMacro,
+test(
+  'parameters',
+  checkTokensMacro,
   stripIndent`
     function a(par1, par2) {
     }
   `,
-  [
-    `${PARAM}:Identifier[par1]`,
-    `${PARAM}:Identifier[par2]`,
-  ])
+  [`${PARAM}:Identifier[par1]`, `${PARAM}:Identifier[par2]`],
+)
 
-test('directive', checkTokensMacro,
+test(
+  'directive',
+  checkTokensMacro,
   stripIndent`
     function a() {
       'use strict';
       'more directives';
     }
   `,
-  [
-    `${DIRECTIVE}:use strict`,
-    `${DIRECTIVE}:more directives`,
-  ])
+  [`${DIRECTIVE}:use strict`, `${DIRECTIVE}:more directives`],
+)
 
-test('literal', checkTokensMacro,
+test(
+  'literal',
+  checkTokensMacro,
   stripIndent`
     function a() {
       1;
@@ -68,34 +74,58 @@ test('literal', checkTokensMacro,
     `${LITERAL}:Null`,
     `${LITERAL}:RegExp`,
     `${LITERAL}:Template`,
-  ])
+  ],
+)
 
-test('expression statement: with object', checkTokensMacro,
+test(
+  'expression statement: with object',
+  checkTokensMacro,
   stripIndent`
     function a() {
       ({});
     }
   `,
-  [
-    `${EXPRESSION}:Object`,
-  ])
-
+  [`${EXPRESSION}:Object`],
+)
 ;[
-  "+", "-", "/", "%", "*", "**", "&", "|", ">>", ">>>", "<<", "^", "==", "===", "!=", "!==", "in",
-  "instanceof", ">", "<", ">=", "<=",
-].forEach((op) => {
-  test(`binary expr: "${op}"`, checkTokensMacro,
+  '+',
+  '-',
+  '/',
+  '%',
+  '*',
+  '**',
+  '&',
+  '|',
+  '>>',
+  '>>>',
+  '<<',
+  '^',
+  '==',
+  '===',
+  '!=',
+  '!==',
+  'in',
+  'instanceof',
+  '>',
+  '<',
+  '>=',
+  '<=',
+].forEach(op => {
+  test(
+    `binary expr: "${op}"`,
+    checkTokensMacro,
     stripIndent`
       function a() {
         1 ${op} 2;
       }
     `,
-    [
-      `${EXPRESSION}:Binary[${LITERAL}:Numeric ${op} ${LITERAL}:Numeric]`,
-    ])
+    [`${EXPRESSION}:Binary[${LITERAL}:Numeric ${op} ${LITERAL}:Numeric]`],
+  )
 })
 
-test('binary expr: three elems', checkTokensMacro,
+test(
+  'binary expr: three elems',
+  checkTokensMacro,
   stripIndent`
     function a() {
       1 + 2 + 3;
@@ -107,9 +137,12 @@ test('binary expr: three elems', checkTokensMacro,
         ${LITERAL}:Numeric + ${LITERAL}:Numeric
       ] + ${LITERAL}:Numeric
     ]`,
-  ])
+  ],
+)
 
-test('update expr', checkTokensMacro,
+test(
+  'update expr',
+  checkTokensMacro,
   stripIndent`
     function a() {
       i++;
@@ -123,74 +156,78 @@ test('update expr', checkTokensMacro,
     `${EXPRESSION}:Update[++${EXPRESSION}:Identifier[i]]`,
     `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]--]`,
     `${EXPRESSION}:Update[--${EXPRESSION}:Identifier[i]]`,
-  ])
+  ],
+)
 
-test('for: basic', checkTokensMacro,
+test(
+  'for: basic',
+  checkTokensMacro,
   stripIndent`
     function a() {
       for (;;) {}
     }
   `,
-  [
-    `${STATEMENT}:For`,
-  ])
+  [`${STATEMENT}:For`],
+)
 
-test('for: with statement init', checkTokensMacro,
+test(
+  'for: with statement init',
+  checkTokensMacro,
   stripIndent`
     function a() {
       for (var i = 0;;) {}
     }
   `,
-  [
-    `${STATEMENT}:For`,
-    `${DECLARATION}:Variable[i = ${LITERAL}:Numeric]`,
-  ])
+  [`${STATEMENT}:For`, `${DECLARATION}:Variable[i = ${LITERAL}:Numeric]`],
+)
 
-test('for: with expression init', checkTokensMacro,
+test(
+  'for: with expression init',
+  checkTokensMacro,
   stripIndent`
     function a() {
       for (i = 0;;) {}
     }
   `,
-  [
-    `${STATEMENT}:For`,
-    `${EXPRESSION}:Assignment[${PARAM}:Identifier[i] = ${LITERAL}:Numeric]`,
-  ])
+  [`${STATEMENT}:For`, `${EXPRESSION}:Assignment[${PARAM}:Identifier[i] = ${LITERAL}:Numeric]`],
+)
 
-test('for: with test', checkTokensMacro,
+test(
+  'for: with test',
+  checkTokensMacro,
   stripIndent`
     function a() {
       for (;i < 10;) {}
     }
   `,
-  [
-    `${STATEMENT}:For`,
-    `${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] < ${LITERAL}:Numeric]`,
-  ])
+  [`${STATEMENT}:For`, `${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] < ${LITERAL}:Numeric]`],
+)
 
-test('for: with update', checkTokensMacro,
+test(
+  'for: with update',
+  checkTokensMacro,
   stripIndent`
     function a() {
       for (;;i++) {}
     }
   `,
-  [
-    `${STATEMENT}:For`,
-    `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`,
-  ])
+  [`${STATEMENT}:For`, `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`],
+)
 
-test('for: with expression body', checkTokensMacro,
+test(
+  'for: with expression body',
+  checkTokensMacro,
   stripIndent`
     function a() {
       for (;;) i++;
     }
   `,
-  [
-    `${STATEMENT}:For`,
-    `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`,
-  ])
+  [`${STATEMENT}:For`, `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`],
+)
 
-test('for: with statement body', checkTokensMacro,
+test(
+  'for: with statement body',
+  checkTokensMacro,
   stripIndent`
     function a() {
       for (;;) {
@@ -198,12 +235,12 @@ test('for: with statement body', checkTokensMacro,
       }
     }
   `,
-  [
-    `${STATEMENT}:For`,
-    `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`,
-  ])
+  [`${STATEMENT}:For`, `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`],
+)
 
-test('for: full test', checkTokensMacro,
+test(
+  'for: full test',
+  checkTokensMacro,
   stripIndent`
     function a() {
       for (var i = 0, l = 10; i < l; i++) {
@@ -218,20 +255,23 @@ test('for: full test', checkTokensMacro,
     `${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] < ${EXPRESSION}:Identifier[l]]`,
     `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`,
     `${EXPRESSION}:Update[${EXPRESSION}:Identifier[l]--]`,
-  ])
+  ],
+)
 
-test('variable declaration: simple', checkTokensMacro,
+test(
+  'variable declaration: simple',
+  checkTokensMacro,
   stripIndent`
     function a() {
       var b, c;
     }
   `,
-  [
-    `${DECLARATION}:Variable[b]`,
-    `${DECLARATION}:Variable[c]`,
-  ])
+  [`${DECLARATION}:Variable[b]`, `${DECLARATION}:Variable[c]`],
+)
 
-test('variable declaration: literals', checkTokensMacro,
+test(
+  'variable declaration: literals',
+  checkTokensMacro,
   stripIndent`
     function a() {
       let d = 1;
@@ -249,9 +289,12 @@ test('variable declaration: literals', checkTokensMacro,
     `${DECLARATION}:Variable[g = ${LITERAL}:Null]`,
     `${DECLARATION}:Variable[h = ${LITERAL}:RegExp]`,
     `${DECLARATION}:Variable[i = ${LITERAL}:Template]`,
-  ])
+  ],
+)
 
-test.skip('variable declaration: other objects', checkTokensMacro,
+test.skip(
+  'variable declaration: other objects',
+  checkTokensMacro,
   stripIndent`
     function a() {
       var b = { a: 1, b: '2', c: true };
@@ -263,32 +306,35 @@ test.skip('variable declaration: other objects', checkTokensMacro,
       var h = b.c ? 'true' : 'false';
     }
   `,
-  [
-    `${DECLARATION}:Variable[b = ${EXPRESSION}:Object]`,
-  ])
+  [`${DECLARATION}:Variable[b = ${EXPRESSION}:Object]`],
+)
 
-test('if: single', checkTokensMacro,
+test(
+  'if: single',
+  checkTokensMacro,
   stripIndent`
     function a() {
       if (i === 1) {}
     }
   `,
-  [
-    `${STATEMENT}:If`,
-  ])
+  [`${STATEMENT}:If`],
+)
 
-test('if: if else', checkTokensMacro,
+test(
+  'if: if else',
+  checkTokensMacro,
   stripIndent`
     function a() {
       if (i === 1) {}
       else {}
     }
   `,
-  [
-    `${STATEMENT}:If`,
-  ])
+  [`${STATEMENT}:If`],
+)
 
-test('if: if else{if else}', checkTokensMacro,
+test(
+  'if: if else{if else}',
+  checkTokensMacro,
   stripIndent`
     function a() {
       if (i === 1) {}
@@ -298,12 +344,12 @@ test('if: if else{if else}', checkTokensMacro,
       }
     }
   `,
-  [
-    `${STATEMENT}:If`,
-    `${STATEMENT}:If`,
-  ])
+  [`${STATEMENT}:If`, `${STATEMENT}:If`],
+)
 
-test('if: if else-if else-if else', checkTokensMacro,
+test(
+  'if: if else-if else-if else',
+  checkTokensMacro,
   stripIndent`
     function a() {
       if (i === 1) {}
@@ -312,23 +358,23 @@ test('if: if else-if else-if else', checkTokensMacro,
       else {}
     }
   `,
-  [
-    `${STATEMENT}:If`,
-    `${STATEMENT}:Else-If`,
-    `${STATEMENT}:Else-If`,
-  ])
+  [`${STATEMENT}:If`, `${STATEMENT}:Else-If`, `${STATEMENT}:Else-If`],
+)
 
-test('function declaration', checkTokensMacro,
+test(
+  'function declaration',
+  checkTokensMacro,
   stripIndent`
     function a() {
       function b() {};
     }
   `,
-  [
-    `${DECLARATION}:Function[${EXPRESSION}:Identifier[b]]`,
-  ])
+  [`${DECLARATION}:Function[${EXPRESSION}:Identifier[b]]`],
+)
 
-test('function expression: \'function\' keyword', checkTokensMacro,
+test(
+  "function expression: 'function' keyword",
+  checkTokensMacro,
   stripIndent`
     function a() {
       var b = function () {};
@@ -340,41 +386,46 @@ test('function expression: \'function\' keyword', checkTokensMacro,
     `${DECLARATION}:Variable[b = ${EXPRESSION}:Function[anonymous]]`,
     `${EXPRESSION}:Function[${EXPRESSION}:Identifier[c]]`,
     `${EXPRESSION}:Function[anonymous]`,
-  ])
+  ],
+)
 
-test('function expression: arrow function', checkTokensMacro,
+test(
+  'function expression: arrow function',
+  checkTokensMacro,
   stripIndent`
     function a() {
       var b = () => {};
       (() => {});
     }
   `,
-  [
-    `${DECLARATION}:Variable[b = ${EXPRESSION}:ArrowFunction]`,
-    `${EXPRESSION}:ArrowFunction`,
-  ])
+  [`${DECLARATION}:Variable[b = ${EXPRESSION}:ArrowFunction]`, `${EXPRESSION}:ArrowFunction`],
+)
 
-test('return statement: empty', checkTokensMacro,
+test(
+  'return statement: empty',
+  checkTokensMacro,
   stripIndent`
     function a() {
       return;
     }
   `,
-  [
-    `${STATEMENT}:Return`,
-  ])
+  [`${STATEMENT}:Return`],
+)
 
-test('return statement: literal', checkTokensMacro,
+test(
+  'return statement: literal',
+  checkTokensMacro,
   stripIndent`
     function a() {
       return 1;
     }
   `,
-  [
-    `${STATEMENT}:Return[${LITERAL}:Numeric]`,
-  ])
+  [`${STATEMENT}:Return[${LITERAL}:Numeric]`],
+)
 
-test('return statement: variable update', checkTokensMacro,
+test(
+  'return statement: variable update',
+  checkTokensMacro,
   stripIndent`
     function a() {
       var i = 0;
@@ -384,19 +435,23 @@ test('return statement: variable update', checkTokensMacro,
   [
     `${DECLARATION}:Variable[i = ${LITERAL}:Numeric]`,
     `${STATEMENT}:Return[${EXPRESSION}:Update[++${EXPRESSION}:Identifier[i]]]`,
-  ])
+  ],
+)
 
-test('debugger', checkTokensMacro,
+test(
+  'debugger',
+  checkTokensMacro,
   stripIndent`
     function a() {
       debugger;
     }
   `,
-  [
-    `${STATEMENT}:Debugger`,
-  ])
+  [`${STATEMENT}:Debugger`],
+)
 
-test('break', checkTokensMacro,
+test(
+  'break',
+  checkTokensMacro,
   stripIndent`
     function a() {
       for (;;) {
@@ -404,12 +459,12 @@ test('break', checkTokensMacro,
       }
     }
   `,
-  [
-    `${STATEMENT}:For`,
-    `${STATEMENT}:Break`,
-  ])
+  [`${STATEMENT}:For`, `${STATEMENT}:Break`],
+)
 
-test('continue', checkTokensMacro,
+test(
+  'continue',
+  checkTokensMacro,
   stripIndent`
     function a() {
       for (;;) {
@@ -417,12 +472,12 @@ test('continue', checkTokensMacro,
       }
     }
   `,
-  [
-    `${STATEMENT}:For`,
-    `${STATEMENT}:Continue`,
-  ])
+  [`${STATEMENT}:For`, `${STATEMENT}:Continue`],
+)
 
-test('call expression', checkTokensMacro,
+test(
+  'call expression',
+  checkTokensMacro,
   stripIndent`
     function a() {
       b();
@@ -436,9 +491,12 @@ test('call expression', checkTokensMacro,
     `${EXPRESSION}:Call[${EXPRESSION}:ArrowFunction]`,
     `${EXPRESSION}:Call[${EXPRESSION}:Function[${EXPRESSION}:Identifier[c]]]`,
     `${EXPRESSION}:Call[${EXPRESSION}:Function[anonymous]]`,
-  ])
+  ],
+)
 
-test.skip('call expression: super', checkTokensMacro,
+test.skip(
+  'call expression: super',
+  checkTokensMacro,
   stripIndent`
     function a() {
       class b {
@@ -448,25 +506,12 @@ test.skip('call expression: super', checkTokensMacro,
       }
     }
   `,
-  [
-    `${EXPRESSION}:Call[super]`,
-  ])
-
-;[
-  "=",
-  "+=",
-  "-=",
-  "*=",
-  "/=",
-  "%=",
-  "<<=",
-  ">>=",
-  ">>>=",
-  "|=",
-  "^=",
-  "&=",
-].forEach((op) => {
-  test(`assignment expression: "${op}"`, checkTokensMacro,
+  [`${EXPRESSION}:Call[super]`],
+)
+;['=', '+=', '-=', '*=', '/=', '%=', '<<=', '>>=', '>>>=', '|=', '^=', '&='].forEach(op => {
+  test(
+    `assignment expression: "${op}"`,
+    checkTokensMacro,
     stripIndent`
       function a() {
         var a = 1, b = 1;
@@ -477,5 +522,6 @@ test.skip('call expression: super', checkTokensMacro,
       `${DECLARATION}:Variable[a = ${LITERAL}:Numeric]`,
       `${DECLARATION}:Variable[b = ${LITERAL}:Numeric]`,
       `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] ${op} ${EXPRESSION}:Identifier[a]]`,
-    ])
+    ],
+  )
 })

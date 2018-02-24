@@ -6,14 +6,13 @@ import {
   isNumericLiteral,
   isObjectExpression,
   isStringLiteral,
-  Node as BabelNode
+  Node as BabelNode,
 } from 'babel-types'
 import { Signal } from '../visitNodes'
 
-
 type rnFactory = {
-  id: number | string,
-  factory: BabelNode,
+  id: number | string
+  factory: BabelNode
 }
 
 export const rnDeclareFnFilter = (path: string, node: BabelNode): Signal<rnFactory> => {
@@ -54,34 +53,30 @@ export const rnDeclareFnFilter = (path: string, node: BabelNode): Signal<rnFacto
   //       third = dependencyMap (Array);
   const [first, second, third] = args
 
-  if (isStringLiteral(first)
-      && isArrayExpression(second)
-      && (isObjectExpression(third) || isFunction(third))) {
-
+  if (
+    isStringLiteral(first) &&
+    isArrayExpression(second) &&
+    (isObjectExpression(third) || isFunction(third))
+  ) {
     return Signal.stop<rnFactory>({
       id: first.value,
       factory: third,
     })
-  }
-  else if (isNumericLiteral(first)
-           && isFunction(second)
-           && third === undefined) {
-
+  } else if (isNumericLiteral(first) && isFunction(second) && third === undefined) {
     return Signal.stop<rnFactory>({
       id: first.value,
       factory: second,
     })
-  }
-  else if (isFunction(first)
-           && isNumericLiteral(second)
-           && (isArrayExpression(third) || third === undefined)) {
-
+  } else if (
+    isFunction(first) &&
+    isNumericLiteral(second) &&
+    (isArrayExpression(third) || third === undefined)
+  ) {
     return Signal.stop<rnFactory>({
       id: second.value,
       factory: first,
     })
-  }
-  else {
+  } else {
     console.log('UNKNOWN CONFIGURATION PASSED TO __d!!! INVESTIGATE!!!')
     return Signal.stop<rnFactory>(null)
   }

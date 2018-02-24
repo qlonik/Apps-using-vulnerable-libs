@@ -23,10 +23,9 @@ import {
 } from 'babel-types'
 import { stripIndent } from 'common-tags'
 import { inspect as utilInspect } from 'util'
-import { getFnStatementTokens } from '../fnStatementTokens';
+import { getFnStatementTokens } from '../fnStatementTokens'
 import { getFnStatementTypes } from '../fnStatementTypes'
 import { Signal } from '../visitNodes'
-
 
 /**
  * Extracted Signature for function
@@ -42,10 +41,10 @@ import { Signal } from '../visitNodes'
  *   based on renaming tokens in statements in the function.
  */
 export type Signature = {
-  type: 'fn',
-  name: string,
-  fnStatementTypes: string[] | null,
-  fnStatementTokens: string[] | null,
+  type: 'fn'
+  name: string
+  fnStatementTypes: string[] | null
+  fnStatementTokens: string[] | null
 }
 
 const extractNameFromLiteral = (node: Literal): string => {
@@ -66,7 +65,6 @@ const extractNameFromIdentifier = (node: Identifier): string => {
 }
 
 export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> => {
-
   if (node && (<any>node).__skip) {
     return Signal.continue<Signature>(null)
   }
@@ -78,57 +76,47 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
       fnStatementTypes: getFnStatementTypes(node),
       fnStatementTokens: getFnStatementTokens(node),
     })
-  }
-  else if (isVariableDeclarator(node) ||
-           isAssignmentExpression(node) ||
-           isAssignmentPattern(node) ||
-           isProperty(node) ||
-           isReturnStatement(node) ||
-           isObjectMethod(node)) {
-
+  } else if (
+    isVariableDeclarator(node) ||
+    isAssignmentExpression(node) ||
+    isAssignmentPattern(node) ||
+    isProperty(node) ||
+    isReturnStatement(node) ||
+    isObjectMethod(node)
+  ) {
     let varNode: any = null
     let fnNode: any = null
 
     if (isVariableDeclarator(node)) {
       varNode = node.id
       fnNode = node.init
-    }
-    else if (isAssignmentExpression(node) || isAssignmentPattern(node)) {
+    } else if (isAssignmentExpression(node) || isAssignmentPattern(node)) {
       varNode = node.left
       fnNode = node.right
-    }
-    else if (isProperty(node)) {
+    } else if (isProperty(node)) {
       varNode = node.key
       fnNode = node.value
-    }
-    else if (isReturnStatement(node)) {
+    } else if (isReturnStatement(node)) {
       varNode = null
       fnNode = node.argument
-    }
-    else if (isObjectMethod(node)) {
+    } else if (isObjectMethod(node)) {
       varNode = node.key
       fnNode = node
     }
 
-
     let varName = undefined
     if (isIdentifier(varNode)) {
       varName = extractNameFromIdentifier(varNode)
-    }
-    else if (isLiteral(varNode)) {
+    } else if (isLiteral(varNode)) {
       varName = extractNameFromLiteral(varNode)
-    }
-    else if (isMemberExpression(varNode)) {
+    } else if (isMemberExpression(varNode)) {
       if (isIdentifier(varNode.property)) {
         varName = extractNameFromIdentifier(varNode.property)
-      }
-      else if (isLiteral(varNode.property)) {
+      } else if (isLiteral(varNode.property)) {
         varName = extractNameFromLiteral(varNode.property)
-      }
-      else if (isMemberExpression(varNode.property) || isCallExpression(varNode.property)) {
+      } else if (isMemberExpression(varNode.property) || isCallExpression(varNode.property)) {
         varName = null
-      }
-      else if (isBinaryExpression(varNode.property)) {
+      } else if (isBinaryExpression(varNode.property)) {
         const op = varNode.property.operator
         const left = varNode.property.left
         const right = varNode.property.right
@@ -137,15 +125,13 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
 
         if (isIdentifier(left)) {
           leftName = extractNameFromIdentifier(left)
-        }
-        else if (isLiteral(left)) {
+        } else if (isLiteral(left)) {
           leftName = extractNameFromLiteral(left)
         }
 
         if (isIdentifier(right)) {
           rightName = extractNameFromIdentifier(right)
-        }
-        else if (isLiteral(right)) {
+        } else if (isLiteral(right)) {
           rightName = extractNameFromLiteral(right)
         }
 
@@ -166,8 +152,7 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
     let name
     if (isFunctionExpression(fnNode)) {
       name = (fnNode.id && fnNode.id.name) || varName || '[anonymous]'
-    }
-    else if (isArrowFunctionExpression(fnNode)) {
+    } else if (isArrowFunctionExpression(fnNode)) {
       name = varName || '[anonymous]'
     }
 

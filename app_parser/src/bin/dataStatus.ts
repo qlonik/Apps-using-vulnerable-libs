@@ -1,10 +1,8 @@
 import { APP_TYPES, getApps } from '../parseApps'
 import { getLibNameVersions } from '../parseLibraries'
 
-
 const LIB_FOLDER = '../data/sample_libs'
 const APP_FOLDER = '../data/sample_apps'
-
 
 async function main() {
   const libs = await getLibNameVersions(LIB_FOLDER)
@@ -16,7 +14,4 @@ async function main() {
   console.log(`total apps (rn):  ${rnApps.length}`)
 }
 
-main()
-  .catch((err) => console.log('Some global error:\n' + err.stack))
-
-
+main().catch((err) => console.log('Some global error:\n' + err.stack))

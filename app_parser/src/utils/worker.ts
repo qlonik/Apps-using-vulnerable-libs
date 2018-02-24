@@ -1,7 +1,6 @@
 import { pathExists } from 'fs-extra'
 import { basename, dirname, extname, join } from 'path'
 
-
 export const getWorkerPath = async (file: string): Promise<string> => {
   const ext = extname(file)
   const name = basename(file, ext)
@@ -9,8 +8,7 @@ export const getWorkerPath = async (file: string): Promise<string> => {
 
   if (await pathExists(wPath)) {
     return wPath
-  }
-  else {
+  } else {
     throw new Error('no worker present')
   }
 }

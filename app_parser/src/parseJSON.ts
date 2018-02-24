@@ -134,7 +134,7 @@ async function main() {
     const json = JSON.parse(await req(`https://registry.npmjs.org/${name.replace('/', '%2F')}`))
     const versions = Object.keys(json.versions)
     return (await acc).concat(versions.map((version) => `${name}@${version}`))
-  }, <Promise<string[]>>Promise.resolve([]))
+  }, Promise.resolve([] as string[]))
   return { cmd: 'npm pack ' + nameVersions.join(' '), processing: PROCESSING }
 }
 

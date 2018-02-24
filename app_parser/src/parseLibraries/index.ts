@@ -8,7 +8,6 @@ import { fileDesc, fileDescOp, fileOp, saveFiles } from '../utils/files'
 import { LIB_LITERAL_SIGNATURE_FILE } from './constants'
 import { getLibNameVersionSigContents, libNameVersion, libPath } from './getters'
 
-
 export * from './getters'
 
 enum PKG_TYPE {
@@ -30,15 +29,12 @@ function extractNameVersionFromFilename(filename: string): libNameVersion | null
 /**
  * Spec is available at {@link https://github.com/bower/spec/blob/master/json.md}
  */
-async function tryAsBowerPkg(
-  pkgPath: string, { log }: opts = {}): Promise<string[] | null> {
-
+async function tryAsBowerPkg(pkgPath: string, { log }: opts = {}): Promise<string[] | null> {
   const bowerJsonPath = join(pkgPath, 'bower.json')
   let bowerJSON
   try {
     bowerJSON = await readJSON(bowerJsonPath)
-  }
-  catch (err) {
+  } catch (err) {
     if (log) {
       log('failed to read bower.json:\n%O', err)
     }
@@ -55,8 +51,7 @@ async function tryAsBowerPkg(
     return extname(main) === '.js' ? [main] : null
   }
 
-  const mainJs = main
-    .filter((item) => extname(item) === '.js')
+  const mainJs = main.filter((item) => extname(item) === '.js')
 
   return mainJs.length ? mainJs : null
 }
@@ -65,16 +60,12 @@ async function tryAsBowerPkg(
  * Spec is available at
  * {@link https://github.com/componentjs/spec/blob/master/component.json/specifications.md}
  */
-async function tryAsComponentJsPkg(
-  pkgPath: string,
-  { log }: opts = {}): Promise<string[] | null> {
-
+async function tryAsComponentJsPkg(pkgPath: string, { log }: opts = {}): Promise<string[] | null> {
   const componentJsonPath = join(pkgPath, 'component.json')
   let componentJSON
   try {
     componentJSON = await readJSON(componentJsonPath)
-  }
-  catch (err) {
+  } catch (err) {
     if (log) {
       log('failed to read component.json:\n%O', err)
     }
@@ -91,8 +82,7 @@ async function tryAsComponentJsPkg(
     return extname(main) === '.js' ? [main] : null
   }
 
-  const mainJs = main
-    .filter((item) => extname(item) === '.js')
+  const mainJs = main.filter((item) => extname(item) === '.js')
 
   return mainJs.length ? mainJs : null
 }
@@ -100,16 +90,12 @@ async function tryAsComponentJsPkg(
 /**
  * Spec is available at {@link https://nodejs.org/api/modules.html#modules_all_together}
  */
-async function tryAsNodePkg(
-  pkgPath: string,
-  { log }: opts = {}): Promise<string[] | null> {
-
+async function tryAsNodePkg(pkgPath: string, { log }: opts = {}): Promise<string[] | null> {
   const absolutePkgPath = resolve(process.cwd(), pkgPath)
   let mainPath: string
   try {
     mainPath = require.resolve(absolutePkgPath)
-  }
-  catch (err) {
+  } catch (err) {
     if (log) {
       log('require.resolve failed to load main file:\n%O', err)
     }
@@ -131,14 +117,9 @@ async function tryAsNodePkg(
 async function tryAsGuessedPkg(
   pkgPath: string,
   { name, version }: libNameVersion,
-  { log }: opts = {}): Promise<string[] | null> {
-
-  return [
-    `dist/${name}.js`,
-    `dist/${name}-${version}.js`,
-    `${name}.js`,
-    `${name}-${version}.js`,
-  ]
+  {  }: opts = {},
+): Promise<string[] | null> {
+  return [`dist/${name}.js`, `dist/${name}-${version}.js`, `${name}.js`, `${name}-${version}.js`]
 }
 
 function getMinJs(path: string | null) {
@@ -154,21 +135,19 @@ function getMinJs(path: string | null) {
 
 export async function extractMainFiles(
   { libsPath, name, version }: { libsPath: string } & libNameVersion,
-  { conservative = true }: opts = {}): Promise<fileDescOp[]> {
-
+  { conservative = true }: opts = {},
+): Promise<fileDescOp[]> {
   const libPath = join(libsPath, name, version)
   const libPackageP = join(libPath, 'package')
   const libMainP = join(libPath, 'mains')
 
-  if (conservative && await pathExists(libMainP)) {
-    return (await readdir(libMainP))
-      .sort()
-      .map((f): fileDescOp => ({
-        type: fileOp.noop,
-        cwd: libPath,
-        dst: join('mains', f),
-        conservative,
-      }))
+  if (conservative && (await pathExists(libMainP))) {
+    return (await readdir(libMainP)).sort().map((f): fileDescOp => ({
+      type: fileOp.noop,
+      cwd: libPath,
+      dst: join('mains', f),
+      conservative,
+    }))
   }
 
   let potentialMainFiles = await tryAsBowerPkg(libPackageP)
@@ -191,15 +170,18 @@ export async function extractMainFiles(
 
   const existingMainFilesLazy = potentialMainFiles
     .map((file) => join('package', file))
-    .reduce((acc, item) => {
-      acc = acc.concat(item)
-      const minJs = getMinJs(item)
-      if (minJs) {
-        return acc.concat(minJs)
-      }
-      return acc
-    }, <string[]>[])
-    .map(async (item) => await pathExists(join(libPath, item)) ? item : '')
+    .reduce(
+      (acc, item) => {
+        acc = acc.concat(item)
+        const minJs = getMinJs(item)
+        if (minJs) {
+          return acc.concat(minJs)
+        }
+        return acc
+      },
+      [] as string[],
+    )
+    .map(async (item) => ((await pathExists(join(libPath, item))) ? item : ''))
 
   return (await Promise.all(existingMainFilesLazy))
     .filter((el) => !!el)
@@ -213,9 +195,9 @@ export async function extractMainFiles(
 }
 
 async function analyseOneLibFile(
-  { file, i }: { file: fileDesc, i: number },
-  { conservative = true }: opts): Promise<fileDescOp> {
-
+  { file, i }: { file: fileDesc; i: number },
+  { conservative = true }: opts,
+): Promise<fileDescOp> {
   const { cwd, dst } = file
   const destSig = `sigs/${leftPad(i)}.json`
   const fileP = join(cwd, dst)
@@ -227,17 +209,13 @@ async function analyseOneLibFile(
 
 export async function analyseLibFiles(
   files: fileDesc | fileDesc[],
-  {
-    chunkLimit,
-    chunkSize,
-    conservative = true,
-  }: opts = {}): Promise<fileDescOp[]> {
-
+  { chunkLimit, chunkSize, conservative = true }: opts = {},
+): Promise<fileDescOp[]> {
   if (!Array.isArray(files)) {
     return [await analyseOneLibFile({ file: files, i: 0 }, { conservative })]
   }
 
-  if (!files.length) {
+  if (files.length === 0) {
     return []
   }
 
@@ -251,19 +229,16 @@ export async function extractSingleLibraryFromDump({
   dumpPath,
   libsPath,
   filename,
-  opts: {
-    conservative = true,
-  } = {}
+  opts: { conservative = true } = {},
 }: {
-  dumpPath: string,
-  libsPath: string,
-  filename: string,
-  opts?: opts,
+  dumpPath: string
+  libsPath: string
+  filename: string
+  opts?: opts
 }): Promise<libNameVersion> {
-
   const libDesc = extractNameVersionFromFilename(filename)
   if (libDesc === null) {
-    throw new Error('couldn\'t parse filename')
+    throw new Error("couldn't parse filename")
   }
   const { name, version } = libDesc
 
@@ -279,18 +254,18 @@ export async function extractSingleLibraryFromDump({
     await Promise.all([remove(destFile), remove(extrFile)])
     destFileExists = false
     extrFileExists = false
-  }
-  else {
-    [destFileExists, extrFileExists] = await Promise.all([
+  } else {
+    const [destFileExistsL, extrFileExistsL] = await Promise.all([
       pathExists(destFile),
       pathExists(extrFile),
     ])
+    destFileExists = destFileExistsL
+    extrFileExists = extrFileExistsL
   }
 
   if (!destFileExists) {
     await move(src, destFile)
-  }
-  else {
+  } else {
     await remove(src)
   }
   if (!extrFileExists) {
@@ -302,14 +277,14 @@ export async function extractSingleLibraryFromDump({
 
 export async function updateUnionLiteralSignature(
   { libsPath, name, version }: { libsPath: string } & libNameVersion,
-  {}: opts = {}): Promise<void> {
-
+  {  }: opts = {},
+): Promise<void> {
   const sigs = await getLibNameVersionSigContents(libsPath, name, version)
   const libraryPath = libPath(libsPath, name)
   const litSigPath = join(libraryPath, LIB_LITERAL_SIGNATURE_FILE)
   const release = await lock(libraryPath, { retries: 10 })
 
-  const libLitSigPrevContent = await pathExists(litSigPath) ? await readJSON(litSigPath) : []
+  const libLitSigPrevContent = (await pathExists(litSigPath)) ? await readJSON(litSigPath) : []
   const libLitSig: Set<LiteralSignature> = new Set(libLitSigPrevContent)
 
   const libLitSigUpd = sigs.reduce((acc, { signature: { literalSignature } }) => {

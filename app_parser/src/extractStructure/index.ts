@@ -11,7 +11,6 @@ import {
 import { rnDeclareFnFilter } from './nodeFilters/rnDeclareFn'
 import { TreePath, visitNodes } from './visitNodes'
 
-
 const CONCAT_FNS_WITH = ':>>:'
 const NAMESPACE = 'x.Struct'
 const log = stdoutLog(NAMESPACE)
@@ -31,9 +30,9 @@ export const literalValues = visitNodes({ fn: literalValuesFilter })
 
 const collapseFnNamesTree = (
   tree: TreePath<FunctionSignature>[],
-  fnNameSoFar: string = ''): FunctionSignature[] => {
-
-  if (!tree.length) {
+  fnNameSoFar: string = '',
+): FunctionSignature[] => {
+  if (tree.length === 0) {
     return []
   }
 
@@ -59,23 +58,20 @@ const collapseFnNamesTree = (
       return treeElem
     }
     return [treeElem].concat(collapseFnNamesTree(fnDesc.c, fnName))
-  })
-    .sort((a, b) => a.name.localeCompare(b.name))
+  }).sort((a, b) => a.name.localeCompare(b.name))
 }
 
 // todo: refactor existing types rather than alias them
 export type FunctionSignature = Signature
 export type LiteralSignature = SignatureLiteral
 export type signatureNew = {
-  functionSignature: FunctionSignature[],
-  literalSignature: LiteralSignature[],
+  functionSignature: FunctionSignature[]
+  literalSignature: LiteralSignature[]
 }
 export type rnSignatureNew = signatureNew & {
-  id: number | string,
+  id: number | string
 }
-const _extractStructure = function (
-  { content }: { content: string | BabelNode }): signatureNew {
-
+const _extractStructure = function({ content }: { content: string | BabelNode }): signatureNew {
   const parsed = typeof content === 'string' ? parse(content) : content
 
   const functionSignature = collapseFnNamesTree(fnOnlyTreeCreator(parsed))
@@ -84,19 +80,22 @@ const _extractStructure = function (
   return { functionSignature, literalSignature }
 }
 
-export const extractStructure = async function (
-  { content }: { content: string }): Promise<signatureNew> {
-
+export const extractStructure = async function({
+  content,
+}: {
+  content: string
+}): Promise<signatureNew> {
   return _extractStructure({ content })
 }
 
-export const extractReactNativeStructure = async function (
-  { content }: { content: string }): Promise<rnSignatureNew[]> {
-
-  return rnDeclareFns(parse(content))
-    .map(({ data }) => {
-      const { id, factory } = data
-      const structure = _extractStructure({ content: factory })
-      return { id, ...structure }
-    })
+export const extractReactNativeStructure = async function({
+  content,
+}: {
+  content: string
+}): Promise<rnSignatureNew[]> {
+  return rnDeclareFns(parse(content)).map(({ data }) => {
+    const { id, factory } = data
+    const structure = _extractStructure({ content: factory })
+    return { id, ...structure }
+  })
 }

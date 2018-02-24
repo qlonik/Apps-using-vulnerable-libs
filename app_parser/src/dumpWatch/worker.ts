@@ -13,16 +13,17 @@ import {
   processingResult,
   processRequest,
   reanalyseLibRequest,
-  reanalysisResult
+  reanalysisResult,
 } from './common'
-
 
 const log = stdoutLog(`worker:${process.pid}`)
 log.enabled = false
 
-const processLibrary = async (
-  { filename, libsPath, dumpPath }: processRequest): Promise<processingResult> => {
-
+const processLibrary = async ({
+  filename,
+  libsPath,
+  dumpPath,
+}: processRequest): Promise<processingResult> => {
   log('got %o', filename)
 
   let name
@@ -31,46 +32,58 @@ const processLibrary = async (
     const libDesc = await extractSingleLibraryFromDump({ dumpPath, libsPath, filename })
     name = libDesc.name
     version = libDesc.version
-  }
-  catch (err) {
+  } catch (err) {
     log('Could not parse the filename: %o\n%I\n%I', filename, err, err.stack)
     return { filename }
   }
 
   const main = await saveFiles(extractMainFiles({ libsPath, name, version }))
   const analysis = await saveFiles(analyseLibFiles(main))
-  if (analysis.length) {
+  if (analysis.length > 0) {
     await updateUnionLiteralSignature({ libsPath, name, version })
   }
 
-  log(stripIndent`
+  log(
+    stripIndent`
     finished %o${main.length ? '' : ' (no main files found!!!)'}
        main files:
     %I
        analysis files:
     %I
-  `, filename, main, analysis)
+  `,
+    filename,
+    main,
+    analysis,
+  )
 
   return { filename, main, analysis }
 }
 
-const reanalyseLibrary = async (
-  { libsPath, name, version }: reanalyseLibRequest): Promise<reanalysisResult> => {
-
+const reanalyseLibrary = async ({
+  libsPath,
+  name,
+  version,
+}: reanalyseLibRequest): Promise<reanalysisResult> => {
   log('reanalysing %o %o', name, version)
 
-  const main = await saveFiles(extractMainFiles({ libsPath, name, version },
-    { conservative: true }))
+  const main = await saveFiles(
+    extractMainFiles({ libsPath, name, version }, { conservative: true }),
+  )
   const analysis = await saveFiles(analyseLibFiles(main, { conservative: false }))
-  if (analysis.length) {
+  if (analysis.length > 0) {
     await updateUnionLiteralSignature({ libsPath, name, version })
   }
 
-  log(stripIndent`
+  log(
+    stripIndent`
     finished %o %o${main.length ? '' : ' (no main files found!!!)'}
        analysis files:
     %I
-  `, name, version, analysis)
+  `,
+    name,
+    version,
+    analysis,
+  )
 
   return { name, version, analysis }
 }

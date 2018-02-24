@@ -1,4 +1,4 @@
-import { ChildProcess, fork } from "child_process"
+import { ChildProcess, fork } from 'child_process'
 import { IDebugger } from 'debug'
 import uuid from 'uuid/v4'
 import Observable from 'zen-observable'
@@ -10,16 +10,15 @@ import {
   MessagesMap,
   serverMessage3,
   shutdownMsg,
-  startupMsg
+  startupMsg,
 } from './types'
 
-
 export class WorkerInstance<M extends MessagesMap> {
-  static WORKER_STARTUP_TIMEOUT = 3 * 1000
-  static WORKER_SHUTDOWN_TIMEOUT = 3 * 1000
-  static BEGINNING_PORT = 23000
+  public static WORKER_STARTUP_TIMEOUT = 3 * 1000
+  public static WORKER_SHUTDOWN_TIMEOUT = 3 * 1000
+  public static BEGINNING_PORT = 23000
 
-  private static size = 0
+  private static _size = 0
 
   public pid: number
   public log: IDebugger
@@ -33,10 +32,9 @@ export class WorkerInstance<M extends MessagesMap> {
   private _msgObs: Observable<clientMessage3<M>>
 
   private _eventsLog: IDebugger
-  private _unsubscribeEventsLoggers: () => void
 
-  constructor(worker: string) {
-    const size = WorkerInstance.size++
+  private constructor(worker: string) {
+    const size = WorkerInstance._size++
     // rewrite debug port for child worker, if we started main process with IntelliJ debugger
     const execArgv = process.execArgv.map((el) => {
       if (!el.startsWith('--inspect')) {
@@ -48,16 +46,17 @@ export class WorkerInstance<M extends MessagesMap> {
     this._worker = fork(worker, [], { execArgv })
     this.pid = this._worker.pid
 
-    this._errObs = observableFromEventEmitter(this._worker, 'error')
-      .map(([err]): Error => err)
-    this._disObs = observableFromEventEmitter(this._worker, 'disconnect')
-      .map((): void => {})
-    this._clsObs = observableFromEventEmitter(this._worker, 'close')
-      .map(([code, signal]): [number, string] => ([code, signal]))
-    this._extObs = observableFromEventEmitter(this._worker, 'exit')
-      .map(([code, signal]): [number, string] => ([code, signal]))
-    this._msgObs = observableFromEventEmitter(this._worker, 'message')
-      .map(([msg]): clientMessage3<M> => msg)
+    this._errObs = observableFromEventEmitter(this._worker, 'error').map(([err]: [Error]) => err)
+    this._disObs = observableFromEventEmitter(this._worker, 'disconnect').map(() => {})
+    this._clsObs = observableFromEventEmitter(this._worker, 'close').map(
+      ([code, signal]: [number, string]) => [code, signal] as [number, string],
+    )
+    this._extObs = observableFromEventEmitter(this._worker, 'exit').map(
+      ([code, signal]: [number, string]) => [code, signal] as [number, string],
+    )
+    this._msgObs = observableFromEventEmitter(this._worker, 'message').map(
+      ([msg]: [clientMessage3<M>]) => msg,
+    )
 
     this.log = stdoutLog(`w_instance:${this._worker.pid}`)
     this._eventsLog = stdoutLog(`${this.log.namespace}:ev`)
@@ -87,35 +86,7 @@ export class WorkerInstance<M extends MessagesMap> {
     }
   }
 
-  send<T extends keyof M>(type: T, data: M[T][0]): Promise<M[T][1]> {
-    const serverMsg: serverMessage3<M, T> = {
-      from: messageFrom.server,
-      id: uuid(),
-      type,
-      data,
-    }
-
-    return new Promise((resolve, reject) => {
-      this._worker.send(serverMsg, (err) => {
-        if (err) {
-          return reject('error sending message')
-        }
-
-        const subscription = this._msgObs
-          .filter(({ id }) => id === serverMsg.id)
-          .subscribe({
-            next(msg: clientMessage3<M, T>) {
-              subscription.unsubscribe()
-              resolve(msg.data)
-            },
-            error(err) {
-              subscription.unsubscribe()
-              reject(`error in send(): ${err.message}\n${err.stack}`)
-            },
-          })
-      })
-    })
-  }
+  private _unsubscribeEventsLoggers: () => void
 
   private _sendStartup() {
     const data: startupMsg = {
@@ -129,18 +100,16 @@ export class WorkerInstance<M extends MessagesMap> {
           return reject('error sending message')
         }
 
-        const subscription = this._msgObs
-          .filter(({ id }) => id === data.id)
-          .subscribe({
-            next() {
-              subscription.unsubscribe()
-              resolve()
-            },
-            error(err) {
-              subscription.unsubscribe()
-              reject(`error in _sendStartup(): ${err.message}\n${err.stack}`)
-            },
-          })
+        const subscription = this._msgObs.filter(({ id }) => id === data.id).subscribe({
+          next() {
+            subscription.unsubscribe()
+            resolve()
+          },
+          error(err) {
+            subscription.unsubscribe()
+            reject(`error in _sendStartup(): ${err.message}\n${err.stack}`)
+          },
+        })
       })
     })
   }
@@ -157,17 +126,16 @@ export class WorkerInstance<M extends MessagesMap> {
           return reject('error sending message')
         }
 
-        const subscription = this._extObs
-          .subscribe({
-            next(extCode) {
-              subscription.unsubscribe()
-              resolve(extCode)
-            },
-            error(err) {
-              subscription.unsubscribe()
-              reject(`error in _sendShutdown(): ${err.message}\n${err.stack}`)
-            },
-          })
+        const subscription = this._extObs.subscribe({
+          next(extCode) {
+            subscription.unsubscribe()
+            resolve(extCode)
+          },
+          error(err) {
+            subscription.unsubscribe()
+            reject(`error in _sendShutdown(): ${err.message}\n${err.stack}`)
+          },
+        })
       })
     })
   }
@@ -177,16 +145,45 @@ export class WorkerInstance<M extends MessagesMap> {
   }
 
   private _cleanup() {
-    WorkerInstance.size--
+    WorkerInstance._size--
     this._unsubscribeEventsLoggers()
   }
 
-  static async create<T extends MessagesMap>(worker: string) {
+  public send<T extends keyof M>(type: T, data: M[T][0]): Promise<M[T][1]> {
+    const serverMsg: serverMessage3<M, T> = {
+      from: messageFrom.server,
+      id: uuid(),
+      type,
+      data,
+    }
+
+    return new Promise((resolve, reject) => {
+      this._worker.send(serverMsg, (err) => {
+        if (err) {
+          return reject('error sending message')
+        }
+
+        const subscription = this._msgObs.filter(({ id }) => id === serverMsg.id).subscribe({
+          next(msg: clientMessage3<M, T>) {
+            subscription.unsubscribe()
+            resolve(msg.data)
+          },
+          error(err) {
+            subscription.unsubscribe()
+            reject(`error in send(): ${err.message}\n${err.stack}`)
+          },
+        })
+      })
+    })
+  }
+
+  public static async create<T extends MessagesMap>(worker: string) {
     const w = new WorkerInstance<T>(worker)
 
-    const timeout = () => new Promise<never>((_, reject) => {
-      setTimeout(reject, this.WORKER_STARTUP_TIMEOUT, new Error('startup timed-out'))
-    })
+    const timeout = () =>
+      new Promise<never>((resolve, reject) => {
+        setTimeout(reject, this.WORKER_STARTUP_TIMEOUT, new Error('startup timed-out'))
+      })
     const startWorker = async () => {
       return w._sendStartup()
     }
@@ -195,33 +192,31 @@ export class WorkerInstance<M extends MessagesMap> {
       await Promise.race([timeout(), startWorker()])
       w.log('started')
       return w
-    }
-    catch (err) {
+    } catch (err) {
       w.log(`Error during creation: '${err.message}'. Destroying...\n${err.stack}`)
       await WorkerInstance.destroy(w)
       throw err
     }
   }
 
-  static async destroy(w: WorkerInstance<any>): Promise<undefined> {
-    const timeout = () => new Promise<never>((_, reject) => {
-      setTimeout(reject, this.WORKER_SHUTDOWN_TIMEOUT, new Error('graceful shutdown timed-out'))
-    })
+  public static async destroy(w: WorkerInstance<any>): Promise<undefined> {
+    const timeout = () =>
+      new Promise<never>((resolve, reject) => {
+        setTimeout(reject, this.WORKER_SHUTDOWN_TIMEOUT, new Error('graceful shutdown timed-out'))
+      })
     const stopWorker = async (worker: WorkerInstance<any>) => {
       return worker._sendShutdown()
     }
 
     try {
-      const [code, signal] = <[number, string]> await Promise.race([timeout(), stopWorker(w)])
+      const [code, signal] = (await Promise.race([timeout(), stopWorker(w)])) as [number, string]
       w.log('exited (code, signal)=(%o, %o)', code, signal)
       return
-    }
-    catch (err) {
+    } catch (err) {
       w.log(`Error during destruction: '${err.message}'. Killing...\n${err.stack}`)
       w._kill()
       return
-    }
-    finally {
+    } finally {
       w._cleanup()
     }
   }

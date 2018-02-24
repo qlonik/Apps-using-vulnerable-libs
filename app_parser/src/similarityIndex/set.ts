@@ -1,6 +1,5 @@
 import { clone, curry, pullAt } from 'lodash'
 
-
 export function isSuperset<T>(a: Set<T>, b: Set<T>): boolean {
   for (let elem of a) {
     if (!b.has(elem)) {
@@ -36,7 +35,7 @@ export function difference<T>(a: Set<T>, b: Set<T>): Set<T> {
   return difference
 }
 
-export type indexValue = { val: number, num: number, den: number }
+export type indexValue = { val: number; num: number; den: number }
 
 export const jaccardIndex = <T>(a: Set<T>, b: Set<T>): indexValue => {
   const setInter = intersection(a, b)
@@ -45,14 +44,12 @@ export const jaccardIndex = <T>(a: Set<T>, b: Set<T>): indexValue => {
   return { val: num / den, num, den }
 }
 
-
 export const similarityIndexToLib = curry(<T>(lib: Set<T>, unknown: Set<T>): indexValue => {
   const setIntersection = intersection(lib, unknown)
   const num = setIntersection.size
   const den = lib.size
   return { val: num / den, num, den }
 })
-
 
 /**
  * This function does not care about what elements in array represent. It just assumes that elements
@@ -65,7 +62,6 @@ export const similarityIndexToLib = curry(<T>(lib: Set<T>, unknown: Set<T>): ind
  * <b>NOTE:</b> elements in arrays will be compared with '===' for equality.
  */
 export const jaccardLike = <T>(a: T[], b: T[]): indexValue => {
-
   const aCloned = clone(a)
   const aRest = [] // remaining elements
   const intersection = []
@@ -75,8 +71,7 @@ export const jaccardLike = <T>(a: T[], b: T[]): indexValue => {
     const i = bRest.indexOf(el)
     if (i === -1) {
       aRest.push(el)
-    }
-    else {
+    } else {
       intersection.push(el)
       pullAt(bRest, i)
     }

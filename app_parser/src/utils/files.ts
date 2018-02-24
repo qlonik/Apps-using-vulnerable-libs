@@ -2,10 +2,9 @@ import { copy, ensureDir, move, pathExists, writeFile, writeJSON } from 'fs-extr
 import { dirname, resolve } from 'path'
 import { assertNever, opts, resolveAllOrInParallel } from './index'
 
-
 export type fileDesc = {
-  cwd: string,
-  dst: string,
+  cwd: string
+  dst: string
 }
 
 export enum fileOp {
@@ -18,23 +17,33 @@ export enum fileOp {
 
 export type fileDescOp = fileDesc & {
   // opts
-  conservative: boolean,
-} & ({
-  type: fileOp.copy | fileOp.move,
-  src: string,
-} | {
-  type: fileOp.text,
-  text: string,
-} | {
-  type: fileOp.json,
-  json: any,
-} | {
-  type: fileOp.noop,
-})
+  conservative: boolean
+} & (
+    | {
+        type: fileOp.copy | fileOp.move
+        src: string
+      }
+    | {
+        type: fileOp.text
+        text: string
+      }
+    | {
+        type: fileOp.json
+        json: any
+      }
+    | {
+        type: fileOp.noop
+      })
 
-export const myWriteJSON = async function (
-  { content, file, opts = { spaces: 2 } }: { content: object, file: string, opts?: any }) {
-
+export const myWriteJSON = async function({
+  content,
+  file,
+  opts = { spaces: 2 },
+}: {
+  content: object
+  file: string
+  opts?: any
+}) {
   if (opts && !opts.spaces) {
     opts.spaces = 2
   }
@@ -42,36 +51,30 @@ export const myWriteJSON = async function (
 }
 
 const saveOneFile = async (fileDesc: fileDescOp): Promise<fileDesc> => {
-
   const { cwd, dst } = fileDesc
   const dest = resolve(cwd, dst)
-  if (!fileDesc.type
-      || (fileDesc.type === fileOp.noop)
-      || (fileDesc.conservative && await pathExists(dest))) {
-
+  if (
+    !fileDesc.type ||
+    fileDesc.type === fileOp.noop ||
+    (fileDesc.conservative && (await pathExists(dest)))
+  ) {
     return { cwd, dst }
   }
   await ensureDir(dirname(dest))
   if (fileDesc.type === fileOp.json) {
     const { json } = fileDesc
     await myWriteJSON({ content: json, file: dest })
-  }
-  else if (fileDesc.type === fileOp.text) {
+  } else if (fileDesc.type === fileOp.text) {
     const { text } = fileDesc
     await writeFile(dest, text)
-  }
-  else if (fileDesc.type === fileOp.copy
-           || fileDesc.type === fileOp.move) {
-
+  } else if (fileDesc.type === fileOp.copy || fileDesc.type === fileOp.move) {
     const src = resolve(cwd, fileDesc.src)
     if (fileDesc.type === fileOp.copy) {
       await copy(src, dest)
-    }
-    else if (fileDesc.type === fileOp.move) {
+    } else if (fileDesc.type === fileOp.move) {
       await move(src, dest)
     }
-  }
-  else {
+  } else {
     /* istanbul ignore next */
     assertNever(fileDesc.type)
   }
@@ -81,18 +84,15 @@ const saveOneFile = async (fileDesc: fileDescOp): Promise<fileDesc> => {
 
 export async function saveFiles(
   files: fileDescOp | fileDescOp[] | Promise<fileDescOp> | Promise<fileDescOp[]>,
-  {
-    chunkLimit,
-    chunkSize,
-  }: opts = {}): Promise<fileDesc[]> {
-
+  { chunkLimit, chunkSize }: opts = {},
+): Promise<fileDesc[]> {
   files = await files
 
   if (!Array.isArray(files)) {
     return [await saveOneFile(files)]
   }
 
-  if (!files.length) {
+  if (files.length === 0) {
     return []
   }
 

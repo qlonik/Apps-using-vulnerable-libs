@@ -9,7 +9,6 @@ import {
   union,
 } from './set'
 
-
 test('isSuperset', t => {
   t.true(isSuperset(new Set([1, 2, 3]), new Set([1, 2, 3, 4, 5])))
   t.false(isSuperset(new Set([1, 2, 3]), new Set([2, 3, 4])))
