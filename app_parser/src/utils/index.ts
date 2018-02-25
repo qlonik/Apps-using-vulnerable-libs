@@ -66,18 +66,36 @@ const chunk = function<T>(arr: T[], len: number): T[][] {
  * ```
  *
  * @param {(() => Promise<T>)[][]} arr
- * @returns {Promise<T[]>}
+ * @param {(T[]) => Promise<void>} chunkTapFn - tap function to run after each chunk.
+ *    Anything returned from this function is ignored
+ * @param {(T[]) => Promise<R | R[]>} chunkMapFn - chunk map function. Transforms results
+ *    one chunk at a time.
+ * @returns
  *
  * @async
  */
-const resolveParallelGroups = async function<T>(arr: (() => Promise<T>)[][]): Promise<T[]> {
+const resolveParallelGroups = async function<T, R>(
+  arr: (() => Promise<T>)[][],
+  {
+    chunkTapFn,
+    chunkMapFn,
+  }: {
+    chunkTapFn?: (els: T[]) => Promise<void>
+    chunkMapFn?: (els: T[]) => Promise<R | R[]>
+  } = {},
+): Promise<R[]> {
   const rpgLog = stdoutLog('resParGr')
+  rpgLog.enabled = false
+
   return arr.reduce(async (acc, chunk, i) => {
     rpgLog(`chunk ${leftPad(i)}`)
-    const accResults = await acc
-    const chunkResults = await Promise.all(chunk.map((fn) => fn()))
-    return accResults.concat(chunkResults)
-  }, Promise.resolve([] as T[]))
+    const chunkRes = await Promise.all(chunk.map((fn) => fn()))
+    if (chunkTapFn) {
+      await chunkTapFn(chunkRes)
+    }
+    const mapped = chunkMapFn ? await chunkMapFn(chunkRes) : chunkRes
+    return (await acc).concat(mapped)
+  }, Promise.resolve([] as any[]))
 }
 
 export const tgzUnpack = async function(file: string, cwd: string = dirname(file)) {
@@ -92,15 +110,22 @@ export type opts = {
   log?: IDebugger
 }
 
-export const resolveAllOrInParallel = async function<T>(
+export const resolveAllOrInParallel = async function<T, R = T>(
   arr: (() => Promise<T>)[],
-  { chunkLimit = 15, chunkSize = 10 }: opts = {},
-): Promise<T[]> {
-  if (arr.length < chunkLimit) {
-    return await Promise.all(arr.map((fn) => fn()))
-  } else {
-    return await resolveParallelGroups(chunk(arr, chunkSize))
-  }
+  {
+    chunkLimit = 15,
+    chunkSize = 10,
+    chunkTapFn,
+    chunkMapFn,
+  }: {
+    chunkLimit?: number
+    chunkSize?: number
+    chunkTapFn?: (els: T[]) => Promise<void>
+    chunkMapFn?: (els: T[]) => Promise<R | R[]>
+  } = {},
+): Promise<R[]> {
+  const chunked = arr.length < chunkLimit ? [arr] : chunk(arr, chunkSize)
+  return resolveParallelGroups<T, R>(chunked, { chunkTapFn, chunkMapFn })
 }
 
 /**
