@@ -1,8 +1,8 @@
 import { Pool } from 'generic-pool'
-import { WorkerExecutor } from './WorkerExecutor'
-import { WorkerInstance } from './WorkerInstance'
+import { Worker } from './Worker'
+import { WorkerHandler } from './WorkerHandler'
 
-export { WorkerInstance as WorkerInstance, WorkerExecutor as WorkerExecutor }
+export { WorkerHandler as WorkerInstance, Worker as WorkerExecutor }
 
 /*
  * Promisified auto closed pool

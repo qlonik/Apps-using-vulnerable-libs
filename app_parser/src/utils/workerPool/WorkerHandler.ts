@@ -13,7 +13,7 @@ import {
   startupMsg,
 } from './types'
 
-export class WorkerInstance<M extends MessagesMap> {
+export class WorkerHandler<M extends MessagesMap> {
   public static WORKER_STARTUP_TIMEOUT = 3 * 1000
   public static WORKER_SHUTDOWN_TIMEOUT = 3 * 1000
   public static BEGINNING_PORT = 23000
@@ -34,13 +34,13 @@ export class WorkerInstance<M extends MessagesMap> {
   private _eventsLog: IDebugger
 
   private constructor(worker: string) {
-    const size = WorkerInstance._size++
+    const size = WorkerHandler._size++
     // rewrite debug port for child worker, if we started main process with IntelliJ debugger
     const execArgv = process.execArgv.map((el) => {
       if (!el.startsWith('--inspect')) {
         return el
       }
-      return el.replace(/=(\d+)/, `=${WorkerInstance.BEGINNING_PORT + size}`)
+      return el.replace(/=(\d+)/, `=${WorkerHandler.BEGINNING_PORT + size}`)
     })
 
     this._worker = fork(worker, [], { execArgv })
@@ -145,7 +145,7 @@ export class WorkerInstance<M extends MessagesMap> {
   }
 
   private _cleanup() {
-    WorkerInstance._size--
+    WorkerHandler._size--
     this._unsubscribeEventsLoggers()
   }
 
@@ -178,7 +178,7 @@ export class WorkerInstance<M extends MessagesMap> {
   }
 
   public static async create<T extends MessagesMap>(worker: string) {
-    const w = new WorkerInstance<T>(worker)
+    const w = new WorkerHandler<T>(worker)
 
     const timeout = () =>
       new Promise<never>((resolve, reject) => {
@@ -194,17 +194,17 @@ export class WorkerInstance<M extends MessagesMap> {
       return w
     } catch (err) {
       w.log(`Error during creation: '${err.message}'. Destroying...\n${err.stack}`)
-      await WorkerInstance.destroy(w)
+      await WorkerHandler.destroy(w)
       throw err
     }
   }
 
-  public static async destroy(w: WorkerInstance<any>): Promise<undefined> {
+  public static async destroy(w: WorkerHandler<any>): Promise<undefined> {
     const timeout = () =>
       new Promise<never>((resolve, reject) => {
         setTimeout(reject, this.WORKER_SHUTDOWN_TIMEOUT, new Error('graceful shutdown timed-out'))
       })
-    const stopWorker = async (worker: WorkerInstance<any>) => {
+    const stopWorker = async (worker: WorkerHandler<any>) => {
       return worker._sendShutdown()
     }
 

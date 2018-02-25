@@ -21,7 +21,7 @@ type messagesFromServer<Msg extends MessagesMap, Type extends keyof Msg = keyof 
   | serverMessage3<Msg, Type>
 type msgHandle = NetSocket | NetServer | undefined
 
-export class WorkerExecutor<M extends MessagesMap> {
+export class Worker<M extends MessagesMap> {
   public log: IDebugger
 
   private _bExObs: Observable<number>
@@ -152,6 +152,6 @@ export class WorkerExecutor<M extends MessagesMap> {
       throw new Error(`cannot require or run outside of 'fork()'`)
     }
 
-    return new WorkerExecutor<M>(fnMap)
+    return new Worker<M>(fnMap)
   }
 }
