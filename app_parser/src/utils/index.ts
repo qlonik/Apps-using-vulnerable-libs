@@ -29,7 +29,7 @@ export const leftPad = (s: string | number, l: number = 4): string => {
   return leftPadOrig(s, l, '0')
 }
 // chunking function
-export const chunk = function<T>(arr: T[], len: number): T[][] {
+const chunk = function<T>(arr: T[], len: number): T[][] {
   let i = 0
   const chunks: T[][] = []
   const n = arr.length
@@ -70,7 +70,7 @@ export const chunk = function<T>(arr: T[], len: number): T[][] {
  *
  * @async
  */
-export const resolveParallelGroups = async function<T>(arr: (() => Promise<T>)[][]): Promise<T[]> {
+const resolveParallelGroups = async function<T>(arr: (() => Promise<T>)[][]): Promise<T[]> {
   const rpgLog = stdoutLog('resParGr')
   return arr.reduce(async (acc, chunk, i) => {
     rpgLog(`chunk ${leftPad(i)}`)
