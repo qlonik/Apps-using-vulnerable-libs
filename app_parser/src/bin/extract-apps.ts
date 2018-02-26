@@ -29,8 +29,8 @@ export enum APP_TYPE {
 
 const INPUT_FOLDER = '/gi-pool/appdata-ro'
 const TMP_FOLDER = '/home/nvolodin/Auvl/data/tmp'
-const EXTRACTED_JS = '/home/nvolodin/Auvl/data/done/js'
-const FINISHED_APK = '/home/nvolodin/Auvl/data/done/apks'
+const EXTRACTED_JS = '/home/nvolodin/Auvl/data/sample_apps'
+const FINISHED_APK = '/home/nvolodin/Auvl/data/apps_apks'
 
 const sections_fin = [
   // done using this script
