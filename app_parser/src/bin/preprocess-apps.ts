@@ -10,6 +10,7 @@ import { stdoutLog } from '../utils/logger'
 import { getWorkerPath } from '../utils/worker'
 
 const log = stdoutLog('preprocess-apps')
+log.enabled = true
 
 export type messages = The<
   MessagesMap,
