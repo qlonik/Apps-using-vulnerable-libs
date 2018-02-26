@@ -139,6 +139,31 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
   // console.log(contents.map(s => s.length <= 1000 ? s : s.length))
 }
 
+export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
+  { allAppsPath, libsPath },
+  { debugDoLess = false, conservative = true, chunkLimit = 2, chunkSize = 1 }: opts = {},
+) => {
+  const apps = await getApps(allAppsPath, APP_TYPES.cordova)
+  const lazyAppAnalysis = apps.map(({ type, section, app }) => {
+    return async () => {
+      const appResults = await parseScriptsFromCordovaApp(
+        {
+          appPath: join(allAppsPath, type, section, app),
+          libsPath,
+        },
+        { conservative },
+      )
+      log('finished %o/%o/%o', type, section, app)
+      return appResults
+    }
+  })
+  if (debugDoLess) {
+    await Promise.all([lazyAppAnalysis[0](), lazyAppAnalysis[1]()])
+  } else {
+    await resolveAllOrInParallel(lazyAppAnalysis, { chunkLimit, chunkSize })
+  }
+}
+
 export const preprocessCordovaApp = async (
   {
     allAppsPath,
@@ -254,29 +279,4 @@ export const preprocessCordovaApp = async (
   )
 
   await resolveAllOrInParallel(parseScriptTags)
-}
-
-export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
-  { allAppsPath, libsPath },
-  { debugDoLess = false, conservative = true, chunkLimit = 2, chunkSize = 1 }: opts = {},
-) => {
-  const apps = await getApps(allAppsPath, APP_TYPES.cordova)
-  const lazyAppAnalysis = apps.map(({ type, section, app }) => {
-    return async () => {
-      const appResults = await parseScriptsFromCordovaApp(
-        {
-          appPath: join(allAppsPath, type, section, app),
-          libsPath,
-        },
-        { conservative },
-      )
-      log('finished %o/%o/%o', type, section, app)
-      return appResults
-    }
-  })
-  if (debugDoLess) {
-    await Promise.all([lazyAppAnalysis[0](), lazyAppAnalysis[1]()])
-  } else {
-    await resolveAllOrInParallel(lazyAppAnalysis, { chunkLimit, chunkSize })
-  }
 }
