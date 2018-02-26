@@ -8,7 +8,10 @@ import {
   isStringLiteral,
   Node as BabelNode,
 } from 'babel-types'
+import { stdoutLog } from '../../utils/logger'
 import { Signal } from '../visitNodes'
+
+const log = stdoutLog('extractStructure:nodeFilters:rnDeclareFn')
 
 type rnFactory = {
   id: number | string
@@ -77,7 +80,7 @@ export const rnDeclareFnFilter = (path: string, node: BabelNode): Signal<rnFacto
       factory: first,
     })
   } else {
-    console.log('UNKNOWN CONFIGURATION PASSED TO __d!!! INVESTIGATE!!!')
+    log('UNKNOWN CONFIGURATION PASSED TO __d!!! INVESTIGATE!!!')
     return Signal.stop<rnFactory>(null)
   }
 }

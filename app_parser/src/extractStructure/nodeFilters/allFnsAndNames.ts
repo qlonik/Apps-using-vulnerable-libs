@@ -23,9 +23,12 @@ import {
 } from 'babel-types'
 import { stripIndent } from 'common-tags'
 import { inspect as utilInspect } from 'util'
+import { stdoutLog } from '../../utils/logger'
 import { getFnStatementTokens } from '../fnStatementTokens'
 import { getFnStatementTypes } from '../fnStatementTypes'
 import { Signal } from '../visitNodes'
+
+const log = stdoutLog('extractStructure:nodeFilters:allFnsAndNames')
 
 /**
  * Extracted Signature for function
@@ -142,7 +145,7 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
     }
 
     if (varNode && Object.is(varName, undefined) && fnNode && isFunction(fnNode)) {
-      console.log(stripIndent`
+      log(stripIndent`
         This seems like a special case!
         ${path}
         ${utilInspect(node, { depth: Infinity })}
@@ -157,7 +160,7 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
     }
 
     if (!isReturnStatement(node) && Object.is(varName, undefined) && name === '[anonymous]') {
-      console.log(stripIndent`
+      log(stripIndent`
         Check this case:
         ${path}
         ${utilInspect(node, { depth: 10 })}

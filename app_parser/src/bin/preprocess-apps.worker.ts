@@ -14,8 +14,12 @@ worker<messages>({
     }
 
     if (type === APP_TYPES.cordova) {
-      await preprocessCordovaApp({ allAppsPath, app: { type, section, app } })
-      return true
+      try {
+        await preprocessCordovaApp({ allAppsPath, app: { type, section, app } })
+        return true
+      } catch {
+        return false
+      }
     }
 
     return false
