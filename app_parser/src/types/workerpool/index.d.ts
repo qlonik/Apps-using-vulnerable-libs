@@ -32,6 +32,19 @@ declare module 'workerpool' {
   }
 
   class Pool<T extends MessagesMap> {
+    public readonly minWorkers: number
+    public readonly maxWorkers: number
+    public readonly script: string | null
+    public readonly forkArgs: string[] // default []
+    public readonly forkOpts: {} // default {}
+    public readonly debugPortStart: number // default 43210
+
+    public readonly workers: any[]
+    public readonly tasks: any[]
+
+    private constructor(script: string, options?: PoolOptions)
+    private constructor(options?: PoolOptions)
+
     public exec<M extends keyof T>(m: M, p: T[M][0]): Promise<T[M][1]>
     public exec<P extends any[], R>(fn: Fn<P, R>, p: P): Promise<R>
 
