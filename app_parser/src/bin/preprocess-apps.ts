@@ -47,16 +47,14 @@ async function main() {
   log('pool: min=%o, max=%o, %o', pool.minWorkers, pool.maxWorkers, pool.stats())
 
   // analyse all apps promises
-  const appsPromises = filtered.map((app) => {
-    return async () => {
-      if (terminating) {
-        return { done: false, ...app }
-      }
-      const done: messages['preprocess'][1] = await pool.exec('preprocess', [
-        { allAppsPath: APP_PATH, app },
-      ])
-      return { done, ...app }
+  const appsPromises = filtered.map((app) => async () => {
+    if (terminating) {
+      return { done: false, ...app }
     }
+    const done: messages['preprocess'][1] = await pool.exec('preprocess', [
+      { allAppsPath: APP_PATH, app },
+    ])
+    return { done, ...app }
   })
 
   log('started preprocessing')
