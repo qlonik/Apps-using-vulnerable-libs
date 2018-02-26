@@ -89,12 +89,13 @@ const resolveParallelGroups = async function<T, R>(
 
   return arr.reduce(async (acc, chunk, i) => {
     rpgLog(`chunk ${leftPad(i)}`)
+    const prevChunk = await acc
     const chunkRes = await Promise.all(chunk.map((fn) => fn()))
     if (chunkTapFn) {
       await chunkTapFn(chunkRes)
     }
     const mapped = chunkMapFn ? await chunkMapFn(chunkRes) : chunkRes
-    return (await acc).concat(mapped)
+    return prevChunk.concat(mapped)
   }, Promise.resolve([] as any[]))
 }
 
