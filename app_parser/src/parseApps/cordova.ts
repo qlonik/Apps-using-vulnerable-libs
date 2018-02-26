@@ -11,7 +11,7 @@ import { stdoutLog } from '../utils/logger'
 import { APP_TYPES, appDesc, getApps } from './getters'
 import { AppParserFn, AppsFolderParserFn, IsAppTypeFn } from './index'
 
-const NAMESPACE = 'cordova'
+const NAMESPACE = 'a.cordova'
 const log = stdoutLog(NAMESPACE)
 
 export const isCordovaApp: IsAppTypeFn = async function({ appPath }): Promise<boolean> {
