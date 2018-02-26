@@ -60,7 +60,7 @@ async function main() {
   log('started preprocessing')
   const results = await resolveAllOrInParallel(appsPromises, {
     chunkLimit: pool.maxWorkers + 1,
-    chunkSize: pool.maxWorkers,
+    chunkSize: Math.floor(1.5 * pool.maxWorkers),
     chunkTapFn: async (apps) => {
       const finished = apps
         .filter(({ done }) => done)
