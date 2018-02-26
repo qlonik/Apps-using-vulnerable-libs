@@ -52,7 +52,9 @@ async function main() {
       if (terminating) {
         return { done: false, ...app }
       }
-      const done = await pool.exec('preprocess', [{ allAppsPath: APP_PATH, app }])
+      const done: messages['preprocess'][1] = await pool.exec('preprocess', [
+        { allAppsPath: APP_PATH, app },
+      ])
       return { done, ...app }
     }
   })
