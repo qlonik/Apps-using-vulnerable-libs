@@ -105,5 +105,5 @@ if (require.main === module) {
     }),
   )
 
-  main().catch((err) => log('Some global error: %O', err.stack))
+  main().catch((err) => log('Some global error:\n%s', err.stack))
 }
