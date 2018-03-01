@@ -13,9 +13,9 @@ async function main() {
   const cordovaApps = await getApps(APP_FOLDER, APP_TYPES.cordova)
   const rnApps = await getApps(APP_FOLDER, APP_TYPES.reactNative)
 
-  log('total libs+vers:  %o', libs.length)
-  log('total apps (cd):  %o', cordovaApps.length)
-  log('total apps (rn):  %o', rnApps.length)
+  log('total libs+vers:     %o', libs.length)
+  log('total cordova:       %o', cordovaApps.length)
+  log('total react-native:  %o', rnApps.length)
 }
 
 main().catch((err) => log('Some global error:\n%s', err.stack))
