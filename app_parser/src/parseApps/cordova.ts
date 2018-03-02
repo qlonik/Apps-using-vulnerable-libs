@@ -172,7 +172,7 @@ export const preprocessCordovaApp = async (
     allAppsPath: string
     app: appDesc
   },
-  { conservative = true }: opts = {},
+  { conservative = false }: opts = {},
 ) => {
   const appPath = join(allAppsPath, type, section, app)
   const indexHtmlPath = join(appPath, 'js', 'index.html')
