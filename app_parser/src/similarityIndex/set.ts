@@ -1,6 +1,6 @@
 import { clone, curry, pullAt } from 'lodash'
 
-export function isSuperset<T>(a: Set<T>, b: Set<T>): boolean {
+export function isSubset<T>(a: Set<T>, b: Set<T>): boolean {
   for (let elem of a) {
     if (!b.has(elem)) {
       return false

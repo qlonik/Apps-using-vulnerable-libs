@@ -2,16 +2,16 @@ import { test } from 'ava'
 import {
   difference,
   intersection,
-  isSuperset,
+  isSubset,
   jaccardIndex,
   jaccardLike,
   similarityIndexToLib,
   union,
 } from './set'
 
-test('isSuperset', t => {
-  t.true(isSuperset(new Set([1, 2, 3]), new Set([1, 2, 3, 4, 5])))
-  t.false(isSuperset(new Set([1, 2, 3]), new Set([2, 3, 4])))
+test('isSubset', t => {
+  t.true(isSubset(new Set([1, 2, 3]), new Set([1, 2, 3, 4, 5])))
+  t.false(isSubset(new Set([1, 2, 3]), new Set([2, 3, 4])))
 })
 
 test('intersection', t => {
