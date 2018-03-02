@@ -8,6 +8,14 @@ import { getSimilarityToLibs } from '../similarityIndex'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { fileDescOp, fileOp, saveFiles } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
+import {
+  ANALYSIS_FOLDER,
+  CORDOVA_INFO_FILE,
+  CORDOVA_LIB_FILE,
+  CORDOVA_MAIN_FILE,
+  CORDOVA_SIG_FILE,
+  JS_DATA_FOLDER,
+} from './constants'
 import { APP_TYPES, appDesc, getApps } from './getters'
 import { AppParserFn, AppsFolderParserFn, IsAppTypeFn } from './index'
 
@@ -175,8 +183,8 @@ export const preprocessCordovaApp = async (
   { conservative = false }: opts = {},
 ) => {
   const appPath = join(allAppsPath, type, section, app)
-  const indexHtmlPath = join(appPath, 'js', 'index.html')
-  const jsAnalysisPath = join(appPath, 'an')
+  const indexHtmlPath = join(appPath, JS_DATA_FOLDER, CORDOVA_MAIN_FILE)
+  const jsAnalysisPath = join(appPath, ANALYSIS_FOLDER)
   await mkdirp(jsAnalysisPath)
   const { window: { document } } = await JSDOM.fromFile(indexHtmlPath)
   const parseScriptTags = flatten(
@@ -227,7 +235,7 @@ export const preprocessCordovaApp = async (
             if (url.protocol === 'file:') {
               fileOps.push({
                 cwd,
-                dst: 'libDesc.js',
+                dst: CORDOVA_LIB_FILE,
                 type: fileOp.copy,
                 src: url.pathname,
                 conservative,
@@ -248,7 +256,7 @@ export const preprocessCordovaApp = async (
 
             fileOps.push({
               cwd,
-              dst: 'libDesc.js',
+              dst: CORDOVA_LIB_FILE,
               type: fileOp.text,
               text: script.text,
               conservative,
@@ -269,8 +277,8 @@ export const preprocessCordovaApp = async (
 
           return await saveFiles(
             fileOps.concat([
-              { cwd, dst: 'info.json', type: fileOp.json, json: infoObject, conservative },
-              { cwd, dst: 'libStructure.json', type: fileOp.json, json: signature, conservative },
+              { cwd, dst: CORDOVA_INFO_FILE, type: fileOp.json, json: infoObject, conservative },
+              { cwd, dst: CORDOVA_SIG_FILE, type: fileOp.json, json: signature, conservative },
             ]),
           )
         }

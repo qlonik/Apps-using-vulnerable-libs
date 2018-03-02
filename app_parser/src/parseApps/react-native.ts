@@ -4,6 +4,7 @@ import { join } from 'path'
 import { extractReactNativeStructure } from '../extractStructure'
 import { opts, resolveAllOrInParallel } from '../utils'
 import { fileOp, saveFiles } from '../utils/files'
+import { ANALYSIS_FOLDER, REACT_NATIVE_MAIN_FILE, REACT_NATIVE_SIG_FILE } from './constants'
 import { APP_TYPES, appDesc, getApps } from './getters'
 import { AppParserFn, AppsFolderParserFn, IsAppTypeFn } from './index'
 
@@ -48,19 +49,18 @@ export const preprocessReactNativeApp = async (
 ) => {
   const appPath = join(allAppsPath, type, section, app)
 
-  const bundlePath = join(appPath, 'bundle.js')
+  const bundlePath = join(appPath, REACT_NATIVE_MAIN_FILE)
   const bundleContent = await readFile(bundlePath, 'utf-8')
   const parsedBundle = await extractReactNativeStructure({ content: bundleContent })
 
-  const jsAnalysisPath = join(appPath, 'an')
+  const jsAnalysisPath = join(appPath, ANALYSIS_FOLDER)
   await mkdirp(jsAnalysisPath)
 
   const lazy = parsedBundle.map(({ id, functionSignature, literalSignature }) => async () => {
     const cwd = join(jsAnalysisPath, isString(id) ? `s_${id}` : `n_${id}`)
-    const dst = 'sig.json'
     await saveFiles({
       cwd,
-      dst,
+      dst: REACT_NATIVE_SIG_FILE,
       type: fileOp.json,
       json: { functionSignature, literalSignature },
       conservative,
