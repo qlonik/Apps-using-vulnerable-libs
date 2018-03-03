@@ -50,8 +50,8 @@ async function main() {
     if (terminating) {
       return { done: false, ...app }
     }
-    const done: messages['analyse'][1] = await pool.exec('analyse', [
-      { allAppsPath: ALL_APPS_PATH, allLibsPath: ALL_LIBS_PATH, app },
+    const done = await pool.exec('analyse', [
+      { app, allAppsPath: ALL_APPS_PATH, allLibsPath: ALL_LIBS_PATH },
     ])
     return { done, ...app }
   })
