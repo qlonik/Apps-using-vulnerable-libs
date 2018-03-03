@@ -319,9 +319,13 @@ export type SimilarityToLibs = Partial<Record<SimilarityTypes, Similarity[]>>
 export const getSimilarityToLibs = async ({
   signature,
   libsPath,
+  names,
+  versions,
 }: {
   signature: signatureNew
   libsPath: string
+  names?: string | string[]
+  versions?: string | string[]
 }): Promise<SimilarityToLibs> => {
   const predicate = (s: Similarity) => -s.similarity.val
   const sllOfSims: Record<SimilarityTypes, SortedLimitedList<Similarity>> = {
@@ -332,7 +336,16 @@ export const getSimilarityToLibs = async ({
     namesTokens: new SortedLimitedList({ predicate }),
   }
 
-  const libDescr = await getLibNameVersions(libsPath)
+  let libDescr = await getLibNameVersions(libsPath)
+  if (names) {
+    const namesArr = Array.isArray(names) ? names : [names]
+    libDescr = libDescr.filter(({ name }) => namesArr.includes(name))
+  }
+  if (versions) {
+    const versionsArr = Array.isArray(versions) ? versions : [versions]
+    libDescr = libDescr.filter(({ version }) => versionsArr.includes(version))
+  }
+
   const lazySimilarityPromises = libDescr.map(({ name, version }) => {
     return async () => {
       const sims = await getSimilarityToLib({ signature, libsPath, name, version })
