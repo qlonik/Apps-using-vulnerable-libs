@@ -14,6 +14,25 @@ export type appDesc = {
   app: string
 }
 
+export function appPath(
+  appsPath: string,
+  type?: APP_TYPES,
+  section?: string,
+  name?: string,
+): string {
+  let path = appsPath
+  if (type) {
+    path = join(path, type)
+  }
+  if (section) {
+    path = join(path, section)
+  }
+  if (name) {
+    path = join(path, name)
+  }
+  return path
+}
+
 export async function getApps(appsPath: string, type?: APP_TYPES): Promise<appDesc[]> {
   const appTypes = type
     ? [{ type }]
