@@ -152,9 +152,11 @@
               "external",
               "internal"
             ],
-            "parent",
-            "sibling",
-            "index"
+            [
+              "parent",
+              "sibling",
+              "index"
+            ]
           ],
           "newlines-between": "never"
         }
