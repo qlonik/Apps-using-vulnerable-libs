@@ -225,6 +225,7 @@
       "typescript/no-unused-vars": "error",
       "typescript/no-use-before-define": "error",
       "typescript/type-annotation-spacing": "error",
+      "unicorn/custom-error-definition": "warn",
       "unicorn/import-index": "off"
     },
     "overrides": [
