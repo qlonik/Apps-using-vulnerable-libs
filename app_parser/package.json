@@ -15,6 +15,7 @@
     "clean:build": "npm run clean && npm run build",
     "test": "npm run build && npx -n \"$NODE_DEBUG_OPTION\" nyc ava",
     "watch:test": "ava --watch",
+    "nibble": "eslint-nibble --ext .ts src/",
     "start": "npm run build && time node $NODE_DEBUG_OPTION lib/index.js",
     "reanalyseLibs": "npm run build && node $NODE_DEBUG_OPTION lib/dumpWatch/reanalyser",
     "parseJSON": "npm run build && time node $NODE_DEBUG_OPTION lib/parseJSON.js",
