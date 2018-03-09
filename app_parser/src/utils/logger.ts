@@ -21,6 +21,7 @@ debug.formatters.I = (v: any): string => {
 }
 export const stdoutLog = (namespace: string): debug.IDebugger => {
   const log = debug(namespace)
+  // eslint-disable-next-line no-console
   log.log = console.log.bind(console)
   return log
 }
