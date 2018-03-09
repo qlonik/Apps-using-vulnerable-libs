@@ -1,11 +1,12 @@
-import { mkdirp, pathExists, readFile } from 'fs-extra'
+import { mkdirp, pathExists, readdir, readFile, readJSON } from 'fs-extra'
 import { JSDOM } from 'jsdom'
-import { flatten } from 'lodash'
+import { flatten, groupBy } from 'lodash'
 import { join } from 'path'
 import { URL } from 'url'
-import { extractStructure } from '../extractStructure'
-import { getSimilarityToLibs } from '../similarityIndex'
+import { extractStructure, signatureNew } from '../extractStructure'
+import { getCandidateLibs, getSimilarityToLibs } from '../similarityIndex'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
+import { CordovaAppDataError } from '../utils/errors'
 import { fileDescOp, fileOp, saveFiles } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
 import {
@@ -14,10 +15,17 @@ import {
   CORDOVA_LIB_FILE,
   CORDOVA_MAIN_FILE,
   CORDOVA_SIG_FILE,
+  CORDOVA_SIM_FILE,
   JS_DATA_FOLDER,
 } from './constants'
-import { APP_TYPES, appDesc, getApps } from './getters'
-import { AppParserFn, AppsFolderParserFn, IsAppTypeFn } from './index'
+import { APP_TYPES, appDesc, appPath as appPathFn, getApps } from './getters'
+import {
+  AppAnalysisReport,
+  AppParserFn,
+  AppsFolderParserFn,
+  CordovaAnalysisReport,
+  IsAppTypeFn,
+} from './index'
 
 const NAMESPACE = 'a.cordova'
 const log = stdoutLog(NAMESPACE)
@@ -287,4 +295,79 @@ export const preprocessCordovaApp = async (
   )
 
   await resolveAllOrInParallel(parseScriptTags)
+}
+
+export const analyseCordovaApp = async ({
+  allAppsPath,
+  libsPath,
+  app: { type, section, app },
+}: {
+  allAppsPath: string
+  libsPath: string
+  app: appDesc
+  report?: AppAnalysisReport | null
+}): Promise<CordovaAnalysisReport> => {
+  const appPath = appPathFn(allAppsPath, type, section, app)
+  const analysisPath = join(appPath, ANALYSIS_FOLDER)
+  if (!await pathExists(analysisPath)) {
+    throw new CordovaAppDataError(`missing analysis folder (${analysisPath})`)
+  }
+  const locations = await readdir(analysisPath)
+  const locationId = flatten(
+    await resolveAllOrInParallel(
+      locations.map((location) => async () => {
+        return (await readdir(join(analysisPath, location))).map((id) => ({ location, id }))
+      }),
+    ),
+  )
+
+  const localReport = {
+    totalFiles: locationId.length,
+    totalFilesPerLocation: {},
+    noCandidates: 0,
+    noCandidatesPerLocation: {},
+  } as CordovaAnalysisReport
+
+  const locationGroups = groupBy(locationId, 'location')
+  for (let location of Object.keys(locationGroups)) {
+    localReport.totalFilesPerLocation[location] = locationGroups[location].length
+  }
+
+  const candidateLibsMissing = await resolveAllOrInParallel(
+    locationId.map(({ location, id }) => async () => {
+      const cwd = join(analysisPath, location, id)
+      const sigPath = join(cwd, CORDOVA_SIG_FILE)
+      const signature = (await readJSON(sigPath)) as signatureNew
+
+      const candidateLibs = await getCandidateLibs({ signature, libsPath })
+      const noCandidatesFound = candidateLibs.length === 0
+      if (noCandidatesFound) {
+        log('WARNING: %o candidates in %o', 0, join(type, section, app, location, id))
+      }
+
+      const sim = await getSimilarityToLibs({
+        signature,
+        libsPath,
+        names: !noCandidatesFound ? candidateLibs : undefined,
+      })
+      await saveFiles({
+        cwd,
+        dst: CORDOVA_SIM_FILE,
+        conservative: false,
+        type: fileOp.json,
+        json: sim,
+      })
+
+      return { location, id, noCandidatesFound }
+    }),
+  )
+
+  candidateLibsMissing.forEach(({ location, id, noCandidatesFound }) => {
+    localReport.noCandidates += noCandidatesFound ? 1 : 0
+    localReport.noCandidatesPerLocation[location] = (
+      localReport.noCandidatesPerLocation[location] || []
+    ).concat(id)
+  })
+
+  return localReport
 }
