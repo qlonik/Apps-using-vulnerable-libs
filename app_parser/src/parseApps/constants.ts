@@ -1,6 +1,9 @@
 export const JS_DATA_FOLDER = 'js'
 export const ANALYSIS_FOLDER = 'an'
 
+export const FINISHED_PREPROCESSING_FILE = '_fin_pre_prerocess.json'
+export const FINISHED_ANALYSIS_FILE = '_fin_analysis.json'
+
 export const CORDOVA_MAIN_FILE = 'index.html'
 export const CORDOVA_LIB_FILE = 'libDesc.js'
 export const CORDOVA_INFO_FILE = 'info.json'

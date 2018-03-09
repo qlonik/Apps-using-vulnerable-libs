@@ -4,6 +4,7 @@ import { join } from 'path'
 import { The } from 'typical-mini'
 import { MessagesMap, Pool, pool as poolFactory } from 'workerpool'
 import { appDesc, getApps } from '../parseApps'
+import { FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
@@ -21,7 +22,7 @@ export type messages = The<
 
 // const APP_PATH = '/home/nvolodin/Auvl/data/done/js'
 const APP_PATH = '../data/sample_apps'
-const FIN_APPS_PATH = join(APP_PATH, '_fin_pre_prerocess.json')
+const FIN_APPS_PATH = join(APP_PATH, FINISHED_PREPROCESSING_FILE)
 
 let pool: Pool<messages>
 let terminating = false

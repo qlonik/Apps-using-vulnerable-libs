@@ -4,6 +4,7 @@ import { join } from 'path'
 import { The } from 'typical-mini'
 import { MessagesMap, Pool, pool as poolFactory } from 'workerpool'
 import { appDesc } from '../parseApps'
+import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
@@ -17,8 +18,8 @@ export type messages = The<
 >
 
 const ALL_APPS_PATH = '../data/sample_apps'
-const FIN_PRE_APPS_PATH = join(ALL_APPS_PATH, '_fin_pre_prerocess.json')
-const FIN_AN_APPS_PATH = join(ALL_APPS_PATH, '_fin_analysis.json')
+const FIN_PRE_APPS_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
+const FIN_AN_APPS_PATH = join(ALL_APPS_PATH, FINISHED_ANALYSIS_FILE)
 const ALL_LIBS_PATH = '../data/sample_libs'
 
 const log = stdoutLog('analyse-apps')
