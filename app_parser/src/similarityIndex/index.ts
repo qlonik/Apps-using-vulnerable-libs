@@ -1,8 +1,22 @@
+import { pathExists, readJSON } from 'fs-extra'
 import { clone, head, last, partition, pullAt } from 'lodash'
-import { fnNamesSplit, FunctionSignature, signatureNew } from '../extractStructure'
-import { getLibNameVersions, getLibNameVersionSigContents, libNameVersion } from '../parseLibraries'
+import { join } from 'path'
+import {
+  fnNamesSplit,
+  FunctionSignature,
+  LiteralSignature,
+  signatureNew,
+} from '../extractStructure'
+import {
+  getLibNames,
+  getLibNameVersions,
+  getLibNameVersionSigContents,
+  libNameVersion,
+  libPath,
+} from '../parseLibraries'
+import { LIB_LITERAL_SIGNATURE_FILE } from '../parseLibraries/constants'
 import { resolveAllOrInParallel } from '../utils'
-import { indexValue, jaccardIndex, jaccardLike, similarityIndexToLib } from './set'
+import { indexValue, isSubset, jaccardIndex, jaccardLike, similarityIndexToLib } from './set'
 import { SortedLimitedList } from './SortedLimitedList'
 
 export type Similarity = libNameVersion & {
@@ -388,4 +402,44 @@ export const getSimilarityToLibs = async ({
     }
   }
   return result
+}
+
+export const getCandidateLibs = async ({
+  signature,
+  libsPath,
+}: {
+  signature: signatureNew
+  libsPath: string
+}): Promise<string[]> => {
+  const appLitSig = new Set(signature.literalSignature)
+
+  const nameSigsPromises = (await getLibNames(libsPath)).map(({ name }) => async () => {
+    const sigPath = join(libPath(libsPath, name), LIB_LITERAL_SIGNATURE_FILE)
+    const sigContent = (await pathExists(sigPath)) ? await readJSON(sigPath) : []
+    return { name, sig: new Set(sigContent) as Set<LiteralSignature> }
+  })
+  const nameSigs = await resolveAllOrInParallel(nameSigsPromises)
+  const candidates = nameSigs
+    .filter(({ sig }) => sig.size > 0)
+    .filter(({ sig }) => isSubset(appLitSig, sig))
+    .map(({ name }) => name)
+
+  if (candidates.length > 0) {
+    return candidates
+  }
+
+  // probably a bad idea VVV
+  const sll = new SortedLimitedList({
+    predicate: (o: { name: string; index: indexValue }) => -o.index.val,
+    limit: 10,
+  })
+  const appLitSigArr = [...appLitSig.values()]
+  for (let { name, sig } of nameSigs) {
+    sll.push({ name, index: jaccardLike(appLitSigArr, [...sig.values()]) })
+  }
+
+  return sll
+    .value()
+    .filter(({ index }) => index.val !== 0)
+    .map(({ name }) => name)
 }
