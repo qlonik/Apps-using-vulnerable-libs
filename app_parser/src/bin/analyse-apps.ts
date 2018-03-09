@@ -87,6 +87,9 @@ async function main() {
     doneLength + notDoneLength,
   )
 
+  FIN_AN_APPS.sort((a, b) => {
+    return `${a.type}/${a.section}/${a.app}`.localeCompare(`${b.type}/${b.section}/${b.app}`)
+  })
   await myWriteJSON({ content: FIN_AN_APPS, file: FIN_AN_APPS_PATH })
   log('updated FIN_AN_APPS')
 
