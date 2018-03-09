@@ -433,9 +433,8 @@ export const getCandidateLibs = async ({
     predicate: (o: { name: string; index: indexValue }) => -o.index.val,
     limit: 10,
   })
-  const appLitSigArr = [...appLitSig.values()]
   for (let { name, sig } of nameSigs) {
-    sll.push({ name, index: jaccardLike(appLitSigArr, [...sig.values()]) })
+    sll.push({ name, index: jaccardIndex(appLitSig, sig) })
   }
 
   return sll
