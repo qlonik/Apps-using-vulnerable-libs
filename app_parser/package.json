@@ -140,6 +140,7 @@
       ]
     },
     "rules": {
+      "no-dupe-class-members": "off",
       "no-undef": "off",
       "import/order": [
         "error",
