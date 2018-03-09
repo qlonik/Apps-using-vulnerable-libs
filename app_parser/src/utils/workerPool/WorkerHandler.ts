@@ -18,11 +18,12 @@ export class WorkerHandler<M extends MessagesMap> {
   public static WORKER_SHUTDOWN_TIMEOUT = 3 * 1000
   public static BEGINNING_PORT = 23000
 
-  private static _size = 0
+  private static _takenPorts = new Set()
 
   public pid: number
   public log: IDebugger
 
+  private _port: number
   private _worker: ChildProcess
 
   private _errObs: Observable<Error>
@@ -34,13 +35,13 @@ export class WorkerHandler<M extends MessagesMap> {
   private _eventsLog: IDebugger
 
   private constructor(worker: string) {
-    const size = WorkerHandler._size++
+    this._port = WorkerHandler._acquirePort()
     // rewrite debug port for child worker, if we started main process with IntelliJ debugger
     const execArgv = process.execArgv.map((el) => {
       if (!el.startsWith('--inspect')) {
         return el
       }
-      return el.replace(/=(\d+)/, `=${WorkerHandler.BEGINNING_PORT + size}`)
+      return el.replace(/=(\d+)/, `=${this._port}`)
     })
 
     this._worker = fork(worker, [], { execArgv })
@@ -145,8 +146,20 @@ export class WorkerHandler<M extends MessagesMap> {
   }
 
   private _cleanup() {
-    WorkerHandler._size--
+    WorkerHandler._releasePort(this._port)
     this._unsubscribeEventsLoggers()
+  }
+
+  private static _acquirePort(): number {
+    let selected = this.BEGINNING_PORT
+    while (this._takenPorts.has(selected)) {
+      selected += 1
+    }
+    this._takenPorts.add(selected)
+    return selected
+  }
+  private static _releasePort(p: number): void {
+    this._takenPorts.delete(p)
   }
 
   public send<T extends keyof M>(type: T, data: M[T][0]): Promise<M[T][1]> {
@@ -175,6 +188,10 @@ export class WorkerHandler<M extends MessagesMap> {
         })
       })
     })
+  }
+
+  public static get size() {
+    return this._takenPorts.size
   }
 
   public static async create<T extends MessagesMap>(worker: string) {
