@@ -37,6 +37,9 @@ export const isCordovaApp: IsAppTypeFn = async function({ appPath }): Promise<bo
   return (await pathExists(indexHtmlPath)) && (await pathExists(cordovaJsPath))
 }
 
+/**
+ * @deprecated
+ */
 export const parseScriptsFromCordovaApp: AppParserFn = async (
   { appPath, libsPath },
   { debugDoLess = false, chunkLimit = 10, chunkSize = 10, conservative = true }: opts = {},
@@ -155,6 +158,9 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
   // console.log(contents.map(s => s.length <= 1000 ? s : s.length))
 }
 
+/**
+ * @deprecated
+ */
 export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
   { allAppsPath, libsPath },
   { debugDoLess = false, conservative = true, chunkLimit = 2, chunkSize = 1 }: opts = {},

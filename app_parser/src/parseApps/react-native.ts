@@ -13,11 +13,17 @@ export const isReactNativeApp: IsAppTypeFn = async function({ appPath }): Promis
   return await pathExists(join(...bundlePath))
 }
 
+/**
+ * @deprecated
+ */
 export const parseScriptsFromReactNativeApp: AppParserFn = async function(
   { appPath, libsPath },
   { debugDoLess = false, chunkLimit = 10, chunkSize = 10, conservative = true }: opts = {},
 ) {}
 
+/**
+ * @deprecated
+ */
 export const parseScriptsFromReactNativeApps: AppsFolderParserFn = async function(
   { allAppsPath, libsPath },
   { debugDoLess = false, chunkLimit = 10, chunkSize = 5 }: opts = {},
