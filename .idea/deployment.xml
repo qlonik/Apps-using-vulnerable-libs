@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="gi-gateway">
+  <component name="PublishConfigData" serverName="tick3">
     <serverData>
       <paths name="gi-gateway">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/data" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="tick3">
         <serverdata>
           <mappings>
             <mapping deploy="/" local="$PROJECT_DIR$" web="/" />

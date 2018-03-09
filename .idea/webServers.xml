@@ -10,6 +10,14 @@
           <option name="port" value="22023" />
         </fileTransfer>
       </webServer>
+      <webServer id="16d489fc-6e85-41f5-97f3-c4d7a42d69b3" name="tick3" url="">
+        <fileTransfer host="nvolodin@tick3" port="22" rootFolder="/home/nvolodin/Auvl" accessType="SFTP" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
     </option>
   </component>
 </project>
