@@ -26,7 +26,7 @@ async function main() {
     log('total react-native:  %o', rnApps.length)
   }
 
-  if (await pathExists(APP_FOLDER)) {
+  if (await pathExists(APP_POOL_FOLDER)) {
     const sections = await readdir(APP_POOL_FOLDER)
     const apps = await sections.reduce(async (acc, section) => {
       const prev = await acc
