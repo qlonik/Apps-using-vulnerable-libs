@@ -80,7 +80,9 @@ declare module 'workerpool' {
     activeTasks: number
   }
 
+  // eslint-disable-next-line import/export
   export function pool<T extends MessagesMap>(script: string, options?: PoolOptions): Pool<T>
+  // eslint-disable-next-line import/export
   export function pool<T extends MessagesMap>(options?: PoolOptions): Pool<T>
 
   export function worker<T extends MessagesMap>(methods: WorkerFunctionsMap<T>): void
