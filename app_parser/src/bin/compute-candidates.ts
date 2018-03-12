@@ -26,32 +26,32 @@ const log = stdoutLog('compute-candidates')
 log.enabled = true
 let terminating = false
 
-interface IdNoSignature {
+export interface IdNoSignature {
   id: string
   signatureExists: false
 }
-interface IdCandidate {
+export interface IdCandidate {
   id: string
   signatureExists: true
   candidates: string[]
 }
-type IdReport = IdNoSignature | IdCandidate
-interface LocationIdNoSignature extends IdNoSignature {
+export type IdReport = IdNoSignature | IdCandidate
+export interface LocationIdNoSignature extends IdNoSignature {
   location: string
 }
-interface LocationIdCandidate extends IdCandidate {
+export interface LocationIdCandidate extends IdCandidate {
   location: string
 }
-type LocationIdReport = LocationIdNoSignature | LocationIdCandidate
+export type LocationIdReport = LocationIdNoSignature | LocationIdCandidate
 
-interface CandidateMap {
+export interface CandidateMap {
   [id: string]: IdReport | LocationIdReport
 }
-interface AppCandidate {
+export interface AppCandidate {
   app: appDesc
   candidates: CandidateMap
 }
-interface AppCandidateMap {
+export interface AppCandidateMap {
   [id: string]: AppCandidate
 }
 
