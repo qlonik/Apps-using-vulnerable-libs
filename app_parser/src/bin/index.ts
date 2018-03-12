@@ -1,4 +1,5 @@
 import { inlineLists } from 'common-tags'
+import { unload } from 'freshy'
 import { readdir } from 'fs-extra'
 import { kebabCase } from 'lodash'
 import Module from 'module'
@@ -24,10 +25,20 @@ yargs
       const scriptName = './' + kebabCase(sanitized)
       const scriptPath = resolve(__dirname, scriptName)
 
-      process.argv = [process.argv[0], scriptPath]
-      // Magic found in npx source code:
-      // https://github.com/zkat/npx/blob/357e6abc49077d7e4325406852d182220816e4f2/index.js#L264
-      Module.runMain()
+      const module = await import(scriptName)
+      if ('main' in module && typeof module.main === 'function') {
+        try {
+          await module.main()
+        } catch (err) {
+          log('Some global error:\n%s', err.stack)
+        }
+      } else {
+        unload(scriptName)
+        process.argv = [process.argv[0], scriptPath]
+        // Magic found in npx source code:
+        // https://github.com/zkat/npx/blob/357e6abc49077d7e4325406852d182220816e4f2/index.js#L264
+        Module.runMain()
+      }
     },
   )
   .command(
