@@ -12,6 +12,7 @@ import {
   REACT_NATIVE_SIG_FILE,
 } from '../parseApps/constants'
 import { getCandidateLibs } from '../similarityIndex'
+import { indexValue } from '../similarityIndex/set'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
@@ -33,7 +34,7 @@ export interface IdNoSignature {
 export interface IdCandidate {
   id: string
   signatureExists: true
-  candidates: string[]
+  candidates: { name: string; index: indexValue }[]
 }
 export type IdReport = IdNoSignature | IdCandidate
 export interface LocationIdNoSignature extends IdNoSignature {

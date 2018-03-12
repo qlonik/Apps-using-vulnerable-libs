@@ -354,7 +354,7 @@ export const analyseCordovaApp = async ({
       const sim = await getSimilarityToLibs({
         signature,
         libsPath,
-        names: !noCandidatesFound ? candidateLibs : undefined,
+        names: !noCandidatesFound ? candidateLibs.map(({ name }) => name) : undefined,
       })
       await saveFiles({
         cwd,

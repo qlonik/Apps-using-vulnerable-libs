@@ -410,8 +410,12 @@ export const getCandidateLibs = async ({
 }: {
   signature: signatureNew
   libsPath: string
-}): Promise<string[]> => {
+}): Promise<{ name: string; index: indexValue }[]> => {
   const appLitSig = new Set(signature.literalSignature)
+
+  if (appLitSig.size === 0) {
+    return []
+  }
 
   const nameSigsPromises = (await getLibNames(libsPath)).map(({ name }) => async () => {
     const sigPath = join(libPath(libsPath, name), LIB_LITERAL_SIGNATURE_FILE)
@@ -422,7 +426,7 @@ export const getCandidateLibs = async ({
   const candidates = nameSigs
     .filter(({ sig }) => sig.size > 0)
     .filter(({ sig }) => isSubset(appLitSig, sig))
-    .map(({ name }) => name)
+    .map(({ name }) => ({ name, index: { val: 1, num: -1, den: -1 } }))
 
   if (candidates.length > 0) {
     return candidates
@@ -437,8 +441,5 @@ export const getCandidateLibs = async ({
     sll.push({ name, index: jaccardIndex(appLitSig, sig) })
   }
 
-  return sll
-    .value()
-    .filter(({ index }) => index.val !== 0)
-    .map(({ name }) => name)
+  return sll.value().filter(({ index }) => index.val !== 0)
 }
