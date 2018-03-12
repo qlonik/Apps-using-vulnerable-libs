@@ -1,5 +1,5 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
-import { once, flatten } from 'lodash'
+import { flatten, once } from 'lodash'
 import { join } from 'path'
 import { signatureNew } from '../extractStructure'
 import { APP_TYPES, appDesc, appPath as appPathFn } from '../parseApps'
@@ -8,7 +8,7 @@ import {
   CORDOVA_SIG_FILE,
   FINISHED_ANALYSIS_FILE,
   FINISHED_PREPROCESSING_FILE,
-  LIB_CANDIDATES_FILE,
+  LIB_PREPROCESSED_CANDIDATES_FILE,
   REACT_NATIVE_SIG_FILE,
 } from '../parseApps/constants'
 import { getCandidateLibs } from '../similarityIndex'
@@ -20,7 +20,7 @@ import { stdoutLog } from '../utils/logger'
 const ALL_APPS_PATH = '../data/sample_apps'
 const FIN_PRE_APPS_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
 const FIN_AN_APPS_PATH = join(ALL_APPS_PATH, FINISHED_ANALYSIS_FILE)
-const LIB_CANDIDATES_PATH = join(ALL_APPS_PATH, LIB_CANDIDATES_FILE)
+const LIB_CANDIDATES_PATH = join(ALL_APPS_PATH, LIB_PREPROCESSED_CANDIDATES_FILE)
 const ALL_LIBS_PATH = '../data/sample_libs'
 
 const log = stdoutLog('compute-candidates')
@@ -153,7 +153,7 @@ async function main() {
   log('started computation')
   type CompletedAppCandidate = { done: true } & AppCandidate
   const candidatesForApps = await resolveAllOrInParallel(
-    analysedApps.map((app) => async (): Promise<{ done: false } | CompletedAppCandidate> => {
+    preprocessedApps.map((app) => async (): Promise<{ done: false } | CompletedAppCandidate> => {
       if (terminating) {
         return { done: false }
       }
