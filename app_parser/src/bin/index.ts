@@ -14,10 +14,9 @@ yargs
       })
     },
     async (args) => {
-      const kebabCaseName = kebabCase(args.script)
-      const replExt = kebabCaseName.replace(/.(t|j)sx?$/, '.js')
-      const jsScript = `${replExt}${replExt.endsWith('.js') ? '' : '.js'}`
-      const scriptPath = resolve(__dirname, jsScript)
+      const sanitized = args.script.replace(/.(t|j)sx?$/, '')
+      const scriptName = './' + kebabCase(sanitized)
+      const scriptPath = resolve(__dirname, scriptName)
 
       process.argv = [process.argv[0], scriptPath]
       // Magic found in npx source code:
