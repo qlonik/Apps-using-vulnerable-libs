@@ -62,4 +62,6 @@ async function main() {
   }
 }
 
-main().catch((err) => log('Some global error:\n%s', err.stack))
+if (!module.parent) {
+  main().catch((err) => log('Some global error:\n%s', err.stack))
+}
