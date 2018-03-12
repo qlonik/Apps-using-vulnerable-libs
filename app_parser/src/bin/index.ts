@@ -1,7 +1,13 @@
+import { inlineLists } from 'common-tags'
+import { readdir } from 'fs-extra'
 import { kebabCase } from 'lodash'
 import Module from 'module'
 import { resolve } from 'path'
 import * as yargs from 'yargs'
+import { stdoutLog } from '../utils/logger'
+
+const log = stdoutLog('bin')
+log.enabled = true
 
 yargs
   .command(
@@ -22,6 +28,22 @@ yargs
       // Magic found in npx source code:
       // https://github.com/zkat/npx/blob/357e6abc49077d7e4325406852d182220816e4f2/index.js#L264
       Module.runMain()
+    },
+  )
+  .command(
+    'list',
+    'list bin scripts',
+    (yargs) => {
+      return yargs
+    },
+    async () => {
+      const scripts = await readdir(__dirname)
+      const names = scripts
+        .filter((name) => !name.endsWith('.d.ts') && !name.endsWith('.js.map'))
+        .map((name) => name.replace(/.(t|j)sx?$/, ''))
+        .filter((name) => name !== 'index' && !name.endsWith('.worker'))
+
+      log(inlineLists`Available commands:\n   ${names}`)
     },
   )
   .help().argv
