@@ -10,6 +10,13 @@ import { stdoutLog } from '../utils/logger'
 const log = stdoutLog('bin')
 log.enabled = true
 
+function stripIllegalNames(scripts: string[]) {
+  return scripts
+    .filter((name) => !name.endsWith('.d.ts') && !name.endsWith('.js.map'))
+    .map((name) => name.replace(/.(t|j)sx?$/, ''))
+    .filter((name) => name !== 'index' && !name.endsWith('.worker') && !name.endsWith('.test'))
+}
+
 yargs
   .command(
     '$0 <script>',
@@ -53,10 +60,7 @@ yargs
     },
     async () => {
       const scripts = await readdir(__dirname)
-      const names = scripts
-        .filter((name) => !name.endsWith('.d.ts') && !name.endsWith('.js.map'))
-        .map((name) => name.replace(/.(t|j)sx?$/, ''))
-        .filter((name) => name !== 'index' && !name.endsWith('.worker') && !name.endsWith('.test'))
+      const names = stripIllegalNames(scripts)
 
       log(inlineLists`Available commands:\n   ${names}`)
     },
