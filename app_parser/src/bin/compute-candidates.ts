@@ -64,7 +64,7 @@ export interface AppCandidateMap {
   [id: string]: AppCandidate
 }
 
-async function main() {
+const main = async () => {
   const wPath = await getWorkerPath(__filename)
   const preprocessedApps: appDesc[] = (await pathExists(FIN_PRE_APPS_PATH))
     ? await readJSON(FIN_PRE_APPS_PATH)
