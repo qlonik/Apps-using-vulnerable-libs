@@ -17,6 +17,7 @@ export interface ManuallyAnalysedApps {
           | { type: 'single-lib'; match: libNameVersionSigFile }
           | { type: 'bundle'; match: libNameVersionSigFile[] }) &
         (
+          | { candidateType: 'empty' }
           | { candidateType: 'subset'; candidates: string[] }
           | { candidateType: 'sll'; candidates: { name: string; index: indexValue }[] })
     }
