@@ -67,6 +67,10 @@ async function main() {
 
       if (finished.length > 0) {
         FIN_AN_APPS = FIN_AN_APPS.concat(finished)
+        FIN_AN_APPS.sort((a, b) => {
+          return `${a.type}/${a.section}/${a.app}`.localeCompare(`${b.type}/${b.section}/${b.app}`)
+        })
+        await myWriteJSON({ content: FIN_AN_APPS, file: FIN_AN_APPS_PATH })
       }
     },
   })
