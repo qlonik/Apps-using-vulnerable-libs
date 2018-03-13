@@ -28,8 +28,11 @@ yargs
       })
     },
     async (args) => {
-      const sanitized = args.script.replace(/.(t|j)sx?$/, '')
-      const scriptName = './' + kebabCase(sanitized)
+      const [script] = stripIllegalNames([args.script])
+      if (script === null) {
+        throw new Error('illegal bin script')
+      }
+      const scriptName = `./` + kebabCase(script)
       const scriptPath = resolve(__dirname, scriptName)
 
       const module = await import(scriptName)
