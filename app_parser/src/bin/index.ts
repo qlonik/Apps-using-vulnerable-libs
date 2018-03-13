@@ -56,7 +56,7 @@ yargs
       const names = scripts
         .filter((name) => !name.endsWith('.d.ts') && !name.endsWith('.js.map'))
         .map((name) => name.replace(/.(t|j)sx?$/, ''))
-        .filter((name) => name !== 'index' && !name.endsWith('.worker'))
+        .filter((name) => name !== 'index' && !name.endsWith('.worker') && !name.endsWith('.test'))
 
       log(inlineLists`Available commands:\n   ${names}`)
     },
