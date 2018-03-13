@@ -1,21 +1,29 @@
-import { pathExists, readdir, readJSON } from 'fs-extra'
-import { flatten, once } from 'lodash'
+import { pathExists, readJSON } from 'fs-extra'
+import { once } from 'lodash'
 import { join } from 'path'
-import { signatureNew } from '../extractStructure'
-import { APP_TYPES, appDesc, appPath as appPathFn } from '../parseApps'
+import { The } from 'typical-mini'
+import { MessagesMap, pool as poolFactory } from 'workerpool'
+import { appDesc } from '../parseApps'
 import {
-  ANALYSIS_FOLDER,
-  CORDOVA_SIG_FILE,
   FINISHED_ANALYSIS_FILE,
   FINISHED_PREPROCESSING_FILE,
   LIB_PREPROCESSED_CANDIDATES_FILE,
-  REACT_NATIVE_SIG_FILE,
 } from '../parseApps/constants'
-import { getCandidateLibs } from '../similarityIndex'
 import { indexValue } from '../similarityIndex/set'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
+import { getWorkerPath } from '../utils/worker'
+
+export type messages = The<
+  MessagesMap,
+  {
+    createCandidatesForApp: [
+      [{ app: appDesc; allAppsPath: string; allLibsPath: string }],
+      CandidateMap | null
+    ]
+  }
+>
 
 const ALL_APPS_PATH = '../data/sample_apps'
 const FIN_PRE_APPS_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
@@ -56,82 +64,8 @@ export interface AppCandidateMap {
   [id: string]: AppCandidate
 }
 
-const createCandidatesForApp = async ([
-  { app: { type, section, app }, allAppsPath, allLibsPath: libsPath },
-]: [{ app: appDesc; allAppsPath: string; allLibsPath: string }]): Promise<CandidateMap | null> => {
-  if (type === APP_TYPES.cordova) {
-    /**
-     * get location/id/signatures
-     * taken from {@link analyseCordovaApp}
-     * todo: should refactor into its own function
-     */
-    const appPath = appPathFn(allAppsPath, type, section, app)
-    const analysisPath = join(appPath, ANALYSIS_FOLDER)
-    if (!await pathExists(analysisPath)) {
-      return null
-    }
-    const locations = await readdir(analysisPath)
-    const locationId = flatten(
-      await resolveAllOrInParallel(
-        locations.map((location) => async () => {
-          return (await readdir(join(analysisPath, location))).map((id) => ({ location, id }))
-        }),
-      ),
-    )
-    const locIdCandidate = await resolveAllOrInParallel(
-      locationId.map(({ location, id }) => async (): Promise<LocationIdReport> => {
-        const sigFile = join(analysisPath, location, id, CORDOVA_SIG_FILE)
-        if (!await pathExists(sigFile)) {
-          return { location, id, signatureExists: false }
-        }
-
-        const signature = (await readJSON(sigFile)) as signatureNew
-        const candidates = await getCandidateLibs({ signature, libsPath })
-        return { location, id, signatureExists: true, candidates }
-      }),
-    )
-
-    return locIdCandidate
-      .sort((a, b) => `${a.location}/${a.id}`.localeCompare(`${b.location}/${b.id}`))
-      .reduce(
-        (acc, report) => ({ ...acc, [`${report.location}/${report.id}`]: report }),
-        {} as CandidateMap,
-      )
-  }
-  if (type === APP_TYPES.reactNative) {
-    /**
-     * get id/signatures
-     * todo: should refactor into its own function
-     */
-    const appPath = appPathFn(allAppsPath, type, section, app)
-    const analysisPath = join(appPath, ANALYSIS_FOLDER)
-    if (!await pathExists(analysisPath)) {
-      return null
-    }
-    const ids = await readdir(analysisPath)
-    const idCandidate = await resolveAllOrInParallel(
-      ids.map((id) => async (): Promise<IdReport> => {
-        const sigFile = join(analysisPath, id, REACT_NATIVE_SIG_FILE)
-        if (!await pathExists(sigFile)) {
-          return { id, signatureExists: false }
-        }
-        const signature = (await readJSON(sigFile)) as signatureNew
-        const candidates = await getCandidateLibs({ signature, libsPath })
-        // remark: ^^ treats one file as one library
-        // this is not always correct, as in react-native
-        // multiple files might belong to one library
-        return { id, signatureExists: true, candidates }
-      }),
-    )
-
-    return idCandidate
-      .sort((a, b) => a.id.localeCompare(b.id))
-      .reduce((acc, report) => ({ ...acc, [report.id]: report }), {} as CandidateMap)
-  }
-  return null
-}
-
 async function main() {
+  const wPath = await getWorkerPath(__filename)
   const preprocessedApps: appDesc[] = (await pathExists(FIN_PRE_APPS_PATH))
     ? await readJSON(FIN_PRE_APPS_PATH)
     : []
@@ -150,6 +84,9 @@ async function main() {
     return
   }
 
+  const pool = poolFactory(wPath, { minWorkers: 0 })
+  log('pool: min=%o, max=%o, %o', pool.minWorkers, pool.maxWorkers, pool.stats())
+
   log('started computation')
   type CompletedAppCandidate = { done: true } & AppCandidate
   const candidatesForApps = await resolveAllOrInParallel(
@@ -157,7 +94,7 @@ async function main() {
       if (terminating) {
         return { done: false }
       }
-      const candidates = await createCandidatesForApp([
+      const candidates = await pool.exec('createCandidatesForApp', [
         { app, allAppsPath: ALL_APPS_PATH, allLibsPath: ALL_LIBS_PATH },
       ])
 
@@ -192,6 +129,8 @@ async function main() {
 
   await myWriteJSON({ content: appCandidatesMap, file: LIB_CANDIDATES_PATH })
   log('wrote candidates file')
+
+  await pool.terminate()
 }
 
 if (!module.parent) {
