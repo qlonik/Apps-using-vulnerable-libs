@@ -27,6 +27,10 @@ yargs
 
       const module = await import(scriptName)
       if ('main' in module && typeof module.main === 'function') {
+        if ('terminate' in module && typeof module.terminate === 'function') {
+          process.on('SIGINT', module.terminate)
+        }
+
         try {
           await module.main()
         } catch (err) {
