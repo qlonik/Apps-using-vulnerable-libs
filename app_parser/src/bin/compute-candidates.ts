@@ -133,14 +133,12 @@ async function main() {
   await pool.terminate()
 }
 
-if (!module.parent) {
-  process.on(
-    'SIGINT',
-    once(() => {
-      log('started terminating')
-      terminating = true
-    }),
-  )
+const terminate = once(() => {
+  log('started terminating')
+  terminating = true
+})
 
+if (!module.parent) {
+  process.on('SIGINT', terminate)
   main().catch((err) => log('Some global error:\n%s', err.stack))
 }
