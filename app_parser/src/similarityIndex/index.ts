@@ -408,7 +408,7 @@ export const getCandidateLibs = async ({
   signature,
   libsPath,
 }: {
-  signature: signatureNew
+  signature: { literalSignature: LiteralSignature[] }
   libsPath: string
 }): Promise<{ name: string; index: indexValue }[]> => {
   const appLitSig = new Set(signature.literalSignature)
