@@ -5,14 +5,15 @@ export interface ManuallyAnalysedApps {
   [name: string]: {
     app: appDesc
     files: {
-      [id: string]: {
+      [id: string]: ({
         location: string
         id: string
-      } & (
-        | { type: 'unknown' | ''; match?: any }
-        | { type: 'business-logic' }
-        | { type: 'single-lib'; match: libNameVersionSigFile }
-        | { type: 'bundle'; match: libNameVersionSigFile[] })
+      }) &
+        (
+          | { type: 'unknown' | ''; match?: any }
+          | { type: 'business-logic' }
+          | { type: 'single-lib'; match: libNameVersionSigFile }
+          | { type: 'bundle'; match: libNameVersionSigFile[] })
     }
   }
 }
