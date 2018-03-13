@@ -2,7 +2,7 @@ import { pathExists, readJSON } from 'fs-extra'
 import { differenceWith, isEqual, once, partition } from 'lodash'
 import { join } from 'path'
 import { The } from 'typical-mini'
-import { MessagesMap, Pool, pool as poolFactory } from 'workerpool'
+import { MessagesMap, pool as poolFactory } from 'workerpool'
 import { appDesc } from '../parseApps'
 import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
@@ -24,7 +24,6 @@ const ALL_LIBS_PATH = '../data/sample_libs'
 
 const log = stdoutLog('analyse-apps')
 log.enabled = true
-let pool: Pool<messages>
 let terminating = false
 
 async function main() {
@@ -44,7 +43,7 @@ async function main() {
   const filtered = differenceWith(apps, FIN_AN_APPS, isEqual)
   log('apps: (all=%o)-(fin_an=%o)=(todo=%o)', apps.length, FIN_AN_APPS.length, filtered.length)
 
-  pool = poolFactory(wPath, { minWorkers: 0 })
+  const pool = poolFactory(wPath, { minWorkers: 0 })
   log('pool: min=%o, max=%o, %o', pool.minWorkers, pool.maxWorkers, pool.stats())
 
   const appsPromises = filtered.map((app) => async () => {
