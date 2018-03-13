@@ -1,5 +1,6 @@
 import { appDesc } from '../parseApps'
 import { libNameVersionSigFile } from '../parseLibraries'
+import { indexValue } from '../similarityIndex/set'
 
 export interface ManuallyAnalysedApps {
   [name: string]: {
@@ -14,7 +15,10 @@ export interface ManuallyAnalysedApps {
           | { type: 'unknown' | ''; match?: any }
           | { type: 'business-logic' }
           | { type: 'single-lib'; match: libNameVersionSigFile }
-          | { type: 'bundle'; match: libNameVersionSigFile[] })
+          | { type: 'bundle'; match: libNameVersionSigFile[] }) &
+        (
+          | { candidateType: 'subset'; candidates: string[] }
+          | { candidateType: 'sll'; candidates: { name: string; index: indexValue }[] })
     }
   }
 }
