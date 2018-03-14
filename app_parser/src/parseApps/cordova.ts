@@ -11,6 +11,7 @@ import { fileDescOp, fileOp, saveFiles } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
 import {
   ANALYSIS_FOLDER,
+  CORDOVA_CAND_FILE,
   CORDOVA_INFO_FILE,
   CORDOVA_LIB_FILE,
   CORDOVA_MAIN_FILE,
@@ -189,9 +190,11 @@ export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
 export const preprocessCordovaApp = async (
   {
     allAppsPath,
+    allLibsPath,
     app: { type, section, app },
   }: {
     allAppsPath: string
+    allLibsPath?: string
     app: appDesc
   },
   { conservative = false }: opts = {},
@@ -288,6 +291,17 @@ export const preprocessCordovaApp = async (
           }
 
           const signature = await extractStructure({ content })
+
+          if (allLibsPath) {
+            const candidates = await getCandidateLibs({ signature, libsPath: allLibsPath })
+            fileOps.push({
+              cwd,
+              dst: CORDOVA_CAND_FILE,
+              type: fileOp.json,
+              json: candidates,
+              conservative,
+            })
+          }
 
           return await saveFiles(
             fileOps.concat([

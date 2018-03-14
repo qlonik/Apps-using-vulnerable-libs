@@ -2,9 +2,17 @@ import { mkdirp, pathExists, readFile } from 'fs-extra'
 import { isString } from 'lodash'
 import { join } from 'path'
 import { extractReactNativeStructure } from '../extractStructure'
+import { getCandidateLibs } from '../similarityIndex'
+import { union } from '../similarityIndex/set'
 import { opts, resolveAllOrInParallel } from '../utils'
 import { fileOp, saveFiles } from '../utils/files'
-import { ANALYSIS_FOLDER, REACT_NATIVE_MAIN_FILE, REACT_NATIVE_SIG_FILE } from './constants'
+import { stdoutLog } from '../utils/logger'
+import {
+  ANALYSIS_FOLDER,
+  REACT_NATIVE_CAND_FILE,
+  REACT_NATIVE_MAIN_FILE,
+  REACT_NATIVE_SIG_FILE,
+} from './constants'
 import { APP_TYPES, appDesc, getApps } from './getters'
 import { AppParserFn, AppsFolderParserFn, IsAppTypeFn } from './index'
 
@@ -46,9 +54,11 @@ export const parseScriptsFromReactNativeApps: AppsFolderParserFn = async functio
 export const preprocessReactNativeApp = async (
   {
     allAppsPath,
+    allLibsPath,
     app: { type, section, app },
   }: {
     allAppsPath: string
+    allLibsPath?: string
     app: appDesc
   },
   { conservative = false }: opts = {},
@@ -72,6 +82,21 @@ export const preprocessReactNativeApp = async (
       conservative,
     })
   })
+
+  if (allLibsPath) {
+    const totalLitSig = parsedBundle.reduce((acc, { literalSignature }) => {
+      return union(acc, new Set(literalSignature))
+    }, new Set())
+    const signature = { literalSignature: [...totalLitSig.values()] }
+    const candidates = getCandidateLibs({ signature, libsPath: allLibsPath, opts: { limit: 50 } })
+    await saveFiles({
+      cwd: jsAnalysisPath,
+      dst: REACT_NATIVE_CAND_FILE,
+      type: fileOp.json,
+      json: candidates,
+      conservative,
+    })
+  }
 
   return await resolveAllOrInParallel(lazy)
 }
