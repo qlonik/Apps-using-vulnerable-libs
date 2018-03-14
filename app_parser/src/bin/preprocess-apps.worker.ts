@@ -8,10 +8,10 @@ const log = stdoutLog('preprocess-apps:worker')
 const timeout = promisify(setTimeout)
 
 worker<messages>({
-  preprocess: async ({ allAppsPath, app: { type, section, app } }) => {
+  preprocess: async ({ allAppsPath, allLibsPath, app: { type, section, app } }) => {
     if (type === APP_TYPES.reactNative) {
       try {
-        await preprocessReactNativeApp({ allAppsPath, app: { type, section, app } })
+        await preprocessReactNativeApp({ allAppsPath, allLibsPath, app: { type, section, app } })
         return true
       } catch {
         return false
@@ -20,7 +20,7 @@ worker<messages>({
 
     if (type === APP_TYPES.cordova) {
       try {
-        await preprocessCordovaApp({ allAppsPath, app: { type, section, app } })
+        await preprocessCordovaApp({ allAppsPath, allLibsPath, app: { type, section, app } })
         return true
       } catch {
         return false

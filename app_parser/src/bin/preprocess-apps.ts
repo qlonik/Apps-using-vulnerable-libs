@@ -16,13 +16,14 @@ log.enabled = true
 export type messages = The<
   MessagesMap,
   {
-    preprocess: [[{ allAppsPath: string; app: appDesc }], boolean]
+    preprocess: [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
   }
 >
 
 // const APP_PATH = '/home/nvolodin/Auvl/data/done/js'
 const APP_PATH = '../data/sample_apps'
 const FIN_APPS_PATH = join(APP_PATH, FINISHED_PREPROCESSING_FILE)
+const LIB_PATH = '../data/sample_libs'
 
 let pool: Pool<messages>
 let terminating = false
@@ -52,7 +53,9 @@ async function main() {
     if (terminating) {
       return { done: false, ...app }
     }
-    const done = await pool.exec('preprocess', [{ app, allAppsPath: APP_PATH }])
+    const done = await pool.exec('preprocess', [
+      { app, allAppsPath: APP_PATH, allLibsPath: LIB_PATH },
+    ])
     return { done, ...app }
   })
 
