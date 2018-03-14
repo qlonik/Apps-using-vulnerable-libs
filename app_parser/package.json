@@ -93,7 +93,7 @@
     "all": true,
     "reporter": [
       "html",
-      "text"
+      "text-summary"
     ]
   },
   "eslintConfig": {
