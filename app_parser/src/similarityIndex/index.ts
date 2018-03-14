@@ -407,9 +407,11 @@ export const getSimilarityToLibs = async ({
 export const getCandidateLibs = async ({
   signature,
   libsPath,
+  opts: { limit = 10 } = {},
 }: {
   signature: { literalSignature: LiteralSignature[] }
   libsPath: string
+  opts?: { limit?: number }
 }): Promise<{ name: string; index: indexValue }[]> => {
   const appLitSig = new Set(signature.literalSignature)
 
@@ -435,7 +437,7 @@ export const getCandidateLibs = async ({
   // probably a bad idea VVV
   const sll = new SortedLimitedList({
     predicate: (o: { name: string; index: indexValue }) => -o.index.val,
-    limit: 10,
+    limit,
   })
   for (let { name, sig } of nameSigs) {
     sll.push({ name, index: jaccardIndex(appLitSig, sig) })
