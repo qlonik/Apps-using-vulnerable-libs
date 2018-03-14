@@ -407,7 +407,7 @@ export const getSimilarityToLibs = async ({
 export const getCandidateLibs = async ({
   signature,
   libsPath,
-  opts: { limit = 10 } = {},
+  opts: { limit = undefined } = {},
 }: {
   signature: { literalSignature: LiteralSignature[] }
   libsPath: string
