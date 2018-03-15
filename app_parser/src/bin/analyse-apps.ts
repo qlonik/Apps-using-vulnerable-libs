@@ -1,5 +1,5 @@
 import { pathExists, readJSON } from 'fs-extra'
-import { differenceWith, isEqual, once, partition } from 'lodash'
+import { differenceWith, isEqual, once, partition, take } from 'lodash'
 import { join } from 'path'
 import { The } from 'typical-mini'
 import { MessagesMap, pool as poolFactory } from 'workerpool'
@@ -17,6 +17,7 @@ export type messages = The<
   }
 >
 
+const APPS_TO_ANALYSE_LIMIT = 1000
 const ALL_APPS_PATH = '../data/sample_apps'
 const FIN_PRE_APPS_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
 const FIN_AN_APPS_PATH = join(ALL_APPS_PATH, FINISHED_ANALYSIS_FILE)
@@ -41,12 +42,19 @@ async function main() {
   }
 
   const filtered = differenceWith(apps, FIN_AN_APPS, isEqual)
-  log('apps: (all=%o)-(fin_an=%o)=(todo=%o)', apps.length, FIN_AN_APPS.length, filtered.length)
+  const subset = take(filtered, APPS_TO_ANALYSE_LIMIT)
+  log(
+    'apps: (all=%o)-(fin_an=%o)=(todo=%o/%o)',
+    apps.length,
+    FIN_AN_APPS.length,
+    subset.length,
+    filtered.length,
+  )
 
   const pool = poolFactory(wPath, { minWorkers: 0 })
   log('pool: min=%o, max=%o, %o', pool.minWorkers, pool.maxWorkers, pool.stats())
 
-  const appsPromises = filtered.map((app) => async () => {
+  const appsPromises = subset.map((app) => async () => {
     if (terminating) {
       return { done: false, ...app }
     }
