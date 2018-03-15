@@ -69,4 +69,6 @@ yargs
     },
   )
   .help()
+  .alias('help', 'h')
+  .alias('version', 'v')
   .parse()
