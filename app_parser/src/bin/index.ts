@@ -68,4 +68,5 @@ yargs
       log(inlineLists`Available commands:\n   ${names}`)
     },
   )
-  .help().argv
+  .help()
+  .parse()
