@@ -10,19 +10,39 @@ const FIN_PREP_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
 const RANDOM_100_PATH = join(ALL_APPS_PATH, '../random_100.json')
 const RANDOM_10_PATH = join(ALL_APPS_PATH, '../random_10.json')
 
+type appDescMap = { [id: string]: appDesc }
+const chooseRandom = (
+  arr: appDesc[],
+  n: number,
+): { picked: appDesc[]; ids: string[]; map: appDescMap } => {
+  const arrCopy = arr.slice()
+  let picked: appDesc[] = []
+
+  for (let i = 0; i < n; i++) {
+    const rndI = random(arrCopy.length)
+    const selectedEl = arrCopy.splice(rndI, 1)
+    picked = picked.concat(selectedEl)
+  }
+
+  picked.sort((a, b) => {
+    return `${a.type}/${a.section}/${a.app}`.localeCompare(`${b.type}/${b.section}/${b.app}`)
+  })
+
+  const map = picked.reduce(
+    (acc, app) => {
+      const id = `${app.type}/${app.section}/${app.app}`
+      return { ...acc, [id]: app }
+    },
+    {} as appDescMap,
+  )
+
+  return { ids: Object.keys(map), map, picked }
+}
+
 export async function main() {
   const appCandidates = (await readJSON(FIN_PREP_PATH)) as appDesc[]
-  let res100: appDesc[] = []
-  for (let i = 0; i < 100; i++) {
-    const rndI = random(appCandidates.length)
-    res100 = res100.concat(appCandidates.splice(rndI, 1))
-  }
-  const res100copy = res100.slice()
-  let res10: appDesc[] = []
-  for (let i = 0; i < 10; i++) {
-    const rndI = random(res100copy.length)
-    res10 = res10.concat(res100copy.splice(rndI, 1))
-  }
+  const res100 = chooseRandom(appCandidates, 100)
+  const res10 = chooseRandom(res100.picked, 10)
 
   await myWriteJSON({ content: res100, file: RANDOM_100_PATH })
   await myWriteJSON({ content: res10, file: RANDOM_10_PATH })
