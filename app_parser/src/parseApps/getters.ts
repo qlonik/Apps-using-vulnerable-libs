@@ -1,7 +1,8 @@
 import { pathExists, readdir } from 'fs-extra'
 import { flatten } from 'lodash'
 import { join } from 'path'
-import { resolveAllOrInParallel } from '../utils'
+import { assertNever, resolveAllOrInParallel } from '../utils'
+import { ANALYSIS_FOLDER } from './constants'
 
 export enum APP_TYPES {
   cordova = 'cordova',
@@ -63,4 +64,51 @@ export async function getApps(appsPath: string, type?: APP_TYPES): Promise<appDe
       }),
     ),
   )
+}
+
+export type analysisFile = { path: string }
+
+export type cordovaAnalysisFile = analysisFile & { location: string; id: string }
+export async function getCordovaAnalysisFiles(
+  appsPath: string,
+  app: appDesc,
+): Promise<cordovaAnalysisFile[]> {
+  if (app.type !== APP_TYPES.cordova) {
+    throw new Error('wrong app type')
+  }
+
+  const analysisFolder = join(appPath(appsPath, app.type, app.section, app.app), ANALYSIS_FOLDER)
+  const locations = (await readdir(analysisFolder)) as string[]
+  const locationId = flatten(
+    await resolveAllOrInParallel(
+      locations.map((location) => async () => {
+        return (await readdir(join(analysisFolder, location))).map((id) => ({ location, id }))
+      }),
+    ),
+  )
+  return locationId.map(({ location, id }) => ({ path: join(location, id), location, id }))
+}
+
+export type reactNativeAnalysisFile = analysisFile &
+  ({ idType: 'n'; id: number } | { idType: 's'; id: string })
+export async function getReactNativeAnalysisFiles(
+  appsPath: string,
+  app: appDesc,
+): Promise<reactNativeAnalysisFile[]> {
+  if (app.type !== APP_TYPES.reactNative) {
+    throw new Error('wrong app type')
+  }
+
+  const analysisFolder = join(appPath(appsPath, app.type, app.section, app.app), ANALYSIS_FOLDER)
+  const ids = (await readdir(analysisFolder)) as string[]
+  return ids.map((path) => {
+    const [idType, idUnparsed] = path.split('_') as ['s' | 'n', string]
+    if (idType === 's') {
+      return { path, idType, id: idUnparsed }
+    } else if (idType === 'n') {
+      return { path, idType, id: parseInt(idUnparsed, 10) }
+    } else {
+      return assertNever(idType)
+    }
+  })
 }
