@@ -10,11 +10,10 @@ const FIN_PREP_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
 const RANDOM_100_PATH = join(ALL_APPS_PATH, '../random_100.json')
 const RANDOM_10_PATH = join(ALL_APPS_PATH, '../random_10.json')
 
-type appDescMap = { [id: string]: appDesc }
-const chooseRandom = (
-  arr: appDesc[],
-  n: number,
-): { picked: appDesc[]; ids: string[]; map: appDescMap } => {
+export type appDescMap = { [id: string]: appDesc }
+export type pickedApps = { picked: appDesc[]; ids: string[]; map: appDescMap }
+
+const chooseRandom = (arr: appDesc[], n: number): pickedApps => {
   const arrCopy = arr.slice()
   let picked: appDesc[] = []
 
