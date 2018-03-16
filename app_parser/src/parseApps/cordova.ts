@@ -1,4 +1,4 @@
-import { mkdirp, pathExists, readdir, readFile, readJSON } from 'fs-extra'
+import { mkdirp, pathExists, readFile, readJSON } from 'fs-extra'
 import { JSDOM } from 'jsdom'
 import { flatten, groupBy } from 'lodash'
 import { join } from 'path'
@@ -19,7 +19,13 @@ import {
   CORDOVA_SIM_FILE,
   JS_DATA_FOLDER,
 } from './constants'
-import { APP_TYPES, appDesc, appPath as appPathFn, getApps } from './getters'
+import {
+  APP_TYPES,
+  appDesc,
+  appPath as appPathFn,
+  getApps,
+  getCordovaAnalysisFiles,
+} from './getters'
 import {
   AppAnalysisReport,
   AppParserFn,
@@ -332,14 +338,7 @@ export const analyseCordovaApp = async ({
   if (!await pathExists(analysisPath)) {
     throw new CordovaAppDataError(`missing analysis folder (${analysisPath})`)
   }
-  const locations = await readdir(analysisPath)
-  const locationId = flatten(
-    await resolveAllOrInParallel(
-      locations.map((location) => async () => {
-        return (await readdir(join(analysisPath, location))).map((id) => ({ location, id }))
-      }),
-    ),
-  )
+  const locationId = await getCordovaAnalysisFiles(allAppsPath, { type, section, app })
 
   const localReport = {
     totalFiles: locationId.length,
