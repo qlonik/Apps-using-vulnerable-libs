@@ -1,5 +1,6 @@
 import { appDesc } from '../parseApps'
 import { libNameVersionSigFile } from '../parseLibraries'
+import { candidateLib } from '../similarityIndex'
 import { indexValue } from '../similarityIndex/set'
 
 export interface ManuallyAnalysedApps {
@@ -19,7 +20,7 @@ export interface ManuallyAnalysedApps {
         (
           | { candidateType: 'empty' }
           | { candidateType: 'subset'; candidates: string[] }
-          | { candidateType: 'sll'; candidates: { name: string; index: indexValue }[] })
+          | { candidateType: 'sll'; candidates: candidateLib[] })
     }
   }
 }

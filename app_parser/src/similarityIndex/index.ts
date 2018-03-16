@@ -404,6 +404,7 @@ export const getSimilarityToLibs = async ({
   return result
 }
 
+export type candidateLib = { name: string; index: indexValue }
 export const getCandidateLibs = async ({
   signature,
   libsPath,
@@ -412,7 +413,7 @@ export const getCandidateLibs = async ({
   signature: { literalSignature: LiteralSignature[] }
   libsPath: string
   opts?: { limit?: number }
-}): Promise<{ name: string; index: indexValue }[]> => {
+}): Promise<candidateLib[]> => {
   const appLitSig = new Set(signature.literalSignature)
 
   if (appLitSig.size === 0) {

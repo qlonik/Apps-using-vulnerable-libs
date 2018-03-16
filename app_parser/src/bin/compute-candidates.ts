@@ -9,7 +9,7 @@ import {
   FINISHED_PREPROCESSING_FILE,
   LIB_PREPROCESSED_CANDIDATES_FILE,
 } from '../parseApps/constants'
-import { indexValue } from '../similarityIndex/set'
+import { candidateLib } from '../similarityIndex'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
@@ -42,7 +42,7 @@ export interface IdNoSignature {
 export interface IdCandidate {
   id: string
   signatureExists: true
-  candidates: { name: string; index: indexValue }[]
+  candidates: candidateLib[]
 }
 export type IdReport = IdNoSignature | IdCandidate
 export interface LocationIdNoSignature extends IdNoSignature {
