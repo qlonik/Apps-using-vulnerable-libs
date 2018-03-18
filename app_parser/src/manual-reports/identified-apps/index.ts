@@ -3,7 +3,7 @@ import { libNameVersionSigFile } from '../../parseLibraries'
 import { candidateLib, SimilarityToLibs } from '../../similarityIndex'
 
 export type matchGuess = libNameVersionSigFile & { isGuess: boolean }
-export type matchUnknown = { name: string; version: string; isGuess: boolean; comments: string }
+export type matchUnknown = { name: string; version?: string; isGuess: boolean; comments?: string }
 export type candidatesReport =
   | { candidateType: 'empty' }
   | { candidateType: 'subset'; candidates: string[] }
