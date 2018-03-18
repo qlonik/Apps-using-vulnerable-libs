@@ -4,6 +4,10 @@ import { candidateLib } from '../similarityIndex'
 
 export type matchGuess = libNameVersionSigFile & { isGuess: boolean }
 export type matchUnknown = { name: string; version: string; isGuess: boolean; comments: string }
+export type candidatesReport =
+  | { candidateType: 'empty' }
+  | { candidateType: 'subset'; candidates: string[] }
+  | { candidateType: 'sll'; candidates: candidateLib[] }
 export interface ManuallyAnalysedApps {
   [name: string]: {
     app: appDesc
@@ -18,10 +22,7 @@ export interface ManuallyAnalysedApps {
           | { type: 'business-logic' }
           | { type: 'single-lib'; match: matchGuess }
           | { type: 'bundle'; match: matchGuess[] }) &
-        (
-          | { candidateType: 'empty' }
-          | { candidateType: 'subset'; candidates: string[] }
-          | { candidateType: 'sll'; candidates: candidateLib[] })
+        candidatesReport
     }
   }
 }
