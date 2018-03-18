@@ -24,7 +24,7 @@ export interface ManuallyAnalysedApps {
           | { type: 'bundle'; match: matchGuess[] }) &
         candidatesReport
     }
-  }
+  } & ({} | candidatesReport)
 }
 
 export const appsAnalysed: ManuallyAnalysedApps = {}
