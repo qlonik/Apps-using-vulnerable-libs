@@ -1,6 +1,6 @@
 import { appDesc } from '../parseApps'
 import { libNameVersionSigFile } from '../parseLibraries'
-import { candidateLib } from '../similarityIndex'
+import { candidateLib, SimilarityToLibs } from '../similarityIndex'
 
 export type matchGuess = libNameVersionSigFile & { isGuess: boolean }
 export type matchUnknown = { name: string; version: string; isGuess: boolean; comments: string }
@@ -22,7 +22,8 @@ export interface ManuallyAnalysedApps {
           | { type: 'business-logic' }
           | { type: 'single-lib'; match: matchGuess }
           | { type: 'bundle'; match: matchGuess[] }) &
-        candidatesReport
+        candidatesReport &
+        ({ algMatch?: SimilarityToLibs })
     }
   } & ({} | candidatesReport)
 }
