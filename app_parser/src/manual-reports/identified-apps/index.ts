@@ -1,4 +1,5 @@
 import { APP_TYPES, appDesc } from '../../parseApps'
+import { id as id_000, report as report_000 } from './000'
 
 export type match = {
   name: string
@@ -35,4 +36,6 @@ export interface ManuallyAnalysedApps {
   [name: string]: CordovaManualAnalysisReport | ReactNativeManualAnalysisReport
 }
 
-export const appsAnalysed: ManuallyAnalysedApps = {}
+export const appsAnalysed: ManuallyAnalysedApps = {
+  [id_000]: report_000,
+}
