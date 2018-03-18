@@ -1,6 +1,6 @@
-import { appDesc } from '../parseApps'
-import { libNameVersionSigFile } from '../parseLibraries'
-import { candidateLib, SimilarityToLibs } from '../similarityIndex'
+import { appDesc } from '../../parseApps'
+import { libNameVersionSigFile } from '../../parseLibraries'
+import { candidateLib, SimilarityToLibs } from '../../similarityIndex'
 
 export type matchGuess = libNameVersionSigFile & { isGuess: boolean }
 export type matchUnknown = { name: string; version: string; isGuess: boolean; comments: string }
