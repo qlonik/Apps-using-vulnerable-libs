@@ -8,24 +8,25 @@ export type candidatesReport =
   | { candidateType: 'empty' }
   | { candidateType: 'subset'; candidates: string[] }
   | { candidateType: 'sll'; candidates: candidateLib[] }
+export type ManualAnalysisReport = {
+  app: appDesc
+  files: {
+    [id: string]: /* empty obj so prettier formats uniformly */ ({}) &
+      (
+        | { location: string; id: string }
+        | { id: string; idType: 's' }
+        | { id: number; idType: 'n' }) &
+      (
+        | { type: 'unknown' | ''; match?: matchUnknown | matchUnknown[] }
+        | { type: 'business-logic' }
+        | { type: 'single-lib'; match: matchGuess }
+        | { type: 'bundle'; match: matchGuess[] }) &
+      candidatesReport &
+      ({ algMatch?: SimilarityToLibs })
+  }
+} & ({} | candidatesReport)
 export interface ManuallyAnalysedApps {
-  [name: string]: {
-    app: appDesc
-    files: {
-      [id: string]: /* empty obj so prettier formats uniformly */ ({}) &
-        (
-          | { location: string; id: string }
-          | { id: string; idType: 's' }
-          | { id: number; idType: 'n' }) &
-        (
-          | { type: 'unknown' | ''; match?: matchUnknown | matchUnknown[] }
-          | { type: 'business-logic' }
-          | { type: 'single-lib'; match: matchGuess }
-          | { type: 'bundle'; match: matchGuess[] }) &
-        candidatesReport &
-        ({ algMatch?: SimilarityToLibs })
-    }
-  } & ({} | candidatesReport)
+  [name: string]: ManualAnalysisReport
 }
 
 export const appsAnalysed: ManuallyAnalysedApps = {}
