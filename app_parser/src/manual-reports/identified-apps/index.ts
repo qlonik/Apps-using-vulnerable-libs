@@ -15,6 +15,7 @@ export type match = {
 export type matchReport =
   | { type: 'unknown' | ''; match?: match | match[] }
   | { type: 'business-logic' }
+  | { type: 'http-script' }
   | { type: 'single-lib'; match: match }
   | { type: 'bundle'; match: match[] }
 export type CordovaManualAnalysisReport = {
