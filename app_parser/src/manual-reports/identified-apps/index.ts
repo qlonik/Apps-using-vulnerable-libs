@@ -1,5 +1,6 @@
 import { APP_TYPES, appDesc } from '../../parseApps'
 import { id as id_000, report as report_000 } from './000'
+import { id as id_001, report as report_001 } from './001'
 
 export type match = {
   name: string
@@ -38,4 +39,5 @@ export interface ManuallyAnalysedApps {
 
 export const appsAnalysed: ManuallyAnalysedApps = {
   [id_000]: report_000,
+  [id_001]: report_001,
 }
