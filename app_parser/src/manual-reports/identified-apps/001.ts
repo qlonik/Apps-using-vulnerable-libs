@@ -83,7 +83,7 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'cordova',
         isGuess: true,
-        comments: 'version is unknown, but somewhere in comments there was mentions of 6.0.0',
+        comments: 'version is unknown, but PLATFORM_VERSION_BUILD_LABEL = 6.0.0',
       },
     },
 

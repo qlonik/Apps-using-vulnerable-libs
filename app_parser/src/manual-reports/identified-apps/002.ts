@@ -16,7 +16,7 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'cordova',
         isGuess: true,
-        comments: 'version is unknown, but somewhere in comments there was mentions of 3.5.1',
+        comments: 'version is unknown, but PLATFORM_VERSION_BUILD_LABEL = 3.5.1',
       },
     },
     'body/0001': {
