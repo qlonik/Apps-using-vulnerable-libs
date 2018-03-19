@@ -1,4 +1,4 @@
-import { appDesc } from '../../parseApps'
+import { APP_TYPES, appDesc } from '../../parseApps'
 import { candidateLib, SimilarityToLibs } from '../../similarityIndex'
 
 export type match = {
@@ -17,21 +17,29 @@ export type candidatesReport =
   | { candidateType: 'empty' }
   | { candidateType: 'subset'; candidates: string[] }
   | { candidateType: 'sll'; candidates: candidateLib[] }
-export type ManualAnalysisReport = {
-  app: appDesc
+export type CordovaManualAnalysisReport = {
+  app: appDesc<APP_TYPES.cordova>
   files: {
     [id: string]: ({
+      location: string
+      id: string
       algMatch?: SimilarityToLibs
       comments?: string
     }) &
-      (
-        | { location: string; id: string }
-        | { id: string; idType: 's' }
-        | { id: number; idType: 'n' }) &
       matchReport &
       candidatesReport
   }
-} & ({} | candidatesReport)
+}
+export type ReactNativeManualAnalysisReport = {
+  app: appDesc<APP_TYPES.reactNative>
+  files: {
+    [id: string]: ({ idType: 's'; id: string } | { idType: 'n'; id: number }) &
+      ({ algMatch?: SimilarityToLibs; comments?: string }) &
+      matchReport &
+      candidatesReport
+  }
+} & candidatesReport
+export type ManualAnalysisReport = CordovaManualAnalysisReport | ReactNativeManualAnalysisReport
 export interface ManuallyAnalysedApps {
   [name: string]: ManualAnalysisReport
 }
