@@ -11,7 +11,10 @@ export type candidatesReport =
 export type ManualAnalysisReport = {
   app: appDesc
   files: {
-    [id: string]: /* empty obj so prettier formats uniformly */ ({}) &
+    [id: string]: ({
+      algMatch?: SimilarityToLibs
+      comments?: string
+    }) &
       (
         | { location: string; id: string }
         | { id: string; idType: 's' }
@@ -21,8 +24,7 @@ export type ManualAnalysisReport = {
         | { type: 'business-logic' }
         | { type: 'single-lib'; match: matchGuess }
         | { type: 'bundle'; match: matchGuess[] }) &
-      candidatesReport &
-      ({ algMatch?: SimilarityToLibs })
+      candidatesReport
   }
 } & ({} | candidatesReport)
 export interface ManuallyAnalysedApps {
