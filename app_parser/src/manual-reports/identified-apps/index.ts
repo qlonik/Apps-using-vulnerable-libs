@@ -8,6 +8,11 @@ export type match = {
   isGuess: boolean
   comments?: string
 }
+export type matchReport =
+  | { type: 'unknown' | ''; match?: match | match[] }
+  | { type: 'business-logic' }
+  | { type: 'single-lib'; match: match }
+  | { type: 'bundle'; match: match[] }
 export type candidatesReport =
   | { candidateType: 'empty' }
   | { candidateType: 'subset'; candidates: string[] }
@@ -23,11 +28,7 @@ export type ManualAnalysisReport = {
         | { location: string; id: string }
         | { id: string; idType: 's' }
         | { id: number; idType: 'n' }) &
-      (
-        | { type: 'unknown' | ''; match?: match | match[] }
-        | { type: 'business-logic' }
-        | { type: 'single-lib'; match: match }
-        | { type: 'bundle'; match: match[] }) &
+      matchReport &
       candidatesReport
   }
 } & ({} | candidatesReport)
