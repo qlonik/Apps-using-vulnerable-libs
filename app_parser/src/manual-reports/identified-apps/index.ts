@@ -39,9 +39,8 @@ export type ReactNativeManualAnalysisReport = {
       candidatesReport
   }
 } & candidatesReport
-export type ManualAnalysisReport = CordovaManualAnalysisReport | ReactNativeManualAnalysisReport
 export interface ManuallyAnalysedApps {
-  [name: string]: ManualAnalysisReport
+  [name: string]: CordovaManualAnalysisReport | ReactNativeManualAnalysisReport
 }
 
 export const appsAnalysed: ManuallyAnalysedApps = {}
