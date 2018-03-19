@@ -9,8 +9,8 @@ export enum APP_TYPES {
   reactNative = 'react-native',
 }
 
-export type appDesc = {
-  type: APP_TYPES
+export type appDesc<T extends APP_TYPES = APP_TYPES> = {
+  type: T
   section: string
   app: string
 }
