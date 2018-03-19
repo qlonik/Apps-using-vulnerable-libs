@@ -1,9 +1,13 @@
 import { appDesc } from '../../parseApps'
-import { libNameVersionSigFile } from '../../parseLibraries'
 import { candidateLib, SimilarityToLibs } from '../../similarityIndex'
 
-export type matchGuess = libNameVersionSigFile & { isGuess: boolean }
-export type matchUnknown = { name: string; version?: string; isGuess: boolean; comments?: string }
+export type match = {
+  name: string
+  version?: string
+  file?: string
+  isGuess: boolean
+  comments?: string
+}
 export type candidatesReport =
   | { candidateType: 'empty' }
   | { candidateType: 'subset'; candidates: string[] }
@@ -20,10 +24,10 @@ export type ManualAnalysisReport = {
         | { id: string; idType: 's' }
         | { id: number; idType: 'n' }) &
       (
-        | { type: 'unknown' | ''; match?: matchUnknown | matchUnknown[] }
+        | { type: 'unknown' | ''; match?: match | match[] }
         | { type: 'business-logic' }
-        | { type: 'single-lib'; match: matchGuess }
-        | { type: 'bundle'; match: matchGuess[] }) &
+        | { type: 'single-lib'; match: match }
+        | { type: 'bundle'; match: match[] }) &
       candidatesReport
   }
 } & ({} | candidatesReport)
