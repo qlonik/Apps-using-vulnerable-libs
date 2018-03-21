@@ -68,6 +68,7 @@ const sections_fin = [
 ]
 
 const log = stdoutLog('extract-apps')
+log.enabled = true
 
 let terminating: Promise<void>
 let pool: Pool<messages>
