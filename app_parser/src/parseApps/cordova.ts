@@ -299,7 +299,11 @@ export const preprocessCordovaApp = async (
           const signature = await extractStructure({ content })
 
           if (allLibsPath) {
-            const candidates = await getCandidateLibs({ signature, libsPath: allLibsPath })
+            const candidates = await getCandidateLibs({
+              signature,
+              libsPath: allLibsPath,
+              opts: { limit: 10 },
+            })
             fileOps.push({
               cwd,
               dst: CORDOVA_CAND_FILE,
