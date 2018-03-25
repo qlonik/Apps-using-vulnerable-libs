@@ -17,7 +17,7 @@
 .idea/**/sqlDataSources.xml
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
-.idea/**/httpRequests/
+.idea/**/httpRequests
 
 # Gradle:
 .idea/**/gradle.xml
@@ -56,5 +56,5 @@ fabric.properties
 
 *~
 
-/data/
+/data
 
