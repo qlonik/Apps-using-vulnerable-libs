@@ -289,9 +289,9 @@ export const getSimilarityToLib = async ({
       name,
       version,
       file,
-      fnNamesSim: librarySimilarityByFunctionNames({ unknown, lib }),
-      fnStTokensSim: librarySimilarityByFunctionStatementTokens({ unknown, lib }),
-      fnStTypesSim: librarySimilarityByFunctionStatementTypes({ unknown, lib }),
+      // fnNamesSim: librarySimilarityByFunctionNames({ unknown, lib }),
+      // fnStTokensSim: librarySimilarityByFunctionStatementTokens({ unknown, lib }),
+      // fnStTypesSim: librarySimilarityByFunctionStatementTypes({ unknown, lib }),
       namesTokens: librarySimilarityByFunctionNamesAndStatementTokens({ unknown, lib }),
     }
   })
