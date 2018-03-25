@@ -3,17 +3,17 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="0cfcdc2b-3317-4d50-970c-dede69ae0219" name="gi-gateway" url="">
-        <fileTransfer host="nvolodin@localhost" port="22023" privateKey="$USER_HOME$/.ssh/keys/nvolodin@gi-gateway.watgamer.uwaterloo.ca" rootFolder="/home/nvolodin/Auvl" accessType="SFTP" keyPair="true">
+        <fileTransfer host="gi-gateway.watgamer.uwaterloo.ca" port="22" rootFolder="/home/nvolodin/Auvl" accessType="SFTP" authAgent="true">
           <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" />
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" />
           </advancedOptions>
-          <option name="port" value="22023" />
+          <option name="port" value="22" />
         </fileTransfer>
       </webServer>
       <webServer id="16d489fc-6e85-41f5-97f3-c4d7a42d69b3" name="tick3" url="">
-        <fileTransfer host="nvolodin@tick3" port="22" rootFolder="/home/nvolodin/Auvl" accessType="SFTP" authAgent="true">
+        <fileTransfer host="tick3" port="22" rootFolder="/home/nvolodin/Auvl" accessType="SFTP" authAgent="true">
           <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" />
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" />
           </advancedOptions>
           <option name="port" value="22" />
         </fileTransfer>
