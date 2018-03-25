@@ -22,6 +22,7 @@
     "watch:lib_dump": "npm run build && node $NODE_DEBUG_OPTION lib/dumpWatch"
   },
   "dependencies": {
+    "@types/babel-types": "^6.25.2",
     "@types/babylon": "^6.16.2",
     "@types/chokidar": "^1.7.3",
     "@types/common-tags": "^1.4.0",
