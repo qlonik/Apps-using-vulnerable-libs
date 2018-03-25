@@ -9,6 +9,14 @@
           </mappings>
           <excludedPaths>
             <excludedPath path="/data" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/src.ignored" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/node_modules" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/coverage" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/lib" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/test/fixtures/apps/random" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/test/fixtures/libs/jquery" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.nyc_output" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/heapsnapshots" />
           </excludedPaths>
         </serverdata>
       </paths>
@@ -19,6 +27,14 @@
           </mappings>
           <excludedPaths>
             <excludedPath path="/data" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/src.ignored" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/node_modules" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/coverage" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/lib" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/test/fixtures/apps/random" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/test/fixtures/libs/jquery" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.nyc_output" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/heapsnapshots" />
           </excludedPaths>
         </serverdata>
       </paths>
