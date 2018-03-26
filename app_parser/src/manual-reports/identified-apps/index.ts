@@ -4,6 +4,10 @@ import { id as id_001, report as report_001 } from './001'
 import { id as id_002, report as report_002 } from './002'
 import { id as id_003, report as report_003 } from './003'
 import { id as id_004, report as report_004 } from './004'
+import { id as id_005, report as report_005 } from './005'
+import { id as id_006, report as report_006 } from './006'
+import { id as id_007, report as report_007 } from './007'
+import { id as id_008, report as report_008 } from './008'
 
 export type match = {
   name: string
@@ -47,4 +51,8 @@ export const appsAnalysed: ManuallyAnalysedApps = {
   [id_002]: report_002,
   [id_003]: report_003,
   [id_004]: report_004,
+  [id_005]: report_005,
+  [id_006]: report_006,
+  [id_007]: report_007,
+  [id_008]: report_008,
 }
