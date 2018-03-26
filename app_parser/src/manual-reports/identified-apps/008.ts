@@ -10,7 +10,7 @@ export const report: CordovaManualAnalysisReport = {
   },
   files: {
     'body/0000': { location: 'body', id: '0000', type: 'business-logic' },
-    'body/0001': { location: 'body', id: '0001', type: 'business-logic', comments: 'net script' },
+    'body/0001': { location: 'body', id: '0001', type: 'http-script' },
     'head/0000': {
       location: 'head',
       id: '0000',
