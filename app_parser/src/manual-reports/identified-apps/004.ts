@@ -65,6 +65,14 @@ export const report: CordovaManualAnalysisReport = {
         },
       ],
       comments: 'non-minified\n' + 'possibly included pdfjs twice',
+      algReport: {
+        comments: [
+          'angular is top candidate, then jquery, then mocha. ' +
+            'lodash and underscore do not appear at all',
+          'top match: angular@1.4.2 == angular@1.4.3 - 13.15% (same % val - 1349/10256)',
+          'next: jquery@1.12.0 == jquery@1.12.1 - 5.63% (same % val - 579/10288)',
+        ],
+      },
     },
     'body/0001': {
       location: 'body',
@@ -101,6 +109,9 @@ export const report: CordovaManualAnalysisReport = {
         version: '1.0.4',
         isGuess: false,
         comments: 'minified',
+      },
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
       },
     },
   },

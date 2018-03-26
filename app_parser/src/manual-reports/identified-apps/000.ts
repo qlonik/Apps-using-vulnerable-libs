@@ -17,6 +17,15 @@ export const report: CordovaManualAnalysisReport = {
         { name: 'angular', version: '1.5.7', file: '0001.json', isGuess: true },
         // there is more
       ],
+      algReport: {
+        comments: [
+          'angular (27%), jquery (17%), moment (11%), zone.js (10%) are top candidates',
+          'angular (@1.5.9 - 14.21%, @1.5.7 - 14.12%, @1.5.8 - 14.1%, @1.5.6 - 14.08%) ' +
+            'are top matches',
+          'jquery@1.9.1 - 11.82% is also among ranking',
+          'core-js@2.5.0 - 11.8% in similarity rank',
+        ],
+      },
     },
     'body/0001': {
       location: 'body',

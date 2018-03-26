@@ -20,6 +20,13 @@ export const report: CordovaManualAnalysisReport = {
         isGuess: false,
         comments: 'minified. also possibly custom build.',
       },
+      algReport: {
+        comments: [
+          'top candidate match is correct - bluebird',
+          'but bluebird didnt make it into similarities ' +
+            '(maybe because our bluebird is non-minified, but there it was minified)',
+        ],
+      },
     },
     'head/0001': {
       location: 'head',
@@ -33,6 +40,13 @@ export const report: CordovaManualAnalysisReport = {
         { name: 'angular-ui-router', version: '0.2.13', isGuess: false },
         { name: 'ionic-angular', version: '1.3.1', isGuess: false },
       ],
+      algReport: {
+        comments: [
+          'candidates include angular (angular is top candidate)',
+          'angular is a top match (angular@1.5.3 - 40.2446%)',
+          'different versions of angular are in the top 100',
+        ],
+      },
     },
     'head/0002': {
       location: 'head',
@@ -43,6 +57,9 @@ export const report: CordovaManualAnalysisReport = {
         version: '0.1.27-alpha',
         isGuess: true,
         comments: 'file with bunch of cordova plugins',
+      },
+      algReport: {
+        comments: ['this library does not appear in top1000'],
       },
     },
     'head/0003': {
@@ -55,6 +72,13 @@ export const report: CordovaManualAnalysisReport = {
         isGuess: false,
         comments: 'minified',
       },
+      algReport: {
+        comments: [
+          'moment is a top candidate with 50% chance',
+          'however moment didnt make it into similarity ranking ' +
+            '(maybe because we compare minified vs non-minified?)',
+        ],
+      },
     },
     'head/0004': {
       location: 'head',
@@ -65,6 +89,12 @@ export const report: CordovaManualAnalysisReport = {
         isGuess: true,
         comments: 'minified',
       },
+      algReport: {
+        comments: [
+          'this library is missing in our dataset',
+          'therefore neither candidates nor similarities are correct',
+        ],
+      },
     },
     'head/0005': {
       location: 'head',
@@ -74,6 +104,12 @@ export const report: CordovaManualAnalysisReport = {
         name: 'moment-locale',
         isGuess: true,
         comments: 'pt-br locale file for moment.js',
+      },
+      algReport: {
+        comments: [
+          'this library is missing in our dataset',
+          'it does not appear in top 1000 either',
+        ],
       },
     },
     'head/0006': {

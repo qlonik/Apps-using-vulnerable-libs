@@ -22,6 +22,17 @@ export const report: CordovaManualAnalysisReport = {
         comments: 'non-minified, file is guessed',
       },
       comments: 'includes sizzle.js',
+      algReport: {
+        comments: [
+          'jquery is only candidate, matched as subset',
+          'jquery@2.1.0-beta3 == ' +
+            'jquery@2.1.1 == ' +
+            'jquery@2.1.1-beta1 == ' +
+            'jquery@2.1.1-rc1 == ' +
+            'jquery@2.1.1-rc2 - 100% (same % val 561/561)',
+          'jquery@2.1.0 == jquery@2.1.0-rc1 - 99.82%',
+        ],
+      },
     },
     'head/0001': {
       location: 'head',
@@ -33,6 +44,9 @@ export const report: CordovaManualAnalysisReport = {
         isGuess: true,
         comments: 'guessed name',
       },
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
     },
     'head/0002': {
       location: 'head',
@@ -43,6 +57,9 @@ export const report: CordovaManualAnalysisReport = {
         version: '1.4.4',
         isGuess: true,
         comments: 'minified',
+      },
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
       },
     },
     'head/0003': {
@@ -62,6 +79,9 @@ export const report: CordovaManualAnalysisReport = {
           'effect-clip.js, effect-drop.js, effect-explode.js, effect-fade.js, effect-fold.js, ' +
           'effect-highlight.js, effect-puff.js, effect-pulsate.js, effect-scale.js, ' +
           'effect-shake.js, effect-size.js, effect-slide.js, effect-transfer.js',
+      },
+      algReport: {
+        comments: ['library is missing in dataset', 'appears in top 1000'],
       },
     },
     'head/0004': {
