@@ -112,7 +112,7 @@ test('librarySimilarityByFunctionStatementTokens', t => {
     LIB_SIG.map(s => s.name),
   )
   const unknown = { functionSignature: UNKNOWN_SIG, literalSignature: [] }
-  const lib = { functionSignature: UNKNOWN_SIG, literalSignature: [] }
+  const lib = { functionSignature: LIB_SIG, literalSignature: [] }
   const result = librarySimilarityByFunctionStatementTokens({ unknown, lib })
   t.deepEqual(expected, result)
 })
