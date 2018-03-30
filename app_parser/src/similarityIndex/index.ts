@@ -73,6 +73,8 @@ export const librarySimilarityByFunctionNames = ({
 
 type nameProb = { name: string; prob: indexValue }
 type nameProbIndex = nameProb & { index: number }
+type FunctionSignatureMatched = FunctionSignature & { __matched?: boolean }
+
 /**
  * This function produces similarity index between two signature based on the function statement
  * tokens.
@@ -114,7 +116,7 @@ export const librarySimilarityByFunctionStatementTokens = ({
   unknown: signatureNew
   lib: signatureNew
 }): indexValue => {
-  const libCopy = clone(lib)
+  const libCopy = clone(lib) as FunctionSignatureMatched[]
   // remark: first for loop
   const possibleFnNames = unknown.reduce(
     (acc: nameProb[], { fnStatementTokens: toks }: FunctionSignature) => {
@@ -124,8 +126,8 @@ export const librarySimilarityByFunctionStatementTokens = ({
 
       // remark: second for loop
       const topName = libCopy
-        .reduce((indexes, { name, fnStatementTokens: libToks }: FunctionSignature, libIndex) => {
-          if (!libToks) {
+        .reduce((indexes, { name, __matched = false, fnStatementTokens: libToks }, libIndex) => {
+          if (!libToks || __matched) {
             return indexes
           }
 
@@ -141,7 +143,7 @@ export const librarySimilarityByFunctionStatementTokens = ({
       }
 
       const { name, index, prob } = topMatch
-      pullAt(libCopy, index)
+      libCopy[index].__matched = true
       return acc.concat({ name, prob })
     },
     [] as nameProb[],
