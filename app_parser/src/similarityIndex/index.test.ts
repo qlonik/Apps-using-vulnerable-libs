@@ -1,4 +1,5 @@
 import { test } from 'ava'
+import { cloneDeep } from 'lodash'
 import { FunctionSignature } from '../extractStructure'
 import {
   librarySimilarityByFunctionNames,
@@ -104,29 +105,29 @@ test('librarySimilarityByFunctionNames', t => {
     ourIndex: similarityIndexToLib(libNameSet, unknownNameSet),
     jaccardIndex: jaccardIndexFn(libNameSet, unknownNameSet),
   }
-  const unknown = { functionSignature: UNKNOWN_SIG, literalSignature: [] }
-  const lib = { functionSignature: LIB_SIG, literalSignature: [] }
+  const unknown = { functionSignature: cloneDeep(UNKNOWN_SIG), literalSignature: [] }
+  const lib = { functionSignature: cloneDeep(LIB_SIG), literalSignature: [] }
   const result = librarySimilarityByFunctionNames({ unknown, lib })
   t.deepEqual(expected, result)
 })
 
 test('librarySimilarityByFunctionStatementTokens', t => {
-  const unknown = { functionSignature: UNKNOWN_SIG, literalSignature: [] }
-  const lib = { functionSignature: LIB_SIG, literalSignature: [] }
+  const unknown = { functionSignature: cloneDeep(UNKNOWN_SIG), literalSignature: [] }
+  const lib = { functionSignature: cloneDeep(LIB_SIG), literalSignature: [] }
   const result = librarySimilarityByFunctionStatementTokens({ unknown, lib })
   t.deepEqual(EXPECTED_SIMILARITY, result)
 })
 
 test('librarySimilarityByFunctionStatementTypes', t => {
-  const unknown = { functionSignature: UNKNOWN_SIG, literalSignature: [] }
-  const lib = { functionSignature: LIB_SIG, literalSignature: [] }
+  const unknown = { functionSignature: cloneDeep(UNKNOWN_SIG), literalSignature: [] }
+  const lib = { functionSignature: cloneDeep(LIB_SIG), literalSignature: [] }
   const result = librarySimilarityByFunctionStatementTypes({ unknown, lib })
   t.deepEqual(EXPECTED_SIMILARITY, result)
 })
 
 test('librarySimilarityByFunctionNamesAndStatementTokens', t => {
-  const unknown = { functionSignature: UNKNOWN_SIG, literalSignature: [] }
-  const lib = { functionSignature: LIB_SIG, literalSignature: [] }
+  const unknown = { functionSignature: cloneDeep(UNKNOWN_SIG), literalSignature: [] }
+  const lib = { functionSignature: cloneDeep(LIB_SIG), literalSignature: [] }
   const result = librarySimilarityByFunctionNamesAndStatementTokens({ unknown, lib })
   t.deepEqual(EXPECTED_SIMILARITY, result)
 })
