@@ -4,12 +4,12 @@ const LIMIT = 100
 
 export class SortedLimitedList<T> {
   private _arr: T[] = []
-  private _predicate: ValueIteratee<T> | null
+  private _predicate: ValueIteratee<T> | undefined
   private _limit: number
   private _finished = false
 
   public constructor({
-    predicate = null,
+    predicate = undefined,
     limit = LIMIT,
   }: { predicate?: ValueIteratee<T>; limit?: number } = {}) {
     this._predicate = predicate
