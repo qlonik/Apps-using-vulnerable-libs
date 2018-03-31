@@ -35,6 +35,11 @@ export type NewSimilarity = libNameVersion & {
   namesTokens?: indexValue
 }
 
+type similarityIndexValueAndSimilarityMap = {
+  similarity: indexValue
+  mapping: Map<number, number>
+}
+
 /**
  * This function returns similarity metric by function names. It produces two indexes - one is our
  * own type and another is jaccard.
@@ -124,11 +129,11 @@ export const librarySimilarityByFunctionStatementTokens = ({
 }: {
   unknown: signatureNew
   lib: signatureNew
-}): indexValue => {
+}): similarityIndexValueAndSimilarityMap => {
   const libCopy = clone(lib) as FunctionSignatureMatched[]
   // remark: first for loop
   const possibleFnNames = unknown.reduce(
-    (acc: nameProb[], { fnStatementTokens: toks }: FunctionSignature) => {
+    (acc: nameProbIndex[], { fnStatementTokens: toks }: FunctionSignature) => {
       if (!toks) {
         return acc
       }
@@ -147,18 +152,23 @@ export const librarySimilarityByFunctionStatementTokens = ({
 
       const topMatch = head(topName)
       if (!topMatch || topMatch.prob.val === 0) {
-        const unmatched = { name: '__unmatched__', prob: { val: 1, num: -1, den: -1 } }
+        const unmatched = { name: '__unmatched__', prob: { val: 1, num: -1, den: -1 }, index: -1 }
         return acc.concat(unmatched)
       }
 
       const { name, index, prob } = topMatch
       libCopy[index].__matched = true
-      return acc.concat({ name, prob })
+      return acc.concat({ name, prob, index })
     },
-    [] as nameProb[],
+    [] as nameProbIndex[],
   )
 
-  return jaccardLike(possibleFnNames.map((v) => v.name), lib.map((v) => v.name))
+  const similarity = jaccardLike(possibleFnNames.map((v) => v.name), lib.map((v) => v.name))
+  const mapping = possibleFnNames.reduce((acc, { index: libIndex }, unknownIndex) => {
+    return libIndex === -1 ? acc : acc.set(unknownIndex, libIndex)
+  }, new Map())
+
+  return { similarity, mapping }
 }
 
 export const librarySimilarityByFunctionStatementTypes = ({
