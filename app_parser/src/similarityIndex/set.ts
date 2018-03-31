@@ -1,4 +1,4 @@
-import { clone, curry, pullAt } from 'lodash'
+import { curry, pullAt } from 'lodash'
 
 export function isSubset<T>(a: Set<T>, b: Set<T>): boolean {
   for (let elem of a) {
@@ -61,13 +61,12 @@ export const similarityIndexToLib = curry(<T>(lib: Set<T>, unknown: Set<T>): ind
  *
  * <b>NOTE:</b> elements in arrays will be compared with '===' for equality.
  */
-export const jaccardLike = <T>(a: T[], b: T[]): indexValue => {
-  const aCloned = clone(a)
+export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): indexValue => {
   const aRest = [] // remaining elements
   const intersection = []
-  const bRest = clone(b) // remaining elements will be here after for-loop is done
+  const bRest = [...b] // remaining elements will be here after for-loop is done
 
-  for (let el of aCloned) {
+  for (let el of a) {
     const i = bRest.indexOf(el)
     if (i === -1) {
       aRest.push(el)

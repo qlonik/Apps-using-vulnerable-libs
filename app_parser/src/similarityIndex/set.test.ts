@@ -73,3 +73,27 @@ test('jaccard like for sorted arrays with repeating', t => {
 
   t.deepEqual(ex, jaccardLike(a, b))
 })
+
+test('jaccard like works for iterable', t => {
+  const a = new Set([1, 2, 3, 4])
+  const b = new Set([2, 3, 4, 5])
+  const ex = { val: 0.6, num: 3, den: 5 }
+
+  t.deepEqual(ex, jaccardLike(a, b))
+})
+
+test('jaccard like works for mix of array and iterable', t => {
+  const a = [1, 2, 2, 3, 3, 4]
+  const b = new Set([1, 2, 3])
+  const ex = { val: 0.5, num: 3, den: 6 }
+
+  t.deepEqual(ex, jaccardLike(a, b))
+})
+
+test('jaccard like works for unsorted arrays', t => {
+  const a = [5, 3, 2, 1, 4, 1]
+  const b = [1, 2, 6, 3, 4, 8]
+  const ex = { val: 0.5, num: 4, den: 8 }
+
+  t.deepEqual(ex, jaccardLike(a, b))
+})
