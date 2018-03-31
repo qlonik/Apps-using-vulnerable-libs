@@ -71,8 +71,17 @@ export const librarySimilarityByFunctionNames = ({
   }
 }
 
-type nameProb = { name: string; prob: indexValue }
-type nameProbIndex = nameProb & { index: number }
+interface Name {
+  name: string
+}
+interface Prob {
+  prob: indexValue
+}
+interface Index {
+  index: number
+}
+type nameProb = Name & Prob
+type nameProbIndex = Name & Index & Prob
 type FunctionSignatureMatched = FunctionSignature & { __matched?: boolean }
 
 /**
