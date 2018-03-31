@@ -97,6 +97,7 @@ const EXPECTED_SIMILARITY = jaccardLike(
   POSSIBLE_NAMES_BY_FN_ST_TOKENS.map(s => s.name),
   LIB_SIG.map(s => s.name),
 )
+const EXPECTED_MAPPING = new Map([[0, 0], [1, 1], [2, 2], [3, 3], [4, 5], [5, 4]])
 
 test('librarySimilarityByFunctionNames', t => {
   const unknownNameSet = new Set(UNKNOWN_SIG.map(s => s.name))
@@ -114,8 +115,9 @@ test('librarySimilarityByFunctionNames', t => {
 test('librarySimilarityByFunctionStatementTokens', t => {
   const unknown = { functionSignature: cloneDeep(UNKNOWN_SIG), literalSignature: [] }
   const lib = { functionSignature: cloneDeep(LIB_SIG), literalSignature: [] }
-  const result = librarySimilarityByFunctionStatementTokens({ unknown, lib })
-  t.deepEqual(EXPECTED_SIMILARITY, result)
+  const { mapping, similarity } = librarySimilarityByFunctionStatementTokens({ unknown, lib })
+  t.deepEqual(EXPECTED_SIMILARITY, similarity)
+  t.deepEqual(EXPECTED_MAPPING, mapping)
 })
 
 test('librarySimilarityByFunctionStatementTypes', t => {
