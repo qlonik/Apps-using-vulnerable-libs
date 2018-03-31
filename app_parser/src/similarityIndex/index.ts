@@ -130,7 +130,7 @@ export const librarySimilarityByFunctionStatementTokens = ({
   unknown: signatureNew
   lib: signatureNew
 }): similarityIndexValueAndSimilarityMap => {
-  const libCopy = clone(lib) as FunctionSignatureMatched[]
+  let libCopy = clone(lib) as FunctionSignatureMatched[]
   // remark: first for loop
   const possibleFnNames = unknown.reduce(
     (acc: nameProbIndex[], { fnStatementTokens: toks }: FunctionSignature) => {
@@ -157,7 +157,7 @@ export const librarySimilarityByFunctionStatementTokens = ({
       }
 
       const { name, index, prob } = topMatch
-      libCopy[index].__matched = true
+      libCopy = libCopy.map((el, i) => (i !== index ? el : { ...el, __matched: true }))
       return acc.concat({ name, prob, index })
     },
     [] as nameProbIndex[],
