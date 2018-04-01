@@ -1,10 +1,10 @@
 import { test } from 'ava'
 import { cloneDeep } from 'lodash'
 import { FunctionSignature } from '../extractStructure'
-import { librarySimilarityByFunctionNamesAndStatementTokens } from './index'
 import { jaccardIndex as jaccardIndexFn, jaccardLike, similarityIndexToLib } from './set'
 import {
   librarySimilarityByFunctionNames,
+  librarySimilarityByFunctionNamesAndStatementTokens,
   librarySimilarityByFunctionStatementTokens,
   librarySimilarityByFunctionStatementTokens_v2,
   librarySimilarityByFunctionStatementTokens_v3,
