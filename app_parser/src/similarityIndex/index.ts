@@ -12,6 +12,7 @@ import {
   getLibNameVersions,
   getLibNameVersionSigContents,
   libNameVersion,
+  libNameVersionSigFile,
   libPath,
 } from '../parseLibraries'
 import { LIB_LITERAL_SIGNATURE_FILE } from '../parseLibraries/constants'
@@ -545,6 +546,52 @@ export const getSimilarityToLibs = async ({
     }
   }
   return result
+}
+
+export const getBundleSimilarityToLibs = async ({
+  signature: unknown,
+  candidates,
+  libsPath,
+}: {
+  signature: signatureNew
+  candidates: candidateLib[]
+  libsPath: string
+}) => {
+  let unknownCopy = clone(unknown)
+
+  type candidatesSim = {
+    candidate: string
+    similarity: Similarity[]
+  }
+  const sortedCandidates = sortBy(candidates, (o) => -o.index.val)
+  return await sortedCandidates.reduce(async (candProm, candidate) => {
+    type matchedLib = libNameVersionSigFile & similarityIndexValueAndSimilarityMap
+
+    const cand = await candProm
+    const libVerSigs = await getLibNameVersionSigContents(libsPath, candidate.name)
+
+    const topThree = libVerSigs
+      .reduce((sll, { name, version, file, signature: lib }) => {
+        const { similarity, mapping } = librarySimilarityByFunctionStatementTokens_v2({
+          unknown: unknownCopy,
+          lib,
+        })
+
+        return sll.push({ name, version, file, similarity, mapping } as matchedLib)
+      }, new SortedLimitedList<matchedLib>({ limit: 3, predicate: (o) => -o.similarity.val }))
+      .value()
+
+    const topOne = head(topThree)
+    if (topOne) {
+      unknownCopy.functionSignature = unknownCopy.functionSignature.map((el, i):
+        | FunctionSignature
+        | FunctionSignatureMatched => {
+        return topOne.mapping.has(i) ? { ...el, __matched: true } : el
+      })
+    }
+
+    return cand.concat({ candidate: candidate.name, similarity: topThree })
+  }, Promise.resolve([] as candidatesSim[]))
 }
 
 export type candidateLib = { name: string; index: indexValue }
