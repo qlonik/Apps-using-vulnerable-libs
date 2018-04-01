@@ -6,16 +6,10 @@ import Module from 'module'
 import { resolve } from 'path'
 import * as yargs from 'yargs'
 import { stdoutLog } from '../utils/logger'
+import { stripIllegalNames } from './_strip-illegal-names'
 
 const log = stdoutLog('bin')
 log.enabled = true
-
-function stripIllegalNames(scripts: string[]) {
-  return scripts
-    .filter((name) => !name.endsWith('.d.ts') && !name.endsWith('.js.map'))
-    .map((name) => name.replace(/.(t|j)sx?$/, ''))
-    .filter((name) => name !== 'index' && !name.endsWith('.worker') && !name.endsWith('.test'))
-}
 
 yargs
   .command(
