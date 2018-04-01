@@ -5,6 +5,8 @@ import {
   librarySimilarityByFunctionNames,
   librarySimilarityByFunctionNamesAndStatementTokens,
   librarySimilarityByFunctionStatementTokens,
+  librarySimilarityByFunctionStatementTokens_v2,
+  librarySimilarityByFunctionStatementTokens_v3,
   librarySimilarityByFunctionStatementTypes,
 } from './index'
 import { jaccardIndex as jaccardIndexFn, jaccardLike, similarityIndexToLib } from './set'
@@ -116,6 +118,22 @@ test('librarySimilarityByFunctionStatementTokens', t => {
   const unknown = { functionSignature: cloneDeep(UNKNOWN_SIG), literalSignature: [] }
   const lib = { functionSignature: cloneDeep(LIB_SIG), literalSignature: [] }
   const { mapping, similarity } = librarySimilarityByFunctionStatementTokens({ unknown, lib })
+  t.deepEqual(EXPECTED_SIMILARITY, similarity)
+  t.deepEqual(EXPECTED_MAPPING, mapping)
+})
+
+test('librarySimilarityByFunctionStatementTokens_v2', t => {
+  const unknown = { functionSignature: cloneDeep(UNKNOWN_SIG), literalSignature: [] }
+  const lib = { functionSignature: cloneDeep(LIB_SIG), literalSignature: [] }
+  const { mapping, similarity } = librarySimilarityByFunctionStatementTokens_v2({ unknown, lib })
+  t.deepEqual(EXPECTED_SIMILARITY, similarity)
+  t.deepEqual(EXPECTED_MAPPING, mapping)
+})
+
+test('librarySimilarityByFunctionStatementTokens_v3', t => {
+  const unknown = { functionSignature: cloneDeep(UNKNOWN_SIG), literalSignature: [] }
+  const lib = { functionSignature: cloneDeep(LIB_SIG), literalSignature: [] }
+  const { mapping, similarity } = librarySimilarityByFunctionStatementTokens_v3({ unknown, lib })
   t.deepEqual(EXPECTED_SIMILARITY, similarity)
   t.deepEqual(EXPECTED_MAPPING, mapping)
 })
