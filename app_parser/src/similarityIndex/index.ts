@@ -1,5 +1,5 @@
 import { pathExists, readJSON } from 'fs-extra'
-import { clone, head, last, partition, pullAt } from 'lodash'
+import { clone, findIndex, head, last, partition, pullAt, sortBy } from 'lodash'
 import { join } from 'path'
 import {
   fnNamesSplit,
@@ -87,7 +87,10 @@ interface Index {
 }
 type nameProb = Name & Prob
 type nameProbIndex = Name & Index & Prob
-type FunctionSignatureMatched = FunctionSignature & { __matched?: boolean }
+type probIndex = Index & Prob
+type FunctionSignatureMatched = FunctionSignature & {
+  __matched?: boolean | { prob: indexValue; index: number }
+}
 
 /**
  * This function produces similarity index between two signature based on the function statement
@@ -169,6 +172,119 @@ export const librarySimilarityByFunctionStatementTokens = ({
   }, new Map())
 
   return { similarity, mapping }
+}
+
+/**
+ * This function produces similarity index between two signature based on the function statement
+ * tokens. This function is different than {@link librarySimilarityByFunctionStatementTokens}
+ * because this function takes every function from library and tries to match it to all functions
+ * in the unknown signature.
+ *
+ * @param unknown - signature of the unknown js file from the app
+ * @param lib - signature of the library
+ * @returns
+ */
+export const librarySimilarityByFunctionStatementTokens_v2 = ({
+  unknown: { functionSignature: unknown },
+  lib: { functionSignature: lib },
+}: {
+  unknown: { functionSignature: (FunctionSignature | FunctionSignatureMatched)[] }
+  lib: signatureNew
+}): similarityIndexValueAndSimilarityMap => {
+  const mappedUnknownSig = lib.reduce(
+    (mappedUnknownSigAcc, { fnStatementTokens: libToks }, libIndex) => {
+      if (!libToks) {
+        return mappedUnknownSigAcc
+      }
+
+      const topUnknownFnRanking = mappedUnknownSigAcc
+        .reduce((acc, { __matched = false, fnStatementTokens: unknownToks }, unknownIndex) => {
+          if (!unknownToks || __matched) {
+            return acc
+          }
+
+          return acc.push({ index: unknownIndex, prob: jaccardLike(unknownToks, libToks) })
+        }, new SortedLimitedList({ limit: 1, predicate: (o: probIndex) => -o.prob.val }))
+        .value()
+
+      const topUnknownFn = head(topUnknownFnRanking)
+      if (!topUnknownFn || topUnknownFn.prob.val === 0) {
+        return mappedUnknownSigAcc
+      }
+
+      const { index: unknownIndex, prob } = topUnknownFn
+      return mappedUnknownSigAcc.map(
+        (el, i) => (i !== unknownIndex ? el : { ...el, __matched: { index: libIndex, prob } }),
+      )
+    },
+    clone(unknown) as FunctionSignatureMatched[],
+  )
+
+  const possibleFnIndexes = mappedUnknownSig.map(
+    ({ __matched }) => (__matched && typeof __matched === 'object' ? __matched.index : -1),
+  )
+
+  return {
+    similarity: jaccardLike(possibleFnIndexes, lib.keys()),
+    // similarity: jaccardLike(possibleFnIndexes.map((v) => '' + v), Object.keys(libCopy)),
+    mapping: mappedUnknownSig.reduce((acc, { __matched }, unknownIndex) => {
+      return __matched && typeof __matched === 'object'
+        ? acc.set(unknownIndex, __matched.index)
+        : acc
+    }, new Map<number, number>()),
+  }
+}
+
+export const librarySimilarityByFunctionStatementTokens_v3 = ({
+  unknown: { functionSignature: unknown },
+  lib: { functionSignature: lib },
+}: {
+  unknown: signatureNew
+  lib: signatureNew
+}): similarityIndexValueAndSimilarityMap => {
+  type indexesProb = { unknownIndex: number; libIndex: number } & Prob
+  const sll = new SortedLimitedList({ limit: Infinity, predicate: (o: indexesProb) => -o.prob.val })
+
+  for (let [unknownIndex, { fnStatementTokens: unknownToks }] of unknown.entries()) {
+    if (!unknownToks) {
+      continue
+    }
+
+    for (let [libIndex, { fnStatementTokens: libToks }] of lib.entries()) {
+      if (!libToks) {
+        continue
+      }
+
+      const prob = jaccardLike(unknownToks, libToks)
+      if (prob.val !== 0) {
+        sll.push({ unknownIndex, libIndex, prob })
+      }
+    }
+  }
+
+  const selectedMatches = sll.value().reduce((acc, { unknownIndex, libIndex }, index, arr) => {
+    let foundIndex
+    while (
+      (foundIndex = findIndex(
+        arr,
+        (o: indexesProb) => o.unknownIndex === unknownIndex || o.libIndex === libIndex,
+        index + 1,
+      )) !== -1
+    ) {
+      pullAt(arr, foundIndex)
+    }
+
+    return acc.set(unknownIndex, libIndex)
+  }, new Map<number, number>())
+
+  const possibleFnIndexes = unknown.map((u, i) => {
+    return selectedMatches.has(i) ? selectedMatches.get(i) : -1
+  })
+
+  return {
+    similarity: jaccardLike(possibleFnIndexes, lib.keys()),
+    mapping: selectedMatches,
+  }
 }
 
 export const librarySimilarityByFunctionStatementTypes = ({
