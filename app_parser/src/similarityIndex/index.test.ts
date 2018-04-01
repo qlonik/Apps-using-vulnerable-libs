@@ -4,12 +4,14 @@ import { FunctionSignature } from '../extractStructure'
 import {
   librarySimilarityByFunctionNames,
   librarySimilarityByFunctionNamesAndStatementTokens,
-  librarySimilarityByFunctionStatementTokens,
-  librarySimilarityByFunctionStatementTokens_v2,
-  librarySimilarityByFunctionStatementTokens_v3,
   librarySimilarityByFunctionStatementTypes,
 } from './index'
 import { jaccardIndex as jaccardIndexFn, jaccardLike, similarityIndexToLib } from './set'
+import {
+  librarySimilarityByFunctionStatementTokens,
+  librarySimilarityByFunctionStatementTokens_v2,
+  librarySimilarityByFunctionStatementTokens_v3,
+} from './similarityMethods'
 
 const UNKNOWN_SIG: FunctionSignature[] = [
   {
