@@ -262,20 +262,26 @@ export const librarySimilarityByFunctionStatementTokens_v3 = ({
     }
   }
 
-  const selectedMatches = sll.value().reduce((acc, { unknownIndex, libIndex }, index, arr) => {
-    let foundIndex
-    while (
-      (foundIndex = findIndex(
-        arr,
-        (o: indexesProb) => o.unknownIndex === unknownIndex || o.libIndex === libIndex,
-        index + 1,
-      )) !== -1
-    ) {
-      pullAt(arr, foundIndex)
-    }
+  const selectedMatchesUnsorted = sll
+    .value()
+    .reduce((acc, { unknownIndex, libIndex }, index, arr) => {
+      let foundIndex
+      while (
+        (foundIndex = findIndex(
+          arr,
+          (o: indexesProb) => o.unknownIndex === unknownIndex || o.libIndex === libIndex,
+          index + 1,
+        )) !== -1
+      ) {
+        pullAt(arr, foundIndex)
+      }
 
-    return acc.set(unknownIndex, libIndex)
-  }, new Map<number, number>())
+      return acc.set(unknownIndex, libIndex)
+    }, new Map<number, number>())
+
+  const selectedMatches = new Map<number, number>(
+    sortBy([...selectedMatchesUnsorted], ([key]) => key),
+  )
 
   const possibleFnIndexes = unknown.map((u, i) => {
     return selectedMatches.has(i) ? selectedMatches.get(i) : -1
