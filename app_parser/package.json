@@ -72,6 +72,7 @@
     "ava": "^0.24.0",
     "eslint": "^4.18.1",
     "eslint-config-prettier": "^2.9.0",
+    "eslint-import-resolver-typescript": "^1.0.2",
     "eslint-nibble": "^4.2.1",
     "eslint-plugin-ava": "^4.5.1",
     "eslint-plugin-import": "^2.9.0",
@@ -129,14 +130,9 @@
     ],
     "settings": {
       "import/resolver": {
-        "node": {
-          "extensions": [
-            ".js",
-            ".ts",
-            ".d.ts"
-          ],
+        "node": true,
+        "typescript": {
           "moduleDirectory": [
-            "node_modules",
             "src/types"
           ]
         }
