@@ -17,11 +17,11 @@ import {
   librarySimilarityByFunctionNamesAndStatementTokens,
   librarySimilarityByFunctionStatementTokens,
   librarySimilarityByFunctionStatementTokens_v2,
-} from './similarityMethods'
+} from './similarity-methods'
 import {
   FunctionSignatureMatched,
   similarityIndexValueAndSimilarityMap,
-} from './similarityMethods/types'
+} from './similarity-methods/types'
 import { SortedLimitedList } from './SortedLimitedList'
 
 export type Similarity = libNameVersion & {
