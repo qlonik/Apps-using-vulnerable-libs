@@ -25,6 +25,12 @@ test('strips worker files', t => {
   t.deepEqual(expected, stripIllegalNames(input))
 })
 
+test('strips extensions properly', t => {
+  const input = ['one.ts', 'two.js', 'three', 'four.hi.tsx', 'five.hi.jsx', 'six.hi']
+  const expected = ['one', 'two', 'three', 'four.hi', 'five.hi', 'six.hi']
+  t.deepEqual(expected, stripIllegalNames(input))
+})
+
 test('does not strip directories when in test mode', t => {
   const input = ['fixtures/one.ts', 'dir/two.ts', 'three.ts']
   const expected = ['fixtures/one', 'dir/two', 'three']
