@@ -24,3 +24,19 @@ test('strips worker files', t => {
   const expected = ['one', 'two']
   t.deepEqual(expected, stripIllegalNames(input))
 })
+
+test('does not strip directories when in test mode', t => {
+  const input = ['fixtures/one.ts', 'dir/two.ts', 'three.ts']
+  const expected = ['fixtures/one', 'dir/two', 'three']
+  t.deepEqual(expected, stripIllegalNames(input))
+})
+
+test.serial('strips directories when not in test mode', t => {
+  const input = ['fixtures/one.ts', 'dir/two.ts', 'three.ts']
+  const expected = ['three']
+
+  const origEnv = process.env.NODE_ENV
+  process.env.NODE_ENV = 'anything'
+  t.deepEqual(expected, stripIllegalNames(input))
+  process.env.NODE_ENV = origEnv
+})

@@ -26,7 +26,11 @@ yargs
       if (script === null) {
         throw new Error('illegal bin script')
       }
-      const scriptName = `./` + kebabCase(script)
+      const kebabedScriptName = script
+        .split('/')
+        .map(kebabCase)
+        .join('/')
+      const scriptName = `./${kebabedScriptName}`
       const scriptPath = resolve(__dirname, scriptName)
 
       const module = await import(scriptName)
