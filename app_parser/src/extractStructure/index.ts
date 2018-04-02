@@ -71,11 +71,9 @@ export type signatureNew = {
 export type rnSignatureNew = signatureNew & {
   id: number | string
 }
-const _extractStructure = function({ content }: { content: string | BabelNode }): signatureNew {
-  const parsed = typeof content === 'string' ? parse(content) : content
-
-  const functionSignature = collapseFnNamesTree(fnOnlyTreeCreator(parsed))
-  const literalSignature = collapseLiteralValsTree(literalValues(parsed))
+const _extractStructure = function({ content }: { content: BabelNode }): signatureNew {
+  const functionSignature = collapseFnNamesTree(fnOnlyTreeCreator(content))
+  const literalSignature = collapseLiteralValsTree(literalValues(content))
 
   return { functionSignature, literalSignature }
 }
@@ -85,7 +83,8 @@ export const extractStructure = async function({
 }: {
   content: string
 }): Promise<signatureNew> {
-  return _extractStructure({ content })
+  const { program } = parse(content)
+  return _extractStructure({ content: program })
 }
 
 export const extractReactNativeStructure = async function({
@@ -93,7 +92,8 @@ export const extractReactNativeStructure = async function({
 }: {
   content: string
 }): Promise<rnSignatureNew[]> {
-  return rnDeclareFns(parse(content)).map(({ data }) => {
+  const { program } = parse(content)
+  return rnDeclareFns(program).map(({ data }) => {
     const { id, factory } = data
     const structure = _extractStructure({ content: factory })
     return { id, ...structure }
