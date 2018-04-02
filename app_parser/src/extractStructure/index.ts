@@ -64,13 +64,12 @@ const collapseFnNamesTree = (
 // todo: refactor existing types rather than alias them
 export type FunctionSignature = Signature
 export type LiteralSignature = SignatureLiteral
-export type signatureNew = {
-  functionSignature: FunctionSignature[]
-  literalSignature: LiteralSignature[]
-}
-export type Comments = {
-  comments: (string | string[])[]
-}
+
+export type FunctionSignatures = { functionSignature: FunctionSignature[] }
+export type LiteralSignatures = { literalSignature: LiteralSignature[] }
+export type Comments = { comments: (string | string[])[] }
+
+export type signatureNew = FunctionSignatures & LiteralSignatures
 export type signatureWithComments = signatureNew & Comments
 export type rnSignatureNew = signatureNew & {
   id: number | string
