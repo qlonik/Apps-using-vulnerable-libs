@@ -1,4 +1,4 @@
-import { Comment as BabelComment, Node as BabelNode } from 'babel-types'
+import { Comment as BabelComment, CommentBlock, CommentLine, Node as BabelNode } from 'babel-types'
 import { parse } from 'babylon'
 import { flatMap, Many } from 'lodash'
 import { stdoutLog } from '../utils/logger'
@@ -69,12 +69,21 @@ export type signatureNew = {
   literalSignature: LiteralSignature[]
 }
 export type Comments = {
-  comments: BabelComment[]
+  comments: (string | string[])[]
 }
 export type signatureWithComments = signatureNew & Comments
 export type rnSignatureNew = signatureNew & {
   id: number | string
 }
+
+const mapBabelComments = (
+  comment: BabelComment | CommentBlock | CommentLine,
+): string | string[] => {
+  return 'type' in comment && comment.type === 'CommentBlock'
+    ? comment.value.split('\n')
+    : comment.value
+}
+
 const _extractStructure = function({ content }: { content: BabelNode }): signatureNew {
   const functionSignature = collapseFnNamesTree(fnOnlyTreeCreator(content))
   const literalSignature = collapseLiteralValsTree(literalValues(content))
@@ -90,7 +99,7 @@ export const extractStructure = async function({
   const { program, comments } = parse(content)
   const signature = _extractStructure({ content: program })
 
-  return { ...signature, comments }
+  return { ...signature, comments: comments.map(mapBabelComments) }
 }
 
 export const extractReactNativeStructure = async function({
