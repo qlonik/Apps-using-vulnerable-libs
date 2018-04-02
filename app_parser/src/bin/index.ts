@@ -23,7 +23,7 @@ yargs
     },
     async (args) => {
       const [script] = stripIllegalNames([args.script])
-      if (script === null) {
+      if (!script) {
         throw new Error('illegal bin script')
       }
       const kebabedScriptName = script
