@@ -113,6 +113,10 @@ export const jaccardLikeWithMapping = <T>(
 
   bRest = bRest.filter(({ __mapped }) => !__mapped)
 
+  if (intersection.length !== mapping.size) {
+    throw new Error('unexpected error')
+  }
+
   const num = intersection.length
   const den = aRest.length + intersection.length + bRest.length
 
