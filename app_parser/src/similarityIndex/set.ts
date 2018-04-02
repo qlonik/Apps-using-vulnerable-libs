@@ -61,6 +61,8 @@ export const similarityIndexToLib = curry(<T>(lib: Set<T>, unknown: Set<T>): ind
  * This function will return 1 for two empty arrays.
  *
  * <b>NOTE:</b> elements in arrays will be compared with '===' for equality.
+ *
+ * @deprecated
  */
 export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): indexValue => {
   const aRest = [] // remaining elements
