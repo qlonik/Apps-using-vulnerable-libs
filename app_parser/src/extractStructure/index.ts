@@ -1,4 +1,4 @@
-import { Node as BabelNode } from 'babel-types'
+import { Comment as BabelComment, Node as BabelNode } from 'babel-types'
 import { parse } from 'babylon'
 import { flatMap, Many } from 'lodash'
 import { stdoutLog } from '../utils/logger'
@@ -68,6 +68,10 @@ export type signatureNew = {
   functionSignature: FunctionSignature[]
   literalSignature: LiteralSignature[]
 }
+export type Comments = {
+  comments: BabelComment[]
+}
+export type signatureWithComments = signatureNew & Comments
 export type rnSignatureNew = signatureNew & {
   id: number | string
 }
@@ -82,9 +86,11 @@ export const extractStructure = async function({
   content,
 }: {
   content: string
-}): Promise<signatureNew> {
-  const { program } = parse(content)
-  return _extractStructure({ content: program })
+}): Promise<signatureWithComments> {
+  const { program, comments } = parse(content)
+  const signature = _extractStructure({ content: program })
+
+  return { ...signature, comments }
 }
 
 export const extractReactNativeStructure = async function({
