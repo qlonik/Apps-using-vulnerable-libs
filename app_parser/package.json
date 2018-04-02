@@ -72,7 +72,7 @@
   "devDependencies": {
     "@types/execa": "^0.9.0",
     "@types/sinon": "^4.3.0",
-    "ava": "^0.25.0",
+    "ava": "^1.0.0-beta.3",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.9.0",
     "eslint-import-resolver-node": "^0.3.2",
@@ -95,7 +95,7 @@
     "files": [
       "lib/**/*.test.js"
     ],
-    "source": [
+    "sources": [
       "lib/**/*.js"
     ],
     "snapshotDir": "test/snapshots",

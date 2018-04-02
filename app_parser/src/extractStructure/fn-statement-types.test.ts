@@ -1,14 +1,10 @@
-import { Macro, test, TestContext } from 'ava'
+import { test, Macro } from 'ava'
 import { stripIndent } from 'common-tags'
 import { isPlainObject } from 'lodash'
 import { extractStructure } from './index'
 import { DIRECTIVE, STATEMENT } from './tags'
 
-const checkTypesMacro: Macro<TestContext> = async (
-  t: TestContext,
-  content: string,
-  expected: string[],
-) => {
+const checkTypesMacro: Macro = async (t, content: string, expected: string[]) => {
   const structure = await extractStructure({ content })
   const [firstFn] = structure.functionSignature
 
