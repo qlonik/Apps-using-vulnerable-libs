@@ -1,4 +1,5 @@
-import { curry, pullAt } from 'lodash'
+import { curry, pullAt, findIndex } from 'lodash'
+import { similarityIndexValueAndSimilarityMap } from './similarity-methods/types'
 
 export function isSubset<T>(a: Set<T>, b: Set<T>): boolean {
   for (let elem of a) {
@@ -84,5 +85,42 @@ export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): inde
     val: den === 0 ? 1 : num / den,
     num,
     den,
+  }
+}
+
+export const jaccardLikeWithMapping = <T>(
+  a: T[] | Iterable<T>,
+  b: T[] | Iterable<T>,
+): similarityIndexValueAndSimilarityMap => {
+  const aArr = [...a]
+  const aRest = []
+  const intersection = []
+  let bRest = [...b].map((val) => ({ __mapped: false, val }))
+  const mapping = new Map<number, number>()
+
+  for (let [i, el] of aArr.entries()) {
+    const j = findIndex(bRest, (o) => !o.__mapped && o.val === el)
+    if (j === -1) {
+      aRest.push(el)
+    } else {
+      intersection.push(el)
+      bRest = bRest.map((el, k) => (j !== k ? el : { ...el, __mapped: true }))
+      mapping.set(i, j)
+    }
+  }
+
+  bRest = bRest.filter(({ __mapped }) => !__mapped)
+
+  const num = intersection.length
+  const den = aRest.length + intersection.length + bRest.length
+
+  return {
+    similarity: {
+      // den === 0 only happens when both 'a' and 'b' were empty
+      val: den === 0 ? 1 : num / den,
+      num,
+      den,
+    },
+    mapping,
   }
 }

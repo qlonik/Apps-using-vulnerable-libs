@@ -5,6 +5,7 @@ import {
   isSubset,
   jaccardIndex,
   jaccardLike,
+  jaccardLikeWithMapping,
   similarityIndexToLib,
   union,
 } from './set'
@@ -103,4 +104,17 @@ test('jaccardLike is commutative', t => {
   const b = [5, 3, 2, 2, 4, 6, 7, 8, 9, 5, 3, 2, 1, 4, 5, 7, 8, 9, 3, 2, 1, 3]
 
   t.deepEqual(jaccardLike(a, b), jaccardLike(b, a))
+})
+
+test('jaccardLikeWithMapping and jaccardLike produce the same value', t => {
+  const a = [1, 2, 3, 4, 1, 2, 3, 1, 5, 6, 4, 4, 6, 7, 8, 9, 0, 4, 3, 2, 9, 2, 3, 4]
+  const b = [5, 3, 2, 2, 4, 6, 7, 8, 9, 5, 3, 2, 1, 4, 5, 7, 8, 9, 3, 2, 1, 3]
+  const { similarity } = jaccardLikeWithMapping(a, b)
+  t.deepEqual(jaccardLike(a, b), similarity)
+})
+
+test('jaccardLikeWithMapping is commutative', t => {
+  const a = [1, 2, 3, 4, 1, 2, 3, 1, 5, 6, 4, 4, 6, 7, 8, 9, 0, 4, 3, 2, 9, 2, 3, 4]
+  const b = [5, 3, 2, 2, 4, 6, 7, 8, 9, 5, 3, 2, 1, 4, 5, 7, 8, 9, 3, 2, 1, 3]
+  t.deepEqual(jaccardLikeWithMapping(a, b).similarity, jaccardLikeWithMapping(b, a).similarity)
 })
