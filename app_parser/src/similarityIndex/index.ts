@@ -12,10 +12,9 @@ import {
 } from '../parseLibraries'
 import { LIB_LITERAL_SIGNATURE_FILE } from '../parseLibraries/constants'
 import { resolveAllOrInParallel } from '../utils'
-import { indexValue, isSubset, jaccardIndex, jaccardLike } from './set'
+import { indexValue, isSubset, jaccardIndex } from './set'
 import {
   librarySimilarityByFunctionNamesAndStatementTokens,
-  librarySimilarityByFunctionStatementTokens,
   librarySimilarityByFunctionStatementTokens_v2,
 } from './similarity-methods'
 import {
