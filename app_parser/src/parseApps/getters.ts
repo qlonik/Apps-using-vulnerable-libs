@@ -148,12 +148,12 @@ export async function getAnalysedData<T extends analysisFile>(
             fileType,
           ),
         )
-      const [signature, similarity, candidates] = (await Promise.all(fileArr.map(read))) as [
+      const [signature, candidates, similarity] = (await Promise.all(fileArr.map(read))) as [
         signatureNew,
-        SimilarityToLibs,
-        { name: string; index: indexValue }[]
+        { name: string; index: indexValue }[],
+        SimilarityToLibs
       ]
-      return { file, signature, similarity, candidates }
+      return { file, signature, candidates, similarity }
     }),
   )
 }
