@@ -203,7 +203,7 @@ export const getBundleSimilarityToLibs = async ({
   candidates: candidateLib[]
   libsPath: string
 }) => {
-  let unknownCopy = clone(unknown)
+  let unknownCopy = clone(unknown.functionSignature)
 
   type candidatesSim = {
     candidate: string
@@ -220,7 +220,7 @@ export const getBundleSimilarityToLibs = async ({
       .reduce((sll, { name, version, file, signature: lib }) => {
         const { similarity, mapping } = librarySimilarityByFunctionStatementTokens_v2(
           unknownCopy,
-          lib,
+          lib.functionSignature,
         )
 
         return sll.push({ name, version, file, similarity, mapping } as matchedLib)
@@ -229,9 +229,7 @@ export const getBundleSimilarityToLibs = async ({
 
     const topOne = head(topThree)
     if (topOne) {
-      unknownCopy.functionSignature = unknownCopy.functionSignature.map((el, i):
-        | FunctionSignature
-        | FunctionSignatureMatched => {
+      unknownCopy = unknownCopy.map((el, i): FunctionSignature | FunctionSignatureMatched => {
         return topOne.mapping.has(i) ? { ...el, __matched: true } : el
       })
     }
