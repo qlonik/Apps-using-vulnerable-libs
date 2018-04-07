@@ -1,4 +1,6 @@
 import { test } from 'ava'
+import { filter as _filter, sortBy, take } from 'lodash'
+import { arb, check } from '../_helpers/property-test'
 import { assertNever } from '../utils'
 import { SortedLimitedList } from './SortedLimitedList'
 
@@ -13,6 +15,35 @@ test('adds and sorts for simple types', t => {
   const valDesc = sllDesc.push(1).push(2).push(3).push(4).push(5).value()
   t.deepEqual([5, 4, 3, 2, 1], valDesc)
 })
+
+test(
+  'sll sorts values',
+  check(arb.array(arb.number), (t, arr) => {
+    const sllAsc = new SortedLimitedList<number>({ limit: arr.length })
+    const valAsc = sllAsc.push(arr).value()
+    t.deepEqual(sortBy(arr), valAsc)
+
+    const sllDesc = new SortedLimitedList<number>({ limit: arr.length, predicate: n => -n })
+    const valDesc = sllDesc.push(arr).value()
+    t.deepEqual(sortBy(arr, n => -n), valDesc)
+  }),
+)
+
+test(
+  'adding el-by-el is same as entire array',
+  check(arb.nat, arb.array(arb.number), (t, limit, arr) => {
+    const elByEl = new SortedLimitedList<number>({ limit })
+    for (let el of arr) {
+      elByEl.push(el)
+    }
+    const elByElVal = elByEl.value()
+
+    const entireArr = new SortedLimitedList({ limit })
+    const entireArrVal = entireArr.push(arr).value()
+
+    t.deepEqual(elByElVal, entireArrVal)
+  }),
+)
 
 test('adds and sorts for complicated types', t => {
   type o = { a: string; b: { c: number; d: string } }
@@ -30,6 +61,31 @@ test('adds and sorts for complicated types', t => {
   t.deepEqual([o4, o3, o2], val)
 })
 
+test(
+  'ssl sorts complicated types',
+  check(
+    arb.nat,
+    arb.array(
+      arb.record({
+        a: arb.string,
+        b: arb.record({
+          c: arb.number,
+          d: arb.string,
+        }),
+      }),
+    ),
+    (t, limit, arr) => {
+      type o = { a: string; b: { c: number; d: string } }
+      const predicate = (o: o) => -o.b.c
+      const expected = take(sortBy(arr, predicate), limit)
+
+      const sll = new SortedLimitedList({ limit, predicate })
+      const val = sll.push(arr).value()
+      t.deepEqual(expected, val)
+    },
+  ),
+)
+
 test('allows adding arrays', t => {
   const sllDesc = new SortedLimitedList<number>({ predicate: n => -n })
   const valDesc = sllDesc.push([1, 2, 3, 4, 5]).value()
@@ -42,6 +98,15 @@ test('follows the limit', t => {
   t.deepEqual([1, 2, 3, 4, 5], val)
 })
 
+test(
+  'limit is honoured',
+  check(arb.nat, arb.array(arb.integer), (t, limit, arr) => {
+    const sll = new SortedLimitedList<number>({ limit })
+    const val = sll.push(arr).value()
+    t.true(val.length <= limit)
+  }),
+)
+
 test('applies filter', t => {
   const sll = new SortedLimitedList<number>({ limit: 5 })
   const val = sll
@@ -50,6 +115,19 @@ test('applies filter', t => {
     .value()
   t.deepEqual([2, 4], val)
 })
+
+test(
+  'filter is honoured',
+  check(arb.nat, arb.array(arb.number), arb.fn(arb.bool), (t, limit, arr, filter) => {
+    const sll = new SortedLimitedList<number>({ limit })
+    const val = sll
+      .push(arr)
+      .filter(filter)
+      .value()
+    const expected = _filter(take(sortBy(arr), limit), filter)
+    t.deepEqual(expected, val)
+  }),
+)
 
 test('applies filter and mutates type', t => {
   type t1 = { a: string; b: { c: number; d: string } }
