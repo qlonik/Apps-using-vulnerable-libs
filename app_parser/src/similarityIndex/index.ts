@@ -79,10 +79,10 @@ export const getSimilarityToLib = async ({
       name,
       version,
       file,
-      // fnNamesSim: librarySimilarityByFunctionNames({ unknown, lib }),
-      // fnStTokensSim: librarySimilarityByFunctionStatementTokens({ unknown, lib }),
-      // fnStTypesSim: librarySimilarityByFunctionStatementTypes({ unknown, lib }),
-      namesTokens: librarySimilarityByFunctionNamesAndStatementTokens({ unknown, lib }),
+      // fnNamesSim: librarySimilarityByFunctionNames(unknown, lib),
+      // fnStTokensSim: librarySimilarityByFunctionStatementTokens(unknown, lib),
+      // fnStTypesSim: librarySimilarityByFunctionStatementTypes(unknown, lib),
+      namesTokens: librarySimilarityByFunctionNamesAndStatementTokens(unknown, lib),
     }
   })
 }
@@ -218,10 +218,10 @@ export const getBundleSimilarityToLibs = async ({
 
     const topThree = libVerSigs
       .reduce((sll, { name, version, file, signature: lib }) => {
-        const { similarity, mapping } = librarySimilarityByFunctionStatementTokens_v2({
-          unknown: unknownCopy,
+        const { similarity, mapping } = librarySimilarityByFunctionStatementTokens_v2(
+          unknownCopy,
           lib,
-        })
+        )
 
         return sll.push({ name, version, file, similarity, mapping } as matchedLib)
       }, new SortedLimitedList<matchedLib>({ limit: 3, predicate: (o) => -o.similarity.val }))

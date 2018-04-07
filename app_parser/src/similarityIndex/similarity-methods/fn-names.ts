@@ -1,5 +1,7 @@
-import { signatureNew } from '../../extractStructure'
+// eslint-disable-next-line no-unused-vars
+import { FunctionSignature, FunctionSignatures, isFunctionSignatures } from '../../extractStructure'
 import { indexValue, jaccardIndex, similarityIndexToLib } from '../set'
+import { typeErrorMsg } from './types'
 
 /**
  * This function returns similarity metric by function names. It produces two indexes - one is our
@@ -13,17 +15,25 @@ import { indexValue, jaccardIndex, similarityIndexToLib } from '../set'
  *
  * Note, set here is a list of unique items.
  *
- * @param unknown
- * @param lib
+ * @param unknownS
+ * @param libS
  * @returns
  */
-export const librarySimilarityByFunctionNames = ({
-  unknown: { functionSignature: unknown },
-  lib: { functionSignature: lib },
-}: {
-  unknown: signatureNew
-  lib: signatureNew
-}): { ourIndex: indexValue; jaccardIndex: indexValue } => {
+export function librarySimilarityByFunctionNames<
+  T extends FunctionSignature[] | FunctionSignatures
+>(unknownS: T, libS: T): { ourIndex: indexValue; jaccardIndex: indexValue } {
+  let unknown: FunctionSignature[]
+  let lib: FunctionSignature[]
+  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
+    unknown = unknownS.functionSignature
+    lib = libS.functionSignature
+  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
+    unknown = unknownS
+    lib = libS
+  } else {
+    throw new TypeError(typeErrorMsg)
+  }
+
   //todo
   const unknownNamesSet = new Set(unknown.map((s) => s.name))
   const libNamesSet = new Set(lib.map((s) => s.name))

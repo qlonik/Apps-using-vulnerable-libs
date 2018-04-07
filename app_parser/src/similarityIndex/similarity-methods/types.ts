@@ -22,3 +22,5 @@ export type similarityIndexValueAndSimilarityMap = {
 export type FunctionSignatureMatched = FunctionSignature & {
   __matched?: boolean | { prob: indexValue; index: number }
 }
+
+export const typeErrorMsg = 'wrong parameters'

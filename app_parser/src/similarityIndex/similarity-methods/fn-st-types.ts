@@ -1,16 +1,28 @@
 import { clone, head, pullAt } from 'lodash'
-import { FunctionSignature, signatureNew } from '../../extractStructure'
+import {
+  FunctionSignature,
+  FunctionSignatures, // eslint-disable-line no-unused-vars
+  isFunctionSignatures,
+} from '../../extractStructure'
 import { indexValue, jaccardLike } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
-import { nameProb, nameProbIndex } from './types'
+import { nameProb, nameProbIndex, typeErrorMsg } from './types'
 
-export const librarySimilarityByFunctionStatementTypes = ({
-  unknown: { functionSignature: unknown },
-  lib: { functionSignature: lib },
-}: {
-  unknown: signatureNew
-  lib: signatureNew
-}): indexValue => {
+export function librarySimilarityByFunctionStatementTypes<
+  T extends FunctionSignature[] | FunctionSignatures
+>(unknownS: T, libS: T): indexValue {
+  let unknown: FunctionSignature[]
+  let lib: FunctionSignature[]
+  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
+    unknown = unknownS.functionSignature
+    lib = libS.functionSignature
+  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
+    unknown = unknownS
+    lib = libS
+  } else {
+    throw new TypeError(typeErrorMsg)
+  }
+
   const libCopy = clone(lib)
   // remark: first for loop
   const possibleFnNames = unknown.reduce(

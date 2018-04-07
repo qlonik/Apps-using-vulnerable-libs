@@ -11,8 +11,6 @@ test('librarySimilarityByFunctionNames', t => {
     ourIndex: similarityIndexToLib(libNameSet, unknownNameSet),
     jaccardIndex: jaccardIndexFn(libNameSet, unknownNameSet),
   }
-  const unknown = { functionSignature: cloneDeep(UNKNOWN_SIG), literalSignature: [] }
-  const lib = { functionSignature: cloneDeep(LIB_SIG), literalSignature: [] }
-  const result = librarySimilarityByFunctionNames({ unknown, lib })
+  const result = librarySimilarityByFunctionNames(cloneDeep(UNKNOWN_SIG), cloneDeep(LIB_SIG))
   t.deepEqual(expected, result)
 })

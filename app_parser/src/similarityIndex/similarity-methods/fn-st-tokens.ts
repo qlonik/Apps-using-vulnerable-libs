@@ -1,5 +1,9 @@
 import { clone, findIndex, head, pullAt, sortBy } from 'lodash'
-import { FunctionSignature, signatureNew } from '../../extractStructure'
+import {
+  FunctionSignature,
+  FunctionSignatures, // eslint-disable-line no-unused-vars
+  isFunctionSignatures,
+} from '../../extractStructure'
 import { jaccardLike } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
 import {
@@ -8,6 +12,7 @@ import {
   Prob,
   probIndex,
   similarityIndexValueAndSimilarityMap,
+  typeErrorMsg,
 } from './types'
 
 /**
@@ -40,17 +45,26 @@ import {
  * 6. Return this index from step 5 as the similarity index between unknown signature and known
  *    library signature.
  *
- * @param unknown
- * @param lib
+ * @param unknownS
+ * @param libS
  * @returns
  */
-export const v1 = ({
-  unknown: { functionSignature: unknown },
-  lib: { functionSignature: lib },
-}: {
-  unknown: signatureNew
-  lib: signatureNew
-}): similarityIndexValueAndSimilarityMap => {
+export function v1<T extends FunctionSignature[] | FunctionSignatures>(
+  unknownS: T,
+  libS: T,
+): similarityIndexValueAndSimilarityMap {
+  let unknown: FunctionSignature[]
+  let lib: FunctionSignature[]
+  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
+    unknown = unknownS.functionSignature
+    lib = libS.functionSignature
+  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
+    unknown = unknownS
+    lib = libS
+  } else {
+    throw new TypeError(typeErrorMsg)
+  }
+
   let libCopy = clone(lib) as FunctionSignatureMatched[]
   // remark: first for loop
   const possibleFnNames = unknown.reduce(
@@ -98,17 +112,26 @@ export const v1 = ({
  * because this function takes every function from library and tries to match it to all functions
  * in the unknown signature.
  *
- * @param unknown - signature of the unknown js file from the app
- * @param lib - signature of the library
+ * @param unknownS - signature of the unknown js file from the app
+ * @param libS - signature of the library
  * @returns
  */
-export const v2 = ({
-  unknown: { functionSignature: unknown },
-  lib: { functionSignature: lib },
-}: {
-  unknown: { functionSignature: (FunctionSignature | FunctionSignatureMatched)[] }
-  lib: signatureNew
-}): similarityIndexValueAndSimilarityMap => {
+export function v2<T extends FunctionSignature[] | FunctionSignatures>(
+  unknownS: T,
+  libS: T,
+): similarityIndexValueAndSimilarityMap {
+  let unknown: FunctionSignature[]
+  let lib: FunctionSignature[]
+  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
+    unknown = unknownS.functionSignature
+    lib = libS.functionSignature
+  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
+    unknown = unknownS
+    lib = libS
+  } else {
+    throw new TypeError(typeErrorMsg)
+  }
+
   const mappedUnknownSig = lib.reduce(
     (mappedUnknownSigAcc, { fnStatementTokens: libToks }, libIndex) => {
       if (!libToks) {
@@ -153,13 +176,22 @@ export const v2 = ({
   }
 }
 
-export const v3 = ({
-  unknown: { functionSignature: unknown },
-  lib: { functionSignature: lib },
-}: {
-  unknown: signatureNew
-  lib: signatureNew
-}): similarityIndexValueAndSimilarityMap => {
+export function v3<T extends FunctionSignature[] | FunctionSignatures>(
+  unknownS: T,
+  libS: T,
+): similarityIndexValueAndSimilarityMap {
+  let unknown: FunctionSignature[]
+  let lib: FunctionSignature[]
+  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
+    unknown = unknownS.functionSignature
+    lib = libS.functionSignature
+  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
+    unknown = unknownS
+    lib = libS
+  } else {
+    throw new TypeError(typeErrorMsg)
+  }
+
   type indexesProb = { unknownIndex: number; libIndex: number } & Prob
   const sll = new SortedLimitedList({ limit: Infinity, predicate: (o: indexesProb) => -o.prob.val })
 
