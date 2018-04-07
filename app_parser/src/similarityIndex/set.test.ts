@@ -120,3 +120,10 @@ test(
     t.deepEqual(jaccardLikeWithMapping(a, b), jaccardLikeWithMapping(b, a))
   }),
 )
+
+test('jaccardLikeWithMapping produces expected mapping', t => {
+  const a = [1, 2, 3, 4, 5]
+  const b = [2, 3, 1, 5, 6]
+  const mapping = new Map([[0, 2], [1, 0], [2, 1], [4, 3]])
+  t.deepEqual(mapping, jaccardLikeWithMapping(a, b).mapping)
+})
