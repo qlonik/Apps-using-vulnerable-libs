@@ -1,8 +1,19 @@
-import { pathExists, readdir } from 'fs-extra'
+import { pathExists, readdir, readJSON } from 'fs-extra'
 import { flatten } from 'lodash'
 import { join } from 'path'
+import { signatureNew } from '../extractStructure'
+import { SimilarityToLibs } from '../similarityIndex'
+import { indexValue } from '../similarityIndex/set'
 import { assertNever, resolveAllOrInParallel } from '../utils'
-import { ANALYSIS_FOLDER } from './constants'
+import {
+  ANALYSIS_FOLDER,
+  CORDOVA_CAND_FILE,
+  CORDOVA_SIG_FILE,
+  CORDOVA_SIM_FILE,
+  REACT_NATIVE_CAND_FILE,
+  REACT_NATIVE_SIG_FILE,
+  REACT_NATIVE_SIM_FILE,
+} from './constants'
 
 export enum APP_TYPES {
   cordova = 'cordova',
@@ -112,4 +123,37 @@ export async function getReactNativeAnalysisFiles(
       return assertNever(idType)
     }
   })
+}
+
+export async function getAnalysedData<T extends analysisFile>(
+  appsPath: string,
+  app: appDesc,
+  files: T[],
+) {
+  return await resolveAllOrInParallel(
+    files.map((file) => async () => {
+      const fileArr =
+        app.type === APP_TYPES.cordova
+          ? [CORDOVA_SIG_FILE, CORDOVA_CAND_FILE, CORDOVA_SIM_FILE]
+          : app.type === APP_TYPES.reactNative
+            ? [REACT_NATIVE_SIG_FILE, REACT_NATIVE_CAND_FILE, REACT_NATIVE_SIM_FILE]
+            : assertNever(app.type)
+
+      const read = (fileType: string) =>
+        readJSON(
+          join(
+            appPath(appsPath, app.type, app.section, app.app),
+            ANALYSIS_FOLDER,
+            file.path,
+            fileType,
+          ),
+        )
+      const [signature, similarity, candidates] = (await Promise.all(fileArr.map(read))) as [
+        signatureNew,
+        SimilarityToLibs,
+        { name: string; index: indexValue }[]
+      ]
+      return { file, signature, similarity, candidates }
+    }),
+  )
 }
