@@ -89,6 +89,7 @@ export async function getCordovaAnalysisFiles(
   return locationId.map(({ location, id }) => ({ path: join(location, id), location, id }))
 }
 
+const reactNativeIdRegex = /(s|n)_.+/
 export type reactNativeAnalysisFile = analysisFile &
   ({ idType: 'n'; id: number } | { idType: 's'; id: string })
 export async function getReactNativeAnalysisFiles(
@@ -101,7 +102,7 @@ export async function getReactNativeAnalysisFiles(
 
   const analysisFolder = join(appPath(appsPath, app.type, app.section, app.app), ANALYSIS_FOLDER)
   const ids = (await readdir(analysisFolder)) as string[]
-  return ids.map((path) => {
+  return ids.filter((id) => reactNativeIdRegex.test(id)).map((path) => {
     const [idType, idUnparsed] = path.split('_') as ['s' | 'n', string]
     if (idType === 's') {
       return { path, idType, id: idUnparsed }
