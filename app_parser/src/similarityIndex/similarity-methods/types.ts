@@ -14,9 +14,13 @@ export type nameProb = Name & Prob
 export type nameProbIndex = Name & Index & Prob
 export type probIndex = Index & Prob
 
+export interface DefiniteMap<K, V> extends Map<K, V> {
+  get(key: K): V
+}
+
 export type similarityIndexValueAndSimilarityMap = {
   similarity: indexValue
-  mapping: Map<number, number>
+  mapping: DefiniteMap<number, number>
 }
 
 export type FunctionSignatureMatched = FunctionSignature & {

@@ -1,5 +1,5 @@
 import { curry, pullAt, findIndex } from 'lodash'
-import { similarityIndexValueAndSimilarityMap } from './similarity-methods/types'
+import { DefiniteMap, similarityIndexValueAndSimilarityMap } from './similarity-methods/types'
 
 export function isSubset<T>(a: Set<T>, b: Set<T>): boolean {
   for (let elem of a) {
@@ -98,7 +98,7 @@ export const jaccardLikeWithMapping = <T>(
   const aRest = []
   const intersection = []
   let bRest = [...b].map((val) => ({ __mapped: false, val }))
-  const mapping = new Map<number, number>()
+  const mapping = new Map<number, number>() as DefiniteMap<number, number>
 
   for (let [i, el] of aArr.entries()) {
     const j = findIndex(bRest, (o) => !o.__mapped && o.val === el)
