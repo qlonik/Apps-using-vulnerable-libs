@@ -139,6 +139,11 @@ async function main() {
     }
   }
 
+  const tmpDirContents = await readdir(TMP_FOLDER)
+  if (tmpDirContents.length === 0) {
+    await remove(TMP_FOLDER)
+  }
+
   await pool.terminate()
 }
 
