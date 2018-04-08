@@ -69,6 +69,16 @@ export type FunctionSignatures = { functionSignature: FunctionSignature[] }
 export type LiteralSignatures = { literalSignature: LiteralSignature[] }
 export type Comments = { comments: (string | string[])[] }
 
+export const isFunctionSignatures = (o: any): o is FunctionSignatures => {
+  return typeof o === 'object' && 'functionSignature' in o && Array.isArray(o.functionSignature)
+}
+export const isLiteralSignatures = (o: any): o is LiteralSignatures => {
+  return typeof o === 'object' && 'literalSignature' in o && Array.isArray(o.literalSignature)
+}
+export const isComments = (o: any): o is Comments => {
+  return typeof o === 'object' && 'comments' in o && Array.isArray(o.comments)
+}
+
 export type signatureNew = FunctionSignatures & LiteralSignatures
 export type signatureWithComments = signatureNew & Comments
 export type rnSignatureNew = signatureNew & {
