@@ -1,5 +1,8 @@
+import arb from 'jsverify'
 import { FunctionSignature } from '../../extractStructure'
 import { jaccardLike } from '../set'
+
+export const arbLiteralSignature = arb.nearray(arb.oneof<any>([arb.asciistring, arb.number]))
 
 export const UNKNOWN_SIG: FunctionSignature[] = [
   {
