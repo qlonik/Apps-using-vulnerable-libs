@@ -6,49 +6,18 @@ import { getCandidateLibs } from '../similarityIndex'
 import { union } from '../similarityIndex/set'
 import { opts, resolveAllOrInParallel } from '../utils'
 import { fileOp, saveFiles } from '../utils/files'
-import { stdoutLog } from '../utils/logger'
 import {
   ANALYSIS_FOLDER,
   REACT_NATIVE_CAND_FILE,
   REACT_NATIVE_MAIN_FILE,
   REACT_NATIVE_SIG_FILE,
 } from './constants'
-import { APP_TYPES, appDesc, getApps } from './getters'
-import { AppParserFn, AppsFolderParserFn, IsAppTypeFn } from './index'
+import { APP_TYPES, appDesc } from './getters'
+import { IsAppTypeFn } from './index'
 
 export const isReactNativeApp: IsAppTypeFn = async function({ appPath }): Promise<boolean> {
   const bundlePath = [appPath, 'assets', 'index.android.bundle']
   return await pathExists(join(...bundlePath))
-}
-
-/**
- * @deprecated
- */
-export const parseScriptsFromReactNativeApp: AppParserFn = async function(
-  { appPath, libsPath },
-  { debugDoLess = false, chunkLimit = 10, chunkSize = 10, conservative = true }: opts = {},
-) {}
-
-/**
- * @deprecated
- */
-export const parseScriptsFromReactNativeApps: AppsFolderParserFn = async function(
-  { allAppsPath, libsPath },
-  { debugDoLess = false, chunkLimit = 10, chunkSize = 5 }: opts = {},
-) {
-  const apps = await getApps(allAppsPath, APP_TYPES.reactNative)
-  const lazyAppAnalysis = apps.map(({ type, section, app }) => {
-    return async () =>
-      parseScriptsFromReactNativeApp({
-        appPath: join(allAppsPath, type, section, app),
-        libsPath,
-      })
-  })
-  if (debugDoLess) {
-    await Promise.all([lazyAppAnalysis[0](), lazyAppAnalysis[1]()])
-  } else {
-    await resolveAllOrInParallel(lazyAppAnalysis, { chunkLimit, chunkSize })
-  }
 }
 
 export const preprocessReactNativeApp = async (
