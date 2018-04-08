@@ -27,7 +27,8 @@ export enum APP_TYPE {
   reactNative = 'react-native',
 }
 
-const INPUT_FOLDER = '/gi-pool/appdata-ro'
+// can be '/gi-pool/appdata-ro' or '/home/nvolodin/20180315/crawl-fdroid/crawl-fdroid/apks'
+const INPUT_FOLDER = ''
 const TMP_FOLDER = '/home/nvolodin/Auvl/data/tmp'
 const EXTRACTED_JS = '/home/nvolodin/Auvl/data/sample_apps'
 const FINISHED_APK = '/home/nvolodin/Auvl/data/apps_apks'
@@ -74,6 +75,11 @@ let terminating: Promise<void>
 let pool: Pool<messages>
 
 async function main() {
+  if (!INPUT_FOLDER) {
+    log('INPUT_FOLDER is not specified')
+    return
+  }
+
   const wPath = await getWorkerPath(__filename)
   const sections_todo = await readdir(INPUT_FOLDER)
 
