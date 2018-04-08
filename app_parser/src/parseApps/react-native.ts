@@ -5,7 +5,7 @@ import { extractReactNativeStructure } from '../extractStructure'
 import { getCandidateLibs } from '../similarityIndex'
 import { union } from '../similarityIndex/set'
 import { opts, resolveAllOrInParallel } from '../utils'
-import { fileOp, saveFiles } from '../utils/files'
+import { fileDescOp, fileOp, saveFiles } from '../utils/files'
 import {
   ANALYSIS_FOLDER,
   REACT_NATIVE_CAND_FILE,
@@ -43,13 +43,32 @@ export const preprocessReactNativeApp = async (
 
   const lazy = parsedBundle.map(({ id, functionSignature, literalSignature }) => async () => {
     const cwd = join(jsAnalysisPath, isString(id) ? `s_${id}` : `n_${id}`)
-    await saveFiles({
-      cwd,
-      dst: REACT_NATIVE_SIG_FILE,
-      type: fileOp.json,
-      json: { functionSignature, literalSignature },
-      conservative,
-    })
+    const ops = [
+      {
+        cwd,
+        dst: REACT_NATIVE_SIG_FILE,
+        type: fileOp.json,
+        json: { functionSignature, literalSignature },
+        conservative,
+      },
+    ] as fileDescOp[]
+
+    if (allLibsPath) {
+      const fileCandidate = await getCandidateLibs({
+        signature: { literalSignature },
+        libsPath: allLibsPath,
+        opts: { limit: 10 },
+      })
+      ops.push({
+        cwd,
+        dst: REACT_NATIVE_CAND_FILE,
+        type: fileOp.json,
+        json: fileCandidate,
+        conservative,
+      })
+    }
+
+    await saveFiles(ops)
   })
 
   if (allLibsPath) {
