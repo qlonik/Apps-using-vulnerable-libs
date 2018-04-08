@@ -1,3 +1,5 @@
+/* eslint-disable no-empty, typescript/no-use-before-define */
+
 import {
   BlockStatement,
   Expression,
