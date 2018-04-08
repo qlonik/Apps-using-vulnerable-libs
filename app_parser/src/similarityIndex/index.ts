@@ -17,10 +17,7 @@ import {
   librarySimilarityByFunctionNamesAndStatementTokens,
   librarySimilarityByFunctionStatementTokens_v2,
 } from './similarity-methods'
-import {
-  FunctionSignatureMatched,
-  similarityIndexValueAndSimilarityMap,
-} from './similarity-methods/types'
+import { FunctionSignatureMatched, SimMapWithConfidence } from './similarity-methods/types'
 import { SortedLimitedList } from './SortedLimitedList'
 
 export type Similarity = libNameVersion & {
@@ -211,7 +208,7 @@ export const getBundleSimilarityToLibs = async ({
   }
   const sortedCandidates = sortBy(candidates, (o) => -o.index.val)
   return await sortedCandidates.reduce(async (candProm, candidate) => {
-    type matchedLib = libNameVersionSigFile & similarityIndexValueAndSimilarityMap
+    type matchedLib = libNameVersionSigFile & SimMapWithConfidence
 
     const cand = await candProm
     const libVerSigs = await getLibNameVersionSigContents(libsPath, candidate.name)

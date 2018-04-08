@@ -4,14 +4,15 @@ import {
   FunctionSignatures, // eslint-disable-line no-unused-vars
   isFunctionSignatures,
 } from '../../extractStructure'
-import { jaccardLike } from '../set'
+import { indexValue, jaccardLike } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
 import {
+  DefiniteMap,
   FunctionSignatureMatched,
   nameProbIndex,
   Prob,
   probIndex,
-  similarityIndexValueAndSimilarityMap,
+  SimMapWithConfidence,
   typeErrorMsg,
 } from './types'
 
@@ -52,7 +53,7 @@ import {
 export function v1<T extends FunctionSignature[] | FunctionSignatures>(
   unknownS: T,
   libS: T,
-): similarityIndexValueAndSimilarityMap {
+): SimMapWithConfidence {
   let unknown: FunctionSignature[]
   let lib: FunctionSignature[]
   if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
@@ -99,9 +100,12 @@ export function v1<T extends FunctionSignature[] | FunctionSignatures>(
   )
 
   const similarity = jaccardLike(possibleFnNames.map((v) => v.name), lib.map((v) => v.name))
-  const mapping = possibleFnNames.reduce((acc, { index: libIndex }, unknownIndex) => {
-    return libIndex === -1 ? acc : acc.set(unknownIndex, libIndex)
-  }, new Map())
+  const mapping = possibleFnNames.reduce(
+    (acc, { index, prob }, unknownIndex) => {
+      return index === -1 ? acc : acc.set(unknownIndex, { index, prob })
+    },
+    new Map() as DefiniteMap<number, probIndex>,
+  )
 
   return { similarity, mapping }
 }
@@ -119,7 +123,7 @@ export function v1<T extends FunctionSignature[] | FunctionSignatures>(
 export function v2<T extends FunctionSignature[] | FunctionSignatures>(
   unknownS: T,
   libS: T,
-): similarityIndexValueAndSimilarityMap {
+): SimMapWithConfidence {
   let unknown: FunctionSignature[]
   let lib: FunctionSignature[]
   if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
@@ -168,18 +172,19 @@ export function v2<T extends FunctionSignature[] | FunctionSignatures>(
   return {
     similarity: jaccardLike(possibleFnIndexes, lib.keys()),
     // similarity: jaccardLike(possibleFnIndexes.map((v) => '' + v), Object.keys(libCopy)),
-    mapping: mappedUnknownSig.reduce((acc, { __matched }, unknownIndex) => {
-      return __matched && typeof __matched === 'object'
-        ? acc.set(unknownIndex, __matched.index)
-        : acc
-    }, new Map<number, number>()),
+    mapping: mappedUnknownSig.reduce(
+      (acc, { __matched }, unknownIndex) => {
+        return __matched && typeof __matched === 'object' ? acc.set(unknownIndex, __matched) : acc
+      },
+      new Map() as DefiniteMap<number, probIndex>,
+    ),
   }
 }
 
 export function v3<T extends FunctionSignature[] | FunctionSignatures>(
   unknownS: T,
   libS: T,
-): similarityIndexValueAndSimilarityMap {
+): SimMapWithConfidence {
   let unknown: FunctionSignature[]
   let lib: FunctionSignature[]
   if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
@@ -212,23 +217,26 @@ export function v3<T extends FunctionSignature[] | FunctionSignatures>(
     }
   }
 
-  const selectedMatchesUnsorted = new Map<number, number>()
+  const selectedMatchesUnsorted = [] as [number, number, indexValue][]
   const usedUnknownI = new Set<number>()
   const usedLibI = new Set<number>()
-  for (let { unknownIndex, libIndex } of sll.value()) {
+  for (let { unknownIndex, libIndex, prob } of sll.value()) {
     if (!usedUnknownI.has(unknownIndex) && !usedLibI.has(libIndex)) {
       usedUnknownI.add(unknownIndex)
       usedLibI.add(libIndex)
-      selectedMatchesUnsorted.set(unknownIndex, libIndex)
+      selectedMatchesUnsorted.push([unknownIndex, libIndex, prob])
     }
   }
 
-  const selectedMatches = new Map<number, number>(
-    sortBy([...selectedMatchesUnsorted], ([key]) => key),
+  const selectedMatches = sortBy(selectedMatchesUnsorted, ([key]) => key).reduce(
+    (map, [unknownIndex, libIndex, prob]) => {
+      return map.set(unknownIndex, { index: libIndex, prob })
+    },
+    new Map() as DefiniteMap<number, probIndex>,
   )
 
   const possibleFnIndexes = unknown.map((u, i) => {
-    return selectedMatches.has(i) ? selectedMatches.get(i) : -1
+    return selectedMatches.has(i) ? selectedMatches.get(i).index : -1
   })
 
   return {

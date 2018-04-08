@@ -89,4 +89,11 @@ export const EXPECTED_SIMILARITY = jaccardLike(
   POSSIBLE_NAMES_BY_FN_ST_TOKENS.map((s) => s.name),
   LIB_SIG.map((s) => s.name),
 )
-export const EXPECTED_MAPPING = new Map([[0, 0], [1, 1], [2, 2], [3, 3], [4, 5], [5, 4]])
+export const EXPECTED_MAPPING = new Map([
+  [0, { index: 0, prob: { val: 4 / 4, num: 4, den: 4 } }],
+  [1, { index: 1, prob: { val: 3 / 5, num: 3, den: 5 } }],
+  [2, { index: 2, prob: { val: 4 / 5, num: 4, den: 5 } }],
+  [3, { index: 3, prob: { val: 4 / 6, num: 4, den: 6 } }],
+  [4, { index: 5, prob: { val: 2 / 7, num: 2, den: 7 } }],
+  [5, { index: 4, prob: { val: 4 / 9, num: 4, den: 9 } }],
+])

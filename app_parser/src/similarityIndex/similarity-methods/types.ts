@@ -23,6 +23,11 @@ export type similarityIndexValueAndSimilarityMap = {
   mapping: DefiniteMap<number, number>
 }
 
+export interface SimMapWithConfidence {
+  similarity: indexValue
+  mapping: DefiniteMap<number, probIndex>
+}
+
 export type FunctionSignatureMatched = FunctionSignature & {
   __matched?: boolean | probIndex
 }
