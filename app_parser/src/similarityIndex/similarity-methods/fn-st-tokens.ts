@@ -1,4 +1,4 @@
-import { clone, findIndex, head, pullAt, sortBy } from 'lodash'
+import { clone, head, sortBy } from 'lodash'
 import {
   FunctionSignature,
   FunctionSignatures, // eslint-disable-line no-unused-vars
@@ -212,22 +212,16 @@ export function v3<T extends FunctionSignature[] | FunctionSignatures>(
     }
   }
 
-  const selectedMatchesUnsorted = sll
-    .value()
-    .reduce((acc, { unknownIndex, libIndex }, index, arr) => {
-      let foundIndex
-      while (
-        (foundIndex = findIndex(
-          arr,
-          (o: indexesProb) => o.unknownIndex === unknownIndex || o.libIndex === libIndex,
-          index + 1,
-        )) !== -1
-      ) {
-        pullAt(arr, foundIndex)
-      }
-
-      return acc.set(unknownIndex, libIndex)
-    }, new Map<number, number>())
+  const selectedMatchesUnsorted = new Map<number, number>()
+  const usedUnknownI = new Set<number>()
+  const usedLibI = new Set<number>()
+  for (let { unknownIndex, libIndex } of sll.value()) {
+    if (!usedUnknownI.has(unknownIndex) && !usedLibI.has(libIndex)) {
+      usedUnknownI.add(unknownIndex)
+      usedLibI.add(libIndex)
+      selectedMatchesUnsorted.set(unknownIndex, libIndex)
+    }
+  }
 
   const selectedMatches = new Map<number, number>(
     sortBy([...selectedMatchesUnsorted], ([key]) => key),
