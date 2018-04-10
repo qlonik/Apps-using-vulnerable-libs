@@ -64,10 +64,11 @@ const collapseFnNamesTree = (
 // todo: refactor existing types rather than alias them
 export type FunctionSignature = Signature
 export type LiteralSignature = SignatureLiteral
+export type CommentSignature = string | string[]
 
 export type FunctionSignatures = { functionSignature: FunctionSignature[] }
 export type LiteralSignatures = { literalSignature: LiteralSignature[] }
-export type Comments = { comments: (string | string[])[] }
+export type Comments = { comments: CommentSignature[] }
 
 export const isFunctionSignatures = (o: any): o is FunctionSignatures => {
   return typeof o === 'object' && 'functionSignature' in o && Array.isArray(o.functionSignature)
