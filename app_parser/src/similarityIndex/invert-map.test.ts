@@ -33,7 +33,7 @@ const arbPairs: arb.Arbitrary<[number, number][]> = arb
   .smap(arr => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
 
 test(
-  'map gets inverted',
+  'arb map is inverted',
   check(arbPairs, (t, pairs: [number, number][]) => {
     const unzipped = unzip(pairs)
     const inverted = zip(unzipped[1], unzipped[0]) as [number, number][]
