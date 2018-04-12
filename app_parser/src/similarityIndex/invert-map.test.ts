@@ -1,6 +1,5 @@
 import { test } from 'ava'
-import { unzip, zip } from 'lodash'
-import { identity, uniqBy } from 'lodash/fp'
+import { uniqBy, identity, unzip, zip, clone } from 'lodash'
 import { arb, check } from '../_helpers/property-test'
 import { invertMap } from './set'
 
@@ -12,8 +11,9 @@ test('map is inverted', t => {
 
 const setOfIntegerPairs = arb
   .nearray(arb.pair(arb.nat, arb.nat))
-  .smap(uniqBy<[number, number]>(x => x[0]), identity)
-  .smap(uniqBy<[number, number]>(x => x[1]), identity)
+  .smap(arr => uniqBy(arr, x => x[0]), identity)
+  .smap(arr => uniqBy(arr, x => x[1]), identity)
+  .smap(arr => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
 
 test(
   'map gets inverted',
