@@ -1,6 +1,7 @@
 import { test } from 'ava'
+import arb from 'jsverify'
 import { uniqBy, identity, unzip, zip, clone } from 'lodash'
-import { arb, check } from '../_helpers/property-test'
+import { check } from '../_helpers/property-test'
 import { invertMap } from './set'
 
 test('map is inverted', t => {
@@ -9,7 +10,7 @@ test('map is inverted', t => {
   t.deepEqual(inverted, invertMap(map))
 })
 
-const arbPairs = arb
+const arbPairs: arb.Arbitrary<[number, number][]> = arb
   .nearray(arb.pair(arb.nat, arb.nat))
   .smap(arr => uniqBy(arr, x => x[0]), identity)
   .smap(arr => uniqBy(arr, x => x[1]), identity)
