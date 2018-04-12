@@ -1,5 +1,9 @@
 import { curry, pullAt, findIndex } from 'lodash'
-import { DefiniteMap, similarityIndexValueAndSimilarityMap } from './similarity-methods/types'
+import {
+  DefiniteMap,
+  probIndex,
+  similarityIndexValueAndSimilarityMap,
+} from './similarity-methods/types'
 
 export function isSubset<T>(a: Set<T>, b: Set<T>): boolean {
   for (let elem of a) {
@@ -148,6 +152,21 @@ export const invertMap = <K, V>(a: Map<K, V>): Map<V, K> => {
     if (val !== undefined) {
       map.set(val, key)
     }
+  }
+  return map
+}
+
+export const invertMapWithConfidence = (
+  a: DefiniteMap<number, probIndex>,
+): DefiniteMap<number, probIndex> => {
+  const setOfI = new Set<number>()
+  const map = new Map() as DefiniteMap<number, probIndex>
+  for (let [key, { index, prob }] of a.entries()) {
+    if (setOfI.has(index)) {
+      throw new TypeError('values have to be unique')
+    }
+    setOfI.add(index)
+    map.set(index, { index: key, prob })
   }
   return map
 }
