@@ -135,7 +135,7 @@ export const jaccardLikeWithMapping = <T>(
   }
 }
 
-export const invertMap = <K, V>(a: Map<K, V>): Map<V, K> => {
+export const invertMap = (a: Map<number, number>): Map<number, number> => {
   const vals = [...a.values()]
   const noUndef = vals.filter((val) => val !== undefined)
 
@@ -146,7 +146,7 @@ export const invertMap = <K, V>(a: Map<K, V>): Map<V, K> => {
     throw new TypeError('values cannot be set to undefined')
   }
 
-  const map = new Map<V, K>()
+  const map = new Map<number, number>()
   for (let key of a.keys()) {
     const val = a.get(key)
     if (val !== undefined) {
