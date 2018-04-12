@@ -9,7 +9,7 @@ test('map is inverted', t => {
   t.deepEqual(inverted, invertMap(map))
 })
 
-const setOfIntegerPairs = arb
+const arbPairs = arb
   .nearray(arb.pair(arb.nat, arb.nat))
   .smap(arr => uniqBy(arr, x => x[0]), identity)
   .smap(arr => uniqBy(arr, x => x[1]), identity)
@@ -17,7 +17,7 @@ const setOfIntegerPairs = arb
 
 test(
   'map gets inverted',
-  check(setOfIntegerPairs, (t, pairs: [number, number][]) => {
+  check(arbPairs, (t, pairs: [number, number][]) => {
     const unzipped = unzip(pairs)
     const inverted = zip(unzipped[1], unzipped[0]) as [number, number][]
     t.deepEqual(new Map(pairs), invertMap(new Map(inverted)))
