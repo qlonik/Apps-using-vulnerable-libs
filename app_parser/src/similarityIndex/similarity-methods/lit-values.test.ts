@@ -32,6 +32,8 @@ test(
 
       const { similarity, mapping: origMap } = librarySimilarityByLiteralValues(unknown, lib)
 
+      // remove prob from librarySimilarityByLiteralValues mapping
+      // to compare with jaccardLikeWithMapping
       const mapping = new Map() as DefiniteMap<number, number>
       origMap.forEach(({ index }, key) => mapping.set(key, index))
 
