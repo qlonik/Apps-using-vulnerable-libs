@@ -1,6 +1,6 @@
 import { test } from 'ava'
 import { cloneDeep } from 'lodash'
-import { arbPairs } from '../_helpers/arbitraries'
+import { arbMapWithConfidence, arbPairs } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import { invertMap, invertMapWithConfidence } from './set'
 import { DefiniteMap, probIndex } from './similarity-methods/types'
@@ -34,6 +34,19 @@ test(
     )
 
     t.deepEqual(expected, invertMap(new Map(pairs)))
+  }),
+)
+
+test(
+  'arb map with confidence is inverted',
+  check(arbMapWithConfidence, (t, map) => {
+    const expected = new Map(
+      [...map]
+        .map(([key, { index, prob }]) => [index, { index: key, prob }] as [number, probIndex])
+        .sort((p1, p2) => p1[0] - p2[0]),
+    )
+
+    t.deepEqual(expected, invertMapWithConfidence(map))
   }),
 )
 
