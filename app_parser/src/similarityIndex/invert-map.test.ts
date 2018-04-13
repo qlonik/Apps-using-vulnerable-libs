@@ -79,3 +79,42 @@ test('invertMapWithConfidence() throws when values contain undefined', t => {
   const err2 = t.throws(() => invertMapWithConfidence(map2), { instanceOf: TypeError })
   t.truthy(err2.message)
 })
+
+test(
+  'invertMap() does not mutate data',
+  check(arbPairs, (t, pairs) => {
+    const copy = new Map(cloneDeep(pairs))
+    invertMap(copy)
+    t.deepEqual(new Map(pairs), copy)
+  }),
+)
+
+test(
+  'invertMap() is idempotent',
+  check(arbPairs, (t, pairs) => {
+    const f = invertMap
+    const map = new Map(pairs)
+
+    t.deepEqual(map, f(f(map)))
+    t.deepEqual(f(map), f(f(f(map))))
+  }),
+)
+
+test(
+  'invertMapWithConfidence() does not mutate data',
+  check(arbMapWithConfidence, (t, m) => {
+    const copy = cloneDeep(m)
+    invertMapWithConfidence(copy)
+    t.deepEqual(m, copy)
+  }),
+)
+
+test(
+  'invertMapWithConfidence() is idempotent',
+  check(arbMapWithConfidence, (t, m) => {
+    const f = invertMapWithConfidence
+
+    t.deepEqual(m, f(f(m)))
+    t.deepEqual(f(m), f(f(f(m))))
+  }),
+)
