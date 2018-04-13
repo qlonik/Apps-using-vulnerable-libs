@@ -66,7 +66,11 @@ const signaturePairCreator = <T>(a: arb.Arbitrary<T>): arb.Arbitrary<[T[], T[]]>
 export const arbFunctionSignature = arb.record({
   type: arb.constant('fn'),
   name: arb
-    .nearray(arb.oneof([arb.asciinestring, arb.constant('[anonymous]')]))
+    .nearray(arb.either(arb.constant('[anonymous]'), arb.asciinestring))
+    .smap(
+      (arr) => arr.map((v: any): string => v.value),
+      (arr) => arr.map((v) => (v === '[anonymous]' ? (arb as any).left(v) : (arb as any).right(v))),
+    )
     .smap((a) => a.reduce(fnNamesConcat, ''), fnNamesSplit),
   fnStatementTokens: arb.array(arb.asciinestring),
   fnStatementTypes: arb.array(arb.asciinestring),
@@ -74,15 +78,20 @@ export const arbFunctionSignature = arb.record({
 export const arbFunctionSignatureArr = arb.nearray(arbFunctionSignature)
 export const arbFunctionSignatureArrPair = signaturePairCreator(arbFunctionSignature)
 
-export const arbLiteralSignature = arb.oneof<any>([arb.number, arb.asciistring]) as arb.Arbitrary<
-  LiteralSignature
->
+export const arbLiteralSignature = arb
+  .either(arb.asciistring, arb.number)
+  .smap(
+    (v: any): string | number => v.value,
+    (v) => (typeof v === 'string' ? (arb as any).left(v) : (arb as any).right(v)),
+  ) as arb.Arbitrary<LiteralSignature>
 export const arbLiteralSignatureArr = arb.nearray(arbLiteralSignature)
 export const arbLiteralSignatureArrPair = signaturePairCreator(arbLiteralSignature)
 
-export const arbCommentSignature = arb.oneof<any>([
-  arb.asciinestring,
-  arb.nearray(arb.asciinestring),
-]) as arb.Arbitrary<CommentSignature>
+export const arbCommentSignature = arb
+  .either(arb.asciinestring, arb.nearray(arb.asciinestring))
+  .smap(
+    (v: any): string | string[] => v.value,
+    (v) => (typeof v === 'string' ? (arb as any).left(v) : (arb as any).right(v)),
+  ) as arb.Arbitrary<CommentSignature>
 export const arbCommentSignatureArr = arb.nearray(arbCommentSignature)
 export const arbCommentSignatureArrPair = signaturePairCreator(arbCommentSignature)
