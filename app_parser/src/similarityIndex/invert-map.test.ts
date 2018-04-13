@@ -51,3 +51,21 @@ test('invertMap() throws when values contain undefined', t => {
   const err = t.throws(() => invertMap(map), { instanceOf: TypeError })
   t.truthy(err.message)
 })
+
+test('invertMapWithConfidence() throws when values are not unique', t => {
+  const val = { index: 2, prob: { val: 0.5, num: 2, den: 4 } }
+  const map = new Map([[1, val], [2, val]]) as DefiniteMap<number, probIndex>
+  const err = t.throws(() => invertMapWithConfidence(map), { instanceOf: TypeError })
+  t.truthy(err.message)
+})
+
+test('invertMapWithConfidence() throws when values contain undefined', t => {
+  const map1 = new Map([[1, undefined as any]]) as DefiniteMap<number, probIndex>
+  const err1 = t.throws(() => invertMapWithConfidence(map1), { instanceOf: TypeError })
+  t.truthy(err1.message)
+
+  const val = { index: undefined as any, prob: { val: 0.5, num: 2, den: 4 } }
+  const map2 = new Map([[1, val]]) as DefiniteMap<number, probIndex>
+  const err2 = t.throws(() => invertMapWithConfidence(map2), { instanceOf: TypeError })
+  t.truthy(err2.message)
+})
