@@ -1,5 +1,5 @@
 import arb from 'jsverify'
-import { uniqBy, identity, clone } from 'lodash'
+import { clone, identity, uniqBy } from 'lodash'
 import {
   CommentSignature,
   fnNamesConcat,
