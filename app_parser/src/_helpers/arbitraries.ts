@@ -1,5 +1,5 @@
 import arb from 'jsverify'
-import { clone, identity, uniqBy } from 'lodash'
+import { clone, differenceWith, identity, intersectionWith, isEqual, shuffle, uniqBy } from 'lodash'
 import {
   CommentSignature,
   fnNamesConcat,
@@ -40,6 +40,29 @@ export const arbMapWithConfidence = arb
   .smap((arr) => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
   .smap((arr) => new Map(arr) as DefiniteMap<number, probIndex>, (map) => [...map])
 
+const signaturePairCreator = <T>(a: arb.Arbitrary<T>): arb.Arbitrary<[T[], T[]]> => {
+  return arb
+    .tuple([arb.nearray(a), arb.either(arb.constant([]), arb.nearray(a)), arb.nearray(a)])
+    .smap(
+      ([one, intersection, two]: [T[], any, T[]]): [T[], T[]] => [
+        shuffle(one.concat(intersection.value)),
+        shuffle(two.concat(intersection.value)),
+      ],
+      ([one, two]) => {
+        const intersection = intersectionWith(one, two, isEqual)
+        const either =
+          intersection.length === 0
+            ? (arb as any).left(intersection)
+            : (arb as any).right(intersection)
+        return [
+          differenceWith(one, intersection, isEqual),
+          either,
+          differenceWith(two, intersection, isEqual),
+        ]
+      },
+    )
+}
+
 export const arbFunctionSignature = arb.record({
   type: arb.constant('fn'),
   name: arb
@@ -49,14 +72,17 @@ export const arbFunctionSignature = arb.record({
   fnStatementTypes: arb.array(arb.asciinestring),
 }) as arb.Arbitrary<FunctionSignature>
 export const arbFunctionSignatureArr = arb.nearray(arbFunctionSignature)
+export const arbFunctionSignatureArrPair = signaturePairCreator(arbFunctionSignature)
 
 export const arbLiteralSignature = arb.oneof<any>([arb.number, arb.asciistring]) as arb.Arbitrary<
   LiteralSignature
 >
 export const arbLiteralSignatureArr = arb.nearray(arbLiteralSignature)
+export const arbLiteralSignatureArrPair = signaturePairCreator(arbLiteralSignature)
 
 export const arbCommentSignature = arb.oneof<any>([
   arb.asciinestring,
   arb.nearray(arb.asciinestring),
 ]) as arb.Arbitrary<CommentSignature>
 export const arbCommentSignatureArr = arb.nearray(arbCommentSignature)
+export const arbCommentSignatureArrPair = signaturePairCreator(arbCommentSignature)
