@@ -38,8 +38,10 @@ export const check: CheckFn = function check(...args: any[]): Implementation {
   const arbitraries = args as Arbitrary<any>[]
 
   return async function jsc$test(this: any, test) {
+    const allLogs = [] as string[][]
     const prop = jsc.forall(...arbitraries, async (...args: any[]) => {
       const clonedThis = cloneInstance(this)
+      allLogs.push((clonedThis.logs = []))
       clonedThis.fn = (t: ExecutionContext) => propertyFn.call(clonedThis, t, ...args)
       const result = await clonedThis.run()
       return result.passed || result.error
@@ -50,6 +52,9 @@ export const check: CheckFn = function check(...args: any[]): Implementation {
       this.title += prettyPrintResult(result)
       return propertyFn.call(this, test, ...result.counterexample)
     } else {
+      for (let log of allLogs[jsc.random(0, allLogs.length - 1)]) {
+        this.addLog(log)
+      }
       test.pass()
     }
   }
