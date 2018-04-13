@@ -288,7 +288,7 @@ test(
   ],
 )
 
-test.skip(
+test.failing.skip(
   'variable declaration: other objects',
   checkTokensMacro,
   stripIndent`
@@ -490,7 +490,7 @@ test(
   ],
 )
 
-test.skip(
+test.failing.skip(
   'call expression: super',
   checkTokensMacro,
   stripIndent`
