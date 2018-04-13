@@ -1,43 +1,60 @@
 import { test } from 'ava'
-import { clone, shuffle } from 'lodash/fp'
+import { arbLiteralSignatureArr, arbLiteralSignatureArrPair } from '../../_helpers/arbitraries'
 import { check } from '../../_helpers/property-test'
-import { jaccardLikeWithMapping } from '../set'
-import { arbLiteralSignatureArr } from '../../_helpers/arbitraries'
+import { invertMapWithConfidence, jaccardLikeWithMapping } from '../set'
 import { librarySimilarityByLiteralValues } from './lit-values'
 import { DefiniteMap } from './types'
 
 test(
   'calling with array === calling with object',
-  check(arbLiteralSignatureArr, arbLiteralSignatureArr, (t, unknown, lib) => {
+  check(arbLiteralSignatureArrPair, (t, [u, l]) => {
     t.deepEqual(
-      librarySimilarityByLiteralValues(clone(unknown), clone(lib)),
-      librarySimilarityByLiteralValues(
-        { literalSignature: clone(unknown) },
-        { literalSignature: clone(lib) },
-      ),
+      librarySimilarityByLiteralValues(u, l),
+      librarySimilarityByLiteralValues({ literalSignature: u }, { literalSignature: l }),
     )
   }),
 )
 
 test(
   'produces expected value',
-  check(
-    { size: 150 },
-    arbLiteralSignatureArr,
-    arbLiteralSignatureArr,
-    arbLiteralSignatureArr,
-    (t, unknownDistinct, intersection, libDistinct) => {
-      const unknown = shuffle(unknownDistinct.concat(intersection))
-      const lib = shuffle(intersection.concat(libDistinct))
+  check({ size: 150 }, arbLiteralSignatureArrPair, (t, [unknown, lib]) => {
+    const { similarity, mapping: origMap } = librarySimilarityByLiteralValues(unknown, lib)
 
-      const { similarity, mapping: origMap } = librarySimilarityByLiteralValues(unknown, lib)
+    // remove prob from librarySimilarityByLiteralValues mapping
+    // to compare with jaccardLikeWithMapping
+    const mapping = new Map() as DefiniteMap<number, number>
+    origMap.forEach(({ index }, key) => mapping.set(key, index))
 
-      // remove prob from librarySimilarityByLiteralValues mapping
-      // to compare with jaccardLikeWithMapping
-      const mapping = new Map() as DefiniteMap<number, number>
-      origMap.forEach(({ index }, key) => mapping.set(key, index))
-
-      t.deepEqual(jaccardLikeWithMapping(unknown, lib), { similarity, mapping })
-    },
-  ),
+    t.deepEqual(jaccardLikeWithMapping(unknown, lib), { similarity, mapping })
+  }),
 )
+
+test(
+  'commutative',
+  check({ size: 150 }, arbLiteralSignatureArrPair, (t, [a, b]) => {
+    const { similarity: simAB, mapping: mappingAB } = librarySimilarityByLiteralValues(a, b)
+    const { similarity: simBA, mapping: mappingBA } = librarySimilarityByLiteralValues(b, a)
+
+    t.deepEqual(simAB, simBA)
+    t.deepEqual(mappingAB, invertMapWithConfidence(mappingBA))
+  }),
+)
+
+test(
+  'produces 0% match when comparing with empty signature',
+  check(arbLiteralSignatureArr, (t, unknown) => {
+    const { similarity, mapping } = librarySimilarityByLiteralValues(unknown, [])
+
+    t.is(0, similarity.val)
+    t.is(0, similarity.num)
+    t.not(0, similarity.den)
+    t.deepEqual(new Map(), mapping)
+  }),
+)
+
+test('produces 100% match when comparing empty signatures', t => {
+  t.deepEqual(
+    { similarity: { val: 1, num: 0, den: 0 }, mapping: new Map() },
+    librarySimilarityByLiteralValues([], []),
+  )
+})
