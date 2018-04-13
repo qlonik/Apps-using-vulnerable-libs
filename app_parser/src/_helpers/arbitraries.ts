@@ -7,12 +7,38 @@ import {
   FunctionSignature,
   LiteralSignature,
 } from '../extractStructure'
+import { indexValue } from '../similarityIndex/set'
+import { DefiniteMap, probIndex } from '../similarityIndex/similarity-methods/types'
 
 export const arbPairs: arb.Arbitrary<[number, number][]> = arb
   .nearray(arb.pair(arb.nat, arb.nat))
   .smap((arr) => uniqBy(arr, (x) => x[0]), identity)
   .smap((arr) => uniqBy(arr, (x) => x[1]), identity)
   .smap((arr) => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
+
+export const arbIndexValue = arb
+  .either(
+    arb.pair(arb.constant(0), arb.constant(0)),
+    arb.pair(arb.nat, arb.nat.smap((x) => x + 1, (x) => x - 1)),
+  )
+  .smap(
+    (either: any /* Either = Left<[number, number]> | Right<[number, number]> */): indexValue =>
+      either.either(
+        ([x, y]: [number, number]) => ({ val: 1, num: x, den: y }),
+        ([x, y]: [number, number]) => ({ val: x / y, num: x, den: y }),
+      ),
+    (indVal) => {
+      const { num: x, den: y } = indVal
+      return x === 0 && y === 0 ? (arb as any).left([x, y]) : (arb as any).right([x, y])
+    },
+  )
+
+export const arbMapWithConfidence = arb
+  .nearray(arb.pair(arb.nat, arb.record({ index: arb.nat, prob: arbIndexValue })))
+  .smap((arr) => uniqBy(arr, (x) => x[0]), identity)
+  .smap((arr) => uniqBy(arr, (x) => x[1].index), identity)
+  .smap((arr) => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
+  .smap((arr) => new Map(arr) as DefiniteMap<number, probIndex>, (map) => [...map])
 
 export const arbFunctionSignature = arb.record({
   type: arb.constant('fn'),
