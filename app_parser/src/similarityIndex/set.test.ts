@@ -1,5 +1,6 @@
 import { test } from 'ava'
-import { arb, check } from '../_helpers/property-test'
+import arb from 'jsverify'
+import { check } from '../_helpers/property-test'
 import {
   difference,
   intersection,

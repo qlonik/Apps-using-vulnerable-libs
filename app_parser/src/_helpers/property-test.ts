@@ -8,8 +8,6 @@ const isArbitraryLike = (o: any): o is ArbitraryLike<any> => {
   return 'generator' in o
 }
 
-export const arb = jsc
-
 const cloneInstance = <T>(o: T): T => {
   return Object.assign(Object.create(Object.getPrototypeOf(o)), o)
 }
