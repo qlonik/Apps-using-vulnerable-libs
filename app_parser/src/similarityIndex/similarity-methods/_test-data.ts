@@ -1,33 +1,5 @@
-import arb from 'jsverify'
-import {
-  CommentSignature,
-  fnNamesConcat,
-  fnNamesSplit,
-  FunctionSignature,
-  LiteralSignature,
-} from '../../extractStructure'
+import { FunctionSignature } from '../../extractStructure'
 import { jaccardLike } from '../set'
-
-export const arbFunctionSignature = arb.record({
-  type: arb.constant('fn'),
-  name: arb
-    .nearray(arb.oneof([arb.asciinestring, arb.constant('[anonymous]')]))
-    .smap((a) => a.reduce(fnNamesConcat, ''), fnNamesSplit),
-  fnStatementTokens: arb.array(arb.asciinestring),
-  fnStatementTypes: arb.array(arb.asciinestring),
-}) as arb.Arbitrary<FunctionSignature>
-export const arbFunctionSignatureArr = arb.nearray(arbFunctionSignature)
-
-export const arbLiteralSignature = arb.oneof<any>([arb.number, arb.asciistring]) as arb.Arbitrary<
-  LiteralSignature
->
-export const arbLiteralSignatureArr = arb.nearray(arbLiteralSignature)
-
-export const arbCommentSignature = arb.oneof<any>([
-  arb.asciinestring,
-  arb.nearray(arb.asciinestring),
-]) as arb.Arbitrary<CommentSignature>
-export const arbCommentSignatureArr = arb.nearray(arbCommentSignature)
 
 export const UNKNOWN_SIG: FunctionSignature[] = [
   {

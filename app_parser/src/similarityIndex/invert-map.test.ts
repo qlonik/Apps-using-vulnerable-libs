@@ -1,6 +1,6 @@
 import { test } from 'ava'
-import arb from 'jsverify'
-import { uniqBy, identity, unzip, zip, clone } from 'lodash'
+import { unzip, zip } from 'lodash'
+import { arbPairs } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import { invertMap, invertMapWithConfidence } from './set'
 import { DefiniteMap, probIndex } from './similarity-methods/types'
@@ -25,12 +25,6 @@ test('map with confidence is inverted and sorted', t => {
   ]) as DefiniteMap<number, probIndex>
   t.deepEqual(expected, invertMapWithConfidence(map))
 })
-
-const arbPairs: arb.Arbitrary<[number, number][]> = arb
-  .nearray(arb.pair(arb.nat, arb.nat))
-  .smap(arr => uniqBy(arr, x => x[0]), identity)
-  .smap(arr => uniqBy(arr, x => x[1]), identity)
-  .smap(arr => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
 
 test(
   'arb map is inverted',

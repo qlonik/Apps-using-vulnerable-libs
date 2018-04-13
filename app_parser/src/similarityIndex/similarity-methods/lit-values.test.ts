@@ -2,7 +2,7 @@ import { test } from 'ava'
 import { clone, shuffle } from 'lodash/fp'
 import { check } from '../../_helpers/property-test'
 import { jaccardLikeWithMapping } from '../set'
-import { arbLiteralSignatureArr } from './_test-data'
+import { arbLiteralSignatureArr } from '../../_helpers/arbitraries'
 import { librarySimilarityByLiteralValues } from './lit-values'
 import { DefiniteMap } from './types'
 
