@@ -40,13 +40,13 @@ test(
   }),
 )
 
-test('throws when values are not unique', t => {
+test('invertMap() throws when values are not unique', t => {
   const map = new Map([[1, 2], [2, 2], [3, 2]])
   const err = t.throws(() => invertMap(map), { instanceOf: TypeError })
   t.truthy(err.message)
 })
 
-test('throws when values contain undefined', t => {
+test('invertMap() throws when values contain undefined', t => {
   const map = new Map<number, number>([[1, undefined as any]])
   const err = t.throws(() => invertMap(map), { instanceOf: TypeError })
   t.truthy(err.message)
