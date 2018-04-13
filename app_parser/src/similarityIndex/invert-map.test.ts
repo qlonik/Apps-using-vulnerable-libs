@@ -1,5 +1,5 @@
 import { test } from 'ava'
-import { unzip, zip } from 'lodash'
+import { cloneDeep } from 'lodash'
 import { arbPairs } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import { invertMap, invertMapWithConfidence } from './set'
@@ -28,15 +28,12 @@ test('map with confidence is inverted and sorted', t => {
 
 test(
   'arb map is inverted',
-  check(arbPairs, (t, pairs: [number, number][]) => {
-    const toCheck = invertMap(new Map(pairs))
+  check(arbPairs, (t, pairs) => {
+    const expected = new Map(
+      pairs.map(([k, v]) => [v, k] as [number, number]).sort((p1, p2) => p1[0] - p2[0]),
+    )
 
-    const unzipped = unzip(pairs)
-    const inverted = zip(unzipped[1], unzipped[0]) as [number, number][]
-    const sorted = inverted.sort((p1, p2) => p1[0] - p2[0])
-    const expected = new Map(sorted)
-
-    t.deepEqual(expected, toCheck)
+    t.deepEqual(expected, invertMap(new Map(pairs)))
   }),
 )
 
