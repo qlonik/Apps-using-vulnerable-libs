@@ -164,16 +164,19 @@ export const invertMap = (a: Map<number, number>): Map<number, number> => {
 }
 
 export const invertMapWithConfidence = (
-  a: DefiniteMap<number, probIndex>,
+  a: Map<number, probIndex>,
 ): DefiniteMap<number, probIndex> => {
   const setOfI = new Set<number>()
   const intermediate = new Map() as DefiniteMap<number, probIndex>
-  for (let [key, { index, prob }] of a.entries()) {
-    if (setOfI.has(index)) {
+  for (let [key, v] of a.entries()) {
+    if (v === undefined || v.index === undefined) {
+      throw new TypeError('values cannot be set to undefined')
+    }
+    if (setOfI.has(v.index)) {
       throw new TypeError('values have to be unique')
     }
-    setOfI.add(index)
-    intermediate.set(index, { index: key, prob })
+    setOfI.add(v.index)
+    intermediate.set(v.index, { index: key, prob: v.prob })
   }
   const sorted = new Map() as DefiniteMap<number, probIndex>
   for (let key of [...intermediate.keys()].sort((a, b) => a - b)) {
