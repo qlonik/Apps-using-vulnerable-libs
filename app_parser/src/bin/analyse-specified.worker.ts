@@ -20,18 +20,15 @@ import { SimMapWithConfidence } from '../similarityIndex/similarity-methods/type
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
-import { messages } from './analyse-specified'
+import { messages, METHODS_TYPE } from './analyse-specified'
 
-type fnNames = keyof messages
+const noop = () => false
 type wFnMap = WorkerFunctionsMap<messages>
-
-type fnName<K = fnNames> = {
+type fnName<K extends METHODS_TYPE = METHODS_TYPE> = {
   fn: <T extends signatureNew>(unknown: T, lib: T) => SimMapWithConfidence
   name: K
 }
-
-const noop = () => false
-type fnNoopName = fnName<fnNames> | { fn: typeof noop; name: fnNames }
+type fnNoopName = fnName | { fn: typeof noop; name: METHODS_TYPE }
 const fnIsNoop = (fn: fnNoopName['fn']): fn is typeof noop => fn === noop
 
 const log = stdoutLog(`analyse-specified.worker.${process.pid}`)
@@ -72,7 +69,7 @@ const compareAndTransformSim = (method: fnName['fn']) => (unknown: signatureNew)
   return { time: round(diff[0] + diff[1] / 1e9, 3), similarity, mapping: sortedMapping }
 }
 
-const analyse = <T extends keyof messages>({ fn, name }: fnName<T>): wFnMap[T] => {
+const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => {
   return async ({ apps, libs, save, app, file, lib, forceRedo = false }) => {
     const appAnalysedPerFile = await getAnalysedData(apps, app, [file])
     if (appAnalysedPerFile.length > 1) {

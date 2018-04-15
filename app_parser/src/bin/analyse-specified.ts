@@ -9,19 +9,25 @@ import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
 import { getWorkerPath } from '../utils/worker'
 
+export enum METHODS_ENUM {
+  'lit-vals',
+  'fn-st-toks-v1',
+  'fn-st-toks-v2',
+  'fn-st-toks-v3',
+  'fn-st-types',
+  'fn-names',
+  'fn-names-st-toks',
+}
+export type METHODS_TYPE = keyof typeof METHODS_ENUM
+const METHODS = Object.values(METHODS_ENUM).filter((n) => typeof n === 'string') as METHODS_TYPE[]
+
 export type descriptor = {
   app: appDesc
   file: analysisFile
   lib: '*' | libName | libNameVersion | libNameVersionSigFile
 }
 export type analysisMethods = Record<
-  | 'lit-vals'
-  | 'fn-st-toks-v1'
-  | 'fn-st-toks-v2'
-  | 'fn-st-toks-v3'
-  | 'fn-st-types'
-  | 'fn-names'
-  | 'fn-names-st-toks',
+  METHODS_TYPE,
   [
     [
       {
@@ -77,31 +83,19 @@ log.enabled = true
 let terminating = false
 
 export const main = async () => {
-  const wPath = await getWorkerPath(__filename)
-
-  if (terminating) {
-    return
-  }
-
-  const pool = poolFactory<messages>(wPath, { minWorkers: 0 })
+  const pool = poolFactory<messages>(await getWorkerPath(__filename), { minWorkers: 0 })
   log('pool: min=%o, max=%o, %o', pool.minWorkers, pool.maxWorkers, pool.stats())
-
-  const methods = (await pool.exec('methods')).filter(
-    (m) => m !== 'methods' && m !== 'run',
-  ) as (keyof analysisMethods)[]
 
   const analysisPromises = flatMap(TO_ANALYSE, ({ app, files, libs }) => {
     return flatMap(files, (file) => {
       return flatMap(libs, (lib) => async (): Promise<
-        {
-          done: false | Record<keyof analysisMethods, boolean>
-        } & descriptor
+        { done: false | Record<METHODS_TYPE, boolean> } & descriptor
       > => {
         if (terminating) {
           return { done: false, app, file, lib }
         }
         const results = await Promise.all(
-          methods.map(async (m) => ({
+          METHODS.map(async (m) => ({
             m,
             r: await pool.exec(m, [
               {
@@ -115,9 +109,10 @@ export const main = async () => {
             ]),
           })),
         )
-        const done = results.reduce((acc, { m, r }) => ({ ...acc, [m]: r }), {} as {
-          [S in keyof analysisMethods]: boolean
-        })
+        const done = results.reduce((acc, { m, r }) => ({ ...acc, [m]: r }), {} as Record<
+          METHODS_TYPE,
+          boolean
+        >)
 
         return { done, app, file, lib }
       })
