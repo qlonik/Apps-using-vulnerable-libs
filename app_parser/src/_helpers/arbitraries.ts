@@ -45,26 +45,20 @@ export const arbMapWithConfidence = arb
   .smap((arr) => new Map(arr) as DefiniteMap<number, probIndex>, (map) => [...map])
 
 export const arraysPair = <T>(a: arb.Arbitrary<T>): arb.Arbitrary<[T[], T[]]> => {
-  return arb
-    .tuple([arb.nearray(a), arb.either(arb.constant([]), arb.nearray(a)), arb.nearray(a)])
-    .smap(
-      ([one, intersection, two]: [T[], any, T[]]): [T[], T[]] => [
-        shuffle(one.concat(intersection.value)),
-        shuffle(two.concat(intersection.value)),
-      ],
-      ([one, two]) => {
-        const intersection = intersectionWith(one, two, isEqual)
-        const either =
-          intersection.length === 0
-            ? (arb as any).left(intersection)
-            : (arb as any).right(intersection)
-        return [
-          differenceWith(one, intersection, isEqual),
-          either,
-          differenceWith(two, intersection, isEqual),
-        ]
-      },
-    )
+  return arb.tuple([arb.array(a), arb.array(a), arb.array(a)]).smap(
+    ([one, intersection, two]: [T[], T[], T[]]): [T[], T[]] => [
+      shuffle(one.concat(intersection)),
+      shuffle(two.concat(intersection)),
+    ],
+    ([one, two]) => {
+      const intersection = intersectionWith(one, two, isEqual)
+      return [
+        differenceWith(one, intersection, isEqual),
+        intersection,
+        differenceWith(two, intersection, isEqual),
+      ]
+    },
+  )
 }
 
 export const arbFunctionSignature = arb.record({
