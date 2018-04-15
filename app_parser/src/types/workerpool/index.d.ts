@@ -45,8 +45,8 @@ declare module 'workerpool' {
     private constructor(script: string, options?: PoolOptions)
     private constructor(options?: PoolOptions)
 
-    public exec<M extends keyof T>(m: M, p: T[M][0]): Promise<T[M][1]>
     public exec<P extends any[], R>(fn: Fn<P, R>, p: P): Promise<R>
+    public exec<M extends keyof T>(m: M, p: T[M][0]): Promise<T[M][1]>
 
     public proxy(): Promise<ProxiedWorkerFunctionsMap<T>>
 
