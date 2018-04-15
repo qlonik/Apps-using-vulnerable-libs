@@ -82,7 +82,7 @@ test('invertMapWithConfidence() throws when values contain undefined', t => {
 
 test(
   'invertMap() does not mutate data',
-  check(arbPairs, (t, pairs) => {
+  check({ tests: 5 }, arbPairs, (t, pairs) => {
     const copy = new Map(cloneDeep(pairs))
     invertMap(copy)
     t.deepEqual(new Map(pairs), copy)
@@ -102,7 +102,7 @@ test(
 
 test(
   'invertMapWithConfidence() does not mutate data',
-  check(arbMapWithConfidence, (t, m) => {
+  check({ tests: 5 }, arbMapWithConfidence, (t, m) => {
     const copy = cloneDeep(m)
     invertMapWithConfidence(copy)
     t.deepEqual(m, copy)
