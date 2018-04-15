@@ -1,7 +1,7 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
 import { flatten } from 'lodash'
 import { join } from 'path'
-import { signatureNew } from '../extractStructure'
+import { signatureWithComments } from '../extractStructure'
 import { SimilarityToLibs } from '../similarityIndex'
 import { indexValue } from '../similarityIndex/set'
 import { assertNever, resolveAllOrInParallel } from '../utils'
@@ -129,7 +129,14 @@ export async function getAnalysedData<T extends analysisFile>(
   appsPath: string,
   app: appDesc,
   files: T[],
-) {
+): Promise<
+  {
+    file: T
+    signature: signatureWithComments | null
+    candidates: { name: string; index: indexValue }[] | null
+    similarity: SimilarityToLibs | null
+  }[]
+> {
   return await resolveAllOrInParallel(
     files.map((file) => async () => {
       const fileArr =
@@ -139,20 +146,16 @@ export async function getAnalysedData<T extends analysisFile>(
             ? [REACT_NATIVE_SIG_FILE, REACT_NATIVE_CAND_FILE, REACT_NATIVE_SIM_FILE]
             : assertNever(app.type)
 
-      const read = (fileType: string) =>
-        readJSON(
-          join(
-            appPath(appsPath, app.type, app.section, app.app),
-            ANALYSIS_FOLDER,
-            file.path,
-            fileType,
-          ),
+      const read = async (fileType: string) => {
+        const path = join(
+          appPath(appsPath, app.type, app.section, app.app),
+          ANALYSIS_FOLDER,
+          file.path,
+          fileType,
         )
-      const [signature, candidates, similarity] = (await Promise.all(fileArr.map(read))) as [
-        signatureNew,
-        { name: string; index: indexValue }[],
-        SimilarityToLibs
-      ]
+        return (await pathExists(path)) ? await readJSON(path) : null
+      }
+      const [signature, candidates, similarity] = await Promise.all(fileArr.map(read))
       return { file, signature, candidates, similarity }
     }),
   )
