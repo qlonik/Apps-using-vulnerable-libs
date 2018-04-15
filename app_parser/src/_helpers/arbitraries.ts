@@ -20,7 +20,10 @@ export const arbMap: arb.Arbitrary<Map<number, number>> = arb
 export const arbIndexValue = arb
   .either(
     arb.pair(arb.constant(0), arb.constant(0)),
-    arb.pair(arb.nat, arb.nat.smap((x) => x + 1, (x) => x - 1)),
+    arb.suchthat(
+      arb.pair(arb.nat, arb.nat.smap((x) => x + 1, (x) => x - 1)),
+      ([num, den]) => num <= den,
+    ),
   )
   .smap(
     (either: any /* Either = Left<[number, number]> | Right<[number, number]> */): indexValue =>
