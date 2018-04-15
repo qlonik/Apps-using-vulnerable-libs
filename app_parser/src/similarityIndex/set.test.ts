@@ -1,5 +1,7 @@
 import { test } from 'ava'
 import arb from 'jsverify'
+import { cloneDeep } from 'lodash'
+import { arraysPair } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import {
   difference,
@@ -128,3 +130,55 @@ test('jaccardLikeWithMapping produces expected mapping', t => {
   const mapping = new Map([[0, 2], [1, 0], [2, 1], [4, 3]])
   t.deepEqual(mapping, jaccardLikeWithMapping(a, b).mapping)
 })
+
+test(
+  'jaccardIndex() does not mutate original data',
+  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
+    const aClone = new Set(cloneDeep(a))
+    const bClone = new Set(cloneDeep(b))
+
+    jaccardIndex(aClone, bClone)
+
+    t.deepEqual(new Set(a), aClone)
+    t.deepEqual(new Set(b), bClone)
+  }),
+)
+
+test(
+  'similarityIndexToLib() does not mutate original data',
+  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
+    const aClone = new Set(cloneDeep(a))
+    const bClone = new Set(cloneDeep(b))
+
+    similarityIndexToLib(aClone, bClone)
+
+    t.deepEqual(new Set(a), aClone)
+    t.deepEqual(new Set(b), bClone)
+  }),
+)
+
+test(
+  'jaccardLike() does not mutate original data',
+  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
+    const aClone = cloneDeep(a)
+    const bClone = cloneDeep(b)
+
+    jaccardLike(aClone, bClone)
+
+    t.deepEqual(a, aClone)
+    t.deepEqual(b, bClone)
+  }),
+)
+
+test(
+  'jaccardLikeWithMapping() does not mutate original data',
+  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
+    const aClone = cloneDeep(a)
+    const bClone = cloneDeep(b)
+
+    jaccardLikeWithMapping(aClone, bClone)
+
+    t.deepEqual(a, aClone)
+    t.deepEqual(b, bClone)
+  }),
+)
