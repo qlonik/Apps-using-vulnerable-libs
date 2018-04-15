@@ -121,7 +121,11 @@ test(
 test(
   'jaccardLikeWithMapping is commutative',
   check(arraysPair(arb.number), (t, [a, b]) => {
-    t.deepEqual(jaccardLikeWithMapping(a, b), jaccardLikeWithMapping(b, a))
+    const { similarity: sim_ab, mapping: map_ab } = jaccardLikeWithMapping(a, b)
+    const { similarity: sim_ba, mapping: map_ba } = jaccardLikeWithMapping(b, a)
+
+    t.deepEqual(sim_ab, sim_ba)
+    t.deepEqual(map_ab, invertMap(map_ba))
   }),
 )
 
