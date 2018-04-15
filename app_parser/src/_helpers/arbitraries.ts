@@ -40,7 +40,7 @@ export const arbMapWithConfidence = arb
   .smap((arr) => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
   .smap((arr) => new Map(arr) as DefiniteMap<number, probIndex>, (map) => [...map])
 
-const signaturePairCreator = <T>(a: arb.Arbitrary<T>): arb.Arbitrary<[T[], T[]]> => {
+const arraysPair = <T>(a: arb.Arbitrary<T>): arb.Arbitrary<[T[], T[]]> => {
   return arb
     .tuple([arb.nearray(a), arb.either(arb.constant([]), arb.nearray(a)), arb.nearray(a)])
     .smap(
@@ -76,7 +76,7 @@ export const arbFunctionSignature = arb.record({
   fnStatementTypes: arb.array(arb.asciinestring),
 }) as arb.Arbitrary<FunctionSignature>
 export const arbFunctionSignatureArr = arb.nearray(arbFunctionSignature)
-export const arbFunctionSignatureArrPair = signaturePairCreator(arbFunctionSignature)
+export const arbFunctionSignatureArrPair = arraysPair(arbFunctionSignature)
 
 export const arbLiteralSignature = arb
   .either(arb.asciistring, arb.number)
@@ -85,7 +85,7 @@ export const arbLiteralSignature = arb
     (v) => (typeof v === 'string' ? (arb as any).left(v) : (arb as any).right(v)),
   ) as arb.Arbitrary<LiteralSignature>
 export const arbLiteralSignatureArr = arb.nearray(arbLiteralSignature)
-export const arbLiteralSignatureArrPair = signaturePairCreator(arbLiteralSignature)
+export const arbLiteralSignatureArrPair = arraysPair(arbLiteralSignature)
 
 export const arbCommentSignature = arb
   .either(arb.asciinestring, arb.nearray(arb.asciinestring))
@@ -94,4 +94,4 @@ export const arbCommentSignature = arb
     (v) => (typeof v === 'string' ? (arb as any).left(v) : (arb as any).right(v)),
   ) as arb.Arbitrary<CommentSignature>
 export const arbCommentSignatureArr = arb.nearray(arbCommentSignature)
-export const arbCommentSignatureArrPair = signaturePairCreator(arbCommentSignature)
+export const arbCommentSignatureArrPair = arraysPair(arbCommentSignature)
