@@ -10,11 +10,12 @@ import {
 import { indexValue } from '../similarityIndex/set'
 import { DefiniteMap, probIndex } from '../similarityIndex/similarity-methods/types'
 
-export const arbPairs: arb.Arbitrary<[number, number][]> = arb
+export const arbMap: arb.Arbitrary<Map<number, number>> = arb
   .nearray(arb.pair(arb.nat, arb.nat))
   .smap((arr) => uniqBy(arr, (x) => x[0]), identity)
   .smap((arr) => uniqBy(arr, (x) => x[1]), identity)
   .smap((arr) => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
+  .smap((arr) => new Map(arr), (map) => [...map])
 
 export const arbIndexValue = arb
   .either(

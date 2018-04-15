@@ -1,6 +1,6 @@
 import { test } from 'ava'
 import { cloneDeep } from 'lodash'
-import { arbMapWithConfidence, arbPairs } from '../_helpers/arbitraries'
+import { arbMapWithConfidence, arbMap } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import { invertMap, invertMapWithConfidence } from './set'
 import { DefiniteMap, probIndex } from './similarity-methods/types'
@@ -28,12 +28,12 @@ test('map with confidence is inverted and sorted', t => {
 
 test(
   'arb map is inverted',
-  check(arbPairs, (t, pairs) => {
+  check(arbMap, (t, map) => {
     const expected = new Map(
-      pairs.map(([k, v]) => [v, k] as [number, number]).sort((p1, p2) => p1[0] - p2[0]),
+      [...map].map(([k, v]) => [v, k] as [number, number]).sort((p1, p2) => p1[0] - p2[0]),
     )
 
-    t.deepEqual(expected, invertMap(new Map(pairs)))
+    t.deepEqual(expected, invertMap(map))
   }),
 )
 
@@ -82,18 +82,17 @@ test('invertMapWithConfidence() throws when values contain undefined', t => {
 
 test(
   'invertMap() does not mutate data',
-  check({ tests: 5 }, arbPairs, (t, pairs) => {
-    const copy = new Map(cloneDeep(pairs))
+  check({ tests: 5 }, arbMap, (t, map) => {
+    const copy = cloneDeep(map)
     invertMap(copy)
-    t.deepEqual(new Map(pairs), copy)
+    t.deepEqual(map, copy)
   }),
 )
 
 test(
   'invertMap() is idempotent',
-  check(arbPairs, (t, pairs) => {
+  check(arbMap, (t, map) => {
     const f = invertMap
-    const map = new Map(pairs)
 
     t.deepEqual(map, f(f(map)))
     t.deepEqual(f(map), f(f(f(map))))
