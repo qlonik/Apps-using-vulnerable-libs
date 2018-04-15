@@ -6,6 +6,7 @@ import { check } from '../_helpers/property-test'
 import {
   difference,
   intersection,
+  invertMap,
   isSubset,
   jaccardIndex,
   jaccardLike,
@@ -105,21 +106,21 @@ test('jaccard like works for unsorted arrays', t => {
 
 test(
   'jaccardLike is commutative',
-  check(arb.array(arb.number), arb.array(arb.number), (t, a, b) => {
+  check(arraysPair(arb.number), (t, [a, b]) => {
     t.deepEqual(jaccardLike(a, b), jaccardLike(b, a))
   }),
 )
 
 test(
   'jaccardLikeWithMapping and jaccardLike produce the same value',
-  check(arb.array(arb.number), arb.array(arb.number), (t, a, b) => {
+  check(arraysPair(arb.number), (t, [a, b]) => {
     t.deepEqual(jaccardLike(a, b), jaccardLikeWithMapping(a, b).similarity)
   }),
 )
 
 test(
   'jaccardLikeWithMapping is commutative',
-  check(arb.array(arb.number), arb.array(arb.number), (t, a, b) => {
+  check(arraysPair(arb.number), (t, [a, b]) => {
     t.deepEqual(jaccardLikeWithMapping(a, b), jaccardLikeWithMapping(b, a))
   }),
 )
