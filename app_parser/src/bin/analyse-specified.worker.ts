@@ -114,7 +114,20 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
 
 const noop = () => false
 
+const aggregate: wFnMap['aggregate'] = async ({
+  apps,
+  libs,
+  save,
+  app,
+  file,
+  libNames,
+  forceRedo = false,
+}) => {
+  return false
+}
+
 const workerMap: wFnMap = {
+  aggregate,
   // will be replaced with actual functions.
   'lit-vals': noop,
   'fn-st-toks-v1': noop,

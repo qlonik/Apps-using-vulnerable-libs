@@ -1,6 +1,6 @@
 import { flatMap, once, flatten } from 'lodash'
 import { join } from 'path'
-import { The } from 'typical-mini'
+import { Omit, Simplify, The } from 'typical-mini'
 import { MessagesMap, pool as poolFactory } from 'workerpool'
 import { analysisFile, APP_TYPES, appDesc, cordovaAnalysisFile } from '../parseApps'
 import {
@@ -26,26 +26,27 @@ export enum METHODS_ENUM {
 export type METHODS_TYPE = keyof typeof METHODS_ENUM
 const METHODS = Object.values(METHODS_ENUM).filter((n) => typeof n === 'string') as METHODS_TYPE[]
 
+export type locations = {
+  apps: string
+  libs: string
+  save: string
+}
+export type opts = Partial<{
+  forceRedo: boolean
+}>
 export type descriptor = {
   app: appDesc
   file: analysisFile
   lib: libNameVersionSigFile
 }
-export type analysisMethods = Record<
-  METHODS_TYPE,
-  [
-    [
-      {
-        apps: string
-        libs: string
-        save: string
-        forceRedo?: boolean
-      } & descriptor
-    ],
-    boolean
-  ]
+export type aggregateDescriptor = Simplify<Omit<descriptor, 'lib'> & { libNames: libName[] }>
+export type analysisMethods = Record<METHODS_TYPE, [[locations & opts & descriptor], boolean]>
+export type messages = The<
+  MessagesMap,
+  analysisMethods & {
+    aggregate: [[locations & opts & aggregateDescriptor], boolean]
+  }
 >
-export type messages = The<MessagesMap, analysisMethods>
 
 const APP_PATH = '../data/sample_apps'
 const LIB_PATH = '../data/sample_libs'
@@ -93,6 +94,8 @@ export const main = async () => {
 
   const toAnalyse = await TO_ANALYSE.reduce(
     async (acc, { app, files, libs }) => {
+      const aggregateLibsSet = new Set<string>()
+
       const loadedLibs = flatten(
         await Promise.all(
           libs.map(async (lib) => {
@@ -111,23 +114,38 @@ export const main = async () => {
               )
             }
 
+            loadedLibNameVersionSig.forEach(({ name }) => aggregateLibsSet.add(name))
+
             return loadedLibNameVersionSig
           }),
         ),
       )
 
-      return (await acc).concat({ app, files, libs: loadedLibs })
+      const aggregateLibs = [...aggregateLibsSet].map((name) => ({ name } as libName))
+
+      const awaited = await acc
+      return {
+        analyse: awaited.analyse.concat({ app, files, libs: loadedLibs }),
+        aggregate: awaited.aggregate.concat({ app, files, libs: aggregateLibs }),
+      }
     },
-    Promise.resolve([] as {
-      app: descriptor['app']
-      files: descriptor['file'][]
-      libs: descriptor['lib'][]
-    }[]),
+    Promise.resolve({
+      analyse: [] as {
+        app: descriptor['app']
+        files: descriptor['file'][]
+        libs: descriptor['lib'][]
+      }[],
+      aggregate: [] as {
+        app: descriptor['app']
+        files: descriptor['file'][]
+        libs: libName[]
+      }[],
+    }),
   )
 
-  const analysisPromises = flatMap(toAnalyse, ({ app, files, libs }) => {
+  const analysisPromises = flatMap(toAnalyse.analyse, ({ app, files, libs }) => {
     return flatMap(files, (file) => {
-      return flatMap(libs, (lib) => async (): Promise<
+      return libs.map((lib) => async (): Promise<
         { done: false | Record<METHODS_TYPE, boolean> } & descriptor
       > => {
         if (terminating) {
@@ -158,15 +176,29 @@ export const main = async () => {
     })
   })
 
+  const aggregatePromises = flatMap(toAnalyse.aggregate, ({ app, files, libs }) => {
+    return files.map((file) => async () => {
+      if (terminating) {
+        return { done: false, app, file, libs }
+      }
+      const done = await pool.exec('aggregate', [
+        { apps: APP_PATH, libs: LIB_PATH, save: ANALYSIS_PATH, app, file, libNames: libs },
+      ])
+
+      return { done, app, file, libs }
+    })
+  })
+
   log('started analysis')
   const results = await resolveAllOrInParallel(analysisPromises)
+  const aggregated = await resolveAllOrInParallel(aggregatePromises)
   if (terminating) {
     log('terminated analysis')
   } else {
     log('finished analysis')
   }
 
-  await myWriteJSON({ file: RESULTS_FILE, content: results })
+  await myWriteJSON({ file: RESULTS_FILE, content: { results, aggregated } })
 
   await pool.terminate()
 }
