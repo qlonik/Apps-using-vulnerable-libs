@@ -19,16 +19,16 @@ import {
 import { SimMapWithConfidence } from '../similarityIndex/similarity-methods/types'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
-import { messages, METHODS_TYPE } from './analyse-specified'
+import {
+  messages,
+  METHODS_TYPE, // eslint-disable-line no-unused-vars
+} from './analyse-specified'
 
-const noop = () => false
 type wFnMap = WorkerFunctionsMap<messages>
 type fnName<K extends METHODS_TYPE = METHODS_TYPE> = {
   fn: <T extends signatureNew>(unknown: T, lib: T) => SimMapWithConfidence
   name: K
 }
-type fnNoopName = fnName | { fn: typeof noop; name: METHODS_TYPE }
-const fnIsNoop = (fn: fnNoopName['fn']): fn is typeof noop => fn === noop
 
 const log = stdoutLog(`analyse-specified.worker.${process.pid}`)
 log.enabled = true
@@ -112,24 +112,30 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
   }
 }
 
-const workerMap = {} as wFnMap
-const methods = [
-  { name: 'lit-vals', fn: librarySimilarityByLiteralValues },
+const noop = () => false
 
+const workerMap: wFnMap = {
+  // will be replaced with actual functions.
+  'lit-vals': noop,
+  'fn-st-toks-v1': noop,
+  'fn-st-toks-v2': noop,
+  'fn-st-toks-v3': noop,
+  'fn-st-types': noop,
+  'fn-names': noop,
+  'fn-names-st-toks': noop,
+}
+const methods: fnName[] = [
+  { name: 'lit-vals', fn: librarySimilarityByLiteralValues },
   { name: 'fn-st-toks-v1', fn: librarySimilarityByFunctionStatementTokens },
   { name: 'fn-st-toks-v2', fn: librarySimilarityByFunctionStatementTokens_v2 },
-  { name: 'fn-st-toks-v3', fn: noop /*librarySimilarityByFunctionStatementTokens_v3*/ },
-
-  { name: 'fn-st-types', fn: noop /*librarySimilarityByFunctionStatementTypes*/ },
-  { name: 'fn-names', fn: noop /*librarySimilarityByFunctionNames*/ },
-  { name: 'fn-names-st-toks', fn: noop /*librarySimilarityByFunctionNamesAndStatementTokens*/ },
-] as fnNoopName[]
+  // { name: 'fn-st-toks-v3', fn: librarySimilarityByFunctionStatementTokens_v3 },
+  // { name: 'fn-st-types', fn: librarySimilarityByFunctionStatementTypes },
+  // { name: 'fn-names', fn: librarySimilarityByFunctionNames },
+  // { name: 'fn-names-st-toks', fn: librarySimilarityByFunctionNamesAndStatementTokens },
+]
 
 worker(
-  methods.reduce(
-    (acc, { fn, name }) => ({ ...acc, [name]: fnIsNoop(fn) ? fn : analyse({ fn, name }) }),
-    workerMap,
-  ),
+  methods.reduce((acc, { fn, name }) => ({ ...acc, [name]: analyse({ fn, name }) }), workerMap),
 )
 
 process.on('SIGINT', () => {})
