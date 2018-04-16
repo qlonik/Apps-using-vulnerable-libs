@@ -1,6 +1,6 @@
 import { mkdirp, pathExists } from 'fs-extra'
 import { padEnd, round, sortBy } from 'lodash'
-import { basename, extname, join } from 'path'
+import { join } from 'path'
 import { worker, WorkerFunctionsMap } from 'workerpool'
 import { signatureNew } from '../extractStructure'
 import {
@@ -10,14 +10,13 @@ import {
   isCordovaAnalysisFile,
   isreactNativeAnalysisFile,
 } from '../parseApps'
-import { getLibNameVersionSigContents, getLibNameVersionSigFiles } from '../parseLibraries'
+import { getLibNameVersionSigContents } from '../parseLibraries'
 import {
   librarySimilarityByFunctionStatementTokens,
   librarySimilarityByFunctionStatementTokens_v2,
   librarySimilarityByLiteralValues,
 } from '../similarityIndex/similarity-methods'
 import { SimMapWithConfidence } from '../similarityIndex/similarity-methods/types'
-import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
 import { messages, METHODS_TYPE } from './analyse-specified'
@@ -80,44 +79,34 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
       literalSignature: [],
     }
 
-    let libSigFiles
-
-    if (lib === '*') {
-      libSigFiles = await getLibNameVersionSigFiles(libs)
-    } else {
-      const version = 'version' in lib ? lib.version : undefined
-      const file = 'file' in lib ? `${lib.file}.json` : undefined
-      libSigFiles = await getLibNameVersionSigFiles(libs, lib.name, version, file)
+    const libSigs = await getLibNameVersionSigContents(
+      libs,
+      lib.name,
+      lib.version,
+      `${lib.file}.json`,
+    )
+    if (libSigs.length > 1) {
+      log(`lib ${lib.name} ${lib.version} ${lib.file}.json has more than one element`)
+    }
+    const libSig = libSigs[0].signature || {
+      functionSignature: [],
+      literalSignature: [],
     }
 
-    const promises = libSigFiles.map((lib) => async () => {
-      const libSigs = await getLibNameVersionSigContents(libs, lib.name, lib.version, lib.file)
-      if (libSigs.length > 1) {
-        log(`lib ${lib.name} ${lib.version} ${lib.file}.json has more than one element`)
-      }
-      const libSig = libSigs[0].signature || {
-        functionSignature: [],
-        literalSignature: [],
-      }
+    const dirPath = join(
+      save,
+      transformAppPath(app),
+      transformFilePath(file),
+      lib.name,
+      `${lib.version}_${lib.file}`,
+    )
+    await mkdirp(dirPath)
 
-      const fileId = basename(lib.file, extname(lib.file))
-      const dirPath = join(
-        save,
-        transformAppPath(app),
-        transformFilePath(file),
-        lib.name,
-        `${lib.version}_${fileId}`,
-      )
-      await mkdirp(dirPath)
-
-      const filePath = join(dirPath, `${name}.json`)
-      if (!await pathExists(filePath) || forceRedo) {
-        const result = await compareAndTransformSim(fn)(appSig)(libSig)
-        await myWriteJSON({ file: filePath, content: result })
-      }
-    })
-
-    await resolveAllOrInParallel(promises)
+    const filePath = join(dirPath, `${name}.json`)
+    if (!await pathExists(filePath) || forceRedo) {
+      const result = await compareAndTransformSim(fn)(appSig)(libSig)
+      await myWriteJSON({ file: filePath, content: result })
+    }
 
     return true
   }

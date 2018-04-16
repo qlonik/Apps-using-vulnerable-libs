@@ -1,9 +1,14 @@
-import { flatMap, once } from 'lodash'
+import { flatMap, once, flatten } from 'lodash'
 import { join } from 'path'
 import { The } from 'typical-mini'
 import { MessagesMap, pool as poolFactory } from 'workerpool'
 import { analysisFile, APP_TYPES, appDesc, cordovaAnalysisFile } from '../parseApps'
-import { libName, libNameVersion, libNameVersionSigFile } from '../parseLibraries'
+import {
+  getLibNameVersionSigFiles,
+  libName, // eslint-disable-line no-unused-vars
+  libNameVersion, // eslint-disable-line no-unused-vars
+  libNameVersionSigFile,
+} from '../parseLibraries'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
@@ -24,7 +29,7 @@ const METHODS = Object.values(METHODS_ENUM).filter((n) => typeof n === 'string')
 export type descriptor = {
   app: appDesc
   file: analysisFile
-  lib: '*' | libName | libNameVersion | libNameVersionSigFile
+  lib: libNameVersionSigFile
 }
 export type analysisMethods = Record<
   METHODS_TYPE,
@@ -50,7 +55,7 @@ const RESULTS_FILE = join(ANALYSIS_PATH, '_results.json')
 type toAnalyseType = {
   app: descriptor['app']
   files: descriptor['file'][]
-  libs: descriptor['lib'][]
+  libs: ('*' | libName | libNameVersion | descriptor['lib'])[]
 }
 const TO_ANALYSE: toAnalyseType[] = [
   {
@@ -86,7 +91,41 @@ export const main = async () => {
   const pool = poolFactory<messages>(await getWorkerPath(__filename), { minWorkers: 0 })
   log('pool: min=%o, max=%o, %o', pool.minWorkers, pool.maxWorkers, pool.stats())
 
-  const analysisPromises = flatMap(TO_ANALYSE, ({ app, files, libs }) => {
+  const toAnalyse = await TO_ANALYSE.reduce(
+    async (acc, { app, files, libs }) => {
+      const loadedLibs = flatten(
+        await Promise.all(
+          libs.map(async (lib) => {
+            let loadedLibNameVersionSig
+
+            if (lib === '*') {
+              loadedLibNameVersionSig = await getLibNameVersionSigFiles(LIB_PATH)
+            } else {
+              const version = 'version' in lib ? lib.version : undefined
+              const file = 'file' in lib ? `${lib.file}.json` : undefined
+              loadedLibNameVersionSig = await getLibNameVersionSigFiles(
+                LIB_PATH,
+                lib.name,
+                version,
+                file,
+              )
+            }
+
+            return loadedLibNameVersionSig
+          }),
+        ),
+      )
+
+      return (await acc).concat({ app, files, libs: loadedLibs })
+    },
+    Promise.resolve([] as {
+      app: descriptor['app']
+      files: descriptor['file'][]
+      libs: descriptor['lib'][]
+    }[]),
+  )
+
+  const analysisPromises = flatMap(toAnalyse, ({ app, files, libs }) => {
     return flatMap(files, (file) => {
       return flatMap(libs, (lib) => async (): Promise<
         { done: false | Record<METHODS_TYPE, boolean> } & descriptor
