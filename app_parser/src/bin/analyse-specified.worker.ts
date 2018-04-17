@@ -86,14 +86,10 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
       literalSignature: [],
     }
 
-    const libSigs = await getLibNameVersionSigContents(
-      libs,
-      lib.name,
-      lib.version,
-      `${lib.file}.json`,
-    )
+    const libFileName = basename(lib.file, extname(lib.file))
+    const libSigs = await getLibNameVersionSigContents(libs, lib.name, lib.version, lib.file)
     if (libSigs.length > 1) {
-      log(`lib ${lib.name} ${lib.version} ${lib.file}.json has more than one element`)
+      log(`lib ${lib.name} ${lib.version} ${libFileName}.json has more than one element`)
     }
     const libSig = libSigs[0].signature || {
       functionSignature: [],
@@ -105,7 +101,7 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
       transformAppPath(app),
       transformFilePath(file),
       lib.name,
-      `${lib.version}_${lib.file}`,
+      `${lib.version}_${libFileName}`,
     )
     await mkdirp(dirPath)
 
