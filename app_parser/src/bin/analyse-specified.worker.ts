@@ -1,6 +1,6 @@
-import { mkdirp, pathExists } from 'fs-extra'
+import { mkdirp, pathExists, readdir, readJSON } from 'fs-extra'
 import { padEnd, round, sortBy } from 'lodash'
-import { join } from 'path'
+import { basename, extname, join } from 'path'
 import { worker, WorkerFunctionsMap } from 'workerpool'
 import { signatureNew } from '../extractStructure'
 import {
@@ -10,13 +10,16 @@ import {
   isCordovaAnalysisFile,
   isreactNativeAnalysisFile,
 } from '../parseApps'
-import { getLibNameVersionSigContents } from '../parseLibraries'
+import { getLibNameVersionSigContents, libNameVersionSigFile } from '../parseLibraries'
+import { Similarity } from '../similarityIndex'
+import { indexValue } from '../similarityIndex/set'
 import {
   librarySimilarityByFunctionStatementTokens,
   librarySimilarityByFunctionStatementTokens_v2,
   librarySimilarityByLiteralValues,
 } from '../similarityIndex/similarity-methods'
 import { SimMapWithConfidence } from '../similarityIndex/similarity-methods/types'
+import { SortedLimitedList } from '../similarityIndex/SortedLimitedList'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
 import {
@@ -29,6 +32,9 @@ type fnName<K extends METHODS_TYPE = METHODS_TYPE> = {
   fn: <T extends signatureNew>(unknown: T, lib: T) => SimMapWithConfidence
   name: K
 }
+
+const TOP_HUNDRED_FILE = '_top_hundred.json'
+const TOP_THREE_PER_LIB_FILE = '_top_three.json'
 
 const log = stdoutLog(`analyse-specified.worker.${process.pid}`)
 log.enabled = true
@@ -44,9 +50,10 @@ const transformFilePath = (f: analysisFile) => {
   }
 }
 
+type retType = { time: number; similarity: indexValue; mapping: string[] }
 const compareAndTransformSim = (method: fnName['fn']) => (unknown: signatureNew) => async (
   lib: signatureNew,
-) => {
+): Promise<retType> => {
   const start = process.hrtime()
   const { similarity, mapping } = method(unknown, lib)
   const diff = process.hrtime(start)
@@ -114,16 +121,68 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
 
 const noop = () => false
 
-const aggregate: wFnMap['aggregate'] = async ({
-  apps,
-  libs,
-  save,
-  app,
-  file,
-  libNames,
-  forceRedo = false,
-}) => {
-  return false
+const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames, forceRedo = false }) => {
+  const wDir = join(save, transformAppPath(app), transformFilePath(file))
+  const predicate = (s: Similarity) => -s.similarity.val
+  const globalSll = new SortedLimitedList({ limit: 100, predicate })
+
+  for (let { name: libName } of libNames) {
+    const libDir = join(wDir, libName)
+    const filesVersions = await readdir(libDir)
+
+    const similarityResultsForAllVersions = await filesVersions.reduce(
+      async (acc, fileVersion) => {
+        const awaited = await acc
+
+        const [version, file] = fileVersion.split('_')
+        const lib = { name: libName, version, file: `${file}.json` }
+
+        const loadedTypeNames = await readdir(join(libDir, fileVersion))
+        const types = await Promise.all(
+          loadedTypeNames.map(async (typeName) => {
+            return {
+              lib,
+              methodName: basename(typeName, extname(typeName)) as METHODS_TYPE,
+              content: (await readJSON(join(libDir, fileVersion, typeName))) as retType,
+            }
+          }),
+        )
+
+        return awaited.concat(types)
+      },
+      Promise.resolve([] as {
+        lib: libNameVersionSigFile
+        methodName: METHODS_TYPE
+        content: retType
+      }[]),
+    )
+
+    const slls = similarityResultsForAllVersions.reduce(
+      (acc, { lib, methodName, content: { similarity } }) => ({
+        ...acc,
+        [methodName]: (acc[methodName] || new SortedLimitedList({ limit: 3, predicate })).push({
+          ...lib,
+          similarity,
+        }),
+      }),
+      {} as { [S in METHODS_TYPE]: SortedLimitedList<Similarity> },
+    )
+
+    const reducedSll = (Object.keys(slls) as (keyof typeof slls)[]).reduce(
+      (acc, key) => {
+        const sllValue = slls[key].value()
+        sllValue.forEach((sim) => globalSll.push(sim))
+        return { ...acc, [key]: sllValue }
+      },
+      {} as { [S in METHODS_TYPE]: Similarity[] },
+    )
+
+    await myWriteJSON({ file: join(libDir, TOP_THREE_PER_LIB_FILE), content: reducedSll })
+  }
+
+  await myWriteJSON({ file: join(wDir, TOP_HUNDRED_FILE), content: globalSll.value() })
+
+  return true
 }
 
 const workerMap: wFnMap = {
