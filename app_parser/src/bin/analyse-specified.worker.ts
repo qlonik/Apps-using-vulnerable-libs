@@ -120,7 +120,7 @@ const noop = () => false
 const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames }) => {
   const wDir = join(save, transformAppPath(app), transformFilePath(file))
   const predicate = (s: Similarity) => -s.similarity.val
-  const globalSll = new SortedLimitedList({ limit: 100, predicate })
+  const globalSlls = {} as { [S in METHODS_TYPE]: SortedLimitedList<Similarity> }
 
   for (let { name: libName } of libNames) {
     const libDir = join(wDir, libName)
@@ -164,8 +164,11 @@ const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames }) => 
       {} as { [S in METHODS_TYPE]: SortedLimitedList<Similarity> },
     )
 
-    const reducedSll = (Object.keys(slls) as (keyof typeof slls)[]).reduce(
+    const reducedSll = (Object.keys(slls) as METHODS_TYPE[]).reduce(
       (acc, key) => {
+        const globalSll =
+          globalSlls[key] || (globalSlls[key] = new SortedLimitedList({ limit: 100, predicate }))
+
         const sllValue = slls[key].value()
         sllValue.forEach((sim) => globalSll.push(sim))
         return { ...acc, [key]: sllValue }
@@ -176,7 +179,14 @@ const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames }) => 
     await myWriteJSON({ file: join(libDir, TOP_THREE_PER_LIB_FILE), content: reducedSll })
   }
 
-  await myWriteJSON({ file: join(wDir, TOP_HUNDRED_FILE), content: globalSll.value() })
+  const reducedGlobalSll = (Object.keys(globalSlls) as METHODS_TYPE[]).reduce(
+    (acc, key) => {
+      return { ...acc, [key]: globalSlls[key].value() }
+    },
+    {} as { [S in METHODS_TYPE]: Similarity[] },
+  )
+
+  await myWriteJSON({ file: join(wDir, TOP_HUNDRED_FILE), content: reducedGlobalSll })
 
   return true
 }
