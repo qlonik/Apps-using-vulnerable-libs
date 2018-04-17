@@ -121,7 +121,7 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
 
 const noop = () => false
 
-const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames, forceRedo = false }) => {
+const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames }) => {
   const wDir = join(save, transformAppPath(app), transformFilePath(file))
   const predicate = (s: Similarity) => -s.similarity.val
   const globalSll = new SortedLimitedList({ limit: 100, predicate })

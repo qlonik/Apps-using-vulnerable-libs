@@ -191,11 +191,12 @@ export const main = async () => {
 
   log('started analysis')
   const results = await resolveAllOrInParallel(analysisPromises)
+  log('started aggregation')
   const aggregated = await resolveAllOrInParallel(aggregatePromises)
   if (terminating) {
-    log('terminated analysis')
+    log('terminated analysis+aggregation')
   } else {
-    log('finished analysis')
+    log('finished analysis+aggregation')
   }
 
   await myWriteJSON({ file: RESULTS_FILE, content: { results, aggregated } })
