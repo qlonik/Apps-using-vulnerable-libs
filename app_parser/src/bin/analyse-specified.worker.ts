@@ -126,32 +126,34 @@ const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames }) => 
     const libDir = join(wDir, libName)
     const filesVersions = await readdir(libDir)
 
-    const similarityResultsForAllVersions = await filesVersions.reduce(
-      async (acc, fileVersion) => {
-        const awaited = await acc
+    const similarityResultsForAllVersions = await filesVersions
+      .filter((n) => !n.startsWith('_'))
+      .reduce(
+        async (acc, fileVersion) => {
+          const awaited = await acc
 
-        const [version, file] = fileVersion.split('_')
-        const lib = { name: libName, version, file: `${file}.json` }
+          const [version, file] = fileVersion.split('_')
+          const lib = { name: libName, version, file: `${file}.json` }
 
-        const loadedTypeNames = await readdir(join(libDir, fileVersion))
-        const types = await Promise.all(
-          loadedTypeNames.map(async (typeName) => {
-            return {
-              lib,
-              methodName: basename(typeName, extname(typeName)) as METHODS_TYPE,
-              content: (await readJSON(join(libDir, fileVersion, typeName))) as retType,
-            }
-          }),
-        )
+          const loadedTypeNames = await readdir(join(libDir, fileVersion))
+          const types = await Promise.all(
+            loadedTypeNames.map(async (typeName) => {
+              return {
+                lib,
+                methodName: basename(typeName, extname(typeName)) as METHODS_TYPE,
+                content: (await readJSON(join(libDir, fileVersion, typeName))) as retType,
+              }
+            }),
+          )
 
-        return awaited.concat(types)
-      },
-      Promise.resolve([] as {
-        lib: libNameVersionSigFile
-        methodName: METHODS_TYPE
-        content: retType
-      }[]),
-    )
+          return awaited.concat(types)
+        },
+        Promise.resolve([] as {
+          lib: libNameVersionSigFile
+          methodName: METHODS_TYPE
+          content: retType
+        }[]),
+      )
 
     const slls = similarityResultsForAllVersions.reduce(
       (acc, { lib, methodName, content: { similarity } }) => ({
