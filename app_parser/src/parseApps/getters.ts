@@ -80,6 +80,9 @@ export async function getApps(appsPath: string, type?: APP_TYPES): Promise<appDe
 export type analysisFile = { path: string }
 
 export type cordovaAnalysisFile = analysisFile & { location: string; id: string }
+export const isCordovaAnalysisFile = (f: analysisFile): f is cordovaAnalysisFile => {
+  return 'location' in f && 'id' in f
+}
 export async function getCordovaAnalysisFiles(
   appsPath: string,
   app: appDesc,
@@ -103,6 +106,9 @@ export async function getCordovaAnalysisFiles(
 const reactNativeIdRegex = /(s|n)_.+/
 export type reactNativeAnalysisFile = analysisFile &
   ({ idType: 'n'; id: number } | { idType: 's'; id: string })
+export const isreactNativeAnalysisFile = (f: analysisFile): f is reactNativeAnalysisFile => {
+  return 'idType' in f && 'id' in f
+}
 export async function getReactNativeAnalysisFiles(
   appsPath: string,
   app: appDesc,
