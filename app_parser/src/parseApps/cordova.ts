@@ -295,8 +295,22 @@ export const preprocessCordovaApp = async (
               tagKeys: Object.keys(script),
             }
           }
+          fileOps.push({
+            cwd,
+            dst: CORDOVA_INFO_FILE,
+            type: fileOp.json,
+            json: infoObject,
+            conservative,
+          })
 
           const signature = await extractStructure({ content })
+          fileOps.push({
+            cwd,
+            dst: CORDOVA_SIG_FILE,
+            type: fileOp.json,
+            json: signature,
+            conservative,
+          })
 
           if (allLibsPath) {
             const candidates = await getCandidateLibs({
@@ -313,12 +327,7 @@ export const preprocessCordovaApp = async (
             })
           }
 
-          return await saveFiles(
-            fileOps.concat([
-              { cwd, dst: CORDOVA_INFO_FILE, type: fileOp.json, json: infoObject, conservative },
-              { cwd, dst: CORDOVA_SIG_FILE, type: fileOp.json, json: signature, conservative },
-            ]),
-          )
+          return await saveFiles(fileOps)
         }
       })
     }),
