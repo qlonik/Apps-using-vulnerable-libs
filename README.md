@@ -14,3 +14,21 @@ vulnerable libraries.
   and `data/sample_apps/` contains apps to analyse.
 * `npm_rank` - rank of npm packages. Clone of
   https://gist.github.com/anvaka/8e8fa57c7ee1350e3491.
+* `secrets/` - folder with secrets - passwords/keys.
+
+### File structure of /data
+
+* `dbs/` - npm databases dumped from couchdb
+  * `scoped.json.tar.xz` - db from `https://replicate.npmjs.com/registry`.
+    One file packed with xz.
+  * `scoped.json` - unpacked `scoped.json.tar.xz`.
+  * `skimdb.json.tar.xz` - db from `https://skimdb.npmjs.com/registry`. One file packed with xz.
+  * `skimdb.json` - unpacked `skimdb.json.tar.xz`.
+
+* `apk_dump/` - folder where `.apk` files are dumped. Need to be in the format:
+  `cordova/section/name.apk`.
+* `lib_dump/` - folder where libs' `.tgz` files are dumped.
+
+* `apps_apks` - folder where `.apk` files are placed after the app is parsed.
+* `sample_apps` - folder where parsed apps files are placed.
+* `sample_libs` - folder where parsed libraries are placed.
