@@ -1,7 +1,7 @@
 import { mkdirp, pathExists, readFile, readJSON } from 'fs-extra'
 import { JSDOM } from 'jsdom'
 import { flatten, groupBy } from 'lodash'
-import { join } from 'path'
+import { join, sep } from 'path'
 import { URL } from 'url'
 import { extractStructure, signatureNew } from '../extractStructure'
 import { getCandidateLibs, getSimilarityToLibs } from '../similarityIndex'
@@ -15,6 +15,7 @@ import {
   CORDOVA_INFO_FILE,
   CORDOVA_LIB_FILE,
   CORDOVA_MAIN_FILE,
+  CORDOVA_NON_PARSED_NOTICE_FILE,
   CORDOVA_SIG_FILE,
   CORDOVA_SIM_FILE,
   JS_DATA_FOLDER,
@@ -303,7 +304,24 @@ export const preprocessCordovaApp = async (
             conservative,
           })
 
-          const signature = await extractStructure({ content })
+          let signature
+          try {
+            signature = await extractStructure({ content })
+          } catch {
+            fileOps.push({
+              cwd,
+              dst: CORDOVA_NON_PARSED_NOTICE_FILE,
+              type: fileOp.text,
+              text: 'THIS FILE COULD NOT BE PARSED',
+              conservative,
+            })
+            const mappedFileOps = fileOps.map((o) => {
+              const splitPath = o.cwd.split(sep)
+              splitPath[splitPath.length - 1] = '_' + splitPath[splitPath.length - 1]
+              return { ...o, cwd: join(...splitPath) }
+            })
+            return await saveFiles(mappedFileOps)
+          }
           fileOps.push({
             cwd,
             dst: CORDOVA_SIG_FILE,
