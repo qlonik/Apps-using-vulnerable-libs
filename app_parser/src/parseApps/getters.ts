@@ -100,7 +100,9 @@ export async function getCordovaAnalysisFiles(
       }),
     ),
   )
-  return locationId.map(({ location, id }) => ({ path: join(location, id), location, id }))
+  return locationId
+    .filter(({ id }) => !id.startsWith('_'))
+    .map(({ location, id }) => ({ path: join(location, id), location, id }))
 }
 
 const reactNativeIdRegex = /(s|n)_.+/
