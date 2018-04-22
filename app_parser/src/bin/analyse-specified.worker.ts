@@ -8,7 +8,7 @@ import {
   appDesc,
   getAnalysedData,
   isCordovaAnalysisFile,
-  isreactNativeAnalysisFile,
+  isReactNativeAnalysisFile,
 } from '../parseApps'
 import { getLibNameVersionSigContents, libNameVersionSigFile } from '../parseLibraries'
 import { Similarity } from '../similarityIndex'
@@ -43,7 +43,7 @@ const transformAppPath = ({ type, section, app }: appDesc) => `${type}___${secti
 const transformFilePath = (f: analysisFile) => {
   if (isCordovaAnalysisFile(f)) {
     return f.path.replace('/', '_')
-  } else if (isreactNativeAnalysisFile(f)) {
+  } else if (isReactNativeAnalysisFile(f)) {
     return f.path
   } else {
     return f.path

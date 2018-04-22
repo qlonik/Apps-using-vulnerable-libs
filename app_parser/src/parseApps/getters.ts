@@ -108,7 +108,7 @@ export async function getCordovaAnalysisFiles(
 const reactNativeIdRegex = /(s|n)_.+/
 export type reactNativeAnalysisFile = analysisFile &
   ({ idType: 'n'; id: number } | { idType: 's'; id: string })
-export const isreactNativeAnalysisFile = (f: analysisFile): f is reactNativeAnalysisFile => {
+export const isReactNativeAnalysisFile = (f: analysisFile): f is reactNativeAnalysisFile => {
   return 'idType' in f && 'id' in f
 }
 export async function getReactNativeAnalysisFiles(
