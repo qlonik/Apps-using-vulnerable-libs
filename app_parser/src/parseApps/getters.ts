@@ -133,20 +133,32 @@ export async function getReactNativeAnalysisFiles(
   })
 }
 
+export type analysedDataFile<T> = {
+  file: T
+  signature: signatureWithComments | null
+  candidates: { name: string; index: indexValue }[] | null
+  similarity: SimilarityToLibs | null
+}
+/* eslint-disable import/export,typescript/no-use-before-define */
+export async function getAnalysedData<T extends analysisFile>(
+  appsPath: string,
+  app: appDesc,
+  files: T,
+): Promise<analysedDataFile<T>>
 export async function getAnalysedData<T extends analysisFile>(
   appsPath: string,
   app: appDesc,
   files: T[],
-): Promise<
-  {
-    file: T
-    signature: signatureWithComments | null
-    candidates: { name: string; index: indexValue }[] | null
-    similarity: SimilarityToLibs | null
-  }[]
-> {
-  return await resolveAllOrInParallel(
-    files.map((file) => async () => {
+): Promise<analysedDataFile<T>[]>
+export async function getAnalysedData<T extends analysisFile>(
+  appsPath: string,
+  app: appDesc,
+  files: T | T[],
+): Promise<analysedDataFile<T> | analysedDataFile<T>[]> {
+  const filesArr: T[] = !Array.isArray(files) ? [files] : files
+
+  const loadedFiles = await resolveAllOrInParallel(
+    filesArr.map((file) => async () => {
       const fileArr =
         app.type === APP_TYPES.cordova
           ? [CORDOVA_SIG_FILE, CORDOVA_CAND_FILE, CORDOVA_SIM_FILE]
@@ -167,4 +179,7 @@ export async function getAnalysedData<T extends analysisFile>(
       return { file, signature, candidates, similarity }
     }),
   )
+
+  return !Array.isArray(files) ? loadedFiles[0] : loadedFiles
 }
+/* eslint-enable import/export,typescript/no-use-before-define */
