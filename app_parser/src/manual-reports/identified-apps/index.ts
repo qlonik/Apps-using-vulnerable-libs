@@ -30,6 +30,7 @@ export type CordovaManualAnalysisReport = {
       id: string
       comments?: string
       algReport?: { comments: string[] }
+      lookingManually?: any
     }) &
       matchReport
   }
