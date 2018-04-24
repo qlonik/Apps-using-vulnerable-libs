@@ -88,7 +88,7 @@
     "eslint-plugin-unicorn": "^4.0.2",
     "eslint-watch": "^3.1.4",
     "execa": "^0.10.0",
-    "jsverify": "github:jsverify/jsverify#0d392dd580",
+    "jsverify": "github:jsverify/jsverify#0d392dd58008d0a7df2c36f3a0ff44e23e3f11e8",
     "nyc": "^11.6.0",
     "prettier": "^1.11.1",
     "sinon": "^4.5.0",
