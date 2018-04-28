@@ -101,6 +101,9 @@ const _extractStructure = function({ content }: { content: BabelNode }): signatu
   return { functionSignature, literalSignature }
 }
 
+/**
+ * @throws if parsing is unsuccessful
+ */
 export const extractStructure = async function({
   content,
 }: {
