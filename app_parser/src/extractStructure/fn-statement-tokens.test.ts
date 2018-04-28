@@ -316,7 +316,7 @@ test(
       if (i === 1) {}
     }
   `,
-  [`${STATEMENT}:If`],
+  [`${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`],
 )
 
 test(
@@ -327,7 +327,10 @@ test(
       if (i === 1) b = 123
     }
   `,
-  [`${STATEMENT}:If`, `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`],
+  [
+    `${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
+    `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`,
+  ],
 )
 
 test(
@@ -340,7 +343,10 @@ test(
       }
     }
   `,
-  [`${STATEMENT}:If`, `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`],
+  [
+    `${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
+    `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`,
+  ],
 )
 
 test(
@@ -352,7 +358,10 @@ test(
       else {}
     }
   `,
-  [`${STATEMENT}:If`, `${STATEMENT}:Else`],
+  [
+    `${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
+    `${STATEMENT}:Else`,
+  ],
 )
 
 test(
@@ -365,7 +374,7 @@ test(
     }
   `,
   [
-    `${STATEMENT}:If`,
+    `${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
     `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`,
     `${STATEMENT}:Else`,
   ],
@@ -383,7 +392,7 @@ test(
     }
   `,
   [
-    `${STATEMENT}:If`,
+    `${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
     `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`,
     `${STATEMENT}:Else`,
   ],
@@ -399,7 +408,7 @@ test(
     }
   `,
   [
-    `${STATEMENT}:If`,
+    `${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
     `${STATEMENT}:Else`,
     `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`,
   ],
@@ -417,7 +426,7 @@ test(
     }
   `,
   [
-    `${STATEMENT}:If`,
+    `${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
     `${STATEMENT}:Else`,
     `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`,
   ],
@@ -435,7 +444,12 @@ test(
       }
     }
   `,
-  [`${STATEMENT}:If`, `${STATEMENT}:Else`, `${STATEMENT}:If`, `${STATEMENT}:Else`],
+  [
+    `${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
+    `${STATEMENT}:Else`,
+    `${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
+    `${STATEMENT}:Else`,
+  ],
 )
 
 test(
@@ -453,9 +467,9 @@ test(
     }
   `,
   [
-    `${STATEMENT}:If`,
+    `${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
     `${STATEMENT}:Else`,
-    `${STATEMENT}:If`,
+    `${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
     `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`,
     `${STATEMENT}:Else`,
   ],
@@ -472,7 +486,12 @@ test(
       else {}
     }
   `,
-  [`${STATEMENT}:If`, `${STATEMENT}:Else-If`, `${STATEMENT}:Else-If`, `${STATEMENT}:Else`],
+  [
+    `${STATEMENT}:If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
+    `${STATEMENT}:Else-If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
+    `${STATEMENT}:Else-If[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] === ${LITERAL}:Numeric]]`,
+    `${STATEMENT}:Else`,
+  ],
 )
 
 test(
