@@ -332,7 +332,7 @@ test(
 )
 
 test(
-  'if: if else{if else}',
+  'if: if else {if else}',
   checkTokensMacro,
   stripIndent`
     function a() {
