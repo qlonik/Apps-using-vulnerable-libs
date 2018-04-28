@@ -335,8 +335,6 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
     const id = getTokensFromExpression(st.id) || 'anonymous'
     return `${DECLARATION}:Function[${id}]`
   } else if (isIfStatement(st)) {
-    // todo: add detailed predicate info
-    // this is the one that is in square brackets in other places -- []
     /*
      * Two cases:
      *    1. if statement with else-if block
@@ -348,7 +346,10 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
      * '${STATEMENT}:If' of if in alternate block) with '${STATEMENT}:Else-If'.
      */
     const ifStTitle = `${STATEMENT}:If`
-    const data = [ifStTitle].concat(getTokensFromStatement(st.consequent))
+    const testPred = getTokensFromExpression(st.test) || ''
+    const ifStatement = `${ifStTitle}[${testPred}]`
+    const data = [ifStatement].concat(getTokensFromStatement(st.consequent))
+
     if (st.alternate) {
       const alt = getTokensFromStatement(st.alternate)
       let mapped: string[]
@@ -360,6 +361,7 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
       }
       data.push(...mapped)
     }
+
     return data
   } else if (isLabeledStatement(st)) {
   } else if (isReturnStatement(st)) {
