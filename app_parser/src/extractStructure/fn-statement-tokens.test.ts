@@ -332,6 +332,40 @@ test(
 )
 
 test(
+  'if: if else expr',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      if (i === 1) {}
+      else b = 123
+    }
+  `,
+  [
+    `${STATEMENT}:If`,
+    `${STATEMENT}:Else`,
+    `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`,
+  ],
+)
+
+test(
+  'if: if else {expr}',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      if (i === 1) {}
+      else {
+        b = 123;
+      }
+    }
+  `,
+  [
+    `${STATEMENT}:If`,
+    `${STATEMENT}:Else`,
+    `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`,
+  ],
+)
+
+test(
   'if: if else {if else}',
   checkTokensMacro,
   stripIndent`
