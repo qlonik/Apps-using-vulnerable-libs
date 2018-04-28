@@ -15,7 +15,7 @@ test('fn filtered correctly', t => {
     }
   `
   const fnB1_toks = [
-    `${DECLARATION}:Variable[c = ${LITERAL}:String]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[c] = ${LITERAL}:String]`,
     `${STATEMENT}:Return[${EXPRESSION}:Identifier[c]]`,
   ]
   const fnB1_types = [`t_${STATEMENT}:VariableDeclaration`, `t_${STATEMENT}:ReturnStatement`]

@@ -174,7 +174,7 @@ test(
       for (var i = 0;;) {}
     }
   `,
-  [`${STATEMENT}:For`, `${DECLARATION}:Variable[i = ${LITERAL}:Numeric]`],
+  [`${STATEMENT}:For`, `${DECLARATION}:Variable[${PARAM}:Identifier[i] = ${LITERAL}:Numeric]`],
 )
 
 test(
@@ -246,8 +246,8 @@ test(
   `,
   [
     `${STATEMENT}:For`,
-    `${DECLARATION}:Variable[i = ${LITERAL}:Numeric]`,
-    `${DECLARATION}:Variable[l = ${LITERAL}:Numeric]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[i] = ${LITERAL}:Numeric]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[l] = ${LITERAL}:Numeric]`,
     `${EXPRESSION}:Binary[${EXPRESSION}:Identifier[i] < ${EXPRESSION}:Identifier[l]]`,
     `${EXPRESSION}:Update[${EXPRESSION}:Identifier[i]++]`,
     `${EXPRESSION}:Update[${EXPRESSION}:Identifier[l]--]`,
@@ -262,7 +262,10 @@ test(
       var b, c;
     }
   `,
-  [`${DECLARATION}:Variable[b]`, `${DECLARATION}:Variable[c]`],
+  [
+    `${DECLARATION}:Variable[${PARAM}:Identifier[b]]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[c]]`,
+  ],
 )
 
 test(
@@ -279,12 +282,12 @@ test(
     }
   `,
   [
-    `${DECLARATION}:Variable[d = ${LITERAL}:Numeric]`,
-    `${DECLARATION}:Variable[e = ${LITERAL}:String]`,
-    `${DECLARATION}:Variable[f = ${LITERAL}:Boolean]`,
-    `${DECLARATION}:Variable[g = ${LITERAL}:Null]`,
-    `${DECLARATION}:Variable[h = ${LITERAL}:RegExp]`,
-    `${DECLARATION}:Variable[i = ${LITERAL}:Template]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[d] = ${LITERAL}:Numeric]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[e] = ${LITERAL}:String]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[f] = ${LITERAL}:Boolean]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[g] = ${LITERAL}:Null]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[h] = ${LITERAL}:RegExp]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[i] = ${LITERAL}:Template]`,
   ],
 )
 
@@ -379,7 +382,7 @@ test(
     }
   `,
   [
-    `${DECLARATION}:Variable[b = ${EXPRESSION}:Function[anonymous]]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[b] = ${EXPRESSION}:Function[anonymous]]`,
     `${EXPRESSION}:Function[${EXPRESSION}:Identifier[c]]`,
     `${EXPRESSION}:Function[anonymous]`,
   ],
@@ -394,7 +397,10 @@ test(
       (() => {});
     }
   `,
-  [`${DECLARATION}:Variable[b = ${EXPRESSION}:ArrowFunction]`, `${EXPRESSION}:ArrowFunction`],
+  [
+    `${DECLARATION}:Variable[${PARAM}:Identifier[b] = ${EXPRESSION}:ArrowFunction]`,
+    `${EXPRESSION}:ArrowFunction`,
+  ],
 )
 
 test(
@@ -429,7 +435,7 @@ test(
     }
   `,
   [
-    `${DECLARATION}:Variable[i = ${LITERAL}:Numeric]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[i] = ${LITERAL}:Numeric]`,
     `${STATEMENT}:Return[${EXPRESSION}:Update[++${EXPRESSION}:Identifier[i]]]`,
   ],
 )
@@ -515,8 +521,8 @@ test.failing.skip(
       }
     `,
     [
-      `${DECLARATION}:Variable[a = ${LITERAL}:Numeric]`,
-      `${DECLARATION}:Variable[b = ${LITERAL}:Numeric]`,
+      `${DECLARATION}:Variable[${PARAM}:Identifier[a] = ${LITERAL}:Numeric]`,
+      `${DECLARATION}:Variable[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`,
       `${EXPRESSION}:Assignment[${PARAM}:Identifier[b] ${op} ${EXPRESSION}:Identifier[a]]`,
     ],
   )

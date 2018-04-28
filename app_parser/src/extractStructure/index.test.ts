@@ -1,12 +1,12 @@
 import { test } from 'ava'
-import { stripIndent } from 'common-tags'
+import { oneLineTrim, stripIndent } from 'common-tags'
 import {
   extractReactNativeStructure,
   extractStructure,
   fnNamesConcat,
   rnSignatureNew,
 } from './index'
-import { DECLARATION, EXPRESSION, LITERAL, STATEMENT } from './tags'
+import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
 
 test('library: extracted correct signature', async t => {
   const content = stripIndent`
@@ -150,7 +150,11 @@ test('react-native: extracted correct signature', async t => {
           name: 'a',
           fnStatementTypes: [`t_${STATEMENT}:VariableDeclaration`],
           fnStatementTokens: [
-            `${DECLARATION}:Variable[b = ${EXPRESSION}:Function[${EXPRESSION}:Identifier[fn]]]`,
+            oneLineTrim`
+              ${DECLARATION}:Variable[
+                ${PARAM}:Identifier[b] = ${EXPRESSION}:Function[${EXPRESSION}:Identifier[fn]]
+              ]
+            `,
           ],
         },
         {
