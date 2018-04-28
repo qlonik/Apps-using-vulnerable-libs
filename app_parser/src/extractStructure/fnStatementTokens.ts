@@ -342,17 +342,25 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
      *    1. if statement with else-if block
      *    2. if statement with else block
      *
-     * In the first case, the alternate for current if statement is another if statement, so we
-     * will push '${STATEMENT}:Else-If' into array of tokens to represent next if statement, and
-     * the '${STATEMENT}:If' to represent the first if statement in the chain of if statements
-     * will eventually be added from the last else-if in the chain.
-     *
-     * In the second case, the alternate for current if statement is not another if statement, so
-     * we will push '${STATEMENT}:If' into array of tokens to represent current if statement.
+     * We always push '${STATEMENT}:If' for the current if, and also data in consequent block.
+     * Then, we parse alternate block (if it exists), and if alternate block was another if
+     * statement, then we will replace the first value of parsed array (which will correspond to
+     * '${STATEMENT}:If' of if in alternate block) with '${STATEMENT}:Else-If'.
      */
-    return [`${STATEMENT}:${isIfStatement(st.alternate) ? 'Else-' : ''}If`]
-      .concat(getTokensFromStatement(st.consequent))
-      .concat(getTokensFromStatement(st.alternate))
+    const ifStTitle = `${STATEMENT}:If`
+    const data = [ifStTitle].concat(getTokensFromStatement(st.consequent))
+    if (st.alternate) {
+      const alt = getTokensFromStatement(st.alternate)
+      let mapped: string[]
+      if (isIfStatement(st.alternate)) {
+        const [first, ...rest] = alt as string[]
+        mapped = [`${STATEMENT}:Else-If` + first.slice(ifStTitle.length)].concat(rest)
+      } else {
+        mapped = [`${STATEMENT}:Else`].concat(alt)
+      }
+      data.push(...mapped)
+    }
+    return data
   } else if (isLabeledStatement(st)) {
   } else if (isReturnStatement(st)) {
     const returned = getTokensFromExpression(st.argument)

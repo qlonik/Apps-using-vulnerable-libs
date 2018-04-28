@@ -328,7 +328,7 @@ test(
       else {}
     }
   `,
-  [`${STATEMENT}:If`],
+  [`${STATEMENT}:If`, `${STATEMENT}:Else`],
 )
 
 test(
@@ -343,7 +343,7 @@ test(
       }
     }
   `,
-  [`${STATEMENT}:If`, `${STATEMENT}:If`],
+  [`${STATEMENT}:If`, `${STATEMENT}:Else`, `${STATEMENT}:If`, `${STATEMENT}:Else`],
 )
 
 test(
@@ -357,7 +357,7 @@ test(
       else {}
     }
   `,
-  [`${STATEMENT}:If`, `${STATEMENT}:Else-If`, `${STATEMENT}:Else-If`],
+  [`${STATEMENT}:If`, `${STATEMENT}:Else-If`, `${STATEMENT}:Else-If`, `${STATEMENT}:Else`],
 )
 
 test(
