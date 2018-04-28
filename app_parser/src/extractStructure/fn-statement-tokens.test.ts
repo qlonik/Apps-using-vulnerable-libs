@@ -483,10 +483,10 @@ test(
     }
   `,
   [
-    `${EXPRESSION}:Call[${EXPRESSION}:Identifier[b]]`,
-    `${EXPRESSION}:Call[${EXPRESSION}:ArrowFunction]`,
-    `${EXPRESSION}:Call[${EXPRESSION}:Function[${EXPRESSION}:Identifier[c]]]`,
-    `${EXPRESSION}:Call[${EXPRESSION}:Function[anonymous]]`,
+    `${EXPRESSION}:Call[${EXPRESSION}:Identifier[b]()]`,
+    `${EXPRESSION}:Call[${EXPRESSION}:ArrowFunction()]`,
+    `${EXPRESSION}:Call[${EXPRESSION}:Function[${EXPRESSION}:Identifier[c]]()]`,
+    `${EXPRESSION}:Call[${EXPRESSION}:Function[anonymous]()]`,
   ],
 )
 

@@ -39,7 +39,11 @@ test('fn filtered correctly', t => {
   `
   const fnB_toks = [
     `${DECLARATION}:Function[${EXPRESSION}:Identifier[fn1]]`,
-    `${EXPRESSION}:Call[${EXPRESSION}:Function[${EXPRESSION}:Identifier[fn2]]]`,
+    oneLineTrim`
+      ${EXPRESSION}:Call[
+        ${EXPRESSION}:Function[${EXPRESSION}:Identifier[fn2]](${EXPRESSION}:Identifier[a])
+      ]
+    `,
   ]
   const fnB_types = [`t_${STATEMENT}:FunctionDeclaration`, `t_${STATEMENT}:ExpressionStatement`]
 
