@@ -779,7 +779,7 @@ test(
 )
 
 test(
-  'break',
+  'statement: break',
   checkTokensMacro,
   stripIndent`
     function a() {
@@ -792,7 +792,25 @@ test(
 )
 
 test(
-  'continue',
+  'statement: break label',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      label:
+      for (;;) {
+        break label;
+      }
+    }
+  `,
+  [
+    `${STATEMENT}:Label[${PARAM}:Identifier[label]]`,
+    `${STATEMENT}:For`,
+    `${STATEMENT}:Break[${PARAM}:Identifier[label]]`,
+  ],
+)
+
+test(
+  'statement: continue',
   checkTokensMacro,
   stripIndent`
     function a() {
@@ -802,6 +820,24 @@ test(
     }
   `,
   [`${STATEMENT}:For`, `${STATEMENT}:Continue`],
+)
+
+test(
+  'statement: continue label',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      label:
+      for (;;) {
+        continue label;
+      }
+    }
+  `,
+  [
+    `${STATEMENT}:Label[${PARAM}:Identifier[label]]`,
+    `${STATEMENT}:For`,
+    `${STATEMENT}:Continue[${PARAM}:Identifier[label]]`,
+  ],
 )
 
 test(

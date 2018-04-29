@@ -341,9 +341,11 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
   } else if (isBlockStatement(st)) {
     return getTokensFromBlockStatement(st)
   } else if (isBreakStatement(st)) {
-    return [`${STATEMENT}:Break`]
+    const label = getTokensFromLVal(st.label)
+    return [`${STATEMENT}:Break${label ? `[${label}]` : ''}`]
   } else if (isContinueStatement(st)) {
-    return [`${STATEMENT}:Continue`]
+    const label = getTokensFromLVal(st.label)
+    return [`${STATEMENT}:Continue${label ? `[${label}]` : ''}`]
   } else if (isDebuggerStatement(st)) {
     return [`${STATEMENT}:Debugger`]
   } else if (isDoWhileStatement(st)) {
