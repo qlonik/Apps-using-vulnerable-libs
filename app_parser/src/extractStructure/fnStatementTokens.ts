@@ -57,13 +57,16 @@ import {
   isNullLiteral,
   isNumericLiteral,
   isObjectExpression,
+  isObjectMethod,
   isObjectPattern,
+  isObjectProperty,
   isParenthesizedExpression,
   isRegExpLiteral,
   isRestElement,
   isReturnStatement,
   isSequenceExpression,
   isSpreadElement,
+  isSpreadProperty,
   isStringLiteral,
   isSuper,
   isSwitchStatement,
@@ -88,7 +91,7 @@ import {
 import { before, flatMap } from 'lodash'
 import { assertNever } from '../utils'
 import { stdoutLog } from '../utils/logger'
-import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
+import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT, UNKNOWN } from './tags'
 
 const NAMESPACE = 'x.tokens'
 const log = stdoutLog(NAMESPACE)
@@ -260,6 +263,35 @@ const getEIR = (expr: Expression | null): EIR => {
   } else if (isNewExpression(expr)) {
   } else if (isObjectExpression(expr)) {
     descr.type = 'Object'
+    descr.pred = expr.properties
+      .map((p) => {
+        if (isObjectProperty(p)) {
+          if (p.shorthand && p.computed) {
+            log('ObjectExpression>ObjectProperty>shorthand+computed : %o', p)
+          }
+          const key = getTokensFromExpression(p.key) || ''
+          if (p.shorthand) {
+            return key
+          }
+          const value = getTokensFromExpression(p.value) || ''
+          return `${key} : ${value}`
+        } else if (isObjectMethod(p)) {
+          const id = getTokensFromExpression(p.key) || 'anonymous'
+          const direction =
+            p.kind === 'get'
+              ? '< '
+              : p.kind === 'set'
+                ? '> '
+                : p.kind === 'method' ? '' : /* istanbul ignore next */ assertNever(p.kind)
+          return `${UNKNOWN}:Method[${direction}${id}]`
+        } else if (isSpreadProperty(p)) {
+          log('ObjectExpression>SpreadProperty : %o', p)
+        } else {
+          /* istanbul ignore next */
+          assertNever(p)
+        }
+      })
+      .join(', ')
   } else if (isSequenceExpression(expr)) {
   } else if (isThisExpression(expr)) {
     descr.type = 'This'

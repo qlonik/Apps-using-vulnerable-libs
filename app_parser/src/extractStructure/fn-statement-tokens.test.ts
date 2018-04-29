@@ -2,7 +2,7 @@ import { test, Macro } from 'ava'
 import { oneLineTrim, stripIndent } from 'common-tags'
 import { isPlainObject } from 'lodash'
 import { extractStructure } from './index'
-import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
+import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT, UNKNOWN } from './tags'
 
 const checkTokensMacro: Macro = async (t, content: string, expected: string[]) => {
   const structure = await extractStructure({ content })
@@ -15,6 +15,10 @@ const checkTokensMacro: Macro = async (t, content: string, expected: string[]) =
   if (t.title !== 'empty' && expected.length === 0) {
     t.fail('Expected array is empty. Test case is most likely missing.')
   }
+}
+
+const checkThrows: Macro = async (t, content: string) => {
+  await t.throws(extractStructure({ content }), { name: 'SyntaxError' })
 }
 
 test(
@@ -74,7 +78,7 @@ test(
 )
 
 test(
-  'expression statement: with object',
+  'object ex: empty',
   checkTokensMacro,
   stripIndent`
     function a() {
@@ -82,6 +86,135 @@ test(
     }
   `,
   [`${EXPRESSION}:Object`],
+)
+
+test(
+  'object ex: key-value',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      ({ b: 123 });
+    }
+  `,
+  [`${EXPRESSION}:Object[${EXPRESSION}:Identifier[b] : ${LITERAL}:Numeric]`],
+)
+
+test(
+  'object ex: multiple key-values',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      ({ b: 123, c: '123' });
+    }
+  `,
+  [
+    oneLineTrim`
+      ${EXPRESSION}:Object[
+        ${EXPRESSION}:Identifier[b] : ${LITERAL}:Numeric
+      , ${EXPRESSION}:Identifier[c] : ${LITERAL}:String
+      ]
+    `,
+  ],
+)
+
+test(
+  'object ex: shorthand',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      ({ b });
+    }
+  `,
+  [`${EXPRESSION}:Object[${EXPRESSION}:Identifier[b]]`],
+)
+
+test(
+  'object ex: computed',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      ({ [b + ' ']: 123 });
+    }
+  `,
+  [
+    oneLineTrim`
+      ${EXPRESSION}:Object[
+        ${EXPRESSION}:Binary[${EXPRESSION}:Identifier[b] + ${LITERAL}:String] : ${LITERAL}:Numeric
+      ]
+    `,
+  ],
+)
+
+test(
+  'object ex: computed shorthand',
+  checkThrows,
+  stripIndent`
+    function a() {
+      ({ [b + ' '] });
+    }
+  `,
+)
+
+test(
+  'object ex: method',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+       ({ b() {} });
+    }
+  `,
+  [`${EXPRESSION}:Object[${UNKNOWN}:Method[${EXPRESSION}:Identifier[b]]]`],
+)
+
+test(
+  'object ex: multiple methods',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+       ({ b() {}, c() {} });
+    }
+  `,
+  [
+    oneLineTrim`
+      ${EXPRESSION}:Object[
+        ${UNKNOWN}:Method[${EXPRESSION}:Identifier[b]]
+      , ${UNKNOWN}:Method[${EXPRESSION}:Identifier[c]]
+      ]
+    `,
+  ],
+)
+
+test(
+  'object ex: get method',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+       ({ get b () {} });
+    }
+  `,
+  [`${EXPRESSION}:Object[${UNKNOWN}:Method[< ${EXPRESSION}:Identifier[b]]]`],
+)
+
+test(
+  'object ex: set method',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+       ({ set b (value) {} });
+    }
+  `,
+  [`${EXPRESSION}:Object[${UNKNOWN}:Method[> ${EXPRESSION}:Identifier[b]]]`],
+)
+
+test(
+  'object ex: spread',
+  checkThrows,
+  stripIndent`
+    function a() {
+      ({ ...b });
+    }
+  `,
+  [`${EXPRESSION}:Object[...${EXPRESSION}:Identifier[b]]`],
 )
 ;[
   '+',
