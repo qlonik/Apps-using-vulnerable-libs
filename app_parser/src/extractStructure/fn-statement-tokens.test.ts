@@ -9,6 +9,8 @@ const checkTokensMacro: Macro = async (
   content: string,
   expected: string[],
 ) => {
+  t.truthy(content, 'Script content is empty')
+
   const structure = await extractStructure({ content })
   const [firstFn] = structure.functionSignature
 
