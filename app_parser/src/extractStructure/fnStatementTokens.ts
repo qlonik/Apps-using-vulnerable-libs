@@ -362,19 +362,18 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
     const ifStatement = `${ifStTitle}[${testPred}]`
     const data = [ifStatement].concat(getTokensFromStatement(st.consequent))
 
+    let mapped = [] as string[]
     if (st.alternate) {
       const alt = getTokensFromStatement(st.alternate)
-      let mapped: string[]
       if (isIfStatement(st.alternate)) {
         const [first, ...rest] = alt
         mapped = [`${STATEMENT}:Else-If` + first.slice(ifStTitle.length)].concat(rest)
       } else {
         mapped = [`${STATEMENT}:Else`].concat(alt)
       }
-      data.push(...mapped)
     }
 
-    return data
+    return data.concat(mapped)
   } else if (isLabeledStatement(st)) {
   } else if (isReturnStatement(st)) {
     const returned = getTokensFromExpression(st.argument)
