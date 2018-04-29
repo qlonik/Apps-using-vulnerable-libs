@@ -105,6 +105,10 @@ type EIR = {
   pred: string | null
 }
 
+const box = (smth: string | null, before = '[', after = ']'): string => {
+  return smth ? `${before}${smth}${after}` : ''
+}
+
 const collapseIR = (eir: EIR | null): string | null => {
   if (eir === null || eir.origType === null) {
     return null
@@ -115,7 +119,7 @@ const collapseIR = (eir: EIR | null): string | null => {
   if (!type) {
     return `t_${title}:${origType}`
   } else {
-    return `${title}:${type}${pred ? `[${pred}]` : ''}`
+    return `${title}:${type}${box(pred)}`
   }
 }
 
@@ -342,17 +346,15 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
     return getTokensFromBlockStatement(st)
   } else if (isBreakStatement(st)) {
     const label = getTokensFromLVal(st.label)
-    return [`${STATEMENT}:Break${label ? `[${label}]` : ''}`]
+    return [`${STATEMENT}:Break${box(label)}`]
   } else if (isContinueStatement(st)) {
     const label = getTokensFromLVal(st.label)
-    return [`${STATEMENT}:Continue${label ? `[${label}]` : ''}`]
+    return [`${STATEMENT}:Continue${box(label)}`]
   } else if (isDebuggerStatement(st)) {
     return [`${STATEMENT}:Debugger`]
   } else if (isDoWhileStatement(st)) {
     const test = getTokensFromExpression(st.test)
-    return [`${STATEMENT}:Do-While${test ? `[${test}]` : ''}`].concat(
-      getTokensFromStatement(st.body),
-    )
+    return [`${STATEMENT}:Do-While${box(test)}`].concat(getTokensFromStatement(st.body))
   } else if (isEmptyStatement(st)) {
     return []
   } else if (isExpressionStatement(st)) {
@@ -394,8 +396,8 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
      * '${STATEMENT}:If' of if in alternate block) with '${STATEMENT}:Else-If'.
      */
     const ifStTitle = `${STATEMENT}:If`
-    const testPred = getTokensFromExpression(st.test) || ''
-    const ifStatement = `${ifStTitle}[${testPred}]`
+    const testPred = getTokensFromExpression(st.test)
+    const ifStatement = `${ifStTitle}${box(testPred)}`
     const data = [ifStatement].concat(getTokensFromStatement(st.consequent))
 
     let mapped = [] as string[]
@@ -412,12 +414,10 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
     return data.concat(mapped)
   } else if (isLabeledStatement(st)) {
     const label = getTokensFromLVal(st.label)
-    return [`${STATEMENT}:Label${label ? `[${label}]` : ''}`].concat(
-      getTokensFromStatement(st.body),
-    )
+    return [`${STATEMENT}:Label${box(label)}`].concat(getTokensFromStatement(st.body))
   } else if (isReturnStatement(st)) {
     const returned = getTokensFromExpression(st.argument)
-    return [`${STATEMENT}:Return${returned ? `[${returned}]` : ''}`]
+    return [`${STATEMENT}:Return${box(returned)}`]
   } else if (isSwitchStatement(st)) {
   } else if (isThrowStatement(st)) {
   } else if (isTryStatement(st)) {
@@ -425,7 +425,8 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
     return st.declarations.map((declaration) => {
       const id = getTokensFromLVal(declaration.id)
       const init = getTokensFromExpression(declaration.init)
-      return `${DECLARATION}:Variable[${id}${init ? ` = ${init}` : ''}]`
+      const pred = box(`${id}${box(init, ' = ', '')}`)
+      return `${DECLARATION}:Variable${pred}`
     })
   } else if (isWhileStatement(st)) {
   } else if (isWithStatement(st)) {
