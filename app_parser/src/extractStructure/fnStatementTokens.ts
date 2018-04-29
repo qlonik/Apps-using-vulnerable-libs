@@ -409,6 +409,10 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
 
     return data.concat(mapped)
   } else if (isLabeledStatement(st)) {
+    const label = getTokensFromLVal(st.label)
+    return [`${STATEMENT}:Label${label ? `[${label}]` : ''}`].concat(
+      getTokensFromStatement(st.body),
+    )
   } else if (isReturnStatement(st)) {
     const returned = getTokensFromExpression(st.argument)
     return [`${STATEMENT}:Return${returned ? `[${returned}]` : ''}`]

@@ -993,3 +993,17 @@ test(
     `${STATEMENT}:Do-While[${EXPRESSION}:Identifier[b]]`,
   ],
 )
+
+test(
+  'statement: labeled',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      label: b++;
+    }
+  `,
+  [
+    `${STATEMENT}:Label[${PARAM}:Identifier[label]]`,
+    `${EXPRESSION}:Update[${EXPRESSION}:Identifier[b]++]`,
+  ],
+)
