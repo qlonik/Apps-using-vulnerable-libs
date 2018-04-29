@@ -59,7 +59,7 @@ test(
       '1';
       true;
       null;
-      /.*/;
+      /.*/g;
       \`template\`;
     }
   `,
