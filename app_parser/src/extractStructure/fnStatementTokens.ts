@@ -239,6 +239,11 @@ const getEIR = (expr: Expression | null): EIR => {
       assertNever(expr.callee)
     }
   } else if (isConditionalExpression(expr)) {
+    const test = getTokensFromExpression(expr.test)
+    const cons = getTokensFromExpression(expr.consequent)
+    const alt = getTokensFromExpression(expr.alternate)
+    descr.type = 'Conditional'
+    descr.pred = `${test} ? ${cons} : ${alt}`
   } else if (isFunctionExpression(expr)) {
     descr.type = 'Function'
     descr.pred = getTokensFromExpression(expr.id) || 'anonymous'

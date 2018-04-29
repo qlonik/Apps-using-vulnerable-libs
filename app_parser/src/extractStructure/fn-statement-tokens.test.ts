@@ -848,3 +848,22 @@ test(
     `,
   ],
 )
+
+test(
+  'conditional expression',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      b === 'b' ? 123 : 234
+    }
+  `,
+  [
+    oneLineTrim`
+      ${EXPRESSION}:Conditional[
+        ${EXPRESSION}:Binary[
+          ${EXPRESSION}:Identifier[b] === ${LITERAL}:String
+        ] ? ${LITERAL}:Numeric : ${LITERAL}:Numeric
+      ]
+    `,
+  ],
+)
