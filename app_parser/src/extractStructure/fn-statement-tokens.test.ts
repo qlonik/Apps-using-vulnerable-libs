@@ -903,3 +903,87 @@ test(
     `,
   ],
 )
+
+test(
+  'statement: do while',
+  checkThrows,
+  stripIndent`
+    function a() {
+      do while;
+    }
+  `,
+)
+
+test(
+  'statement: do {} while',
+  checkThrows,
+  stripIndent`
+    function a() {
+      do {} while;
+    }
+  `,
+)
+
+test(
+  'statement: do {} while ()',
+  checkThrows,
+  stripIndent`
+    function a() {
+      do {} while ();
+    }
+  `,
+)
+
+test(
+  'statement: do {} while (test)',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      do {} while (b);
+    }
+  `,
+  [`${STATEMENT}:Do-While[${EXPRESSION}:Identifier[b]]`],
+)
+
+test(
+  'statement: do {st} while (test)',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      do { b++ } while (b);
+    }
+  `,
+  [
+    `${EXPRESSION}:Update[${EXPRESSION}:Identifier[b]++]`,
+    `${STATEMENT}:Do-While[${EXPRESSION}:Identifier[b]]`,
+  ],
+)
+
+test(
+  'statement: do st; while (test)',
+  checkTokensMacro,
+  `
+    function a() {
+      do b++; while (b);
+    }
+  `,
+  [
+    `${EXPRESSION}:Update[${EXPRESSION}:Identifier[b]++]`,
+    `${STATEMENT}:Do-While[${EXPRESSION}:Identifier[b]]`,
+  ],
+)
+
+test(
+  'statement: do st \\n while (test)',
+  checkTokensMacro,
+  `
+    function a() {
+      do b++
+      while (b);
+    }
+  `,
+  [
+    `${EXPRESSION}:Update[${EXPRESSION}:Identifier[b]++]`,
+    `${STATEMENT}:Do-While[${EXPRESSION}:Identifier[b]]`,
+  ],
+)

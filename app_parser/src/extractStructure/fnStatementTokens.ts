@@ -347,6 +347,10 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
   } else if (isDebuggerStatement(st)) {
     return [`${STATEMENT}:Debugger`]
   } else if (isDoWhileStatement(st)) {
+    const test = getTokensFromExpression(st.test)
+    return [`${STATEMENT}:Do-While${test ? `[${test}]` : ''}`].concat(
+      getTokensFromStatement(st.body),
+    )
   } else if (isEmptyStatement(st)) {
     return []
   } else if (isExpressionStatement(st)) {
