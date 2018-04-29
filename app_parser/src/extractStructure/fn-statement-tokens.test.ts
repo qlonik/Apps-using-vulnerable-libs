@@ -442,7 +442,7 @@ test(
   ],
 )
 
-test.failing.skip(
+test(
   'variable declaration: other objects',
   checkTokensMacro,
   stripIndent`
@@ -456,7 +456,43 @@ test.failing.skip(
       var h = b.c ? 'true' : 'false';
     }
   `,
-  [`${DECLARATION}:Variable[b = ${EXPRESSION}:Object]`],
+  [
+    oneLineTrim`
+      ${DECLARATION}:Variable[
+        ${PARAM}:Identifier[b] = ${EXPRESSION}:Object[
+          ${EXPRESSION}:Identifier[a] : ${LITERAL}:Numeric
+        , ${EXPRESSION}:Identifier[b] : ${LITERAL}:String
+        , ${EXPRESSION}:Identifier[c] : ${LITERAL}:Boolean
+        ]
+      ]
+    `,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[c] = ${EXPRESSION}:Identifier[b]]`,
+    oneLineTrim`
+      ${DECLARATION}:Variable[
+        ${PARAM}:Identifier[d] = ${EXPRESSION}:Member[
+          ${EXPRESSION}:Identifier[b] >>> ${EXPRESSION}:Identifier[a]
+        ]
+      ]
+    `,
+    oneLineTrim`
+      ${DECLARATION}:Variable[${PARAM}:Identifier[e] = ${EXPRESSION}:Binary[
+        ${EXPRESSION}:Member[
+          ${EXPRESSION}:Identifier[b] >>> ${EXPRESSION}:Identifier[a]
+        ] + ${EXPRESSION}:Member[
+          ${EXPRESSION}:Identifier[b] >>> ${EXPRESSION}:Identifier[b]
+        ]
+      ]]
+    `,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[f] = ${EXPRESSION}:Function[anonymous]]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[g] = ${EXPRESSION}:ArrowFunction]`,
+    oneLineTrim`
+      ${DECLARATION}:Variable[${PARAM}:Identifier[h] = ${EXPRESSION}:Conditional[
+        ${EXPRESSION}:Member[
+          ${EXPRESSION}:Identifier[b] >>> ${EXPRESSION}:Identifier[c]
+        ] ? ${LITERAL}:String : ${LITERAL}:String
+      ]]
+    `,
+  ],
 )
 
 test(
