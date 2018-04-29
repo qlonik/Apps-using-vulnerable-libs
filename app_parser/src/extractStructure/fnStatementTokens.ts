@@ -164,20 +164,10 @@ const getLValIR = (lVal: LVal | null): EIR => {
     descr.type = 'Identifier'
     descr.pred = lVal.name
   } else if (isMemberExpression(lVal)) {
-    let objName
-    if (isExpression(lVal.object)) {
-      const { pred } = getEIR(lVal.object)
-      objName = pred
-    } else if (isSuper(lVal.object)) {
-      objName = 'super'
-    } else {
-      /* istanbul ignore next */
-      assertNever(lVal.object)
-    }
-    const { pred: propName } = getEIR(lVal.property)
-
+    let objName = getTokensFromExpression(lVal.object)
+    const propName = getTokensFromExpression(lVal.property)
     descr.type = 'Member'
-    descr.pred = objName + '.' + propName
+    descr.pred = `${objName} ${lVal.computed ? '>c>' : '>>>'} ${propName}`
   } else if (isRestElement(lVal)) {
   } else if (isAssignmentPattern(lVal)) {
   } else if (isArrayPattern(lVal)) {
