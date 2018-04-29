@@ -1,10 +1,14 @@
-import { test, Macro } from 'ava'
+import { test, Macro, ExecutionContext } from 'ava'
 import { oneLineTrim, stripIndent } from 'common-tags'
 import { isPlainObject } from 'lodash'
 import { extractStructure } from './index'
 import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT, UNKNOWN } from './tags'
 
-const checkTokensMacro: Macro = async (t, content: string, expected: string[]) => {
+const checkTokensMacro: Macro = async (
+  t: ExecutionContext,
+  content: string,
+  expected: string[],
+) => {
   const structure = await extractStructure({ content })
   const [firstFn] = structure.functionSignature
 
@@ -17,7 +21,7 @@ const checkTokensMacro: Macro = async (t, content: string, expected: string[]) =
   }
 }
 
-const checkThrows: Macro = async (t, content: string) => {
+const checkThrows: Macro = async (t: ExecutionContext, content: string) => {
   await t.throws(extractStructure({ content }), { name: 'SyntaxError' })
 }
 
