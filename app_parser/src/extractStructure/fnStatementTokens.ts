@@ -261,9 +261,11 @@ const getEIR = (expr: Expression | null): EIR => {
     isRegExpLiteral(expr) ||
     isTemplateLiteral(expr)
   ) {
-    const { title, type } = getLiteralIR(expr)
+    const { title, origType, type, pred } = getLiteralIR(expr)
     descr.title = title
+    descr.origType = origType
     descr.type = type
+    descr.pred = pred
   } else if (isLogicalExpression(expr)) {
   } else if (isNewExpression(expr)) {
   } else if (isObjectExpression(expr)) {
