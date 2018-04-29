@@ -262,6 +262,7 @@ const getEIR = (expr: Expression | null): EIR => {
     descr.type = 'Object'
   } else if (isSequenceExpression(expr)) {
   } else if (isThisExpression(expr)) {
+    descr.type = 'This'
   } else if (isUnaryExpression(expr)) {
   } else if (isUpdateExpression(expr)) {
     const op = expr.operator

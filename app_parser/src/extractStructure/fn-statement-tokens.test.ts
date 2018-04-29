@@ -694,3 +694,24 @@ test(
     `${EXPRESSION}:Member[${EXPRESSION}:Identifier[b] >c> ${LITERAL}:String]`,
   ],
 )
+
+test(
+  'this expression',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      this;
+      this.b = 123;
+    }
+  `,
+  [
+    `${EXPRESSION}:This`,
+    oneLineTrim`
+      ${EXPRESSION}:Assignment[
+        ${PARAM}:Member[
+          ${EXPRESSION}:This >>> ${EXPRESSION}:Identifier[b]
+        ] = ${LITERAL}:Numeric
+      ]
+    `,
+  ],
+)
