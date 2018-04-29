@@ -85,7 +85,7 @@ import {
   Node as BabelNode,
   Statement,
 } from 'babel-types'
-import { before, flatMap, Many } from 'lodash'
+import { before, flatMap } from 'lodash'
 import { assertNever } from '../utils'
 import { stdoutLog } from '../utils/logger'
 import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
@@ -304,23 +304,24 @@ const getTokensFromExpression = (expr: Expression | null): string | null => {
   return collapseIR(getEIR(expr))
 }
 
-const getTokensFromStatement = (st: Statement | null): Many<string> => {
+const getTokensFromStatement = (st: Statement | null): string[] => {
   /* istanbul ignore if */
   if (st === null) {
     return []
   } else if (isBlockStatement(st)) {
     return getTokensFromBlockStatement(st)
   } else if (isBreakStatement(st)) {
-    return `${STATEMENT}:Break`
+    return [`${STATEMENT}:Break`]
   } else if (isContinueStatement(st)) {
-    return `${STATEMENT}:Continue`
+    return [`${STATEMENT}:Continue`]
   } else if (isDebuggerStatement(st)) {
-    return `${STATEMENT}:Debugger`
+    return [`${STATEMENT}:Debugger`]
   } else if (isDoWhileStatement(st)) {
   } else if (isEmptyStatement(st)) {
     return []
   } else if (isExpressionStatement(st)) {
-    return getTokensFromExpression(st.expression) || []
+    const tokens = getTokensFromExpression(st.expression)
+    return tokens === null ? [] : [tokens]
   } else if (isForInStatement(st)) {
     return [`${STATEMENT}:For-In`]
       .concat(
@@ -344,7 +345,7 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
       .concat(getTokensFromStatement(st.body))
   } else if (isFunctionDeclaration(st)) {
     const id = getTokensFromExpression(st.id) || 'anonymous'
-    return `${DECLARATION}:Function[${id}]`
+    return [`${DECLARATION}:Function[${id}]`]
   } else if (isIfStatement(st)) {
     /*
      * Two cases:
@@ -365,7 +366,7 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
       const alt = getTokensFromStatement(st.alternate)
       let mapped: string[]
       if (isIfStatement(st.alternate)) {
-        const [first, ...rest] = alt as string[]
+        const [first, ...rest] = alt
         mapped = [`${STATEMENT}:Else-If` + first.slice(ifStTitle.length)].concat(rest)
       } else {
         mapped = [`${STATEMENT}:Else`].concat(alt)
@@ -408,7 +409,7 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
     assertNever(st)
   }
 
-  return `t_${STATEMENT}:${st.type}`
+  return [`t_${STATEMENT}:${st.type}`]
 }
 
 const getTokensFromBlockStatement = (blockStatement: BlockStatement): string[] => {
