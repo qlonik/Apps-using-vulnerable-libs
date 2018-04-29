@@ -50,6 +50,7 @@ import {
   isJSXMemberExpression,
   isLabeledStatement,
   isLogicalExpression,
+  isLVal,
   isMemberExpression,
   isMetaProperty,
   isNewExpression,
@@ -321,6 +322,16 @@ const getTokensFromStatement = (st: Statement | null): Many<string> => {
   } else if (isExpressionStatement(st)) {
     return getTokensFromExpression(st.expression) || []
   } else if (isForInStatement(st)) {
+    return [`${STATEMENT}:For-In`]
+      .concat(
+        isVariableDeclaration(st.left)
+          ? getTokensFromStatement(st.left)
+          : isLVal(st.left)
+            ? getTokensFromLVal(st.left) || []
+            : /* istanbul ignore next */ assertNever(st.left),
+      )
+      .concat(getTokensFromExpression(st.right) || [])
+      .concat(getTokensFromStatement(st.body))
   } else if (isForStatement(st)) {
     return [`${STATEMENT}:For`]
       .concat(
