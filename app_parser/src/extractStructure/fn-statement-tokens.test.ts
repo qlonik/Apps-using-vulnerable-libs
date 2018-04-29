@@ -679,3 +679,18 @@ test.failing.skip(
     ],
   )
 })
+
+test(
+  'member expression',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      b.c;
+      b['c'];
+    }
+  `,
+  [
+    `${EXPRESSION}:Member[${EXPRESSION}:Identifier[b] >>> ${EXPRESSION}:Identifier[c]]`,
+    `${EXPRESSION}:Member[${EXPRESSION}:Identifier[b] >c> ${LITERAL}:String]`,
+  ],
+)
