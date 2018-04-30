@@ -24,7 +24,7 @@ import {
 import { stripIndent } from 'common-tags'
 import { inspect as utilInspect } from 'util'
 import { stdoutLog } from '../../utils/logger'
-import { getFnStatementTokens } from '../fnStatementTokens'
+import { getFnStatementTokens } from '../fn-statement-tokens'
 import { getFnStatementTypes } from '../fnStatementTypes'
 import { Signal } from '../visitNodes'
 

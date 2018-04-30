@@ -1,8 +1,8 @@
 import { test, Macro, ExecutionContext } from 'ava'
 import { oneLineTrim, stripIndent } from 'common-tags'
 import { isPlainObject } from 'lodash'
-import { extractStructure } from './index'
-import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT, UNKNOWN } from './tags'
+import { extractStructure } from '../index'
+import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT, UNKNOWN } from '../tags'
 
 const checkTokensMacro: Macro = async (
   t: ExecutionContext,

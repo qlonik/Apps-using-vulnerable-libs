@@ -89,9 +89,9 @@ import {
   Statement,
 } from 'babel-types'
 import { before, flatMap } from 'lodash'
-import { assertNever } from '../utils'
-import { stdoutLog } from '../utils/logger'
-import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT, UNKNOWN } from './tags'
+import { assertNever } from '../../utils'
+import { stdoutLog } from '../../utils/logger'
+import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT, UNKNOWN } from '../tags'
 
 const NAMESPACE = 'x.tokens'
 const log = stdoutLog(NAMESPACE)
