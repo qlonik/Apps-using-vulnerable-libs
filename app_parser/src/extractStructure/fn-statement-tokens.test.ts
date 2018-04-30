@@ -1043,3 +1043,41 @@ test(
     `${EXPRESSION}:Update[${EXPRESSION}:Identifier[b]++]`,
   ],
 )
+
+test(
+  'statement: switch {case, case, default}',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      var c;
+      switch (b) {
+        case 1:
+          c = 1;
+          break;
+        case 2:
+          c = 2;
+          break;
+        default:
+          c = 0;
+          break; 
+      }
+    }
+  `,
+  [
+    `${DECLARATION}:Variable[${PARAM}:Identifier[c]]`,
+    oneLineTrim`
+      ${STATEMENT}:Switch[
+        s ${EXPRESSION}:Identifier[b]
+      ; c ${LITERAL}:Numeric
+      , c ${LITERAL}:Numeric
+      , c default
+      ]
+    `,
+    `${EXPRESSION}:Assignment[${PARAM}:Identifier[c] = ${LITERAL}:Numeric]`,
+    `${STATEMENT}:Break`,
+    `${EXPRESSION}:Assignment[${PARAM}:Identifier[c] = ${LITERAL}:Numeric]`,
+    `${STATEMENT}:Break`,
+    `${EXPRESSION}:Assignment[${PARAM}:Identifier[c] = ${LITERAL}:Numeric]`,
+    `${STATEMENT}:Break`,
+  ],
+)

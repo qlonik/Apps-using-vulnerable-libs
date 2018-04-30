@@ -419,6 +419,28 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
     const returned = getTokensFromExpression(st.argument)
     return [`${STATEMENT}:Return${box(returned)}`]
   } else if (isSwitchStatement(st)) {
+    const discriminant = getTokensFromExpression(st.discriminant)
+    const { tests, statements } = st.cases.reduce(
+      ({ tests, statements }, c) => {
+        const test = c.test === null ? 'default' : getTokensFromExpression(c.test)
+        return {
+          tests: tests.concat(test),
+          statements: statements.concat(flatMap(c.consequent, getTokensFromStatement)),
+        }
+      },
+      { tests: [] as (string | null)[], statements: [] as string[] },
+    )
+    const pred =
+      box(discriminant, 's ', ';') +
+      box(
+        tests
+          .filter((t) => !!t)
+          .map((t) => box(t, 'c ', ''))
+          .join(', '),
+        ' ',
+        '',
+      )
+    return [`${STATEMENT}:Switch${box(pred)}`].concat(statements)
   } else if (isThrowStatement(st)) {
   } else if (isTryStatement(st)) {
   } else if (isVariableDeclaration(st)) {
