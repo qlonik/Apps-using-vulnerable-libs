@@ -21,6 +21,22 @@ export const checkTokensMacro: Macro = async (
   }
 }
 
+export const checkSameSignature: Macro = async (t: ExecutionContext, one: string, two: string) => {
+  t.truthy(one, 'First script is empty')
+  t.truthy(two, 'Second script is empty')
+
+  const [oneS, twoS] = await Promise.all([
+    extractStructure({ content: one }),
+    extractStructure({ content: two }),
+  ])
+  const oneFirstFn = oneS.functionSignature[0].fnStatementTokens
+  const twoFirstFn = twoS.functionSignature[0].fnStatementTokens
+
+  t.true(Array.isArray(oneFirstFn))
+  t.true(Array.isArray(twoFirstFn))
+  t.deepEqual(oneFirstFn, twoFirstFn)
+}
+
 export const checkThrows: Macro = async (t: ExecutionContext, content: string) => {
   await t.throws(extractStructure({ content }), { name: 'SyntaxError' })
 }

@@ -1,7 +1,7 @@
 import { test } from 'ava'
 import { oneLineTrim, stripIndent } from 'common-tags'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from '../tags'
-import { checkTokensMacro } from './_macros'
+import { checkSameSignature, checkTokensMacro } from './_macros'
 
 test(
   'empty block',
@@ -12,6 +12,23 @@ test(
     }
   `,
   [],
+)
+
+test(
+  'block is flattened',
+  checkSameSignature,
+  stripIndent`
+    function a() {
+      var b = 123;
+    }
+  `,
+  stripIndent`
+    function a() {
+      {
+        var b = 123;
+      }
+    }
+  `,
 )
 
 test(
