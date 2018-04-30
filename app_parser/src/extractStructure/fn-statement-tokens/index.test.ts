@@ -4,6 +4,16 @@ import { DIRECTIVE, PARAM } from '../tags'
 import { checkTokensMacro } from './_macros'
 
 test(
+  'empty function',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+    }
+  `,
+  [],
+)
+
+test(
   'parameters',
   checkTokensMacro,
   stripIndent`
