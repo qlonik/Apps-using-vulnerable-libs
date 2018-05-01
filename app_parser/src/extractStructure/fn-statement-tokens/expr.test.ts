@@ -101,6 +101,25 @@ test(
 )
 
 test(
+  'simple',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      b();
+      (() => {})();
+      (function c() {})();
+      (function () {})();
+    }
+  `,
+  [
+    `${EXPRESSION}:Call[${EXPRESSION}:Identifier[b]()]`,
+    `${EXPRESSION}:Call[${EXPRESSION}:ArrowFunction()]`,
+    `${EXPRESSION}:Call[${EXPRESSION}:Function[${EXPRESSION}:Identifier[c]]()]`,
+    `${EXPRESSION}:Call[${EXPRESSION}:Function[anonymous]()]`,
+  ],
+)
+
+test(
   'new',
   checkTokensMacro,
   stripIndent`
