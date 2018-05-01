@@ -6,8 +6,8 @@ import { getFnStatementTokens } from './index'
 
 export const checkTokensMacro: Macro = async (
   t: ExecutionContext,
-  content: string,
-  expected: string[],
+  content: string = '',
+  expected: string[] = [],
 ) => {
   t.truthy(content, 'Script content is empty')
 
