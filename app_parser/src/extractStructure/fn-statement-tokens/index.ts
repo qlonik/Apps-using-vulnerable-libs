@@ -448,6 +448,18 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
     const throwArg = getTokensFromExpression(st.argument)
     return [`${STATEMENT}:Throw${box(throwArg)}`]
   } else if (isTryStatement(st)) {
+    let catchBlock = ''
+    let pred = null
+    if (st.handler) {
+      catchBlock = '-Catch'
+      pred = getTokensFromLVal(st.handler.param)
+    }
+    const finallyBlock = st.finalizer ? '-Finally' : ''
+
+    return [`${STATEMENT}:Try${catchBlock}${finallyBlock}${box(pred)}`]
+      .concat(getTokensFromBlockStatement(st.block))
+      .concat(st.handler ? getTokensFromBlockStatement(st.handler.body) : [])
+      .concat(st.finalizer ? getTokensFromBlockStatement(st.finalizer) : [])
   } else if (isVariableDeclaration(st)) {
     return st.declarations.map((declaration) => {
       const id = getTokensFromLVal(declaration.id)
