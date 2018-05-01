@@ -1,6 +1,8 @@
 import { ExecutionContext, Macro } from 'ava'
-import { isPlainObject } from 'lodash'
+import { isFunction } from 'babel-types'
+import { parse } from 'babylon'
 import { extractStructure } from '../index'
+import { getFnStatementTokens } from './index'
 
 export const checkTokensMacro: Macro = async (
   t: ExecutionContext,
@@ -9,11 +11,19 @@ export const checkTokensMacro: Macro = async (
 ) => {
   t.truthy(content, 'Script content is empty')
 
-  const structure = await extractStructure({ content })
-  const [firstFn] = structure.functionSignature
+  let parsed
+  try {
+    parsed = parse(content)
+  } catch (err) {
+    return t.fail(`Parsing error: ${err.message}`)
+  }
 
-  t.true(isPlainObject(firstFn))
-  t.deepEqual(expected.sort(), firstFn.fnStatementTokens)
+  const msg = 'Script has to contain only one function'
+  const body = parsed.program.body
+  t.is(1, body.length, msg)
+  const fn = body[0]
+  t.true(isFunction(fn), msg)
+  t.deepEqual(expected.sort(), getFnStatementTokens(fn))
 
   // add exception for 'empty' test case
   if (t.title !== 'empty block' && t.title !== 'empty function' && expected.length === 0) {
