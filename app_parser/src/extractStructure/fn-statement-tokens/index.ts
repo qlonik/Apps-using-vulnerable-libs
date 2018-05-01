@@ -445,6 +445,8 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
       )
     return [`${STATEMENT}:Switch${box(pred)}`].concat(statements)
   } else if (isThrowStatement(st)) {
+    const throwArg = getTokensFromExpression(st.argument)
+    return [`${STATEMENT}:Throw${box(throwArg)}`]
   } else if (isTryStatement(st)) {
   } else if (isVariableDeclaration(st)) {
     return st.declarations.map((declaration) => {
