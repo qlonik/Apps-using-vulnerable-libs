@@ -240,6 +240,7 @@ const getEIR = (expr: Expression | null): EIR => {
         .join(', ')
       descr.pred = getTokensFromExpression(expr.callee) + `(${args})`
     } else if (isSuper(expr.callee)) {
+      log('CallExpression||NewExpression>callee.isSuper : %o', expr)
       descr.pred = 'super'
     } else {
       /* istanbul ignore next */
@@ -278,7 +279,7 @@ const getEIR = (expr: Expression | null): EIR => {
       .map((p) => {
         if (isObjectProperty(p)) {
           if (p.shorthand && p.computed) {
-            log('ObjectExpression>ObjectProperty>shorthand+computed : %o', p)
+            log('ObjectExpression>ObjectProperty>shorthand+computed : %o', expr)
           }
           const key = getTokensFromExpression(p.key) || ''
           if (p.shorthand) {
@@ -296,7 +297,7 @@ const getEIR = (expr: Expression | null): EIR => {
                 : p.kind === 'method' ? '' : /* istanbul ignore next */ assertNever(p.kind)
           return `${UNKNOWN}:Method[${direction}${id}]`
         } else if (isSpreadProperty(p)) {
-          log('ObjectExpression>SpreadProperty : %o', p)
+          log('ObjectExpression>SpreadProperty : %o', expr)
         } else {
           /* istanbul ignore next */
           assertNever(p)
