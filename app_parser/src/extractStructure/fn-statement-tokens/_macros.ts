@@ -1,7 +1,6 @@
 import { ExecutionContext, Macro } from 'ava'
 import { isFunction } from 'babel-types'
 import { parse } from 'babylon'
-import { extractStructure } from '../index'
 import { getFnStatementTokens } from './index'
 
 const parseContent = (
@@ -61,18 +60,19 @@ export const checkSameSignature: Macro = async (t: ExecutionContext, one: string
   t.truthy(one, 'First script is empty')
   t.truthy(two, 'Second script is empty')
 
-  const [oneS, twoS] = await Promise.all([
-    extractStructure({ content: one }),
-    extractStructure({ content: two }),
-  ])
-  const oneFirstFn = oneS.functionSignature[0].fnStatementTokens
-  const twoFirstFn = twoS.functionSignature[0].fnStatementTokens
+  const oneP = parseContent(t, one, 'Parsing error (script #1)')
+  if (!oneP) return
+  const twoP = parseContent(t, two, 'Parsing error (script #2)')
+  if (!twoP) return
 
-  t.true(Array.isArray(oneFirstFn))
-  t.true(Array.isArray(twoFirstFn))
-  t.deepEqual(oneFirstFn, twoFirstFn)
+  const oneT = extractTokens(t, oneP, 'Script #1 has to contain only one function')
+  if (!oneT) return
+  const twoT = extractTokens(t, twoP, 'Script #2 has to contain only one function')
+  if (!twoT) return
+
+  t.deepEqual(oneT, twoT)
 }
 
 export const checkThrows: Macro = async (t: ExecutionContext, content: string) => {
-  await t.throws(extractStructure({ content }), { name: 'SyntaxError' })
+  t.throws(() => parse(content), { name: 'SyntaxError' })
 }
