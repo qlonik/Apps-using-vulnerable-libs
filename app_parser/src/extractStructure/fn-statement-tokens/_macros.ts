@@ -4,6 +4,39 @@ import { parse } from 'babylon'
 import { extractStructure } from '../index'
 import { getFnStatementTokens } from './index'
 
+const parseContent = (
+  t: ExecutionContext,
+  content: string,
+  msg = 'Parsing error',
+): false | ReturnType<typeof parse> => {
+  let parsed
+  try {
+    parsed = parse(content)
+  } catch (err) {
+    t.fail(`${msg}: ${err.message}`)
+    return false
+  }
+  return parsed
+}
+
+const extractTokens = (
+  t: ExecutionContext,
+  parsed: ReturnType<typeof parse>,
+  msg = 'Script has to contain only one function',
+): false | ReturnType<typeof getFnStatementTokens> => {
+  const body = parsed.program.body
+  if (body.length !== 1) {
+    t.fail(msg)
+    return false
+  }
+  const fn = body[0]
+  if (!isFunction(fn)) {
+    t.fail(msg)
+    return false
+  }
+  return getFnStatementTokens(fn)
+}
+
 export const checkTokensMacro: Macro = async (
   t: ExecutionContext,
   content: string = '',
@@ -11,19 +44,12 @@ export const checkTokensMacro: Macro = async (
 ) => {
   t.truthy(content, 'Script content is empty')
 
-  let parsed
-  try {
-    parsed = parse(content)
-  } catch (err) {
-    return t.fail(`Parsing error: ${err.message}`)
-  }
+  const parsed = parseContent(t, content)
+  if (!parsed) return
 
-  const msg = 'Script has to contain only one function'
-  const body = parsed.program.body
-  t.is(1, body.length, msg)
-  const fn = body[0]
-  t.true(isFunction(fn), msg)
-  t.deepEqual(expected.sort(), getFnStatementTokens(fn))
+  const tokens = extractTokens(t, parsed)
+  if (!tokens) return
+  t.deepEqual(expected.sort(), tokens)
 
   // add exception for 'empty' test case
   if (t.title !== 'empty block' && t.title !== 'empty function' && expected.length === 0) {
