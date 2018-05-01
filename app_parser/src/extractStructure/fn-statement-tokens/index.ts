@@ -220,8 +220,11 @@ const getEIR = (expr: Expression | null): EIR => {
     const right = getTokensFromExpression(expr.right)
     descr.type = 'Binary'
     descr.pred = `${left} ${expr.operator} ${right}`
-  } else if (isCallExpression(expr)) {
-    descr.type = 'Call'
+  } else if (isCallExpression(expr) || isNewExpression(expr)) {
+    descr.type = isCallExpression(expr)
+      ? 'Call'
+      : isNewExpression(expr) ? 'New' : /* istanbul ignore next */ assertNever(expr)
+
     if (isExpression(expr.callee)) {
       const args = expr.arguments
         .map((arg) => {
@@ -269,7 +272,6 @@ const getEIR = (expr: Expression | null): EIR => {
     descr.type = type
     descr.pred = pred
   } else if (isLogicalExpression(expr)) {
-  } else if (isNewExpression(expr)) {
   } else if (isObjectExpression(expr)) {
     descr.type = 'Object'
     descr.pred = expr.properties

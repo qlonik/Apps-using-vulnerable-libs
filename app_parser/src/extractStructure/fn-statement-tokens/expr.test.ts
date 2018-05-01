@@ -99,3 +99,18 @@ test(
     `${EXPRESSION}:Member[${EXPRESSION}:Identifier[b] >c> ${LITERAL}:String]`,
   ],
 )
+
+test(
+  'new',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      new b;
+      new c();
+    }
+  `,
+  [
+    `${EXPRESSION}:New[${EXPRESSION}:Identifier[b]()]`,
+    `${EXPRESSION}:New[${EXPRESSION}:Identifier[c]()]`,
+  ],
+)
