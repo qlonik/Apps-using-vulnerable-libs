@@ -468,6 +468,8 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
       return `${DECLARATION}:Variable${pred}`
     })
   } else if (isWhileStatement(st)) {
+    const test = getTokensFromExpression(st.test)
+    return [`${STATEMENT}:While${box(test)}`].concat(getTokensFromStatement(st.body))
   } else if (isWithStatement(st)) {
   } else if (isClassDeclaration(st)) {
   } else if (isExportAllDeclaration(st)) {
