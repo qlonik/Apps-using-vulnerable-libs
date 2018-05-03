@@ -5,9 +5,8 @@ import { kebabCase } from 'lodash'
 import Module from 'module'
 import { resolve } from 'path'
 import * as yargs from 'yargs'
-import { stdoutLog } from '../utils/logger'
+import { logThrough, stdoutLog } from '../utils/logger'
 import { stripIllegalNames } from './_strip-illegal-names'
-import { logThrough } from '../logger'
 
 const log = stdoutLog('bin')
 log.enabled = true

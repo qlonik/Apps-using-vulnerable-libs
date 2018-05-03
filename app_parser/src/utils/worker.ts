@@ -18,7 +18,7 @@ export const getWorkerPath = async (file: string): Promise<string> => {
 export const worker: typeof workerpoolWorkerFn = async <T extends MessagesMap>(
   methods: WorkerFunctionsMap<T>,
 ) => {
-  const { logThrough } = await import('../logger')
+  const { logThrough } = await import('./logger')
   process.on('exit', () => logThrough.end())
   workerpoolWorkerFn(methods)
 }
