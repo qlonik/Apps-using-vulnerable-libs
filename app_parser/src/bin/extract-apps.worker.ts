@@ -1,8 +1,8 @@
 import { copy, mkdirp, move, remove } from 'fs-extra'
 import { join } from 'path'
 import shell from 'shelljs'
-import { worker } from 'workerpool'
 import { isCordovaApp, isReactNativeApp } from '../parseApps'
+import { worker } from '../utils/worker'
 import { APP_TYPE, messages } from './extract-apps'
 
 worker<messages>({

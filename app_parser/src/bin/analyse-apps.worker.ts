@@ -1,6 +1,6 @@
-import { worker } from 'workerpool'
 import { analyseCordovaApp, APP_TYPES } from '../parseApps'
 import { stdoutLog } from '../utils/logger'
+import { worker } from '../utils/worker'
 import { messages } from './analyse-apps'
 
 const log = stdoutLog(`analyse-apps:worker:${process.pid}`)
