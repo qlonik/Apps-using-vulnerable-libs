@@ -7,6 +7,7 @@ import { resolve } from 'path'
 import * as yargs from 'yargs'
 import { stdoutLog } from '../utils/logger'
 import { stripIllegalNames } from './_strip-illegal-names'
+import { logThrough } from '../logger'
 
 const log = stdoutLog('bin')
 log.enabled = true
@@ -43,6 +44,8 @@ yargs
           await module.main()
         } catch (err) {
           log('Some global error:\n%s', err.stack)
+        } finally {
+          logThrough.end()
         }
       } else {
         unload(scriptName)
