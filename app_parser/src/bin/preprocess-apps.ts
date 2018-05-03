@@ -28,7 +28,7 @@ const LIB_PATH = '../data/sample_libs'
 let pool: Pool<messages>
 let terminating = false
 
-async function main() {
+export async function main() {
   const wPath = await getWorkerPath(__filename)
   const apps = await getApps(APP_PATH)
   let FIN_APPS = [] as appDesc[]
@@ -96,14 +96,7 @@ async function main() {
   await pool.terminate()
 }
 
-if (require.main === module) {
-  process.on(
-    'SIGINT',
-    once(() => {
-      log('started terminating')
-      terminating = true
-    }),
-  )
-
-  main().catch((err) => log('Some global error:\n%s', err.stack))
-}
+export const terminate = once(() => {
+  log('started terminating')
+  terminating = true
+})

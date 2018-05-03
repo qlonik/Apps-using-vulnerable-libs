@@ -74,7 +74,7 @@ log.enabled = true
 let terminating: Promise<void>
 let pool: Pool<messages>
 
-async function main() {
+export async function main() {
   if (!INPUT_FOLDER) {
     log('INPUT_FOLDER is not specified')
     return
@@ -147,16 +147,10 @@ async function main() {
   await pool.terminate()
 }
 
-if (require.main === module) {
-  process.on('SIGINT', () => {
-    if (pool) {
-      terminating = pool.terminate()
-    } else {
-      terminating = Promise.resolve()
-    }
-  })
-
-  main()
-    .then(() => log('Everything is done!'))
-    .catch((err) => log('Some global error:\n%s', err.stack))
+export const terminate = () => {
+  if (pool) {
+    terminating = pool.terminate()
+  } else {
+    terminating = Promise.resolve()
+  }
 }

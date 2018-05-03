@@ -15,7 +15,7 @@ const APP_POOL_FOLDER = '/gi-pool/appdata-ro'
 const log = stdoutLog('data-status')
 log.enabled = true
 
-async function main() {
+export async function main() {
   if (await pathExists(LIB_FOLDER)) {
     const libs = await getLibNameVersions(LIB_FOLDER)
 
@@ -60,8 +60,4 @@ async function main() {
 
     log('total apps in pool:        %o', apps.length)
   }
-}
-
-if (!module.parent) {
-  main().catch((err) => log('Some global error:\n%s', err.stack))
 }

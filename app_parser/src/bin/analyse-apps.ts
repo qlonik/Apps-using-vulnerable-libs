@@ -27,7 +27,7 @@ const log = stdoutLog('analyse-apps')
 log.enabled = true
 let terminating = false
 
-async function main() {
+export async function main() {
   const wPath = await getWorkerPath(__filename)
   const apps = (await readJSON(FIN_PRE_APPS_PATH)) as appDesc[]
   let FIN_AN_APPS = [] as appDesc[]
@@ -108,14 +108,7 @@ async function main() {
   await pool.terminate()
 }
 
-if (!module.parent) {
-  process.on(
-    'SIGINT',
-    once(() => {
-      log('started terminating')
-      terminating = true
-    }),
-  )
-
-  main().catch((err) => log('Some global error:\n%s', err.stack))
-}
+export const terminate = once(() => {
+  log('started terminating')
+  terminating = true
+})
