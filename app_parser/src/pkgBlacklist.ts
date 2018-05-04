@@ -19,8 +19,9 @@ export type BlacklistEntry = {
     | ('*' | 'all') // indicate that _all_ versions are blacklisted
     | {
         v: string
-        comment: string[]
+        comment?: COMMENTS[]
       }[]
+  comment?: COMMENTS[]
 }
 const blacklistUnsorted: BlacklistEntry[] = [
   {
@@ -191,7 +192,7 @@ export const blacklist = sortBy(
   ['name'],
 )
 
-export const isInBlacklist = ({ name, version: v }: libNameVersion): string[] | boolean => {
+export const isInBlacklist = ({ name, version: v }: libNameVersion): COMMENTS[] | boolean => {
   const lib = find(blacklist, { name })
   if (!lib || lib.versions === 'none') {
     return false
@@ -204,5 +205,5 @@ export const isInBlacklist = ({ name, version: v }: libNameVersion): string[] | 
   if (!version) {
     return false
   }
-  return version.comment
+  return version.comment || []
 }
