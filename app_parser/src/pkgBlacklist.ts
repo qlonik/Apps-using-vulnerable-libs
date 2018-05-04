@@ -10,6 +10,11 @@ export enum COMMENTS {
   extrTimestampFld = 'extracted into folder with timestamp',
   extrPkgNameFld = 'extracted into folder with pkg name',
   exportWrnFrm = 'exported main file is not javascript file',
+  exportsBundleAsMain = 'exported main file is a bundled javascript file',
+  tool = 'this module is a tool. it should not appear in the app',
+  serverSide = 'this module is for server side. it should not appear in the app',
+  testing = 'this module is for testing. it should not appear in the app',
+  uncertain = 'uncertain whether it will appear in the app or not',
 }
 
 export type BlacklistEntry = {
