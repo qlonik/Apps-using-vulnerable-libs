@@ -15,7 +15,8 @@ export enum COMMENTS {
 export type BlacklistEntry = {
   name: string
   versions:
-    | '*'
+    | 'none' // indicate that _no_ versions are blacklisted
+    | ('*' | 'all') // indicate that _all_ versions are blacklisted
     | {
         v: string
         comment: string[]
@@ -149,15 +150,40 @@ const blacklistUnsorted: BlacklistEntry[] = [
       },
     ],
   },
-  {
-    name: 'babel-runtime',
-    versions: '*',
-  },
+  { name: 'ramda', versions: 'none' },
+  { name: 'react', versions: 'none' },
+  { name: 'react-dom', versions: 'none' },
+  { name: 'react-redux', versions: 'none' },
+  { name: 'redis', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'redux', versions: 'none' },
+  { name: 'request', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'request-promise', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'rimraf', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'rxjs', versions: 'none' },
+  { name: 'semver', versions: 'none', comment: [COMMENTS.uncertain] },
+  { name: 'shelljs', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'socket.io', versions: 'none' },
+  { name: 'style-loader', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'superagent', versions: 'none' },
+  { name: 'through2', versions: 'none', comment: [COMMENTS.uncertain] },
+  { name: 'uglify-js', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'underscore', versions: 'none' },
+  { name: 'underscore.string', versions: 'none' },
+  { name: 'uuid', versions: 'none' },
+  { name: 'vue', versions: 'none' },
+  { name: 'webpack', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'winston', versions: 'all', comment: [COMMENTS.serverSide, COMMENTS.uncertain] },
+  { name: 'ws', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'xml2js', versions: 'none', comment: [COMMENTS.uncertain] },
+  { name: 'yargs', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'yeoman-generator', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'yosay', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'zone.js', versions: 'none' },
 ]
 
 export const blacklist = sortBy(
   map(blacklistUnsorted, (e: BlacklistEntry) => {
-    if (e.versions !== '*') {
+    if (Array.isArray(e.versions)) {
       e.versions = sortBy(e.versions, ['v'])
     }
     return e
@@ -167,10 +193,10 @@ export const blacklist = sortBy(
 
 export const isInBlacklist = ({ name, version: v }: libNameVersion): string[] | boolean => {
   const lib = find(blacklist, { name })
-  if (!lib) {
+  if (!lib || lib.versions === 'none') {
     return false
   }
-  if (lib.versions === '*') {
+  if (lib.versions === '*' || lib.versions === 'all') {
     return true
   }
 
