@@ -28,7 +28,89 @@ export type BlacklistEntry = {
       }[]
   comment?: COMMENTS[]
 }
+
 const blacklistUnsorted: BlacklistEntry[] = [
+  {
+    name: 'async',
+    versions: [
+      {
+        v: '0.1.0',
+        comment: [COMMENTS.oldArch, COMMENTS.extrTimestampFld],
+      },
+      {
+        v: '0.1.1',
+        comment: [COMMENTS.oldArch, COMMENTS.extrTimestampFld],
+      },
+      {
+        v: '0.1.2',
+        comment: [COMMENTS.oldArch, COMMENTS.extrTimestampFld],
+      },
+      {
+        v: '0.1.3',
+        comment: [COMMENTS.oldArch, COMMENTS.extrTimestampFld],
+      },
+      {
+        v: '0.1.4',
+        comment: [COMMENTS.oldArch, COMMENTS.extrTimestampFld],
+      },
+      {
+        v: '0.1.5',
+        comment: [COMMENTS.oldArch, COMMENTS.extrTimestampFld],
+      },
+      {
+        v: '0.1.6',
+        comment: [COMMENTS.oldArch, COMMENTS.extrTimestampFld],
+      },
+      {
+        v: '0.1.7',
+        comment: [COMMENTS.oldArch, COMMENTS.extrPkgNameFld],
+      },
+      {
+        v: '0.1.8',
+        comment: [COMMENTS.oldArch, COMMENTS.extrPkgNameFld],
+      },
+    ],
+  },
+  { name: 'aws-sdk', versions: 'all', comment: [COMMENTS.exportsBundleAsMain] },
+  { name: 'axios', versions: 'none' },
+  { name: 'babel-core', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'babel-eslint', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'babel-loader', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'babel-polyfill', versions: 'none' },
+  { name: 'babel-preset-es2015', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'babel-preset-react', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'babel-runtime', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'bluebird', versions: 'none' },
+  { name: 'body-parser', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'bootstrap', versions: 'none' },
+  { name: 'chai', versions: 'none', comment: [COMMENTS.testing] },
+  { name: 'chalk', versions: 'none', comment: [COMMENTS.uncertain] },
+  { name: 'cheerio', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'chokidar', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'classnames', versions: 'none' },
+  { name: 'co', versions: 'none' },
+  { name: 'coffee-script', versions: 'all', comment: [COMMENTS.tool] },
+  {
+    name: 'colors',
+    versions: [
+      {
+        v: '0.3.0',
+        comment: [COMMENTS.oldArch, COMMENTS.extrTimestampFld],
+      },
+    ],
+  },
+  { name: 'commander', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'cookie-parser', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'core-js', versions: 'none' },
+  { name: 'css-loader', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'debug', versions: 'none' },
+  { name: 'ejs', versions: 'none', comment: [COMMENTS.uncertain] },
+  { name: 'ember-cli-babel', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'es6-promise', versions: 'none' },
+  { name: 'eslint', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'express', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'extend', versions: 'none' },
+  { name: 'file-loader', versions: 'all', comment: [COMMENTS.tool] },
   {
     name: 'fs-extra',
     versions: [
@@ -46,15 +128,33 @@ const blacklistUnsorted: BlacklistEntry[] = [
       },
     ],
   },
-  {
-    name: 'colors',
-    versions: [
-      {
-        v: '0.3.0',
-        comment: [COMMENTS.oldArch, COMMENTS.extrTimestampFld],
-      },
-    ],
-  },
+  { name: 'glob', versions: 'none', comment: [COMMENTS.serverSide] },
+  { name: 'gulp', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'gulp-util', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'handlebars', versions: 'none', comment: [COMMENTS.uncertain] },
+  { name: 'inquirer', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'jade', versions: 'none' },
+  { name: 'jquery', versions: 'none' },
+  { name: 'js-yaml', versions: 'none' },
+  { name: 'less', versions: 'none', comment: [COMMENTS.uncertain] },
+  { name: 'marked', versions: 'none' },
+  { name: 'meow', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'mime', versions: 'none' },
+  { name: 'minimatch', versions: 'none', comment: [COMMENTS.uncertain] },
+  { name: 'minimist', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'mkdirp', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'mocha', versions: 'all', comment: [COMMENTS.testing] },
+  { name: 'moment', versions: 'none' },
+  { name: 'mongodb', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'mongoose', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'morgan', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'node-uuid', versions: 'none', comment: [COMMENTS.uncertain] },
+  { name: 'object-assign', versions: 'none' },
+  { name: 'optimist', versions: 'all', comment: [COMMENTS.serverSide] },
+  { name: 'path', versions: 'none', comment: [COMMENTS.uncertain] },
+  { name: 'postcss', versions: 'all', comment: [COMMENTS.tool] },
+  { name: 'promise', versions: 'none' },
+  { name: 'prop-types', versions: 'none' },
   {
     name: 'q',
     versions: [
