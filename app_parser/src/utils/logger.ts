@@ -1,5 +1,7 @@
+import cloneable from 'cloneable-readable'
 import debug from 'debug'
 import pino from 'pino'
+import pump from 'pump'
 import stream from 'stream'
 import { inspect } from 'util'
 
@@ -48,7 +50,7 @@ export const onelineUtilInspect = (v: any): string => {
  */
 
 // Create a stream where the logs will be written
-const logThrough = new stream.PassThrough()
+const logThrough = cloneable(new stream.PassThrough())
 
 export const log = pino(PINO_OPTIONS, logThrough)
 export default log
@@ -56,5 +58,5 @@ export default log
 // Log pretty messages to console (optional, for development purposes only)
 const pretty = pino.pretty(PINO_PRETTY_OPTIONS)
 
-logThrough.pipe(process.stderr)
-logThrough.pipe(pretty).pipe(process.stdout)
+pump(logThrough.clone(), pretty, process.stdout)
+pump(logThrough, process.stderr)
