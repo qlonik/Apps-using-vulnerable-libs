@@ -30,5 +30,5 @@ interface ProperLockfile {
   checkSync(file: string, options?: CheckOptions): boolean
 }
 
-declare const x: ProperLockfile
-export = x
+declare const properLockfile: ProperLockfile
+export = properLockfile
