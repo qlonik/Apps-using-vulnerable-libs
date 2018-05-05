@@ -2,7 +2,7 @@ import { inlineLists } from 'common-tags'
 import { readdir } from 'fs-extra'
 import { kebabCase } from 'lodash'
 import * as yargs from 'yargs'
-import { logThrough, stdoutLog } from '../utils/logger'
+import { stdoutLog } from '../utils/logger'
 import { stripIllegalNames } from './_strip-illegal-names'
 
 const log = stdoutLog('bin')
@@ -41,8 +41,6 @@ yargs
         await module.main()
       } catch (err) {
         log('Some global error:\n%s', err.stack)
-      } finally {
-        logThrough.end()
       }
     },
   )
