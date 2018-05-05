@@ -1,33 +1,33 @@
 interface LockOptions {
-  stale: number // default: 10000
-  update: number // default: stale/2
-  retries: number // default: 0
-  realpath: boolean // default: true
-  fs: any // default: graceful-fs
-  onCompromised: (err: Error) => void // default: (err) => throw err
+  stale?: number // default: 10000
+  update?: number // default: stale/2
+  retries?: number // default: 0
+  realpath?: boolean // default: true
+  fs?: any // default: graceful-fs
+  onCompromised?: (err: Error) => void // default: (err) => throw err
 }
 
 interface UnlockOptions {
-  realpath: boolean // default: true
-  fs: any // default: graceful-fs
+  realpath?: boolean // default: true
+  fs?: any // default: graceful-fs
 }
 
 interface CheckOptions {
-  stale: number // default: 10000
-  realpath: boolean // default: true
-  fs: any // default: graceful-fs
+  stale?: number // default: 10000
+  realpath?: boolean // default: true
+  fs?: any // default: graceful-fs
 }
 
 interface ProperLockfile {
-  (file: string, options?: Partial<LockOptions>): Promise<() => Promise<void>>
-  lock(file: string, options?: Partial<LockOptions>): Promise<() => Promise<void>>
-  lockSync(file: string, options?: Partial<LockOptions>): () => void
+  (file: string, options?: LockOptions): Promise<() => Promise<void>>
+  lock(file: string, options?: LockOptions): Promise<() => Promise<void>>
+  lockSync(file: string, options?: LockOptions): () => void
 
-  unlock(file: string, options?: Partial<UnlockOptions>): Promise<void>
-  unlockSync(file: string, options?: Partial<UnlockOptions>): void
+  unlock(file: string, options?: UnlockOptions): Promise<void>
+  unlockSync(file: string, options?: UnlockOptions): void
 
-  check(file: string, options?: Partial<CheckOptions>): Promise<boolean>
-  checkSync(file: string, options?: Partial<CheckOptions>): boolean
+  check(file: string, options?: CheckOptions): Promise<boolean>
+  checkSync(file: string, options?: CheckOptions): boolean
 }
 
 declare const x: ProperLockfile
