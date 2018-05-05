@@ -2,7 +2,7 @@ import { inlineLists } from 'common-tags'
 import { readdir } from 'fs-extra'
 import { kebabCase } from 'lodash'
 import * as yargs from 'yargs'
-import { stdoutLog } from '../utils/logger'
+import logger, { stdoutLog } from '../utils/logger'
 import { stripIllegalNames } from './_strip-illegal-names'
 
 const log = stdoutLog('bin')
@@ -28,6 +28,7 @@ yargs
         .map(kebabCase)
         .join('/')
       const scriptName = `./${kebabedScriptName}`
+      logger.info({ script: kebabedScriptName }, 'master process')
 
       const module = await import(scriptName)
       if (typeof module.main !== 'function') {
