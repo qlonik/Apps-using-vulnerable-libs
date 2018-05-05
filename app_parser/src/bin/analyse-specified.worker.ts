@@ -1,7 +1,7 @@
 import { mkdirp, pathExists, readdir, readJSON } from 'fs-extra'
 import { padEnd, round, sortBy } from 'lodash'
 import { basename, extname, join } from 'path'
-import { WorkerFunctionsMap } from 'workerpool'
+import { worker, WorkerFunctionsMap } from 'workerpool'
 import { signatureNew } from '../extractStructure'
 import {
   analysisFile,
@@ -22,7 +22,6 @@ import { SimMapWithConfidence } from '../similarityIndex/similarity-methods/type
 import { SortedLimitedList } from '../similarityIndex/SortedLimitedList'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
-import { worker } from '../utils/worker'
 import {
   messages,
   METHODS_TYPE, // eslint-disable-line no-unused-vars
