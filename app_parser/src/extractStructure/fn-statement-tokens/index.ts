@@ -470,6 +470,8 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
     const test = getTokensFromExpression(st.test)
     return [`${STATEMENT}:While${box(test)}`].concat(getTokensFromStatement(st.body))
   } else if (isWithStatement(st)) {
+    const object = getTokensFromExpression(st.object)
+    return [`${STATEMENT}:With${box(object)}`].concat(getTokensFromStatement(st.body))
   } else if (isClassDeclaration(st)) {
   } else if (isExportAllDeclaration(st)) {
   } else if (isExportDefaultDeclaration(st)) {

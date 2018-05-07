@@ -173,3 +173,19 @@ test(
     `${STATEMENT}:Break`,
   ],
 )
+
+test(
+  'with',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      with (b) {
+        hello++;
+      }
+    }
+  `,
+  [
+    `${STATEMENT}:With[${EXPRESSION}:Identifier[b]]`,
+    `${EXPRESSION}:Update[${EXPRESSION}:Identifier[hello]++]`,
+  ],
+)
