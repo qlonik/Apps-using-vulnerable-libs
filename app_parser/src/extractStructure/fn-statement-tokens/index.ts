@@ -88,14 +88,13 @@ import {
   Node as BabelNode,
   Statement,
 } from 'babel-types'
-import { before, flatMap } from 'lodash'
+import { flatMap } from 'lodash'
 import { assertNever } from '../../utils'
-import { stdoutLog } from '../../utils/logger'
+import logger from '../../utils/logger'
 import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT, UNKNOWN } from '../tags'
 
 const NAMESPACE = 'x.tokens'
-const log = stdoutLog(NAMESPACE)
-const limitedLog = before(3, log)
+const log = logger.child({ name: NAMESPACE })
 
 // EIR = Expression Internal Representation
 type EIR = {
@@ -240,7 +239,7 @@ const getEIR = (expr: Expression | null): EIR => {
         .join(', ')
       descr.pred = getTokensFromExpression(expr.callee) + `(${args})`
     } else if (isSuper(expr.callee)) {
-      log('CallExpression||NewExpression>callee.isSuper : %o', expr)
+      log.warn({ expr }, 'CallExpression||NewExpression>callee.isSuper')
       descr.pred = 'super'
     } else {
       /* istanbul ignore next */
@@ -279,7 +278,7 @@ const getEIR = (expr: Expression | null): EIR => {
       .map((p) => {
         if (isObjectProperty(p)) {
           if (p.shorthand && p.computed) {
-            log('ObjectExpression>ObjectProperty>shorthand+computed : %o', expr)
+            log.warn({ expr }, 'ObjectExpression>ObjectProperty>shorthand+computed')
           }
           const key = getTokensFromExpression(p.key) || ''
           if (p.shorthand) {
@@ -297,7 +296,7 @@ const getEIR = (expr: Expression | null): EIR => {
                 : p.kind === 'method' ? '' : /* istanbul ignore next */ assertNever(p.kind)
           return `${UNKNOWN}:Method[${direction}${id}]`
         } else if (isSpreadProperty(p)) {
-          log('ObjectExpression>SpreadProperty : %o', expr)
+          log.warn({ expr }, 'ObjectExpression>SpreadProperty')
         } else {
           /* istanbul ignore next */
           assertNever(p)
