@@ -134,16 +134,21 @@ const getLiteralIR = (lit: Literal | null): EIR => {
   if (lit === null) {
   } else if (isStringLiteral(lit)) {
     descr.type = 'String'
+    // descr.pred = lit.value
   } else if (isNumericLiteral(lit)) {
     descr.type = 'Numeric'
+    // descr.pred = `${lit.value}`
   } else if (isBooleanLiteral(lit)) {
     descr.type = 'Boolean'
+    // descr.pred = `${lit.value}`
   } else if (isNullLiteral(lit)) {
     descr.type = 'Null'
   } else if (isRegExpLiteral(lit)) {
     descr.type = 'RegExp'
+    // descr.pred = `/${lit.pattern}/${lit.flags}`
   } else if (isTemplateLiteral(lit)) {
     descr.type = 'Template'
+    // descr.pred = lit.quasis.map((quasi) => quasi.value.cooked).join('...')
   } else {
     /* istanbul ignore next */
     assertNever(lit)
