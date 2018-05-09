@@ -321,6 +321,8 @@ const getEIR = (expr: Expression | null): EIR => {
       })
       .join(', ')
   } else if (isSequenceExpression(expr)) {
+    descr.type = 'Sequence'
+    descr.pred = expr.expressions.map(getTokensFromExpression).join(', ')
   } else if (isThisExpression(expr)) {
     descr.type = 'This'
   } else if (isUnaryExpression(expr)) {
