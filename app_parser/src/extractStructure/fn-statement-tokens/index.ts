@@ -333,6 +333,9 @@ const getEIR = (expr: Expression | null): EIR => {
     assertNever(expr)
   }
 
+  if (descr.origType !== null && descr.type === null) {
+    log.warn({ expr: descr.origType }, 'unparsed expression')
+  }
   return descr
 }
 
@@ -491,6 +494,7 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
     assertNever(st)
   }
 
+  log.warn({ st: st.type }, 'unparsed statement')
   return [`t_${STATEMENT}:${st.type}`]
 }
 
