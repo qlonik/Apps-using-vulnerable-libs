@@ -287,7 +287,7 @@ const blacklistUnsorted: BlacklistEntry[] = [
   { name: 'zone.js', versions: 'none' },
 ]
 
-export const blacklist = sortBy(
+const blacklist = sortBy(
   map(blacklistUnsorted, (e: BlacklistEntry) => {
     if (Array.isArray(e.versions)) {
       e.versions = sortBy(e.versions, ['v'])
