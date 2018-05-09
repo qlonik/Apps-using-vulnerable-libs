@@ -133,3 +133,18 @@ test(
     `${EXPRESSION}:New[${EXPRESSION}:Identifier[c]()]`,
   ],
 )
+
+test(
+  'logical',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      b || c;
+      b && c;
+    }
+  `,
+  [
+    `${EXPRESSION}:Logical[${EXPRESSION}:Identifier[b] || ${EXPRESSION}:Identifier[c]]`,
+    `${EXPRESSION}:Logical[${EXPRESSION}:Identifier[b] && ${EXPRESSION}:Identifier[c]]`,
+  ],
+)

@@ -272,6 +272,10 @@ const getEIR = (expr: Expression | null): EIR => {
     descr.type = type
     descr.pred = pred
   } else if (isLogicalExpression(expr)) {
+    const left = getTokensFromExpression(expr.left)
+    const right = getTokensFromExpression(expr.right)
+    descr.type = 'Logical'
+    descr.pred = `${left} ${expr.operator} ${right}`
   } else if (isObjectExpression(expr)) {
     descr.type = 'Object'
     descr.pred = expr.properties
