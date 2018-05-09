@@ -209,6 +209,19 @@ const getEIR = (expr: Expression | null): EIR => {
   /* istanbul ignore if */
   if (expr === null) {
   } else if (isArrayExpression(expr)) {
+    descr.type = 'Array'
+    descr.pred = expr.elements
+      .map((el) => {
+        if (isExpression(el)) {
+          return getTokensFromExpression(el)
+        } else if (isSpreadElement(el)) {
+          return `...${getTokensFromExpression(el.argument)}`
+        } else {
+          /* istanbul ignore next */
+          assertNever(el)
+        }
+      })
+      .join(', ')
   } else if (isAssignmentExpression(expr)) {
     const left = getTokensFromLVal(expr.left)
     const right = getTokensFromExpression(expr.right)
