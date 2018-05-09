@@ -183,6 +183,9 @@ const getLValIR = (lVal: LVal | null): EIR => {
     assertNever(lVal)
   }
 
+  if (lVal && descr.type === null) {
+    log.warn({ lVal: descr.origType, loc: lVal.loc }, 'unparsed LVal')
+  }
   return descr
 }
 
