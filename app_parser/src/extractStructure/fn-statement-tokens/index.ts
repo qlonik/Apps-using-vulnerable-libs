@@ -311,6 +311,14 @@ const getEIR = (expr: Expression | null): EIR => {
   } else if (isThisExpression(expr)) {
     descr.type = 'This'
   } else if (isUnaryExpression(expr)) {
+    const op = expr.operator
+    const arg = getTokensFromExpression(expr.argument)
+    descr.type = 'Unary'
+    descr.pred = expr.prefix ? `${op} ${arg}` : `${arg} ${op}`
+
+    if (expr.prefix === false) {
+      log.warn({ expr }, 'UnaryExpression>prefix===false')
+    }
   } else if (isUpdateExpression(expr)) {
     const op = expr.operator
     const arg = getTokensFromExpression(expr.argument)
