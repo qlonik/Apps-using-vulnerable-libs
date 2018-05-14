@@ -13,6 +13,7 @@
     },
     "strict": true,
     "noEmitOnError": true,
+    "importHelpers": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
