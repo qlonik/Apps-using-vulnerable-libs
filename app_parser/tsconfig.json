@@ -4,7 +4,6 @@
     "module": "commonjs",
     "declaration": true,
     "sourceMap": true,
-    "noEmitOnError": true,
     "outDir": "./lib",
     "rootDir": "./src",
     "baseUrl": ".",
@@ -12,6 +11,7 @@
       "*": [ "src/types/*" ]
     },
     "strict": true,
+    "noEmitOnError": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
