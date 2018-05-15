@@ -18,6 +18,14 @@
           <option name="port" value="22" />
         </fileTransfer>
       </webServer>
+      <webServer id="208f778f-6905-4683-8b82-1a1e54193dec" name="tick6" url="http://tick6">
+        <fileTransfer host="tick6" port="22" rootFolder="/home/nvolodin/Auvl" accessType="SFTP" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
     </option>
   </component>
 </project>
