@@ -1,7 +1,7 @@
 import { test } from 'ava'
 import { isFunction } from 'babel-types'
 import { parse } from 'babylon'
-import { oneLineTrim, stripIndent } from 'common-tags'
+import { oneLineTrim, stripIndent, source } from 'common-tags'
 import { fnOnlyTreeCreator, literalValues, rnDeclareFns } from './index'
 import { Signature } from './nodeFilters/allFnsAndNames'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
@@ -31,10 +31,10 @@ test('fn filtered correctly', t => {
   ]
   const fnB2_types = [`t_${PARAM}:Identifier`, `t_${STATEMENT}:ReturnStatement`]
 
-  const fnB = stripIndent`
+  const fnB = source`
     function () {
       ${fnB1}
-      (${fnB2})(a);
+      ${'(' + fnB2 + ')(a);'}
     }
   `
   const fnB_toks = [
@@ -65,10 +65,10 @@ test('fn filtered correctly', t => {
   ]
   const fnD_types = [`t_${STATEMENT}:ReturnStatement`]
 
-  const code = stripIndent`
+  const code = source`
       var a = '1';
-      var b = ${fnB}
-      var d = ${fnD}
+      ${`var b = ${fnB};`}
+      ${`var d = ${fnD};`}
     `
   const expected: TreePath<Signature>[] = [
     {
