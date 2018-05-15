@@ -51,6 +51,7 @@
     "@types/zen-observable": "^0.5.3",
     "babel-types": "^6.26.0",
     "babylon": "^6.18.0",
+    "changes-stream": "^2.2.0",
     "chokidar": "^2.0.3",
     "cloneable-readable": "^1.1.2",
     "common-tags": "^1.7.2",
