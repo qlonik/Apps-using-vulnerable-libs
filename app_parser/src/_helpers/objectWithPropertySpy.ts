@@ -1,11 +1,11 @@
 import { SinonStub, stub } from 'sinon'
 
 export const objectWithPropertySpy = <T>(
+  key: string,
   value: T,
 ): {
   getSpy: SinonStub
   setSpy: SinonStub
-  propName: 'prop'
   obj: { prop: T }
 } => {
   let valStorage = value
@@ -16,7 +16,7 @@ export const objectWithPropertySpy = <T>(
   const setSpy = stub().callsFake((newValue: T) => {
     valStorage = newValue
   })
-  const obj = Object.defineProperty({}, 'prop', {
+  const obj = Object.defineProperty({}, key, {
     configurable: true,
     enumerable: true,
     set: setSpy,
@@ -26,7 +26,6 @@ export const objectWithPropertySpy = <T>(
   return {
     getSpy,
     setSpy,
-    propName: 'prop',
     obj,
   }
 }

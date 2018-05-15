@@ -3,8 +3,9 @@ import { contextualize } from '../_helpers/testContext'
 import { Signal, visitNodes } from './visitNodes'
 
 const test = contextualize(() => {
+  const prop = 'prop'
   const value = 42
-  const { getSpy, setSpy, propName, obj } = objectWithPropertySpy(value)
+  const { getSpy, setSpy, obj } = objectWithPropertySpy(prop, value)
 
   const tree = {
     a: {
@@ -39,7 +40,7 @@ const test = contextualize(() => {
     getSpy,
     setSpy,
     value,
-    prop: propName,
+    prop,
     tree,
   }
 })
