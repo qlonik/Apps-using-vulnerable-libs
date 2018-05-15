@@ -1,3 +1,4 @@
+import { SourceLocation } from 'babel-types'
 import arb from 'jsverify'
 import { clone, differenceWith, identity, intersectionWith, isEqual, shuffle, uniqBy } from 'lodash'
 import {
@@ -61,6 +62,15 @@ export const arraysPair = <T>(a: arb.Arbitrary<T>): arb.Arbitrary<[T[], T[]]> =>
   )
 }
 
+const arbLineColumn = arb.record({
+  line: arb.nat,
+  column: arb.nat,
+})
+export const arbLocation = arb.record({
+  start: arbLineColumn,
+  end: arbLineColumn,
+}) as arb.Arbitrary<SourceLocation>
+
 export const arbFunctionSignature = arb.record({
   type: arb.constant('fn'),
   name: arb
@@ -70,6 +80,7 @@ export const arbFunctionSignature = arb.record({
       (arr) => arr.map((v) => (v === '[anonymous]' ? (arb as any).left(v) : (arb as any).right(v))),
     )
     .smap((a) => a.reduce(fnNamesConcat, ''), fnNamesSplit),
+  loc: arbLocation,
   fnStatementTokens: arb.array(arb.asciinestring),
   fnStatementTypes: arb.array(arb.asciinestring),
 }) as arb.Arbitrary<FunctionSignature>

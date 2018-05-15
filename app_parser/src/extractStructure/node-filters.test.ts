@@ -76,6 +76,10 @@ test('fn filtered correctly', t => {
       data: {
         type: 'fn',
         name: 'b',
+        loc: {
+          start: { line: 2, column: 8 },
+          end: { line: 10, column: 1 },
+        },
         fnStatementTypes: fnB_types.sort(),
         fnStatementTokens: fnB_toks.sort(),
       },
@@ -85,6 +89,10 @@ test('fn filtered correctly', t => {
           data: {
             type: 'fn',
             name: 'fn1',
+            loc: {
+              start: { line: 3, column: 2 },
+              end: { line: 6, column: 3 },
+            },
             fnStatementTypes: fnB1_types.sort(),
             fnStatementTokens: fnB1_toks.sort(),
           },
@@ -94,6 +102,10 @@ test('fn filtered correctly', t => {
           data: {
             type: 'fn',
             name: 'fn2',
+            loc: {
+              start: { line: 7, column: 3 },
+              end: { line: 9, column: 3 },
+            },
             fnStatementTypes: fnB2_types.sort(),
             fnStatementTokens: fnB2_toks.sort(),
           },
@@ -105,6 +117,10 @@ test('fn filtered correctly', t => {
       data: {
         type: 'fn',
         name: 'fn3',
+        loc: {
+          start: { line: 11, column: 8 },
+          end: { line: 13, column: 1 },
+        },
         fnStatementTypes: fnD_types.sort(),
         fnStatementTokens: fnD_toks.sort(),
       },

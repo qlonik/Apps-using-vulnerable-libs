@@ -46,10 +46,11 @@ const collapseFnNamesTree = (
     }
 
     const fnName = fnNamesConcat(fnNameSoFar, fnDesc.data.name)
-    const { fnStatementTypes, fnStatementTokens } = fnDesc.data
+    const { loc, fnStatementTypes, fnStatementTokens } = fnDesc.data
     const treeElem: FunctionSignature = {
       type: 'fn',
       name: fnName,
+      loc,
       fnStatementTypes,
       fnStatementTokens,
     }

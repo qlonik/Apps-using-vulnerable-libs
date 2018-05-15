@@ -20,6 +20,7 @@ import {
   isVariableDeclarator,
   Literal,
   Node as BabelNode,
+  SourceLocation,
 } from 'babel-types'
 import { stripIndent } from 'common-tags'
 import { inspect as utilInspect } from 'util'
@@ -46,6 +47,7 @@ const log = stdoutLog('extractStructure:nodeFilters:allFnsAndNames')
 export type Signature = {
   type: 'fn'
   name: string
+  loc: SourceLocation
   fnStatementTypes: string[] | null
   fnStatementTokens: string[] | null
 }
@@ -67,6 +69,22 @@ const extractNameFromIdentifier = (node: Identifier): string => {
   return `${node.name}`
 }
 
+/**
+ * DeepCopy like function. This is needed, because SourceLocation is actually
+ * an instance of a class, and start and end are also instances of a different
+ * class. So this function transforms incoming SourceLocation into plain
+ * SourceLocation object.
+ *
+ * @param {SourceLocation} loc - instance of {@link SourceLocation} class
+ * @returns plain object representing {@link SourceLocation}
+ */
+const extractNodeLocation = (loc: SourceLocation): SourceLocation => {
+  return {
+    start: { line: loc.start.line, column: loc.start.column },
+    end: { line: loc.end.line, column: loc.end.column },
+  }
+}
+
 export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> => {
   if (node && (<any>node).__skip) {
     return Signal.continue<Signature>(null)
@@ -76,6 +94,7 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
     return Signal.continue<Signature>({
       type: 'fn',
       name: (node.id && node.id.name) || '[anonymous]',
+      loc: extractNodeLocation(node.loc),
       fnStatementTypes: getFnStatementTypes(node),
       fnStatementTokens: getFnStatementTokens(node),
     })
@@ -171,6 +190,7 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
       return Signal.continue<Signature>({
         type: 'fn',
         name,
+        loc: extractNodeLocation(fnNode.loc),
         fnStatementTypes: getFnStatementTypes(fnNode),
         fnStatementTokens: getFnStatementTokens(fnNode),
       })

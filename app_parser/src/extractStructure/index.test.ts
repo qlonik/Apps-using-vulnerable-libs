@@ -124,18 +124,30 @@ test('react-native: extracted correct signature', async t => {
         {
           type: 'fn',
           name: 'a',
+          loc: {
+            start: { line: 5, column: 2 },
+            end: { line: 7, column: 3 },
+          },
           fnStatementTypes: [`t_${STATEMENT}:FunctionDeclaration`],
           fnStatementTokens: [`${DECLARATION}:Function[${EXPRESSION}:Identifier[b]]`],
         },
         {
           type: 'fn',
           name: fnNamesConcat('a', 'b'),
+          loc: {
+            start: { line: 6, column: 4 },
+            end: { line: 6, column: 19 },
+          },
           fnStatementTypes: [],
           fnStatementTokens: [],
         },
         {
           type: 'fn',
           name: 'c',
+          loc: {
+            start: { line: 8, column: 2 },
+            end: { line: 8, column: 17 },
+          },
           fnStatementTypes: [],
           fnStatementTokens: [],
         },
@@ -148,6 +160,10 @@ test('react-native: extracted correct signature', async t => {
         {
           type: 'fn',
           name: 'a',
+          loc: {
+            start: { line: 12, column: 10 },
+            end: { line: 16, column: 3 },
+          },
           fnStatementTypes: [`t_${STATEMENT}:VariableDeclaration`],
           fnStatementTokens: [
             oneLineTrim`
@@ -160,6 +176,10 @@ test('react-native: extracted correct signature', async t => {
         {
           type: 'fn',
           name: fnNamesConcat('a', 'fn'),
+          loc: {
+            start: { line: 13, column: 12 },
+            end: { line: 15, column: 5 },
+          },
           fnStatementTypes: [`t_${STATEMENT}:ReturnStatement`],
           fnStatementTokens: [`${STATEMENT}:Return[${LITERAL}:Numeric]`],
         },
