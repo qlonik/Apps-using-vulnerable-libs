@@ -2,13 +2,13 @@ import { pathExists, readJSON } from 'fs-extra'
 import { differenceWith, isEqual, once, partition, take } from 'lodash'
 import { join } from 'path'
 import { The } from 'typical-mini'
-import { MessagesMap, pool as poolFactory } from 'workerpool'
+import { MessagesMap } from 'workerpool'
 import { appDesc } from '../parseApps'
 import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
-import { getWorkerPath } from '../utils/worker'
+import { getWorkerPath, poolFactory } from '../utils/worker'
 
 export type messages = The<
   MessagesMap,

@@ -1,7 +1,7 @@
 import { flatMap, once, flatten } from 'lodash'
 import { join } from 'path'
 import { Omit, Simplify, The } from 'typical-mini'
-import { MessagesMap, pool as poolFactory } from 'workerpool'
+import { MessagesMap } from 'workerpool'
 import { analysisFile, APP_TYPES, appDesc, cordovaAnalysisFile } from '../parseApps'
 import {
   getLibNameVersionSigFiles,
@@ -12,7 +12,7 @@ import {
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
-import { getWorkerPath } from '../utils/worker'
+import { getWorkerPath, poolFactory } from '../utils/worker'
 
 export enum METHODS_ENUM {
   'lit-vals',

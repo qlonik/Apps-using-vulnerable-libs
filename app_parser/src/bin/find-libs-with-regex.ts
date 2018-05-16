@@ -1,13 +1,13 @@
 import { once, includes, sortBy } from 'lodash'
 import { join } from 'path'
 import { The } from 'typical-mini'
-import { MessagesMap, pool as poolFactory } from 'workerpool'
+import { MessagesMap } from 'workerpool'
 import { analysisFile, appDesc, getApps } from '../parseApps'
 import { FOUND_LIBS_REGEX_FILE } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
-import { getWorkerPath } from '../utils/worker'
+import { getWorkerPath, poolFactory } from '../utils/worker'
 
 const log = stdoutLog('find-most-used-libs')
 log.enabled = true

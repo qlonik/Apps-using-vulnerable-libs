@@ -2,13 +2,13 @@ import { pathExists, readJSON } from 'fs-extra'
 import { differenceWith, isEqual, partition, once } from 'lodash'
 import { join } from 'path'
 import { The } from 'typical-mini'
-import { MessagesMap, Pool, pool as poolFactory } from 'workerpool'
+import { MessagesMap, Pool } from 'workerpool'
 import { appDesc, getApps } from '../parseApps'
 import { FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
-import { getWorkerPath } from '../utils/worker'
+import { getWorkerPath, poolFactory } from '../utils/worker'
 
 const log = stdoutLog('preprocess-apps')
 log.enabled = true

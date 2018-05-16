@@ -1,10 +1,10 @@
 import { readdir, remove } from 'fs-extra'
 import { join } from 'path'
 import { The } from 'typical-mini'
-import { MessagesMap, Pool, pool as poolFactory } from 'workerpool'
+import { MessagesMap, Pool } from 'workerpool'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
-import { getWorkerPath } from '../utils/worker'
+import { getWorkerPath, poolFactory } from '../utils/worker'
 
 export type messages = The<
   MessagesMap,
