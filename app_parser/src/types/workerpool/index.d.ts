@@ -70,6 +70,10 @@ declare module 'workerpool' {
   interface PoolOptions {
     minWorkers?: number | 'max'
     maxWorkers?: number
+
+    // hidden options
+    forkArgs?: any[]
+    forkOpts?: {}
   }
 
   interface Stats {
