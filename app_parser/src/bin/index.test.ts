@@ -13,47 +13,51 @@ test('lists bin scripts correctly', async t => {
   const currentDirContent = await readdir(__dirname)
   const expected = stripIllegalNames(currentDirContent)
 
-  const result = await execa('node', [CLI_SCRIPT, 'list'], { env: { DEBUG_COLORS: 'false' } })
-  const scripts = chain(result.stdout)
-    .split('\n')
-    .drop()
-    .map(v => v.trim())
-    .value()
+  const result = await execa('node', ['--no-warnings', CLI_SCRIPT, 'list'])
+  const scripts = JSON.parse(
+    '[' +
+      result.stdout
+        .split('\n')
+        .slice(2, -1)
+        .join('\n') +
+      ']',
+  )
 
   t.deepEqual(expected, scripts)
 })
 
 test('bin scripts in dirs fail', async t => {
   const error = await t.throws(
-    execa('node', [CLI_SCRIPT, EXPORT_MAIN_FN], {
-      extendEnv: false,
-      env: { DEBUG_COLORS: 'false' },
-    }),
+    execa('node', ['--no-warnings', CLI_SCRIPT, EXPORT_MAIN_FN], { extendEnv: false }),
   )
   t.true(error.message.includes('illegal bin script'))
 })
 
 test("bin scripts in dirs don't fail when in test mode", async t => {
-  const noError = await execa('node', [CLI_SCRIPT, EXPORT_MAIN_FN], {
+  const noError = await execa('node', ['--no-warnings', CLI_SCRIPT, EXPORT_MAIN_FN], {
     extendEnv: false,
-    env: { DEBUG_COLORS: 'false', NODE_ENV: process.env.NODE_ENV },
+    env: { FD: '13', NODE_ENV: process.env.NODE_ENV },
   })
   t.truthy(noError.stdout)
   t.falsy(noError.stderr)
 })
 
 test('runs script which exports main function', async t => {
-  const result = await execa('node', [CLI_SCRIPT, EXPORT_MAIN_FN], {
-    env: { DEBUG_COLORS: 'false' },
-  })
+  const result = await execa('node', ['--no-warnings', CLI_SCRIPT, EXPORT_MAIN_FN])
 
-  t.is('hello', result.stdout)
+  t.is(
+    'hello',
+    chain(result.stdout)
+      .split('\n')
+      .drop(2)
+      .map(v => v.trim())
+      .join('\n')
+      .value(),
+  )
 })
 
-test('runs script which does not export main function', async t => {
-  const result = await execa('node', [CLI_SCRIPT, NO_EXPORT_MAIN_FN], {
-    env: { DEBUG_COLORS: 'false' },
-  })
-
-  t.is('hello', result.stdout)
+test('does not run script which does not export main function', async t => {
+  const error = await t.throws(execa('node', ['--no-warnings', CLI_SCRIPT, NO_EXPORT_MAIN_FN]))
+  t.true(error.message.includes('no main exported'))
+  t.true(error.message.includes('TypeError'))
 })
