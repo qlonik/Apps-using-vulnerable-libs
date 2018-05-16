@@ -60,6 +60,7 @@ yargs
     },
   )
   .help()
+  .showHelpOnFail(false, 'Specify -h for available commands')
   .alias('help', 'h')
   .alias('version', 'v')
   .parse()
