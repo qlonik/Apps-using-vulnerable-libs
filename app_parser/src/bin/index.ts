@@ -17,7 +17,9 @@ yargs
     async (args) => {
       const [script] = stripIllegalNames([args.script])
       if (!script) {
-        throw new Error('illegal bin script')
+        const err = new Error('illegal bin script')
+        logger.error({ script: args.script, err })
+        throw err
       }
       const kebabedScriptName = script
         .split('/')
@@ -28,7 +30,9 @@ yargs
 
       const module = await import(scriptName)
       if (typeof module.main !== 'function') {
-        throw new TypeError('no main exported')
+        const err = new TypeError('no main exported')
+        logger.error({ script: kebabedScriptName, err })
+        throw err
       }
       if (typeof module.terminate === 'function') {
         process.on('SIGINT', module.terminate)
