@@ -27,16 +27,21 @@ test('lists bin scripts correctly', async t => {
 })
 
 test('bin scripts in dirs fail', async t => {
+  const { FD, OUT } = process.env
   const error = await t.throws(
-    execa('node', ['--no-warnings', CLI_SCRIPT, EXPORT_MAIN_FN], { extendEnv: false }),
+    execa('node', ['--no-warnings', CLI_SCRIPT, EXPORT_MAIN_FN], {
+      extendEnv: false,
+      env: { OUT, FD },
+    }),
   )
   t.true(error.message.includes('illegal bin script'))
 })
 
 test("bin scripts in dirs don't fail when in test mode", async t => {
+  const { FD, OUT, NODE_ENV } = process.env
   const noError = await execa('node', ['--no-warnings', CLI_SCRIPT, EXPORT_MAIN_FN], {
     extendEnv: false,
-    env: { FD: '13', NODE_ENV: process.env.NODE_ENV },
+    env: { OUT, FD, NODE_ENV },
   })
   t.truthy(noError.stdout)
   t.falsy(noError.stderr)
