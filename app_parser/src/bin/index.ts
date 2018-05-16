@@ -42,6 +42,7 @@ yargs
         await module.main()
       } catch (err) {
         logger.error({ script: kebabedScriptName, err }, 'global error from main()')
+        throw err
       }
     },
   )
