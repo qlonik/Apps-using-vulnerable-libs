@@ -1,5 +1,6 @@
 import cloneable from 'cloneable-readable'
 import debug from 'debug'
+import { createWriteStream } from 'fs'
 import pino from 'pino'
 import pump from 'pump'
 import stream from 'stream'
@@ -57,6 +58,9 @@ export default log
 
 // Log pretty messages to console (optional, for development purposes only)
 const pretty = pino.pretty(PINO_PRETTY_OPTIONS)
+const outputStream = process.env.FD
+  ? createWriteStream('', { fd: parseInt(process.env.FD) })
+  : process.stderr
 
 pump(logThrough.clone(), pretty, process.stdout)
-pump(logThrough, process.stderr)
+pump(logThrough, outputStream)
