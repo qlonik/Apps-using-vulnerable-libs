@@ -62,9 +62,9 @@ export default log
 
 // Log pretty messages to console (optional, for development purposes only)
 const pretty = pino.pretty(PINO_PRETTY_OPTIONS)
-const outputStream = process.env.FD
-  ? createWriteStream('', { fd: parseInt(process.env.FD) })
-  : process.stderr
+
+export const fd = parseInt(process.env.FD || '') || null
+const outputStream = fd ? createWriteStream('', { fd }) : process.stderr
 
 pump(logThrough.clone(), pretty, process.stdout)
 pump(logThrough, outputStream)
