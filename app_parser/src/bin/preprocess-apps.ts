@@ -7,11 +7,8 @@ import { appDesc, getApps } from '../parseApps'
 import { FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
-import { stdoutLog } from '../utils/logger'
+import { log } from '../utils/logger'
 import { getWorkerPath, poolFactory } from '../utils/worker'
-
-const log = stdoutLog('preprocess-apps')
-log.enabled = true
 
 export type messages = The<
   MessagesMap,
@@ -39,14 +36,14 @@ export async function main() {
 
   if (await pathExists(FIN_APPS_PATH)) {
     FIN_APPS = await readJSON(FIN_APPS_PATH)
-    log('loaded  FIN_APPS')
+    log.info('loaded FIN_APPS')
   }
 
   const filtered = differenceWith(apps, FIN_APPS, isEqual)
-  log('apps: (all=%o)-(fin=%o)=(todo=%o)', apps.length, FIN_APPS.length, filtered.length)
+  log.info('apps: (all=%o)-(fin=%o)=(todo=%o)', apps.length, FIN_APPS.length, filtered.length)
 
   pool = poolFactory(wPath, { minWorkers: 0 })
-  log('pool: min=%o, max=%o, %o', pool.minWorkers, pool.maxWorkers, pool.stats())
+  log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
   // analyse all apps promises
   const appsPromises = filtered.map((app) => async () => {
@@ -59,7 +56,7 @@ export async function main() {
     return { done, ...app }
   })
 
-  log('started preprocessing')
+  log.info('started preprocessing')
   const results = await resolveAllOrInParallel(appsPromises, {
     chunkLimit: pool.maxWorkers + 1,
     chunkSize: Math.floor(1.5 * pool.maxWorkers),
@@ -74,16 +71,16 @@ export async function main() {
     },
   })
   if (terminating) {
-    log('terminated preprocessing')
+    log.info('terminated preprocessing')
   } else {
-    log('finished preprocessing')
+    log.info('finished preprocessing')
   }
 
   const [done, notDone] = partition(results, ({ done }) => done)
   const doneLength = done.length
   const notDoneLength = notDone.length
 
-  log(
+  log.info(
     'apps: (done=%o)+(not-done=%o)=(total=%o)',
     doneLength,
     notDoneLength,
@@ -91,12 +88,12 @@ export async function main() {
   )
 
   await myWriteJSON({ content: FIN_APPS, file: FIN_APPS_PATH })
-  log('updated FIN_APPS')
+  log.info('updated FIN_APPS')
 
   await pool.terminate()
 }
 
 export const terminate = once(() => {
-  log('started terminating')
+  log.info('started terminating')
   terminating = true
 })
