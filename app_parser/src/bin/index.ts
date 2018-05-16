@@ -26,7 +26,6 @@ yargs
         .map(kebabCase)
         .join('/')
       const scriptName = `./${kebabedScriptName}`
-      logger.info({ script: kebabedScriptName }, 'master process')
 
       const module = await import(scriptName)
       if (typeof module.main !== 'function') {
@@ -38,6 +37,7 @@ yargs
         process.on('SIGINT', module.terminate)
       }
 
+      logger.info({ script: kebabedScriptName }, 'master process')
       try {
         await module.main()
       } catch (err) {
