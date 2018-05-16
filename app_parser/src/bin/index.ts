@@ -1,12 +1,8 @@
-import { inlineLists } from 'common-tags'
 import { readdir } from 'fs-extra'
 import { kebabCase } from 'lodash'
 import * as yargs from 'yargs'
-import logger, { stdoutLog } from '../utils/logger'
+import logger from '../utils/logger'
 import { stripIllegalNames } from './_strip-illegal-names'
-
-const log = stdoutLog('bin')
-log.enabled = true
 
 yargs
   .command(
@@ -41,7 +37,7 @@ yargs
       try {
         await module.main()
       } catch (err) {
-        log('Some global error:\n%s', err.stack)
+        logger.error({ script: kebabedScriptName, err }, 'global error from main()')
       }
     },
   )
@@ -55,7 +51,7 @@ yargs
       const scripts = await readdir(__dirname)
       const names = stripIllegalNames(scripts)
 
-      log(inlineLists`Available commands:\n   ${names}`)
+      logger.info({ names }, 'available commands')
     },
   )
   .help()
