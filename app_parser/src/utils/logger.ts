@@ -9,7 +9,11 @@ import { inspect } from 'util'
 /*
  * Config for Pino
  */
-const PINO_OPTIONS: pino.LoggerOptions = {}
+const PINO_OPTIONS: pino.LoggerOptions = {
+  serializers: {
+    err: pino.stdSerializers.err,
+  },
+}
 const PINO_PRETTY_OPTIONS: pino.PrettyOptions = {
   forceColor: true,
 }
