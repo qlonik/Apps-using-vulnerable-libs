@@ -32,3 +32,10 @@ export class LibDataError extends DataError {
     this.name = 'LibDataError'
   }
 }
+
+export class EnvironmentError extends Error {
+  public constructor(msg: string) {
+    super(msg)
+    this.name = 'EnvironmentError'
+  }
+}
