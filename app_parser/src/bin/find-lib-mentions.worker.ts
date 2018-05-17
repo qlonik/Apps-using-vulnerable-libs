@@ -53,14 +53,14 @@ worker<messages>({
             }
             NAME_VERSION_REGEX.lastIndex = 0
 
-            namesRegArr.forEach(({ name, reg }) => {
+            for (let { name, reg } of namesRegArr) {
               // same while loop as above
               while (reg.exec(commentStr) !== null) {
                 const { count } = npmLibsMap.get(name) || { count: 0 }
                 npmLibsMap.set(name, { count: count + 1 })
               }
               reg.lastIndex = 0
-            })
+            }
           }
 
           return {
