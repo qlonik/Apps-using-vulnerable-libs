@@ -67,10 +67,19 @@ yargs
       }
 
       logger.info({ script: kebabedScriptName }, 'master process')
+      let start
+      let time
       try {
+        start = process.hrtime()
         await module.main()
+        time = process.hrtime(start)
+        logger.info({ script: kebabedScriptName, 'run-time': time }, 'total time')
       } catch (err) {
-        logger.error({ script: kebabedScriptName, err }, 'global error from main()')
+        time = process.hrtime(start)
+        logger.error(
+          { script: kebabedScriptName, 'run-time': time, err },
+          'global error from main()',
+        )
         throw null
       }
     },
