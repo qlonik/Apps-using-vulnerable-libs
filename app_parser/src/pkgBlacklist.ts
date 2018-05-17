@@ -111,23 +111,7 @@ const blacklistUnsorted: BlacklistEntry[] = [
   { name: 'express', versions: 'all', comment: [COMMENTS.serverSide] },
   { name: 'extend', versions: 'none' },
   { name: 'file-loader', versions: 'all', comment: [COMMENTS.tool] },
-  {
-    name: 'fs-extra',
-    versions: [
-      {
-        v: '0.0.1',
-        comment: [COMMENTS.exportWrnFrm],
-      },
-      {
-        v: '0.0.11',
-        comment: [COMMENTS.exportWrnFrm],
-      },
-      {
-        v: '0.0.3',
-        comment: [COMMENTS.exportWrnFrm],
-      },
-    ],
-  },
+  { name: 'fs-extra', versions: 'all', comment: [COMMENTS.serverSide] },
   { name: 'glob', versions: 'none', comment: [COMMENTS.serverSide] },
   { name: 'gulp', versions: 'all', comment: [COMMENTS.tool] },
   { name: 'gulp-util', versions: 'all', comment: [COMMENTS.tool] },
