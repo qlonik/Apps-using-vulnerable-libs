@@ -21,7 +21,7 @@ import {
 import { SimMapWithConfidence } from '../similarityIndex/similarity-methods/types'
 import { SortedLimitedList } from '../similarityIndex/SortedLimitedList'
 import { myWriteJSON } from '../utils/files'
-import { stdoutLog } from '../utils/logger'
+import logger from '../utils/logger'
 import {
   messages,
   METHODS_TYPE, // eslint-disable-line no-unused-vars
@@ -36,8 +36,7 @@ type fnName<K extends METHODS_TYPE = METHODS_TYPE> = {
 const TOP_HUNDRED_FILE = '_top_hundred.json'
 const TOP_THREE_PER_LIB_FILE = '_top_three.json'
 
-const log = stdoutLog(`analyse-specified.worker.${process.pid}`)
-log.enabled = true
+const log = logger.child({ name: `analyse-specified.worker.${process.pid}` })
 
 const transformAppPath = ({ type, section, app }: appDesc) => `${type}___${section}___${app}`
 const transformFilePath = (f: analysisFile) => {
@@ -79,7 +78,7 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
   return async ({ apps, libs, save, app, file, lib, forceRedo = false }) => {
     const appAnalysedPerFile = await getAnalysedData(apps, app, [file])
     if (appAnalysedPerFile.length > 1) {
-      log('appAnalysedPerFile has more than one element')
+      log.warn('appAnalysedPerFile has more than one element')
     }
     const appSig = appAnalysedPerFile[0].signature || {
       functionSignature: [],
@@ -89,7 +88,7 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
     const libFileName = basename(lib.file, extname(lib.file))
     const libSigs = await getLibNameVersionSigContents(libs, lib.name, lib.version, lib.file)
     if (libSigs.length > 1) {
-      log(`lib ${lib.name} ${lib.version} ${libFileName}.json has more than one element`)
+      log.warn(`lib ${lib.name} ${lib.version} ${libFileName}.json has more than one element`)
     }
     const libSig = libSigs[0].signature || {
       functionSignature: [],

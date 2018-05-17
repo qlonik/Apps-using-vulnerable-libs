@@ -11,7 +11,7 @@ import {
 } from '../parseLibraries'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
-import { stdoutLog } from '../utils/logger'
+import logger from '../utils/logger'
 import { getWorkerPath, poolFactory } from '../utils/worker'
 
 export enum METHODS_ENUM {
@@ -84,13 +84,12 @@ const TO_ANALYSE: toAnalyseType[] = [
   },
 ]
 
-const log = stdoutLog('analyse-specified')
-log.enabled = true
+const log = logger.child({ name: 'analyse-specified' })
 let terminating = false
 
 export const main = async () => {
   const pool = poolFactory<messages>(await getWorkerPath(__filename), { minWorkers: 0 })
-  log('pool: min=%o, max=%o, %o', pool.minWorkers, pool.maxWorkers, pool.stats())
+  log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
   const toAnalyse = await TO_ANALYSE.reduce(
     async (acc, { app, files, libs }) => {
@@ -189,14 +188,14 @@ export const main = async () => {
     })
   })
 
-  log('started analysis')
+  log.info('started analysis')
   const results = await resolveAllOrInParallel(analysisPromises)
-  log('started aggregation')
+  log.info('started aggregation')
   const aggregated = await resolveAllOrInParallel(aggregatePromises)
   if (terminating) {
-    log('terminated analysis+aggregation')
+    log.info('terminated analysis+aggregation')
   } else {
-    log('finished analysis+aggregation')
+    log.info('finished analysis+aggregation')
   }
 
   await myWriteJSON({ file: RESULTS_FILE, content: { results, aggregated } })
@@ -205,6 +204,6 @@ export const main = async () => {
 }
 
 export const terminate = once(() => {
-  log('started terminating')
+  log.info('started terminating')
   terminating = true
 })
