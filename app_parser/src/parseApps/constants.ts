@@ -5,6 +5,8 @@ export const FINISHED_PREPROCESSING_FILE = '_fin_pre_prerocess.json'
 export const LIB_CANDIDATES_FILE = '_lib_candidates.json'
 export const LIB_PREPROCESSED_CANDIDATES_FILE = '_lib_prep_candidates.json'
 export const FINISHED_ANALYSIS_FILE = '_fin_analysis.json'
+export const FOUND_LIBS_FILE = '_found_libs.json'
+export const FOUND_LIBS_TOTALS_FILE = '_found_libs_totals.json'
 export const FOUND_LIBS_REGEX_FILE = '_found_libs_with_regex.json'
 
 export const CORDOVA_MAIN_FILE = 'index.html'
