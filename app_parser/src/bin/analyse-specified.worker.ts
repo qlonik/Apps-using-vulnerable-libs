@@ -34,7 +34,7 @@ type fnName<K extends METHODS_TYPE = METHODS_TYPE> = {
 }
 
 const TOP_HUNDRED_FILE = '_top_hundred.json'
-const TOP_THREE_PER_LIB_FILE = '_top_three.json'
+const TOP_25_FILE = '_top_25.json'
 
 const log = logger.child({ name: `analyse-specified.worker.${process.pid}` })
 
@@ -157,7 +157,7 @@ const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames }) => 
     const slls = similarityResultsForAllVersions.reduce(
       (acc, { lib, methodName, content: { similarity } }) => ({
         ...acc,
-        [methodName]: (acc[methodName] || new SortedLimitedList({ limit: 3, predicate })).push({
+        [methodName]: (acc[methodName] || new SortedLimitedList({ limit: 25, predicate })).push({
           ...lib,
           similarity,
         }),
@@ -177,7 +177,7 @@ const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames }) => 
       {} as { [S in METHODS_TYPE]: Similarity[] },
     )
 
-    await myWriteJSON({ file: join(libDir, TOP_THREE_PER_LIB_FILE), content: reducedSll })
+    await myWriteJSON({ file: join(libDir, TOP_25_FILE), content: reducedSll })
   }
 
   const reducedGlobalSll = (Object.keys(globalSlls) as METHODS_TYPE[]).reduce(
