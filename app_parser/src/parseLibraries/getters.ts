@@ -1,5 +1,6 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
 import { join } from 'path'
+import { memoize, MemoizedFunction } from 'lodash' // eslint-disable-line no-unused-vars
 import { signatureNew } from '../extractStructure'
 import { resolveAllOrInParallel } from '../utils'
 import { SIG_FOLDER } from './constants'
@@ -17,7 +18,12 @@ export type libNameVersionSigContent = libNameVersionSigFile & {
   signature: signatureNew
 }
 
-export function libPath(libsPath: string, name?: string, version?: string, file?: string): string {
+export const libPath = memoize(function _libPath(
+  libsPath: string,
+  name?: string,
+  version?: string,
+  file?: string,
+): string {
   let path = libsPath
   if (name) {
     path = join(path, name)
@@ -30,9 +36,13 @@ export function libPath(libsPath: string, name?: string, version?: string, file?
   }
 
   return path
-}
+},
+(libsPath: string, name = '', version = '', file = '') => `${libsPath}/${name}/${version}/${file}`)
 
-export async function getLibNames(libsPath: string, name?: string): Promise<libName[]> {
+export const getLibNames = memoize(async function _getLibNames(
+  libsPath: string,
+  name?: string,
+): Promise<libName[]> {
   if (name) {
     if (
       name.startsWith('_') ||
@@ -52,9 +62,10 @@ export async function getLibNames(libsPath: string, name?: string): Promise<libN
       .sort()
       .map((name) => ({ name }))
   }
-}
+},
+(libsPath: string, name = '') => `${libsPath}/${name}`)
 
-export async function getLibNameVersions(
+export const getLibNameVersions = memoize(async function _getLibNameVersions(
   libsPath: string,
   name?: string,
   version?: string,
@@ -74,9 +85,10 @@ export async function getLibNameVersions(
       return (await acc).concat(versions)
     }
   }, Promise.resolve([] as libNameVersion[]))
-}
+},
+(libsPath: string, name = '', version = '') => `${libsPath}/${name}/${version}`)
 
-export async function getLibNameVersionSigFiles(
+export const getLibNameVersionSigFiles = memoize(async function _getLibNameVersionSigFiles(
   libsPath: string,
   name?: string,
   version?: string,
@@ -101,7 +113,8 @@ export async function getLibNameVersionSigFiles(
       return (await acc).concat(files)
     }
   }, Promise.resolve([] as libNameVersionSigFile[]))
-}
+},
+(libsPath: string, name = '', version = '', file = '') => `${libsPath}/${name}/${version}/${file}`)
 
 export async function getLibNameVersionSigContents(
   libsPath: string,

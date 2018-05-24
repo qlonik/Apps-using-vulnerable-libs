@@ -1,5 +1,5 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
-import { flatten } from 'lodash'
+import { flatten, memoize, MemoizedFunction } from 'lodash' // eslint-disable-line no-unused-vars
 import { join } from 'path'
 import { signatureWithComments } from '../extractStructure'
 import { SimilarityToLibs } from '../similarityIndex'
@@ -26,7 +26,7 @@ export type appDesc<T extends APP_TYPES = APP_TYPES> = {
   app: string
 }
 
-export function appPath(
+export const appPath = memoize(function _appPath(
   appsPath: string,
   type?: APP_TYPES,
   section?: string,
@@ -43,9 +43,13 @@ export function appPath(
     path = join(path, name)
   }
   return path
-}
+},
+(appsPath: string, type: keyof typeof APP_TYPES | '' = '', section = '', name = '') => `${appsPath}/${type}/${section}/${name}`)
 
-export async function getApps(appsPath: string, type?: APP_TYPES): Promise<appDesc[]> {
+export const getApps = memoize(async function _getApps(
+  appsPath: string,
+  type?: APP_TYPES,
+): Promise<appDesc[]> {
   const appTypes = type
     ? [{ type }]
     : [{ type: APP_TYPES.cordova }, { type: APP_TYPES.reactNative }]
@@ -75,7 +79,8 @@ export async function getApps(appsPath: string, type?: APP_TYPES): Promise<appDe
       }),
     ),
   )
-}
+},
+(appsPath: string, type: keyof typeof APP_TYPES | '' = '') => `${appsPath}/${type}`)
 
 export type analysisFile = { path: string }
 
@@ -83,7 +88,7 @@ export type cordovaAnalysisFile = analysisFile & { location: string; id: string 
 export const isCordovaAnalysisFile = (f: analysisFile): f is cordovaAnalysisFile => {
   return 'location' in f && 'id' in f
 }
-export async function getCordovaAnalysisFiles(
+export const getCordovaAnalysisFiles = memoize(async function _getCordovaAnalysisFiles(
   appsPath: string,
   app: appDesc,
 ): Promise<cordovaAnalysisFile[]> {
@@ -103,7 +108,8 @@ export async function getCordovaAnalysisFiles(
   return locationId
     .filter(({ id }) => !id.startsWith('_'))
     .map(({ location, id }) => ({ path: join(location, id), location, id }))
-}
+},
+(appsPath: string, { type, section, app }: appDesc) => `${appsPath}/${type}/${section}/${app}`)
 
 const reactNativeIdRegex = /(s|n)_.+/
 export type reactNativeAnalysisFile = analysisFile &
@@ -111,7 +117,7 @@ export type reactNativeAnalysisFile = analysisFile &
 export const isReactNativeAnalysisFile = (f: analysisFile): f is reactNativeAnalysisFile => {
   return 'idType' in f && 'id' in f
 }
-export async function getReactNativeAnalysisFiles(
+export const getReactNativeAnalysisFiles = memoize(async function _getReactNativeAnalysisFiles(
   appsPath: string,
   app: appDesc,
 ): Promise<reactNativeAnalysisFile[]> {
@@ -131,7 +137,8 @@ export async function getReactNativeAnalysisFiles(
       return assertNever(idType)
     }
   })
-}
+},
+(appsPath: string, { type, section, app }: appDesc) => `${appsPath}/${type}/${section}/${app}`)
 
 export type analysedDataFile<T> = {
   file: T
