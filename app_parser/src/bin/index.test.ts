@@ -1,7 +1,6 @@
 import { test } from 'ava'
 import execa from 'execa'
 import { readdir } from 'fs-extra'
-import { chain } from 'lodash'
 import { stripIllegalNames } from './_strip-illegal-names'
 
 const CLI_SCRIPT = __dirname
@@ -52,13 +51,11 @@ test('runs script which exports main function', async t => {
 
   t.is(
     'hello',
-    chain(result.stdout)
+    result.stdout
       .split('\n')
-      .drop(2)
-      .take(1)
+      .slice(2, 3)
       .map(v => v.trim())
-      .join('\n')
-      .value(),
+      .join('\n'),
   )
 })
 
