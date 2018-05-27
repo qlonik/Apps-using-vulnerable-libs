@@ -1,18 +1,21 @@
-import { flatMap, once, flatten } from 'lodash'
+import { flatMap, flatten, once } from 'lodash'
+import uniqBy from 'lodash/fp/uniqBy'
 import { join } from 'path'
 import { Omit, Simplify, The } from 'typical-mini'
 import { MessagesMap } from 'workerpool'
 import { analysisFile, APP_TYPES, appDesc, cordovaAnalysisFile } from '../parseApps'
 import {
   getLibNameVersionSigFiles,
-  libName, // eslint-disable-line no-unused-vars
-  libNameVersion, // eslint-disable-line no-unused-vars
+  libName,
+  libNameVersion,
   libNameVersionSigFile,
 } from '../parseLibraries'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import logger from '../utils/logger'
 import { getWorkerPath, poolFactory } from '../utils/worker'
+import { allMessages } from './_all.types'
+import { messages as ppAppMessages } from './preprocess-apps'
 
 export enum METHODS_ENUM {
   'lit-vals',
@@ -87,13 +90,35 @@ const TO_ANALYSE: toAnalyseType[] = [
 const log = logger.child({ name: 'analyse-specified' })
 let terminating = false
 
+const uniqApp = uniqBy<appDesc>(({ type, section, app }) => `${type}@@@${section}@@@${app}`)
+const uniqLibNameVersion = uniqBy<libNameVersion>(({ name, version }) => `${name}@@@${version}`)
+
 export const main = async () => {
   const pool = poolFactory<messages>(await getWorkerPath(__filename), { minWorkers: 0 })
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
+  const raLibPool = poolFactory<allMessages>(join(__dirname, '_all.worker'), { minWorkers: 0 })
+  log.info(
+    { stats: raLibPool.stats() },
+    'reanalyse lib pool: min=%o, max=%o',
+    raLibPool.minWorkers,
+    raLibPool.maxWorkers,
+  )
+
+  const ppAppPool = poolFactory<ppAppMessages>(join(__dirname, 'preprocess-apps.worker'), {
+    minWorkers: 0,
+  })
+  log.info(
+    { stats: ppAppPool.stats() },
+    'preprocess apps pool: min=%o, max=%o',
+    ppAppPool.minWorkers,
+    ppAppPool.maxWorkers,
+  )
+
   const toAnalyse = await TO_ANALYSE.reduce(
     async (acc, { app, files, libs }) => {
       const aggregateLibsSet = new Set<string>()
+      let libsPreprocessUniqArr = [] as libNameVersion[]
 
       const loadedLibs = flatten(
         await Promise.all(
@@ -113,8 +138,9 @@ export const main = async () => {
               )
             }
 
-            for (let { name } of loadedLibNameVersionSig) {
+            for (let { name, version } of loadedLibNameVersionSig) {
               aggregateLibsSet.add(name)
+              libsPreprocessUniqArr.push({ name, version })
             }
 
             return loadedLibNameVersionSig
@@ -126,11 +152,19 @@ export const main = async () => {
 
       const awaited = await acc
       return {
+        preprocess: {
+          apps: uniqApp(awaited.preprocess.apps.concat([app])),
+          libs: uniqLibNameVersion(awaited.preprocess.libs.concat(libsPreprocessUniqArr)),
+        },
         analyse: awaited.analyse.concat({ app, files, libs: loadedLibs }),
         aggregate: awaited.aggregate.concat({ app, files, libs: aggregateLibs }),
       }
     },
     Promise.resolve({
+      preprocess: {
+        apps: [] as descriptor['app'][],
+        libs: [] as libNameVersion[],
+      },
       analyse: [] as {
         app: descriptor['app']
         files: descriptor['file'][]
@@ -143,6 +177,22 @@ export const main = async () => {
       }[],
     }),
   )
+
+  log.debug({ toAnalyse }, 'analysis goal')
+
+  const preprocessLibsPromises = toAnalyse.preprocess.libs.map((lib) => async () => ({
+    done: terminating
+      ? false
+      : await raLibPool.exec('reanalyse-lib', [{ libsPath: LIB_PATH, lib }]),
+    lib,
+  }))
+
+  const preprocessAppsPromises = toAnalyse.preprocess.apps.map((app) => async () => ({
+    done: terminating
+      ? false
+      : await ppAppPool.exec('preprocess', [{ allAppsPath: APP_PATH, allLibsPath: LIB_PATH, app }]),
+    app,
+  }))
 
   const analysisPromises = flatMap(toAnalyse.analyse, ({ app, files, libs }) => {
     return flatMap(files, (file) => {
@@ -189,6 +239,14 @@ export const main = async () => {
       return { done, app, file, libs }
     })
   })
+
+  log.info('reanalysing libs')
+  await resolveAllOrInParallel(preprocessLibsPromises)
+  await raLibPool.terminate()
+
+  log.info('preprocessing apps')
+  await resolveAllOrInParallel(preprocessAppsPromises)
+  await ppAppPool.terminate()
 
   log.info('started analysis')
   const results = await resolveAllOrInParallel(analysisPromises)
