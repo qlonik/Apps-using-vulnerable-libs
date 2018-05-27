@@ -1,4 +1,5 @@
 import { flatMap, flatten, once } from 'lodash'
+import uniq from 'lodash/fp/uniq'
 import uniqBy from 'lodash/fp/uniqBy'
 import { join } from 'path'
 import { Omit, Simplify, The } from 'typical-mini'
@@ -10,7 +11,7 @@ import {
   libNameVersion,
   libNameVersionSigFile,
 } from '../parseLibraries'
-import { resolveAllOrInParallel } from '../utils'
+import { assertNever, resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import logger from '../utils/logger'
 import { getWorkerPath, poolFactory } from '../utils/worker'
@@ -56,12 +57,14 @@ const ANALYSIS_PATH = join(process.env.OUT!, 'rnd-10')
 const RESULTS_FILE = join(ANALYSIS_PATH, '_results.json')
 
 type toAnalyseType = {
+  methods: '*' | METHODS_TYPE | METHODS_TYPE[]
   app: descriptor['app']
   files: descriptor['file'][]
   libs: ('*' | libName | libNameVersion | descriptor['lib'])[]
 }
 const TO_ANALYSE: toAnalyseType[] = [
   {
+    methods: '*',
     app: {
       type: APP_TYPES.cordova,
       section: '20170726-a_b',
@@ -76,6 +79,7 @@ const TO_ANALYSE: toAnalyseType[] = [
     ],
   },
   {
+    methods: '*',
     app: {
       type: APP_TYPES.cordova,
       section: '20170726-com.t',
@@ -105,7 +109,12 @@ export const main = async () => {
   )
 
   const toAnalyse = await TO_ANALYSE.reduce(
-    async (acc, { app, files, libs }) => {
+    async (acc, { methods: todoMethods, app, files, libs }) => {
+      const methods =
+        typeof todoMethods === 'string'
+          ? todoMethods === '*' ? [...METHODS] : [todoMethods]
+          : Array.isArray(todoMethods) ? uniq(todoMethods) : assertNever(todoMethods)
+
       const aggregateLibsSet = new Set<string>()
       let libsPreprocessUniqArr = [] as libNameVersion[]
 
@@ -145,7 +154,7 @@ export const main = async () => {
           apps: uniqApp(awaited.preprocess.apps.concat([app])),
           libs: uniqLibNameVersion(awaited.preprocess.libs.concat(libsPreprocessUniqArr)),
         },
-        analyse: awaited.analyse.concat({ app, files, libs: loadedLibs }),
+        analyse: awaited.analyse.concat({ methods, app, files, libs: loadedLibs }),
         aggregate: awaited.aggregate.concat({ app, files, libs: aggregateLibs }),
       }
     },
@@ -155,6 +164,7 @@ export const main = async () => {
         libs: [] as libNameVersion[],
       },
       analyse: [] as {
+        methods: METHODS_TYPE[]
         app: descriptor['app']
         files: descriptor['file'][]
         libs: descriptor['lib'][]
@@ -183,7 +193,7 @@ export const main = async () => {
     app,
   }))
 
-  const analysisPromises = flatMap(toAnalyse.analyse, ({ app, files, libs }) => {
+  const analysisPromises = flatMap(toAnalyse.analyse, ({ methods, app, files, libs }) => {
     return flatMap(files, (file) => {
       return libs.map((lib) => async (): Promise<
         { done: false | Record<METHODS_TYPE, boolean> } & descriptor
@@ -192,7 +202,7 @@ export const main = async () => {
           return { done: false, app, file, lib }
         }
         const results = await Promise.all(
-          METHODS.map(async (m) => ({
+          methods.map(async (m) => ({
             m,
             r: await pool.exec(m, [
               {
