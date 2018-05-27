@@ -98,7 +98,7 @@ export const main = async () => {
       const loadedLibs = flatten(
         await Promise.all(
           libs.map(async (lib) => {
-            let loadedLibNameVersionSig
+            let loadedLibNameVersionSig: libNameVersionSigFile[]
 
             if (lib === '*') {
               loadedLibNameVersionSig = await getLibNameVersionSigFiles(LIB_PATH)
@@ -113,7 +113,9 @@ export const main = async () => {
               )
             }
 
-            loadedLibNameVersionSig.forEach(({ name }) => aggregateLibsSet.add(name))
+            for (let { name } of loadedLibNameVersionSig) {
+              aggregateLibsSet.add(name)
+            }
 
             return loadedLibNameVersionSig
           }),
@@ -192,11 +194,7 @@ export const main = async () => {
   const results = await resolveAllOrInParallel(analysisPromises)
   log.info('started aggregation')
   const aggregated = await resolveAllOrInParallel(aggregatePromises)
-  if (terminating) {
-    log.info('terminated analysis+aggregation')
-  } else {
-    log.info('finished analysis+aggregation')
-  }
+  log.info(`${terminating ? 'terminated' : 'finished'} analysis+aggregation`)
 
   await myWriteJSON({ file: RESULTS_FILE, content: { results, aggregated } })
 
