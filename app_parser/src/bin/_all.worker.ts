@@ -19,7 +19,7 @@ const aalog = makeLog('analyse-app')
 
 worker<messages>({
   'reanalyse-lib': async ({ libsPath, lib }) => {
-    rllog.trace({ lib }, 'reanalysing lib')
+    rllog.debug({ lib }, 'reanalysing lib')
 
     const main = await saveFiles(extractMainFiles({ libsPath, ...lib }, { conservative: true }))
     if (main.length === 0) {
@@ -33,7 +33,7 @@ worker<messages>({
     }
     await updateUnionLiteralSignature({ libsPath, ...lib })
 
-    rllog.trace({ lib, main, analysis }, 'finished lib')
+    rllog.debug({ lib, main, analysis }, 'finished lib')
   },
 
   'preprocess-app': async ({ allAppsPath, allLibsPath, app }) => {
@@ -65,9 +65,9 @@ worker<messages>({
 
     if (app.type === APP_TYPES.cordova) {
       try {
-        aalog.trace({ app }, 'started analysis')
+        aalog.debug({ app }, 'started analysis')
         await analyseCordovaApp({ allAppsPath, libsPath: allLibsPath, app })
-        aalog.trace({ app }, 'finished analysis')
+        aalog.debug({ app }, 'finished analysis')
         return true
       } catch (err) {
         aalog.error({ err, app }, 'error while analysing cordova app')
