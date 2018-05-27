@@ -74,6 +74,7 @@ test('fn filtered correctly', t => {
     {
       prop: 'program.body[1].declarations[0]',
       data: {
+        index: -1,
         type: 'fn',
         name: 'b',
         loc: {
@@ -87,6 +88,7 @@ test('fn filtered correctly', t => {
         {
           prop: 'program.body[1].declarations[0].init.body.body[0]',
           data: {
+            index: -1,
             type: 'fn',
             name: 'fn1',
             loc: {
@@ -100,6 +102,7 @@ test('fn filtered correctly', t => {
         {
           prop: 'program.body[1].declarations[0].init.body.body[1].expression.callee',
           data: {
+            index: -1,
             type: 'fn',
             name: 'fn2',
             loc: {
@@ -115,6 +118,7 @@ test('fn filtered correctly', t => {
     {
       prop: 'program.body[2].declarations[0]',
       data: {
+        index: -1,
         type: 'fn',
         name: 'fn3',
         loc: {

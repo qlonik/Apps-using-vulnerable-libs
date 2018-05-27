@@ -122,6 +122,7 @@ test('react-native: extracted correct signature', async t => {
       id: '0',
       functionSignature: [
         {
+          index: 0,
           type: 'fn',
           name: 'a',
           loc: {
@@ -132,6 +133,7 @@ test('react-native: extracted correct signature', async t => {
           fnStatementTokens: [`${DECLARATION}:Function[${EXPRESSION}:Identifier[b]]`],
         },
         {
+          index: 1,
           type: 'fn',
           name: fnNamesConcat('a', 'b'),
           loc: {
@@ -142,6 +144,7 @@ test('react-native: extracted correct signature', async t => {
           fnStatementTokens: [],
         },
         {
+          index: 2,
           type: 'fn',
           name: 'c',
           loc: {
@@ -158,6 +161,7 @@ test('react-native: extracted correct signature', async t => {
       id: 1,
       functionSignature: [
         {
+          index: 0,
           type: 'fn',
           name: 'a',
           loc: {
@@ -174,6 +178,7 @@ test('react-native: extracted correct signature', async t => {
           ],
         },
         {
+          index: 1,
           type: 'fn',
           name: fnNamesConcat('a', 'fn'),
           loc: {

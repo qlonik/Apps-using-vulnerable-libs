@@ -45,6 +45,7 @@ const log = stdoutLog('extractStructure:nodeFilters:allFnsAndNames')
  *   based on renaming tokens in statements in the function.
  */
 export type Signature = {
+  index: number
   type: 'fn'
   name: string
   loc: SourceLocation
@@ -92,6 +93,7 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
 
   if (isFunctionDeclaration(node) || isFunctionExpression(node)) {
     return Signal.continue<Signature>({
+      index: -1,
       type: 'fn',
       name: (node.id && node.id.name) || '[anonymous]',
       loc: extractNodeLocation(node.loc),
@@ -188,6 +190,7 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
     if (name) {
       fnNode.__skip = true
       return Signal.continue<Signature>({
+        index: -1,
         type: 'fn',
         name,
         loc: extractNodeLocation(fnNode.loc),

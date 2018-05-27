@@ -3,6 +3,7 @@ import { jaccardLike } from '../set'
 
 export const UNKNOWN_SIG: FunctionSignature[] = [
   {
+    index: 0,
     type: 'fn',
     name: 'aa',
     loc: {} as any,
@@ -10,6 +11,7 @@ export const UNKNOWN_SIG: FunctionSignature[] = [
     fnStatementTypes: ['t_1a', 't_1b', 't_1c', 't_1d'],
   },
   {
+    index: 1,
     type: 'fn',
     name: 'bb',
     loc: {} as any,
@@ -17,6 +19,7 @@ export const UNKNOWN_SIG: FunctionSignature[] = [
     fnStatementTypes: ['t_1a', 't_2b', 't_2c', 't_2d'],
   },
   {
+    index: 2,
     type: 'fn',
     name: 'cc',
     loc: {} as any,
@@ -24,6 +27,7 @@ export const UNKNOWN_SIG: FunctionSignature[] = [
     fnStatementTypes: ['t_3a', 't_3b', 't_3c', 't_3d', 't_3d'],
   },
   {
+    index: 3,
     type: 'fn',
     name: '[anonymous]',
     loc: {} as any,
@@ -31,6 +35,7 @@ export const UNKNOWN_SIG: FunctionSignature[] = [
     fnStatementTypes: ['t_4a', 't_4b', 't_4d', 't_4d'],
   },
   {
+    index: 4,
     type: 'fn',
     name: 'ee:>>:[anonymous]',
     loc: {} as any,
@@ -38,6 +43,7 @@ export const UNKNOWN_SIG: FunctionSignature[] = [
     fnStatementTypes: ['t_5a', 't_5b', 't_6a', 't_6b'],
   },
   {
+    index: 5,
     type: 'fn',
     name: 'ff:>>:[anonymous]',
     loc: {} as any,
@@ -47,6 +53,7 @@ export const UNKNOWN_SIG: FunctionSignature[] = [
 ]
 export const LIB_SIG: FunctionSignature[] = [
   {
+    index: 0,
     type: 'fn',
     name: 'aa',
     loc: {} as any,
@@ -54,6 +61,7 @@ export const LIB_SIG: FunctionSignature[] = [
     fnStatementTypes: ['t_1a', 't_1b', 't_1c', 't_1d'],
   },
   {
+    index: 1,
     type: 'fn',
     name: 'bb',
     loc: {} as any,
@@ -61,6 +69,7 @@ export const LIB_SIG: FunctionSignature[] = [
     fnStatementTypes: ['t_2a', 't_2b', 't_2c', 't_2d'],
   },
   {
+    index: 2,
     type: 'fn',
     name: 'cc',
     loc: {} as any,
@@ -68,6 +77,7 @@ export const LIB_SIG: FunctionSignature[] = [
     fnStatementTypes: ['t_3a', 't_3b', 't_3c', 't_3d'],
   },
   {
+    index: 3,
     type: 'fn',
     name: '[anonymous]',
     loc: {} as any,
@@ -75,6 +85,7 @@ export const LIB_SIG: FunctionSignature[] = [
     fnStatementTypes: ['t_4a', 't_4b', 't_4c', 't_4d', 't_4d', 't_4d'],
   },
   {
+    index: 4,
     type: 'fn',
     name: 'eee:>>:[anonymous]',
     loc: {} as any,
@@ -82,6 +93,7 @@ export const LIB_SIG: FunctionSignature[] = [
     fnStatementTypes: ['t_5a', 't_5b', 't_5c', 't_5c', 't_5d', 't_5d'],
   },
   {
+    index: 5,
     type: 'fn',
     name: 'fff:>>:[anonymous]',
     loc: {} as any,

@@ -48,6 +48,7 @@ const collapseFnNamesTree = (
     const fnName = fnNamesConcat(fnNameSoFar, fnDesc.data.name)
     const { loc, fnStatementTypes, fnStatementTokens } = fnDesc.data
     const treeElem: FunctionSignature = {
+      index: -1,
       type: 'fn',
       name: fnName,
       loc,
@@ -59,7 +60,9 @@ const collapseFnNamesTree = (
       return treeElem
     }
     return [treeElem].concat(collapseFnNamesTree(fnDesc.c, fnName))
-  }).sort((a, b) => a.name.localeCompare(b.name))
+  })
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((el, index) => ({ ...el, index }))
 }
 
 // todo: refactor existing types rather than alias them
