@@ -119,3 +119,21 @@ test(
     `${EXPRESSION}:Assignment[${PARAM}:Identifier[c] = ${LITERAL}:Numeric]`,
   ],
 )
+
+test(
+  'for-of',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      for (let b of {}) {
+        c = 123
+      }
+    }
+  `,
+  [
+    `${STATEMENT}:For-Of`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[b]]`,
+    `${EXPRESSION}:Object`,
+    `${EXPRESSION}:Assignment[${PARAM}:Identifier[c] = ${LITERAL}:Numeric]`,
+  ],
+)

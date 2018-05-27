@@ -515,6 +515,16 @@ const getTokensFromStatement = (st: Statement | null): string[] => {
   } else if (isExportDefaultDeclaration(st)) {
   } else if (isExportNamedDeclaration(st)) {
   } else if (isForOfStatement(st)) {
+    return [`${STATEMENT}:For-Of`]
+      .concat(
+        isVariableDeclaration(st.left)
+          ? getTokensFromStatement(st.left)
+          : isLVal(st.left)
+            ? getTokensFromLVal(st.left) || []
+            : /* istanbul ignore next */ assertNever(st.left),
+      )
+      .concat(getTokensFromExpression(st.right) || [])
+      .concat(getTokensFromStatement(st.body))
   } else if (isImportDeclaration(st)) {
   } else if (isDeclareClass(st)) {
   } else if (isDeclareFunction(st)) {
