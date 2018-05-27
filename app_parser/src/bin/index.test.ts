@@ -55,6 +55,7 @@ test('runs script which exports main function', async t => {
     chain(result.stdout)
       .split('\n')
       .drop(2)
+      .take(1)
       .map(v => v.trim())
       .join('\n')
       .value(),
