@@ -14,8 +14,7 @@ import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import logger from '../utils/logger'
 import { getWorkerPath, poolFactory } from '../utils/worker'
-import { allMessages } from './_all.types'
-import { messages as ppAppMessages } from './preprocess-apps'
+import { allMessages, WORKER_FILENAME } from './_all.types'
 
 export enum METHODS_ENUM {
   'lit-vals',
@@ -97,22 +96,12 @@ export const main = async () => {
   const pool = poolFactory<messages>(await getWorkerPath(__filename), { minWorkers: 0 })
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
-  const raLibPool = poolFactory<allMessages>(join(__dirname, '_all.worker'), { minWorkers: 0 })
+  const raPool = poolFactory<allMessages>(join(__dirname, WORKER_FILENAME), { minWorkers: 0 })
   log.info(
-    { stats: raLibPool.stats() },
-    'reanalyse lib pool: min=%o, max=%o',
-    raLibPool.minWorkers,
-    raLibPool.maxWorkers,
-  )
-
-  const ppAppPool = poolFactory<ppAppMessages>(join(__dirname, 'preprocess-apps.worker'), {
-    minWorkers: 0,
-  })
-  log.info(
-    { stats: ppAppPool.stats() },
-    'preprocess apps pool: min=%o, max=%o',
-    ppAppPool.minWorkers,
-    ppAppPool.maxWorkers,
+    { stats: raPool.stats() },
+    'reanalysis pool: min=%o, max=%o',
+    raPool.minWorkers,
+    raPool.maxWorkers,
   )
 
   const toAnalyse = await TO_ANALYSE.reduce(
@@ -181,16 +170,16 @@ export const main = async () => {
   log.debug({ toAnalyse }, 'analysis goal')
 
   const preprocessLibsPromises = toAnalyse.preprocess.libs.map((lib) => async () => ({
-    done: terminating
-      ? false
-      : await raLibPool.exec('reanalyse-lib', [{ libsPath: LIB_PATH, lib }]),
+    done: terminating ? false : await raPool.exec('reanalyse-lib', [{ libsPath: LIB_PATH, lib }]),
     lib,
   }))
 
   const preprocessAppsPromises = toAnalyse.preprocess.apps.map((app) => async () => ({
     done: terminating
       ? false
-      : await ppAppPool.exec('preprocess', [{ allAppsPath: APP_PATH, allLibsPath: LIB_PATH, app }]),
+      : await raPool.exec('preprocess-app', [
+          { allAppsPath: APP_PATH, allLibsPath: LIB_PATH, app },
+        ]),
     app,
   }))
 
@@ -242,11 +231,9 @@ export const main = async () => {
 
   log.info('reanalysing libs')
   await resolveAllOrInParallel(preprocessLibsPromises)
-  await raLibPool.terminate()
-
   log.info('preprocessing apps')
   await resolveAllOrInParallel(preprocessAppsPromises)
-  await ppAppPool.terminate()
+  await raPool.terminate()
 
   log.info('started analysis')
   const results = await resolveAllOrInParallel(analysisPromises)

@@ -1,5 +1,6 @@
 import { relative } from 'path'
 import { worker } from 'workerpool'
+import { APP_TYPES, preprocessCordovaApp, preprocessReactNativeApp } from '../parseApps'
 import { analyseLibFiles, extractMainFiles, updateUnionLiteralSignature } from '../parseLibraries'
 import { saveFiles } from '../utils/files'
 import logger from '../utils/logger'
@@ -27,6 +28,28 @@ worker<messages>({
     await updateUnionLiteralSignature({ libsPath, ...lib })
 
     rllog.trace({ lib, main, analysis }, 'finished lib')
+  },
+
+  'preprocess-app': async ({ allAppsPath, allLibsPath, app }) => {
+    if (app.type === APP_TYPES.reactNative) {
+      try {
+        await preprocessReactNativeApp({ allAppsPath, allLibsPath, app })
+        return true
+      } catch {
+        return false
+      }
+    }
+
+    if (app.type === APP_TYPES.cordova) {
+      try {
+        await preprocessCordovaApp({ allAppsPath, allLibsPath, app })
+        return true
+      } catch {
+        return false
+      }
+    }
+
+    return false
   },
 })
 
