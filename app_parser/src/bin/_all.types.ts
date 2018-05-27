@@ -9,6 +9,7 @@ export type allMessages = The<
     'reanalyse-lib': [[{ libsPath: string; lib: libNameVersion }], any]
 
     'preprocess-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
+    'analyse-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
   }
 >
 

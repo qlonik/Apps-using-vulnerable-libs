@@ -1,21 +1,13 @@
 import { pathExists, readJSON } from 'fs-extra'
 import { differenceWith, isEqual, once, partition, take } from 'lodash'
 import { join } from 'path'
-import { The } from 'typical-mini'
-import { MessagesMap } from 'workerpool'
 import { appDesc } from '../parseApps'
 import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
-import { getWorkerPath, poolFactory } from '../utils/worker'
-
-export type messages = The<
-  MessagesMap,
-  {
-    analyse: [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
-  }
->
+import { poolFactory } from '../utils/worker'
+import { allMessages, WORKER_FILENAME } from './_all.types'
 
 const APPS_TO_ANALYSE_LIMIT = 1000
 const ALL_APPS_PATH = '../data/sample_apps'
@@ -28,7 +20,6 @@ log.enabled = true
 let terminating = false
 
 export async function main() {
-  const wPath = await getWorkerPath(__filename)
   const apps = (await readJSON(FIN_PRE_APPS_PATH)) as appDesc[]
   let FIN_AN_APPS = [] as appDesc[]
 
@@ -51,14 +42,14 @@ export async function main() {
     filtered.length,
   )
 
-  const pool = poolFactory(wPath, { minWorkers: 0 })
+  const pool = poolFactory<allMessages>(join(__dirname, WORKER_FILENAME), { minWorkers: 0 })
   log('pool: min=%o, max=%o, %o', pool.minWorkers, pool.maxWorkers, pool.stats())
 
   const appsPromises = subset.map((app) => async () => {
     if (terminating) {
       return { done: false, ...app }
     }
-    const done = await pool.exec('analyse', [
+    const done = await pool.exec('analyse-app', [
       { app, allAppsPath: ALL_APPS_PATH, allLibsPath: ALL_LIBS_PATH },
     ])
     return { done, ...app }
