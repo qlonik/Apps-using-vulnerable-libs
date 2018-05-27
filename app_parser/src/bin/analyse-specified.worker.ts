@@ -206,8 +206,8 @@ const workerMap: wFnMap = {
   'fn-names-st-toks': noop,
 }
 const methods: fnName[] = [
-  { name: 'lit-vals', fn: librarySimilarityByLiteralValues },
-  { name: 'fn-st-toks-v1', fn: librarySimilarityByFunctionStatementTokens },
+  // { name: 'lit-vals', fn: librarySimilarityByLiteralValues },
+  // { name: 'fn-st-toks-v1', fn: librarySimilarityByFunctionStatementTokens },
   { name: 'fn-st-toks-v2', fn: librarySimilarityByFunctionStatementTokens_v2 },
   // { name: 'fn-st-toks-v3', fn: librarySimilarityByFunctionStatementTokens_v3 },
   // { name: 'fn-st-types', fn: librarySimilarityByFunctionStatementTypes },
