@@ -101,3 +101,21 @@ test(
     `${EXPRESSION}:Update[${EXPRESSION}:Identifier[l]--]`,
   ],
 )
+
+test(
+  'for-in',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      for (let b in {}) {
+        c = 123
+      }
+    }
+  `,
+  [
+    `${STATEMENT}:For-In`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[b]]`,
+    `${EXPRESSION}:Object`,
+    `${EXPRESSION}:Assignment[${PARAM}:Identifier[c] = ${LITERAL}:Numeric]`,
+  ],
+)
