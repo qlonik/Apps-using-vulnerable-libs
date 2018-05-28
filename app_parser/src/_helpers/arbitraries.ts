@@ -11,12 +11,12 @@ import {
 import { indexValue } from '../similarityIndex/set'
 import { DefiniteMap, probIndex } from '../similarityIndex/similarity-methods/types'
 
-export const arbMap: arb.Arbitrary<Map<number, number>> = arb
+export const arbMap = arb
   .nearray(arb.pair(arb.nat, arb.nat))
   .smap((arr) => uniqBy(arr, (x) => x[0]), identity)
   .smap((arr) => uniqBy(arr, (x) => x[1]), identity)
   .smap((arr) => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
-  .smap((arr) => new Map(arr), (map) => [...map])
+  .smap((arr): Map<number, number> => new Map(arr), (map) => [...map])
 
 export const arbIndexValue = arb
   .either(
@@ -66,10 +66,10 @@ const arbLineColumn = arb.record({
   line: arb.nat,
   column: arb.nat,
 })
-export const arbLocation = arb.record({
+export const arbLocation = arb.record<SourceLocation>({
   start: arbLineColumn,
   end: arbLineColumn,
-}) as arb.Arbitrary<SourceLocation>
+})
 
 export const arbFunctionSignature = arb.record({
   type: arb.constant('fn'),
@@ -90,17 +90,17 @@ export const arbFunctionSignatureArrPair = arraysPair(arbFunctionSignature)
 export const arbLiteralSignature = arb
   .either(arb.asciistring, arb.number)
   .smap(
-    (v: any): string | number => v.value,
+    (v: any): LiteralSignature => v.value,
     (v) => (typeof v === 'string' ? (arb as any).left(v) : (arb as any).right(v)),
-  ) as arb.Arbitrary<LiteralSignature>
+  )
 export const arbLiteralSignatureArr = arb.nearray(arbLiteralSignature)
 export const arbLiteralSignatureArrPair = arraysPair(arbLiteralSignature)
 
 export const arbCommentSignature = arb
   .either(arb.asciinestring, arb.nearray(arb.asciinestring))
   .smap(
-    (v: any): string | string[] => v.value,
+    (v: any): CommentSignature => v.value,
     (v) => (typeof v === 'string' ? (arb as any).left(v) : (arb as any).right(v)),
-  ) as arb.Arbitrary<CommentSignature>
+  )
 export const arbCommentSignatureArr = arb.nearray(arbCommentSignature)
 export const arbCommentSignatureArrPair = arraysPair(arbCommentSignature)
