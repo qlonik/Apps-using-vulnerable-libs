@@ -56,6 +56,8 @@ export const similarityIndexToLib = curry(<T>(lib: Set<T>, unknown: Set<T>): ind
   return { val: num / den, num, den }
 })
 
+export const divByZeroAware = (num: number, den: number) => (den === 0 ? 1 : num / den)
+
 export const jaccardLikeWithMapping = <T>(
   a: T[] | Iterable<T>,
   b: T[] | Iterable<T>,
@@ -89,7 +91,7 @@ export const jaccardLikeWithMapping = <T>(
   return {
     similarity: {
       // den === 0 only happens when both 'a' and 'b' were empty
-      val: den === 0 ? 1 : num / den,
+      val: divByZeroAware(num, den),
       num,
       den,
     },

@@ -5,6 +5,7 @@ import { arraysPair } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import {
   difference,
+  divByZeroAware,
   intersection,
   invertMap,
   isSubset,
@@ -109,7 +110,7 @@ test(
   check(arraysPair(arb.number), (t, [a, b]) => {
     const num = LIntersection(a, b).length
     const den = a.length + b.length - num
-    const val = den === 0 ? 1 : num / den
+    const val = divByZeroAware(num, den)
     t.deepEqual({ val, num, den }, jaccardLike(a, b))
   }),
 )
@@ -144,7 +145,7 @@ test(
   check(arraysPair(arb.number), (t, [a, b]) => {
     const num = LIntersection(a, b).length
     const den = a.length + b.length - num
-    const val = den === 0 ? 1 : num / den
+    const val = divByZeroAware(num, den)
     t.deepEqual({ val, num, den }, jaccardLikeWithMapping(a, b).similarity)
   }),
 )
