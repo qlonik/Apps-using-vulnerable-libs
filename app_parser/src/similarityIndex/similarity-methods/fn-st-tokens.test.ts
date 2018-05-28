@@ -35,6 +35,22 @@ test('v1: produces 100% match when comparing empty signatures', t => {
   t.deepEqual({ similarity: { val: 1, num: 0, den: 0 }, mapping: new Map() }, v1([], []))
 })
 
+test(
+  'v1: produces 100% match when comparing same signatures',
+  check(arbFunctionSignatureArr, (t, a) => {
+    const { similarity: { val, num, den }, mapping } = v1(a, a)
+
+    t.is(1, val)
+    t.is(num, den)
+    t.is(a.length, mapping.size)
+    for (let [from, { index: to, prob: { val, num, den } }] of mapping) {
+      t.is(from, to)
+      t.is(1, val)
+      t.is(num, den)
+    }
+  }),
+)
+
 test('v2', t => {
   const { mapping, similarity } = v2(cloneDeep(UNKNOWN_SIG), cloneDeep(LIB_SIG))
   t.deepEqual(EXPECTED_SIMILARITY, similarity)
@@ -63,6 +79,22 @@ test(
 test('v2: produces 100% match when comparing empty signatures', t => {
   t.deepEqual({ similarity: { val: 1, num: 0, den: 0 }, mapping: new Map() }, v2([], []))
 })
+
+test(
+  'v2: produces 100% match when comparing same signatures',
+  check(arbFunctionSignatureArr, (t, a) => {
+    const { similarity: { val, num, den }, mapping } = v2(a, a)
+
+    t.is(1, val)
+    t.is(num, den)
+    t.is(a.length, mapping.size)
+    for (let [from, { index: to, prob: { val, num, den } }] of mapping) {
+      t.is(from, to)
+      t.is(1, val)
+      t.is(num, den)
+    }
+  }),
+)
 
 test('v3', t => {
   const { mapping, similarity } = v3(cloneDeep(UNKNOWN_SIG), cloneDeep(LIB_SIG))
@@ -102,3 +134,19 @@ test(
 test('v3: produces 100% match when comparing empty signatures', t => {
   t.deepEqual({ similarity: { val: 1, num: 0, den: 0 }, mapping: new Map() }, v3([], []))
 })
+
+test(
+  'v3: produces 100% match when comparing same signatures',
+  check(arbFunctionSignatureArr, (t, a) => {
+    const { similarity: { val, num, den }, mapping } = v3(a, a)
+
+    t.is(1, val)
+    t.is(num, den)
+    t.is(a.length, mapping.size)
+    for (let [from, { index: to, prob: { val, num, den } }] of mapping) {
+      t.is(from, to)
+      t.is(1, val)
+      t.is(num, den)
+    }
+  }),
+)

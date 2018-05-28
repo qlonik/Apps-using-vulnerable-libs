@@ -58,3 +58,19 @@ test('produces 100% match when comparing empty signatures', t => {
     librarySimilarityByLiteralValues([], []),
   )
 })
+
+test(
+  'produces 100% match when comparing same signatures',
+  check(arbLiteralSignatureArr, (t, a) => {
+    const { similarity: { val, num, den }, mapping } = librarySimilarityByLiteralValues(a, a)
+
+    t.is(1, val)
+    t.is(num, den)
+    t.is(a.length, mapping.size)
+    for (let [from, { index: to, prob: { val, num, den } }] of mapping) {
+      t.is(from, to)
+      t.is(1, val)
+      t.is(num, den)
+    }
+  }),
+)

@@ -47,3 +47,13 @@ test(
 test('produces 100% match when comparing empty signatures', t => {
   t.deepEqual({ val: 1, num: 0, den: 0 }, librarySimilarityByFunctionStatementTypes([], []))
 })
+
+test(
+  'produces 100% match when comparing same signatures',
+  check(arbFunctionSignatureArr, (t, a) => {
+    const { val, num, den } = librarySimilarityByFunctionStatementTypes(a, a)
+
+    t.is(1, val)
+    t.is(num, den)
+  }),
+)

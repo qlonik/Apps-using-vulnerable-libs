@@ -53,3 +53,13 @@ test('produces 100% match when comparing empty signatures', t => {
     librarySimilarityByFunctionNamesAndStatementTokens([], []),
   )
 })
+
+test(
+  'produces 100% match when comparing same signatures',
+  check(arbFunctionSignatureArr, (t, a) => {
+    const { val, num, den } = librarySimilarityByFunctionNamesAndStatementTokens(a, a)
+
+    t.is(1, val)
+    t.is(num, den)
+  }),
+)
