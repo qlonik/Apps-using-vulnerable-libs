@@ -52,10 +52,8 @@ const pathConcat = (p: string, c: string | number): string => {
 
 export const visitNodes = <K>({
   fn = undefined,
-  includeNodes = false,
 }: {
   fn?: (path: string, val: any) => Signal<K>
-  includeNodes?: boolean
 } = {}) => {
   return function paths(obj: object | Array<any>, pathSoFar: string = ''): TreePath<K>[] {
     let entries: Array<[string | number, any]> = []
@@ -88,10 +86,6 @@ export const visitNodes = <K>({
         const result: TreePath<K> = {
           prop: childPath,
           data,
-        }
-
-        if (includeNodes) {
-          result.node = value
         }
 
         if (children) {

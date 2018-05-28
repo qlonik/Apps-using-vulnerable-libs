@@ -56,36 +56,11 @@ test('empty options', t => {
   t.deepEqual([], result)
 })
 
-test('include nodes', t => {
-  const { tree, getSpy, setSpy } = t.context
-
-  const iterator = visitNodes({ includeNodes: true })
-  const result = iterator(tree)
-
-  t.true(getSpy.notCalled)
-  t.true(setSpy.notCalled)
-  t.deepEqual([], result)
-})
-
 test('filter returns null', t => {
   const { tree, getSpy, setSpy } = t.context
 
   const iterator = visitNodes({
     fn: () => Signal.continue<any>(null),
-  })
-  const result = iterator(tree)
-
-  t.true(getSpy.calledOnce)
-  t.true(setSpy.notCalled)
-  t.deepEqual([], result)
-})
-
-test('filter returns null and include nodes', t => {
-  const { tree, getSpy, setSpy } = t.context
-
-  const iterator = visitNodes({
-    fn: () => Signal.continue<any>(null),
-    includeNodes: true,
   })
   const result = iterator(tree)
 
