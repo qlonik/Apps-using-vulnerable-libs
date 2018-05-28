@@ -49,8 +49,8 @@ export type Signature = {
   type: 'fn'
   name: string
   loc: SourceLocation
-  fnStatementTypes: string[] | null
-  fnStatementTokens: string[] | null
+  fnStatementTypes: string[]
+  fnStatementTokens: string[]
 }
 
 const extractNameFromLiteral = (node: Literal): string => {

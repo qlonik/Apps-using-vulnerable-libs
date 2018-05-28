@@ -3,6 +3,7 @@
 import {
   BlockStatement,
   Expression,
+  Function,
   isArrayExpression,
   isArrayPattern,
   isArrowFunctionExpression,
@@ -37,7 +38,6 @@ import {
   isForInStatement,
   isForOfStatement,
   isForStatement,
-  isFunction,
   isFunctionDeclaration,
   isFunctionExpression,
   isIdentifier,
@@ -85,7 +85,6 @@ import {
   isYieldExpression,
   Literal,
   LVal,
-  Node as BabelNode,
   Statement,
 } from 'babel-types'
 import { flatMap } from 'lodash'
@@ -551,11 +550,7 @@ const getTokensFromBlockStatement = (blockStatement: BlockStatement): string[] =
     .concat(flatMap(statements, getTokensFromStatement))
 }
 
-export const getFnStatementTokens = (node: BabelNode): string[] | null => {
-  if (!isFunction(node)) {
-    return null
-  }
-
+export const getFnStatementTokens = (node: Function): string[] => {
   let result: string[] = []
   const { params, body } = node
 

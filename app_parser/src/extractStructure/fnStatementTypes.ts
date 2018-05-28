@@ -1,14 +1,11 @@
-import { isBlockStatement, isExpression, isFunction, Node as BabelNode } from 'babel-types'
+import { isBlockStatement, isExpression, Function } from 'babel-types'
 import { assertNever } from '../utils'
 import { DIRECTIVE, EXPRESSION, PARAM, STATEMENT } from './tags'
 
-export const getFnStatementTypes = (node: BabelNode): string[] | null => {
-  if (!isFunction(node)) {
-    return null
-  }
-
+export const getFnStatementTypes = (node: Function): string[] => {
   let result: string[] = []
   const { params, body } = node
+
   result = result.concat(params.map((p) => `t_${PARAM}:${p.type}`))
 
   if (isExpression(body)) {
