@@ -63,7 +63,7 @@ const compareAndTransformSim = (method: fnName['fn']) => (unknown: signatureNew)
       const { index, prob } = mapping.get(key)
 
       const paddedMap = padEnd(`${key}->${index}`, 12)
-      const roundAndPad = (n: number) => padEnd(`${round(n, 6)},`, 10)
+      const roundAndPad = (n: number) => padEnd(`${round(n, 6)},`, 9)
       const paddedProb = `val: ${roundAndPad(prob.val)} num: ${prob.num}, den: ${prob.den}`
 
       return { s: `${paddedMap} ({ ${paddedProb} })`, order: [-prob.val, key] }
