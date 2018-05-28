@@ -32,34 +32,10 @@ const collapseFnNamesTree = (
   tree: TreePath<FunctionSignature>[],
   fnNameSoFar: string = '',
 ): FunctionSignature[] => {
-  if (tree.length === 0) {
-    return []
-  }
-
   return flatMap(tree, (fnDesc: TreePath<FunctionSignature>): Many<FunctionSignature> => {
-    if (fnDesc.data === null) {
-      if (fnDesc.c) {
-        return collapseFnNamesTree(fnDesc.c)
-      }
-
-      return []
-    }
-
     const fnName = fnNamesConcat(fnNameSoFar, fnDesc.data.name)
-    const { loc, fnStatementTypes, fnStatementTokens } = fnDesc.data
-    const treeElem: FunctionSignature = {
-      index: -1,
-      type: 'fn',
-      name: fnName,
-      loc,
-      fnStatementTypes,
-      fnStatementTokens,
-    }
-
-    if (!fnDesc.c) {
-      return treeElem
-    }
-    return [treeElem].concat(collapseFnNamesTree(fnDesc.c, fnName))
+    const treeElem: FunctionSignature = { ...fnDesc.data, name: fnName }
+    return !fnDesc.c ? treeElem : [treeElem].concat(collapseFnNamesTree(fnDesc.c, fnName))
   })
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((el, index) => ({ ...el, index }))
