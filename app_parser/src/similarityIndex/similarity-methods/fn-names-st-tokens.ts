@@ -45,6 +45,7 @@ export function librarySimilarityByFunctionNamesAndStatementTokens<
             return sll
           }
 
+          // remark: threshold can go here
           // remark: third for loop (inside jaccardLike())
           return sll.push({ name, index, origIndex, prob: jaccardLike(toks, libToks) })
         }, new SortedLimitedList({ predicate: (o: nameProbIndexOrigI) => -o.prob.val }))

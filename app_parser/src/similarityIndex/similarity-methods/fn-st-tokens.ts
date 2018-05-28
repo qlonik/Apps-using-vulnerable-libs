@@ -81,6 +81,7 @@ export function v1<T extends FunctionSignature[] | FunctionSignatures>(
             return indexes
           }
 
+          // remark: threshold can go here
           // remark: third for loop (inside jaccardLike())
           return indexes.push({ name, index: libIndex, prob: jaccardLike(toks, libToks) })
         }, new SortedLimitedList({ predicate: (o: nameProbIndex) => -o.prob.val }))
@@ -148,6 +149,7 @@ export function v2<T extends FunctionSignature[] | FunctionSignatures>(
             return acc
           }
 
+          // remark: threshold can go here
           return acc.push({ index: unknownIndex, prob: jaccardLike(unknownToks, libToks) })
         }, new SortedLimitedList({ limit: 1, predicate: (o: probIndex) => -o.prob.val }))
         .value()
@@ -210,6 +212,7 @@ export function v3<T extends FunctionSignature[] | FunctionSignatures>(
         continue
       }
 
+      // remark: threshold can go here
       const prob = jaccardLike(unknownToks, libToks)
       if (prob.val !== 0) {
         sll.push({ unknownIndex, libIndex, prob })
