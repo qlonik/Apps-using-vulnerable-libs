@@ -1,4 +1,4 @@
-import { curry, pullAt, findIndex } from 'lodash'
+import { curry, findIndex } from 'lodash'
 import {
   DefiniteMap,
   probIndex,
@@ -56,44 +56,6 @@ export const similarityIndexToLib = curry(<T>(lib: Set<T>, unknown: Set<T>): ind
   return { val: num / den, num, den }
 })
 
-/**
- * This function does not care about what elements in array represent. It just assumes that elements
- * in both arrays have the same semantic. This function will find
- * 'intersection' of two arrays (including repeating elements) and rest of elements in both arrays.
- * This function returns variation of Jaccard index which is not made for sets, but made for
- * arrays, which might have repeating elements.
- * This function will return 1 for two empty arrays.
- *
- * <b>NOTE:</b> elements in arrays will be compared with '===' for equality.
- *
- * @deprecated
- */
-export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): indexValue => {
-  const aRest = [] // remaining elements
-  const intersection = []
-  const bRest = [...b] // remaining elements will be here after for-loop is done
-
-  for (let el of a) {
-    const i = bRest.indexOf(el)
-    if (i === -1) {
-      aRest.push(el)
-    } else {
-      intersection.push(el)
-      pullAt(bRest, i)
-    }
-  }
-
-  const num = intersection.length
-  const den = aRest.length + intersection.length + bRest.length
-
-  return {
-    // den === 0 only happens when both 'a' and 'b' were empty
-    val: den === 0 ? 1 : num / den,
-    num,
-    den,
-  }
-}
-
 export const jaccardLikeWithMapping = <T>(
   a: T[] | Iterable<T>,
   b: T[] | Iterable<T>,
@@ -133,6 +95,22 @@ export const jaccardLikeWithMapping = <T>(
     },
     mapping,
   }
+}
+
+/**
+ * This function does not care about what elements in array represent. It just assumes that elements
+ * in both arrays have the same semantic. This function will find
+ * 'intersection' of two arrays (including repeating elements) and rest of elements in both arrays.
+ * This function returns variation of Jaccard index which is not made for sets, but made for
+ * arrays, which might have repeating elements.
+ * This function will return 1 for two empty arrays.
+ *
+ * <b>NOTE:</b> elements in arrays will be compared with '===' for equality.
+ *
+ * @deprecated
+ */
+export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): indexValue => {
+  return jaccardLikeWithMapping(a, b).similarity
 }
 
 export const invertMap = (a: Map<number, number>): Map<number, number> => {
