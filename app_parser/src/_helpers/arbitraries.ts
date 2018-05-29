@@ -8,7 +8,7 @@ import {
   FunctionSignature,
   LiteralSignature,
 } from '../extractStructure'
-import { indexValue } from '../similarityIndex/set'
+import { divByZeroAware, indexValue } from '../similarityIndex/set'
 import { DefiniteMap, probIndex } from '../similarityIndex/similarity-methods/types'
 
 export const arbMap = arb
@@ -19,23 +19,10 @@ export const arbMap = arb
   .smap((arr): Map<number, number> => new Map(arr), (map) => [...map])
 
 export const arbIndexValue = arb
-  .either(
-    arb.pair(arb.constant(0), arb.constant(0)),
-    arb.suchthat(
-      arb.pair(arb.nat, arb.nat.smap((x) => x + 1, (x) => x - 1)),
-      ([num, den]) => num <= den,
-    ),
-  )
-  .smap(
-    (either: any /* Either = Left<[number, number]> | Right<[number, number]> */): indexValue =>
-      either.either(
-        ([x, y]: [number, number]) => ({ val: 1, num: x, den: y }),
-        ([x, y]: [number, number]) => ({ val: x / y, num: x, den: y }),
-      ),
-    (indVal) => {
-      const { num: x, den: y } = indVal
-      return x === 0 && y === 0 ? (arb as any).left([x, y]) : (arb as any).right([x, y])
-    },
+  .suchthat(arb.pair(arb.nat, arb.nat), ([num, den]) => num <= den)
+  .smap<indexValue>(
+    ([num, den]) => ({ val: divByZeroAware(num, den), num, den }),
+    ({ num, den }) => [num, den],
   )
 
 export const arbMapWithConfidence = arb
