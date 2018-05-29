@@ -119,6 +119,13 @@
       "text-summary"
     ]
   },
+  "prettier": {
+    "printWidth": 100,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "arrowParens": "always"
+  },
   "eslintConfig": {
     "env": {
       "es6": true,
@@ -141,7 +148,6 @@
       "eslint:recommended",
       "plugin:ava/recommended",
       "plugin:import/recommended",
-      "plugin:prettier/recommended",
       "plugin:promise/recommended",
       "plugin:unicorn/recommended"
     ],
@@ -181,16 +187,7 @@
           "newlines-between": "never"
         }
       ],
-      "prettier/prettier": [
-        "error",
-        {
-          "printWidth": 100,
-          "semi": false,
-          "singleQuote": true,
-          "trailingComma": "all",
-          "arrowParens": "always"
-        }
-      ],
+      "prettier/prettier": "error",
       "typescript/adjacent-overload-signatures": "error",
       "typescript/class-name-casing": "error",
       "typescript/explicit-member-accessibility": "error",
@@ -260,10 +257,7 @@
           "prettier/prettier": [
             "error",
             {
-              "printWidth": 100,
-              "semi": false,
-              "singleQuote": true,
-              "trailingComma": "all"
+              "arrowParens": "avoid"
             }
           ]
         }
