@@ -1,4 +1,5 @@
-import { mkdirp, pathExists, readdir, readJSON } from 'fs-extra'
+import { codeBlock } from 'common-tags'
+import { mkdirp, pathExists, readdir, readJSON, writeFile } from 'fs-extra'
 import { padEnd, round, sortBy } from 'lodash'
 import { basename, extname, join } from 'path'
 import { worker, WorkerFunctionsMap } from 'workerpool'
@@ -49,7 +50,7 @@ const transformFilePath = (f: analysisFile) => {
   }
 }
 
-type retType = { time: number; similarity: indexValue; mapping: string[] }
+type retType = { time: number; similarity: indexValue; mapping: { m: string; c: string[] }[] }
 const compareAndTransformSim = (method: fnName['fn']) => (unknown: signatureNew) => async (
   lib: signatureNew,
 ): Promise<retType> => {
@@ -69,9 +70,28 @@ const compareAndTransformSim = (method: fnName['fn']) => (unknown: signatureNew)
       return { s: `${paddedMap} ({ ${paddedProb} })`, order: [-prob.val, key] }
     }),
     [(o: intermediate) => o.order[0], (o: intermediate) => o.order[1]],
-  ).map(({ s }: intermediate) => s)
+  ).map(({ s }: intermediate) => ({ m: s, c: [] }))
 
   return { time: round(diff[0] + diff[1] / 1e9, 3), similarity, mapping: sortedMapping }
+}
+const formatRetType = (o: retType): string => {
+  const timeEncoded = JSON.stringify(o.time)
+  const similarityEncoded = JSON.stringify(o.similarity, null, ' ')
+    .replace(/\n/g, ' ')
+    .replace(/ +/g, ' ')
+  const mappingEncoded = o.mapping
+    .map(({ m, c }) => `{ "m": ${JSON.stringify(m)}, "c": ${JSON.stringify(c)} }`)
+    .join(',\n')
+
+  return codeBlock`
+  {
+    "time": ${timeEncoded},
+    "similarity": ${similarityEncoded},
+    "mapping": [
+      ${mappingEncoded}
+    ]
+  }
+  `
 }
 
 const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => {
@@ -107,7 +127,7 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
     const filePath = join(dirPath, `${name}.json`)
     if (!await pathExists(filePath) || forceRedo) {
       const result = await compareAndTransformSim(fn)(appSig)(libSig)
-      await myWriteJSON({ file: filePath, content: result })
+      await writeFile(filePath, formatRetType(result))
     }
 
     return true
