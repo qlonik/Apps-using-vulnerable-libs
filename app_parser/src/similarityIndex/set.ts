@@ -74,7 +74,7 @@ export const jaccardLikeWithMapping = <T>(
       aRest.push(el)
     } else {
       intersection.push(el)
-      bRest = bRest.map((el, k) => (j !== k ? el : { ...el, __mapped: true }))
+      bRest[j].__mapped = true
       mapping.set(i, j)
     }
   }
