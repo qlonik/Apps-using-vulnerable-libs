@@ -71,8 +71,12 @@ export const arbLocation = arb.record<SourceLocation>({
   end: arbLineColumn,
 })
 
-export const arbFunctionSignature = arb.record({
-  type: arb.constant('fn'),
+const indAM = (v: FunctionSignature, index: number): FunctionSignature => ({ ...v, index })
+const unInd = (v: FunctionSignature): FunctionSignature => ({ ...v, index: -1 })
+
+export const arbFunctionSignature = arb.record<FunctionSignature>({
+  index: arb.constant(-1),
+  type: arb.constant('fn') as arb.Arbitrary<'fn'>,
   name: arb
     .nearray(arb.either(arb.constant('[anonymous]'), arb.asciinestring))
     .smap(
@@ -83,9 +87,14 @@ export const arbFunctionSignature = arb.record({
   loc: arbLocation,
   fnStatementTokens: arb.array(arb.asciinestring),
   fnStatementTypes: arb.array(arb.asciinestring),
-}) as arb.Arbitrary<FunctionSignature>
-export const arbFunctionSignatureArr = arb.nearray(arbFunctionSignature)
-export const arbFunctionSignatureArrPair = arraysPair(arbFunctionSignature)
+})
+export const arbFunctionSignatureArr = arb
+  .nearray(arbFunctionSignature)
+  .smap((arr): FunctionSignature[] => arr.map(indAM), (arr) => arr.map(unInd))
+export const arbFunctionSignatureArrPair = arraysPair(arbFunctionSignature).smap(
+  ([a, b]): [FunctionSignature[], FunctionSignature[]] => [a.map(indAM), b.map(indAM)],
+  ([a, b]) => [a.map(unInd), b.map(unInd)],
+)
 
 export const arbLiteralSignature = arb
   .either(arb.asciistring, arb.number)
