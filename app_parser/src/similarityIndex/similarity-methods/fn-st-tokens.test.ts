@@ -37,7 +37,7 @@ test('v1: produces 100% match when comparing empty signatures', t => {
 
 test(
   'v1: produces 100% match when comparing same signatures',
-  check(arbFunctionSignatureArr, (t, a) => {
+  check({ tests: 250 }, arbFunctionSignatureArr, (t, a) => {
     const { similarity: { val, num, den }, mapping } = v1(a, a)
 
     t.is(1, val)
@@ -82,7 +82,7 @@ test('v2: produces 100% match when comparing empty signatures', t => {
 
 test(
   'v2: produces 100% match when comparing same signatures',
-  check(arbFunctionSignatureArr, (t, a) => {
+  check({ tests: 250 }, arbFunctionSignatureArr, (t, a) => {
     const { similarity: { val, num, den }, mapping } = v2(a, a)
 
     t.is(1, val)
@@ -137,7 +137,7 @@ test('v3: produces 100% match when comparing empty signatures', t => {
 
 test(
   'v3: produces 100% match when comparing same signatures',
-  check(arbFunctionSignatureArr, (t, a) => {
+  check({ tests: 250 }, arbFunctionSignatureArr, (t, a) => {
     const { similarity: { val, num, den }, mapping } = v3(a, a)
 
     t.is(1, val)
