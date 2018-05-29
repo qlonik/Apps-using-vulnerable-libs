@@ -1,7 +1,8 @@
 import { test } from 'ava'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, partition, last } from 'lodash'
 import { arbFunctionSignatureArr, arbFunctionSignatureArrPair } from '../../_helpers/arbitraries'
 import { check } from '../../_helpers/property-test'
+import { fnNamesSplit } from '../../extractStructure'
 import { EXPECTED_SIMILARITY, LIB_SIG, UNKNOWN_SIG } from './_test-data'
 import { librarySimilarityByFunctionNamesAndStatementTokens } from './fn-names-st-tokens'
 
@@ -47,19 +48,25 @@ test(
   }),
 )
 
-test('produces 100% match when comparing empty signatures', t => {
+test('produces 0% match when comparing empty signatures', t => {
   t.deepEqual(
-    { val: 1, num: 0, den: 0 },
+    { val: 0, num: 0, den: 0 },
     librarySimilarityByFunctionNamesAndStatementTokens([], []),
   )
 })
 
 test(
-  'produces 100% match when comparing same signatures',
-  check(arbFunctionSignatureArr, (t, a) => {
+  'produces expected match value when comparing same signatures',
+  check({ tests: 500, rngState: '8af8e71a0bd653c924' }, arbFunctionSignatureArr, (t, a) => {
     const { val, num, den } = librarySimilarityByFunctionNamesAndStatementTokens(a, a)
 
-    t.is(1, val)
-    t.is(num, den)
+    const [anon, named] = partition(a, s => last(fnNamesSplit(s.name)) === '[anonymous]')
+    const nonEmpty = anon.filter(({ fnStatementTokens: t }) => t.length > 0)
+    const expNum = nonEmpty.length + named.length
+    const expDen = 2 * a.length - expNum
+
+    t.is(expNum / expDen, val)
+    t.is(expNum, num)
+    t.is(expDen, den)
   }),
 )

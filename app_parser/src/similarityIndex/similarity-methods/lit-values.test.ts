@@ -52,9 +52,9 @@ test(
   }),
 )
 
-test('produces 100% match when comparing empty signatures', t => {
+test('produces 0% match when comparing empty signatures', t => {
   t.deepEqual(
-    { similarity: { val: 1, num: 0, den: 0 }, mapping: new Map() },
+    { similarity: { val: 0, num: 0, den: 0 }, mapping: new Map() },
     librarySimilarityByLiteralValues([], []),
   )
 })
