@@ -27,17 +27,9 @@ export function librarySimilarityByFunctionStatementTypes<
   // remark: first for loop
   const possibleFnNames = unknown.reduce(
     (acc: nameProb[], { fnStatementTypes: types }: FunctionSignature) => {
-      if (!types) {
-        return acc
-      }
-
       // remark: second for loop
       const topName = libCopy
         .reduce((indexes, { name, fnStatementTypes: libTypes }: FunctionSignature, libIndex) => {
-          if (!libTypes) {
-            return indexes
-          }
-
           // remark: threshold can go here
           // remark: third for loop (inside jaccardLike())
           return indexes.push({ name, index: libIndex, prob: jaccardLike(types, libTypes) })

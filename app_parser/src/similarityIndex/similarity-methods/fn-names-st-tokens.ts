@@ -34,17 +34,9 @@ export function librarySimilarityByFunctionNamesAndStatementTokens<
   // remark: first for loop
   const possibleMatches = unknownAnonFnSigs.reduce(
     (acc, { fnStatementTokens: toks }) => {
-      if (!toks) {
-        return acc
-      }
-
       // remark: second for loop
       const topMatches = libAnonFnSigsCopy
         .reduce((sll, { i: origIndex, s: { name, fnStatementTokens: libToks } }, index) => {
-          if (!libToks) {
-            return sll
-          }
-
           // remark: threshold can go here
           // remark: third for loop (inside jaccardLike())
           return sll.push({ name, index, origIndex, prob: jaccardLike(toks, libToks) })

@@ -70,20 +70,14 @@ export function v1<T extends FunctionSignature[] | FunctionSignatures>(
   // remark: first for loop
   const possibleFnNames = unknown.reduce(
     (acc: nameProbIndex[], { fnStatementTokens: toks }: FunctionSignature) => {
-      if (!toks) {
-        return acc
-      }
-
       // remark: second for loop
       const topName = libCopy
         .reduce((indexes, { name, __matched = false, fnStatementTokens: libToks }, libIndex) => {
-          if (!libToks || __matched) {
-            return indexes
-          }
-
-          // remark: threshold can go here
-          // remark: third for loop (inside jaccardLike())
-          return indexes.push({ name, index: libIndex, prob: jaccardLike(toks, libToks) })
+          return __matched
+            ? indexes
+            : // remark: threshold can go here
+              // remark: third for loop (inside jaccardLike())
+              indexes.push({ name, index: libIndex, prob: jaccardLike(toks, libToks) })
         }, new SortedLimitedList({ predicate: (o: nameProbIndex) => -o.prob.val }))
         .value()
 
@@ -139,18 +133,12 @@ export function v2<T extends FunctionSignature[] | FunctionSignatures>(
 
   const mappedUnknownSig = lib.reduce(
     (mappedUnknownSigAcc, { fnStatementTokens: libToks }, libIndex) => {
-      if (!libToks) {
-        return mappedUnknownSigAcc
-      }
-
       const topUnknownFnRanking = mappedUnknownSigAcc
         .reduce((acc, { __matched = false, fnStatementTokens: unknownToks }, unknownIndex) => {
-          if (!unknownToks || __matched) {
-            return acc
-          }
-
-          // remark: threshold can go here
-          return acc.push({ index: unknownIndex, prob: jaccardLike(unknownToks, libToks) })
+          return __matched
+            ? acc
+            : // remark: threshold can go here
+              acc.push({ index: unknownIndex, prob: jaccardLike(unknownToks, libToks) })
         }, new SortedLimitedList({ limit: 1, predicate: (o: probIndex) => -o.prob.val }))
         .value()
 
@@ -203,15 +191,7 @@ export function v3<T extends FunctionSignature[] | FunctionSignatures>(
   const sll = new SortedLimitedList({ limit: Infinity, predicate: (o: indexesProb) => -o.prob.val })
 
   for (let [unknownIndex, { fnStatementTokens: unknownToks }] of unknown.entries()) {
-    if (!unknownToks) {
-      continue
-    }
-
     for (let [libIndex, { fnStatementTokens: libToks }] of lib.entries()) {
-      if (!libToks) {
-        continue
-      }
-
       // remark: threshold can go here
       const prob = jaccardLike(unknownToks, libToks)
       if (prob.val !== 0) {
