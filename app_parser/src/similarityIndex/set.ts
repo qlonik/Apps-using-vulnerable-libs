@@ -1,4 +1,4 @@
-import { curry, findIndex } from 'lodash'
+import { curry, findIndex, isEqual } from 'lodash'
 import {
   DefiniteMap,
   probIndex,
@@ -69,7 +69,7 @@ export const jaccardLikeWithMapping = <T>(
   const mapping = new Map<number, number>() as DefiniteMap<number, number>
 
   for (let [i, el] of aArr.entries()) {
-    const j = findIndex(bRest, (o) => !o.__mapped && o.val === el)
+    const j = findIndex(bRest, (o) => !o.__mapped && isEqual(o.val, el))
     if (j === -1) {
       aRest.push(el)
     } else {
