@@ -8,7 +8,7 @@ import { getCandidateLibs, getSimilarityToLibs } from '../similarityIndex'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { CordovaAppDataError } from '../utils/errors'
 import { fileDescOp, fileOp, saveFiles } from '../utils/files'
-import { stdoutLog } from '../utils/logger'
+import logger from '../utils/logger'
 import {
   ANALYSIS_FOLDER,
   CORDOVA_CAND_FILE,
@@ -35,8 +35,14 @@ import {
   IsAppTypeFn,
 } from './index'
 
-const NAMESPACE = 'a.cordova'
-const log = stdoutLog(NAMESPACE)
+const fileLog = logger.child({ name: 'a.cordova' })
+const createLocationLog = (
+  type: appDesc['type'],
+  section: appDesc['section'],
+  app: appDesc['app'],
+  location: string,
+  id: string,
+) => fileLog.child({ app: { type, section, app }, script: { location, id } })
 
 export const isCordovaApp: IsAppTypeFn = async function({ appPath }): Promise<boolean> {
   const indexHtmlPath = join(appPath, ...['assets', 'www', 'index.html'])
@@ -183,7 +189,7 @@ export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
         },
         { conservative },
       )
-      log('finished %o/%o/%o', type, section, app)
+      fileLog.debug({ app: { type, section, app } }, 'finished')
       return appResults
     }
   })
@@ -221,6 +227,7 @@ export const preprocessCordovaApp = async (
         return async () => {
           const cwd = join(jsAnalysisPath, location, leftPad(i))
           const fileOps: fileDescOp[] = []
+          const log = createLocationLog(type, section, app, location, leftPad(i))
 
           /**
            * Important object
@@ -266,9 +273,9 @@ export const preprocessCordovaApp = async (
               })
               content = await readFile(url.pathname, 'utf-8')
             } else if (url.protocol === 'http:' || url.protocol === 'https:') {
-              log('script referenced via http / https!')
+              log.debug({ info: infoObject }, 'script referenced via http / https!')
             } else {
-              log(`%o script #%o has an unknown src!`, location, i)
+              log.warn({ info: infoObject }, `script has an unknown src!`)
             }
           } else if (script.text) {
             infoObject = {
@@ -287,7 +294,6 @@ export const preprocessCordovaApp = async (
             })
             content = script.text
           } else {
-            log(`something unknown with %o script #%o`, location, i)
             infoObject = {
               scriptTagLocation: location,
               scriptTagIndex: i,
@@ -295,6 +301,7 @@ export const preprocessCordovaApp = async (
               type: 'unknown',
               tagKeys: Object.keys(script),
             }
+            log.warn({ info: infoObject }, `something unknown`)
           }
           fileOps.push({
             cwd,
@@ -307,7 +314,8 @@ export const preprocessCordovaApp = async (
           let signature
           try {
             signature = await extractStructure({ content })
-          } catch {
+          } catch (err) {
+            log.error({ err, info: infoObject }, 'could not parse js file')
             fileOps.push({
               cwd,
               dst: CORDOVA_NON_PARSED_NOTICE_FILE,
@@ -385,6 +393,7 @@ export const analyseCordovaApp = async ({
 
   const candidateLibsMissing = await resolveAllOrInParallel(
     locationId.map(({ location, id }) => async () => {
+      const log = createLocationLog(type, section, app, location, id)
       const cwd = join(analysisPath, location, id)
       const sigPath = join(cwd, CORDOVA_SIG_FILE)
       const signature = (await readJSON(sigPath)) as signatureNew
@@ -392,7 +401,7 @@ export const analyseCordovaApp = async ({
       const candidateLibs = await getCandidateLibs({ signature, libsPath })
       const noCandidatesFound = candidateLibs.length === 0
       if (noCandidatesFound) {
-        log('WARNING: %o candidates in %o', 0, join(type, section, app, location, id))
+        log.warn('%o candidates', 0)
       }
 
       const sim = await getSimilarityToLibs({
