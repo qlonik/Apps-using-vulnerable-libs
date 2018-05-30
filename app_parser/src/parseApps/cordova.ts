@@ -21,19 +21,12 @@ import {
   JS_DATA_FOLDER,
 } from './constants'
 import {
-  APP_TYPES,
   appDesc,
   appPath as appPathFn,
-  getApps,
   getCordovaAnalysisFiles,
+  APP_TYPES, // eslint-disable-line no-unused-vars
 } from './getters'
-import {
-  AppAnalysisReport,
-  AppParserFn,
-  AppsFolderParserFn,
-  CordovaAnalysisReport,
-  IsAppTypeFn,
-} from './index'
+import { AppAnalysisReport, CordovaAnalysisReport, IsAppTypeFn } from './index'
 
 const fileLog = logger.child({ name: 'a.cordova' })
 const createLocationLog = (
@@ -49,155 +42,6 @@ export const isCordovaApp: IsAppTypeFn = async function({ appPath }): Promise<bo
   const cordovaJsPath = join(appPath, ...['assets', 'www', 'cordova.js'])
 
   return (await pathExists(indexHtmlPath)) && (await pathExists(cordovaJsPath))
-}
-
-/**
- * @deprecated
- */
-export const parseScriptsFromCordovaApp: AppParserFn = async (
-  { appPath, libsPath },
-  { debugDoLess = false, chunkLimit = 10, chunkSize = 10, conservative = true }: opts = {},
-) => {
-  const indexHtmlPath = join(appPath, 'extractedJs/index.html')
-  const analysisFolderPath = join(appPath, 'jsAnalysis')
-  await mkdirp(analysisFolderPath)
-  const { window: { document } } = await JSDOM.fromFile(indexHtmlPath)
-
-  const parseScriptTags = (location: 'head' | 'body') => {
-    const scriptTags = document.querySelectorAll(`${location} script`) as NodeListOf<
-      HTMLScriptElement
-    >
-    return [...scriptTags].map((script: HTMLScriptElement, i) => {
-      // for each script tag we do following
-      return async () => {
-        const cwd = join(analysisFolderPath, location, leftPad(i))
-        const fileOps: fileDescOp[] = []
-
-        /**
-         * Important object
-         */
-        let infoObject: {
-          scriptTagLocation: string
-          scriptTagIndex: number
-        } & (
-          | {
-              type: 'src'
-              originalSrc: string
-              originalPath: string
-              originalProtocol: string
-            }
-          | {
-              type: 'content'
-            }
-          | {
-              type: 'unknown'
-              tagKeys: string[]
-            })
-        let content: string = ''
-
-        if (script.src) {
-          const url = new URL(script.src)
-          infoObject = {
-            scriptTagLocation: location,
-            scriptTagIndex: i,
-
-            type: 'src',
-            originalSrc: script.src,
-            originalPath: url.pathname,
-            originalProtocol: url.protocol,
-          }
-
-          if (url.protocol === 'file:') {
-            fileOps.push({
-              cwd,
-              dst: 'libDesc.js',
-              type: fileOp.copy,
-              src: url.pathname,
-              conservative,
-            })
-            content = await readFile(url.pathname, 'utf-8')
-          } else if (url.protocol === 'http:' || url.protocol === 'https:') {
-            console.log('script referenced via http / https!')
-          } else {
-            console.log(`${location} script #${i} has an unknown src!`)
-          }
-        } else if (script.text) {
-          infoObject = {
-            scriptTagLocation: location,
-            scriptTagIndex: i,
-
-            type: 'content',
-          }
-
-          fileOps.push({
-            cwd,
-            dst: 'libDesc.js',
-            type: fileOp.text,
-            text: script.text,
-            conservative,
-          })
-          content = script.text
-        } else {
-          console.log(`something unknown with ${location} script #${i}`)
-          infoObject = {
-            scriptTagLocation: location,
-            scriptTagIndex: i,
-
-            type: 'unknown',
-            tagKeys: Object.keys(script),
-          }
-        }
-
-        const signature = await extractStructure({ content })
-        const sims = await getSimilarityToLibs({ signature, libsPath })
-
-        const saved = await saveFiles(
-          fileOps.concat([
-            { cwd, dst: 'info.json', type: fileOp.json, json: infoObject, conservative },
-            { cwd, dst: 'libStructure.json', type: fileOp.json, json: signature, conservative },
-            { cwd, dst: 'similarities.json', type: fileOp.json, json: sims, conservative: false },
-          ]),
-        )
-      }
-    })
-  }
-
-  const lazyScriptTags = parseScriptTags('head').concat(parseScriptTags('body'))
-  let contents
-  if (debugDoLess) {
-    contents = [await lazyScriptTags[0](), await lazyScriptTags[1]()]
-  } else {
-    contents = await resolveAllOrInParallel(lazyScriptTags, { chunkLimit, chunkSize })
-  }
-  // console.log(contents.map(s => s.length <= 1000 ? s : s.length))
-}
-
-/**
- * @deprecated
- */
-export const parseScriptsFromCordovaApps: AppsFolderParserFn = async (
-  { allAppsPath, libsPath },
-  { debugDoLess = false, conservative = true, chunkLimit = 2, chunkSize = 1 }: opts = {},
-) => {
-  const apps = await getApps(allAppsPath, APP_TYPES.cordova)
-  const lazyAppAnalysis = apps.map(({ type, section, app }) => {
-    return async () => {
-      const appResults = await parseScriptsFromCordovaApp(
-        {
-          appPath: join(allAppsPath, type, section, app),
-          libsPath,
-        },
-        { conservative },
-      )
-      fileLog.debug({ app: { type, section, app } }, 'finished')
-      return appResults
-    }
-  })
-  if (debugDoLess) {
-    await Promise.all([lazyAppAnalysis[0](), lazyAppAnalysis[1]()])
-  } else {
-    await resolveAllOrInParallel(lazyAppAnalysis, { chunkLimit, chunkSize })
-  }
 }
 
 export const preprocessCordovaApp = async (
