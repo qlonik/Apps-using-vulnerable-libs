@@ -223,6 +223,8 @@ const getEIR = (expr: Expression | null): EIR => {
           return getTokensFromExpression(el)
         } else if (isSpreadElement(el)) {
           return `...${getTokensFromExpression(el.argument)}`
+        } else if (el === null) {
+          return ''
         } else {
           /* istanbul ignore next */
           assertNever(el)

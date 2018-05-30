@@ -79,3 +79,58 @@ test(
   `,
   [`${EXPRESSION}:Array[...${EXPRESSION}:Identifier[b], ...${EXPRESSION}:Identifier[c]]`],
 )
+
+test(
+  '[, expr]',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      [, b];
+    }
+  `,
+  [`${EXPRESSION}:Array[, ${EXPRESSION}:Identifier[b]]`],
+)
+
+test(
+  '[, ...expr]',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      [, ...b];
+    }
+  `,
+  [`${EXPRESSION}:Array[, ...${EXPRESSION}:Identifier[b]]`],
+)
+
+test(
+  '[expr,]',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      [b,];
+    }
+  `,
+  [`${EXPRESSION}:Array[${EXPRESSION}:Identifier[b]]`],
+)
+
+test(
+  '[...expr,]',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      [...b,];
+    }
+  `,
+  [`${EXPRESSION}:Array[...${EXPRESSION}:Identifier[b]]`],
+)
+
+test(
+  '[,,,]',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      [,,,]
+    }
+  `,
+  [`${EXPRESSION}:Array[, , ]`],
+)
