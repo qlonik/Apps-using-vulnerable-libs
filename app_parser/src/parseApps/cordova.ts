@@ -55,9 +55,7 @@ export const parseScriptsFromCordovaApp: AppParserFn = async (
   const indexHtmlPath = join(appPath, 'extractedJs/index.html')
   const analysisFolderPath = join(appPath, 'jsAnalysis')
   await mkdirp(analysisFolderPath)
-  const {
-    window: { document },
-  } = await JSDOM.fromFile(indexHtmlPath)
+  const { window: { document } } = await JSDOM.fromFile(indexHtmlPath)
 
   const parseScriptTags = (location: 'head' | 'body') => {
     const scriptTags = document.querySelectorAll(`${location} script`) as NodeListOf<
@@ -212,9 +210,7 @@ export const preprocessCordovaApp = async (
   const indexHtmlPath = join(appPath, JS_DATA_FOLDER, CORDOVA_MAIN_FILE)
   const jsAnalysisPath = join(appPath, ANALYSIS_FOLDER)
   await mkdirp(jsAnalysisPath)
-  const {
-    window: { document },
-  } = await JSDOM.fromFile(indexHtmlPath)
+  const { window: { document } } = await JSDOM.fromFile(indexHtmlPath)
   const parseScriptTags = flatten(
     ['head', 'body'].map((location) => {
       const scriptTags = document.querySelectorAll(`${location} script`) as NodeListOf<
@@ -370,7 +366,7 @@ export const analyseCordovaApp = async ({
 }): Promise<CordovaAnalysisReport> => {
   const appPath = appPathFn(allAppsPath, type, section, app)
   const analysisPath = join(appPath, ANALYSIS_FOLDER)
-  if (!(await pathExists(analysisPath))) {
+  if (!await pathExists(analysisPath)) {
     throw new CordovaAppDataError(`missing analysis folder (${analysisPath})`)
   }
   const locationId = await getCordovaAnalysisFiles(allAppsPath, { type, section, app })
