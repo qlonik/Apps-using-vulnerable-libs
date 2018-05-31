@@ -57,3 +57,37 @@ test(
     `,
   ],
 )
+
+test(
+  'decl var = expr, expr',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      let b = c, e;
+    }
+  `,
+  [
+    `${DECLARATION}:Variable[${PARAM}:Identifier[b] = ${EXPRESSION}:Identifier[c]]`,
+    `${DECLARATION}:Variable[${PARAM}:Identifier[e]]`,
+  ],
+)
+
+test(
+  'decl var = (expr, expr)',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      let b = (c, e)
+    }
+  `,
+  [
+    oneLineTrim`
+      ${DECLARATION}:Variable[
+        ${PARAM}:Identifier[b] = ${EXPRESSION}:Sequence[
+          ${EXPRESSION}:Identifier[c]
+        , ${EXPRESSION}:Identifier[e]
+        ]
+      ]
+    `,
+  ],
+)
