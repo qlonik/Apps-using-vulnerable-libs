@@ -582,18 +582,19 @@ const fnStTokensParserWithOptions = (o: opts) => {
   }
 }
 
+export const DEFAULT_OPTIONS: opts = {
+  v: EXTRACTOR_VERSION.v1,
+}
+
 // eslint-disable-next-line import/export
 export function getFnStatementTokens(opts?: opts): (node: Function) => string[]
 // eslint-disable-next-line import/export
 export function getFnStatementTokens(node: Function): string[]
 // eslint-disable-next-line import/export
 export function getFnStatementTokens(x?: Function | opts) {
-  const defaultOptions: opts = {
-    v: EXTRACTOR_VERSION.v1,
-  }
   if (x && isFunction(x)) {
-    return fnStTokensParserWithOptions(defaultOptions)(x)
+    return fnStTokensParserWithOptions(DEFAULT_OPTIONS)(x)
   } else {
-    return fnStTokensParserWithOptions({ ...defaultOptions, ...x })
+    return fnStTokensParserWithOptions({ ...DEFAULT_OPTIONS, ...x })
   }
 }
