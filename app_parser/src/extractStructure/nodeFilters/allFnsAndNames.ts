@@ -1,4 +1,5 @@
 import {
+  Function as BabelFunction,
   Identifier,
   isArrowFunctionExpression,
   isAssignmentExpression,
@@ -195,7 +196,7 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
         name,
         loc: extractNodeLocation(fnNode.loc),
         fnStatementTypes: getFnStatementTypes(fnNode),
-        fnStatementTokens: getFnStatementTokens(fnNode),
+        fnStatementTokens: getFnStatementTokens(fnNode as BabelFunction),
       })
     }
   }
