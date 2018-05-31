@@ -510,12 +510,23 @@ const fnStTokensParserWithOptions = (o: opts) => {
         .concat(st.handler ? getTokensFromBlockStatement(st.handler.body) : [])
         .concat(st.finalizer ? getTokensFromBlockStatement(st.finalizer) : [])
     } else if (isVariableDeclaration(st)) {
-      return st.declarations.map((declaration) => {
-        const id = getTokensFromLVal(declaration.id)
-        const init = getTokensFromExpression(declaration.init)
-        const pred = box(`${id}${box(init, ' = ', '')}`)
-        return `${DECLARATION}:Variable${pred}`
-      })
+      return st.declarations
+        .map((declaration) => {
+          const id = getTokensFromLVal(declaration.id)
+          const init = getTokensFromExpression(declaration.init)
+          if (o.v === EXTRACTOR_VERSION.v1) {
+          } else if (o.v === EXTRACTOR_VERSION.v2) {
+            if (!init) {
+              return null
+            }
+          } else {
+            /* istanbul ignore next */
+            assertNever(o.v)
+          }
+          const pred = box(`${id}${box(init, ' = ', '')}`)
+          return `${DECLARATION}:Variable${pred}`
+        })
+        .filter((de): de is string => typeof de === 'string')
     } else if (isWhileStatement(st)) {
       const test = getTokensFromExpression(st.test)
       return [`${STATEMENT}:While${box(test)}`].concat(getTokensFromStatement(st.body))
@@ -567,7 +578,13 @@ const fnStTokensParserWithOptions = (o: opts) => {
     let result: string[] = []
     const { params, body } = node
 
-    result = result.concat(getTokensFromLVals(params))
+    if (o.v === EXTRACTOR_VERSION.v1) {
+      result = result.concat(getTokensFromLVals(params))
+    } else if (o.v === EXTRACTOR_VERSION.v2) {
+    } else {
+      /* istanbul ignore next */
+      assertNever(o.v)
+    }
 
     if (isExpression(body)) {
       result = result.concat(getTokensFromExpression(body) || [])

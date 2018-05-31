@@ -53,8 +53,13 @@ export const checkTokensMacro: Macro = async (
   if (!tokens) return
   t.deepEqual(expected.sort(), tokens)
 
-  // add exception for 'empty' test case
-  if (t.title !== 'empty block' && t.title !== 'empty function' && expected.length === 0) {
+  // add exception for 'empty' test cases
+  if (
+    t.title !== 'empty block' &&
+    t.title !== 'empty function' &&
+    t.title !== 'parameters v2' &&
+    expected.length === 0
+  ) {
     t.fail('Expected array is empty. Test case is most likely missing.')
   }
 }

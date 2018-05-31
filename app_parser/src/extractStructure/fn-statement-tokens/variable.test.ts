@@ -2,6 +2,7 @@ import { test } from 'ava'
 import { oneLineTrim, stripIndent } from 'common-tags'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM } from '../tags'
 import { checkTokensMacro } from './_macros'
+import { EXTRACTOR_VERSION } from './index'
 
 test(
   'declaration',
@@ -91,4 +92,30 @@ test(
       ]]
     `,
   ],
+)
+
+test(
+  'empty declarations are skipped with v2',
+  checkTokensMacro,
+  stripIndent`
+    function a() {
+      var b;
+      let c;
+      '123';
+    }
+  `,
+  [`${LITERAL}:String`],
+  { v: EXTRACTOR_VERSION.v2 },
+)
+
+test(
+  'non-empty declaration is parsed with v2',
+  checkTokensMacro,
+  `
+    function a() {
+      var b = 123;
+    }
+  `,
+  [`${DECLARATION}:Variable[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`],
+  { v: EXTRACTOR_VERSION.v2 },
 )
