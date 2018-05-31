@@ -64,29 +64,34 @@ type toAnalyseType = {
 }
 const TO_ANALYSE: toAnalyseType[] = [
   {
-    methods: '*',
+    methods: 'fn-st-toks-v2',
     app: {
       type: APP_TYPES.cordova,
       section: '20170726-a_b',
       app: 'apps.yclients88759-10300-2017_04_13.apk',
     },
     files: [{ path: 'body/0000', location: 'body', id: '0000' }] as cordovaAnalysisFile[],
-    libs: [
-      { name: 'angular', version: '1.5.7', file: '0000' },
-      { name: 'angular', version: '1.5.7', file: '0001' },
-      { name: 'angular', version: '1.6.5', file: '0000' },
-      { name: 'angular', version: '1.6.5', file: '0001' },
-    ],
+    libs: [{ name: 'angular' }],
   },
   {
-    methods: '*',
+    methods: 'fn-st-toks-v2',
     app: {
       type: APP_TYPES.cordova,
       section: '20170726-com.t',
       app: 'com.tiny.m91392d54e89b48a6b2ecf1306f88ebbb-300000016-2017_02_17.apk',
     },
     files: [{ path: 'body/0000', location: 'body', id: '0000' }] as cordovaAnalysisFile[],
-    libs: ['*'],
+    libs: [{ name: 'angular-compiler', version: '6.0.0-beta.8', file: '0000' }],
+  },
+  {
+    methods: 'fn-st-toks-v2',
+    app: {
+      type: APP_TYPES.cordova,
+      section: 'random',
+      app: 'Snowbuddy-1.2.8.apk',
+    },
+    files: [{ path: 'head/0000', location: 'head', id: '0000' }] as cordovaAnalysisFile[],
+    libs: [{ name: 'jquery' }],
   },
 ]
 
