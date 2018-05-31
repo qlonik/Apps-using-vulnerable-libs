@@ -6,6 +6,7 @@ import { Omit, Simplify, The } from 'typical-mini'
 import { MessagesMap } from 'workerpool'
 import { analysisFile, APP_TYPES, appDesc, cordovaAnalysisFile } from '../parseApps'
 import {
+  getLibNameVersions,
   getLibNameVersionSigFiles,
   libName,
   libNameVersion,
@@ -126,13 +127,16 @@ export const main = async () => {
       const loadedLibs = flatten(
         await Promise.all(
           libs.map(async (lib) => {
+            let loadedLibNameVersion: libNameVersion[]
             let loadedLibNameVersionSig: libNameVersionSigFile[]
 
             if (lib === '*') {
+              loadedLibNameVersion = await getLibNameVersions(LIB_PATH)
               loadedLibNameVersionSig = await getLibNameVersionSigFiles(LIB_PATH)
             } else {
               const version = 'version' in lib ? lib.version : undefined
               const file = 'file' in lib ? `${lib.file}.json` : undefined
+              loadedLibNameVersion = await getLibNameVersions(LIB_PATH, lib.name, version)
               loadedLibNameVersionSig = await getLibNameVersionSigFiles(
                 LIB_PATH,
                 lib.name,
@@ -141,7 +145,7 @@ export const main = async () => {
               )
             }
 
-            for (let { name, version } of loadedLibNameVersionSig) {
+            for (let { name, version } of loadedLibNameVersion) {
               aggregateLibsSet.add(name)
               libsPreprocessUniqArr.push({ name, version })
             }
