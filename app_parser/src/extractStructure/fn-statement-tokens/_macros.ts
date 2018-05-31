@@ -1,7 +1,7 @@
 import { ExecutionContext, Macro } from 'ava'
 import { isFunction } from 'babel-types'
 import { parse } from 'babylon'
-import { getFnStatementTokens } from './index'
+import { DEFAULT_OPTIONS, getFnStatementTokens, opts } from './index'
 
 const parseContent = (
   t: ExecutionContext,
@@ -21,6 +21,7 @@ const parseContent = (
 const extractTokens = (
   t: ExecutionContext,
   parsed: ReturnType<typeof parse>,
+  options?: opts,
   msg = 'Script has to contain only one function',
 ): false | ReturnType<typeof getFnStatementTokens> => {
   const body = parsed.program.body
@@ -33,20 +34,22 @@ const extractTokens = (
     t.fail(msg)
     return false
   }
-  return getFnStatementTokens(fn)
+  const opts = { ...DEFAULT_OPTIONS, ...(options || {}) }
+  return getFnStatementTokens(opts)(fn)
 }
 
 export const checkTokensMacro: Macro = async (
   t: ExecutionContext,
   content: string = '',
   expected: string[] = [],
+  opts?: opts,
 ) => {
   t.truthy(content, 'Script content is empty')
 
   const parsed = parseContent(t, content)
   if (!parsed) return
 
-  const tokens = extractTokens(t, parsed)
+  const tokens = extractTokens(t, parsed, opts)
   if (!tokens) return
   t.deepEqual(expected.sort(), tokens)
 
@@ -56,7 +59,12 @@ export const checkTokensMacro: Macro = async (
   }
 }
 
-export const checkSameSignature: Macro = async (t: ExecutionContext, one: string, two: string) => {
+export const checkSameSignature: Macro = async (
+  t: ExecutionContext,
+  one: string,
+  two: string,
+  opts?: opts,
+) => {
   t.truthy(one, 'First script is empty')
   t.truthy(two, 'Second script is empty')
 
@@ -65,9 +73,9 @@ export const checkSameSignature: Macro = async (t: ExecutionContext, one: string
   const twoP = parseContent(t, two, 'Parsing error (script #2)')
   if (!twoP) return
 
-  const oneT = extractTokens(t, oneP, 'Script #1 has to contain only one function')
+  const oneT = extractTokens(t, oneP, opts, 'Script #1 has to contain only one function')
   if (!oneT) return
-  const twoT = extractTokens(t, twoP, 'Script #2 has to contain only one function')
+  const twoT = extractTokens(t, twoP, opts, 'Script #2 has to contain only one function')
   if (!twoT) return
 
   t.deepEqual(oneT, twoT)
