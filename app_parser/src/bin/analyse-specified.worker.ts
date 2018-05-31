@@ -199,6 +199,7 @@ const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames }) => 
       {} as simMap,
     )
 
+    await mkdirp(libDir)
     await myWriteJSON({ file: join(libDir, TOP_25_FILE), content: reducedSll })
   }
 
@@ -209,6 +210,7 @@ const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames }) => 
     {} as simMap,
   )
 
+  await mkdirp(wDir)
   await myWriteJSON({ file: join(wDir, TOP_HUNDRED_FILE), content: reducedGlobalSll })
 
   return true
