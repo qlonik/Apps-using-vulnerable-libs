@@ -1,6 +1,6 @@
-import { includes } from 'lodash'
-import sortBy from 'lodash/fp/sortBy'
+import includes from 'lodash/fp/includes'
 import once from 'lodash/fp/once'
+import sortBy from 'lodash/fp/sortBy'
 import { join } from 'path'
 import { The } from 'typical-mini'
 import { MessagesMap } from 'workerpool'
@@ -89,7 +89,7 @@ export async function main() {
         const { count, versions } = regexTotals.get(name) || { count: 0, versions: [] }
 
         for (let foundVersion of foundVersions) {
-          if (!includes(versions, foundVersion)) {
+          if (!includes(foundVersion, versions)) {
             versions.push(foundVersion)
           }
         }
