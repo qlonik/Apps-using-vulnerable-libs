@@ -36,7 +36,11 @@ const log = logger.child({ name: 'find-lib-mentions' })
 let terminating = false
 
 export async function main() {
-  const pool = poolFactory<messages>(await getWorkerPath(__filename))
+  const pool = poolFactory<messages>(await getWorkerPath(__filename), {
+    forkOpts: {
+      execArgv: process.argv.concat(['--max-old-space-size=8192']),
+    },
+  })
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
   const apps = await getApps(APPS_PATH)
