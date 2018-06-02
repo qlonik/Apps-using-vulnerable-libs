@@ -5,20 +5,13 @@ import { worker } from 'workerpool'
 import { APP_TYPES, getAnalysedData, getCordovaAnalysisFiles } from '../parseApps'
 import { foundMentionsMap, messages, npmLibs, regexLibs } from './find-lib-mentions'
 
-const NAME_VERSION_REGEX = /([\w-]+)\s+(?:@?version\s+)?(v?\d+\.\d+\.\d+)/g
-
-type LibNames = { name: string; versions: string[] }[]
-const NPM_LIB_NAMES = '../data/logs/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
-const NAMES_REG_ARR = (readJSON(NPM_LIB_NAMES) as Promise<LibNames>).then((libNamesVersions) => {
-  return libNamesVersions.map(({ name }) => ({
-    name,
-    reg: new RegExp(`[\\W_]${escapeStringRegexp(name)}[\\W_]`, 'g'),
-  }))
-})
+const NV_REG_STR = '([\\w-]+)\\s+(?:@?version\\s+)?(v?\\d+\\.\\d+\\.\\d+)'
+const NPM_LIBS_PATH = '../data/logs/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
+const NPM_LIBS_ARR = readJSON(NPM_LIBS_PATH) as Promise<{ name: string; versions: string[] }[]>
 
 worker<messages>({
   findLibMentions: async ({ APPS_PATH, app }) => {
-    const namesRegArr = await NAMES_REG_ARR
+    const npmLibNames = await NPM_LIBS_ARR
 
     if (app.type === APP_TYPES.cordova) {
       const analysedFiles = await getAnalysedData(
@@ -40,9 +33,10 @@ worker<messages>({
           const commentStr = Array.isArray(comment) ? comment.join('\n') : comment
 
           let foundMatch
+          let reg = new RegExp(NV_REG_STR, 'g')
           // This while loop finds all matches of regex in the string. Found on MDN:
           // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec#Examples
-          while ((foundMatch = NAME_VERSION_REGEX.exec(commentStr)) !== null) {
+          while ((foundMatch = reg.exec(commentStr)) !== null) {
             const [, name, version] = foundMatch
             const { count, versions } = regexLibsMap.get(name) || { count: 0, versions: [] }
             regexLibsMap.set(name, {
@@ -50,15 +44,17 @@ worker<messages>({
               versions: includes(versions, version) ? versions : versions.concat(version),
             })
           }
-          NAME_VERSION_REGEX.lastIndex = 0
+          foundMatch = null as any
+          reg = null as any
 
-          for (let { name, reg } of namesRegArr) {
+          for (let { name } of npmLibNames) {
+            let reg = new RegExp(`[\\W_]${escapeStringRegexp(name)}[\\W_]`, 'g')
             // same while loop as above
             while (reg.exec(commentStr) !== null) {
               const { count } = npmLibsMap.get(name) || { count: 0 }
               npmLibsMap.set(name, { count: count + 1 })
             }
-            reg.lastIndex = 0
+            reg = null as any
           }
         }
 
