@@ -18,6 +18,8 @@
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/test/fixtures/libs/jquery" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.nyc_output" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/heapsnapshots" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.tmp" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.vscode" />
           </excludedPaths>
         </serverdata>
       </paths>
@@ -38,6 +40,7 @@
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.nyc_output" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/heapsnapshots" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.tmp" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.vscode" />
           </excludedPaths>
         </serverdata>
       </paths>
@@ -58,6 +61,7 @@
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.nyc_output" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/heapsnapshots" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.tmp" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.vscode" />
           </excludedPaths>
         </serverdata>
       </paths>
