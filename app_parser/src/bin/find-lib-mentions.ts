@@ -49,7 +49,13 @@ export async function main() {
   const searchPromises = apps.map((app) => async () => {
     return {
       ...app,
-      found: terminating ? false : await pool.exec('findLibMentions', [{ app, APPS_PATH }]),
+      found: terminating
+        ? false
+        : ((await (pool.exec('findLibMentions', [
+            { app, APPS_PATH },
+          ]) /* returned promise is extended with .cancel() and .timeout() fns */ as any).timeout(
+            60 * 60 * 1000,
+          )) as messages['findLibMentions'][1]),
     }
   })
 
