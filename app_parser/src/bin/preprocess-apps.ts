@@ -1,5 +1,7 @@
 import { pathExists, readJSON } from 'fs-extra'
 import { differenceWith, isEqual, partition, once } from 'lodash'
+import shuffle from 'lodash/fp/shuffle'
+import take from 'lodash/fp/take'
 import { join } from 'path'
 import { Pool } from 'workerpool'
 import { appDesc, getApps } from '../parseApps'
@@ -14,6 +16,7 @@ import { WORKER_FILENAME, allMessages } from './_all.types'
 const APP_PATH = '../data/sample_apps'
 const FIN_APPS_PATH = join(APP_PATH, FINISHED_PREPROCESSING_FILE)
 const LIB_PATH = '../data/sample_libs'
+const ANALYSE_NUMBER = 1500
 
 let pool: Pool<allMessages>
 let terminating = false
@@ -33,13 +36,20 @@ export async function main() {
   }
 
   const filtered = differenceWith(apps, FIN_APPS, isEqual)
-  log.info('apps: (all=%o)-(fin=%o)=(todo=%o)', apps.length, FIN_APPS.length, filtered.length)
+  const todo = take(ANALYSE_NUMBER, shuffle(filtered))
+  log.info(
+    'apps: (all=%o)-(fin=%o)=(todo=%o/%o)',
+    apps.length,
+    FIN_APPS.length,
+    todo.length,
+    filtered.length,
+  )
 
   pool = poolFactory(wPath, { minWorkers: 0 })
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
-  // analyse all apps promises
-  const appsPromises = filtered.map((app) => async () => {
+  // analyse chosen apps promises
+  const appsPromises = todo.map((app) => async () => {
     if (terminating) {
       return { done: false, ...app }
     }
@@ -74,10 +84,11 @@ export async function main() {
   const notDoneLength = notDone.length
 
   log.info(
-    'apps: (done=%o)+(not-done=%o)=(total=%o)',
+    'apps: (done=%o)+(not-done=%o)=(total=%o/%o)',
     doneLength,
     notDoneLength,
     doneLength + notDoneLength,
+    filtered.length,
   )
 
   await myWriteJSON({ content: FIN_APPS, file: FIN_APPS_PATH })
