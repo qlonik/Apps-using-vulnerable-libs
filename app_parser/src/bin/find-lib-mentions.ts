@@ -1,11 +1,19 @@
+import { pathExists, readJSON } from 'fs-extra'
+import differenceWith from 'lodash/fp/differenceWith'
 import includes from 'lodash/fp/includes'
+import isEqual from 'lodash/fp/isEqual'
 import once from 'lodash/fp/once'
+import partition from 'lodash/fp/partition'
 import sortBy from 'lodash/fp/sortBy'
 import { join } from 'path'
 import { The } from 'typical-mini'
 import { MessagesMap } from 'workerpool'
 import { analysisFile, appDesc, getApps } from '../parseApps'
-import { FOUND_LIBS_FILE, FOUND_LIBS_TOTALS_FILE } from '../parseApps/constants'
+import {
+  FINISHED_SEARCH_FILE,
+  FOUND_LIBS_FILE,
+  FOUND_LIBS_TOTALS_FILE,
+} from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import logger from '../utils/logger'
@@ -13,6 +21,7 @@ import { getWorkerPath, poolFactory } from '../utils/worker'
 
 const OUT = process.env.OUT!
 const APPS_PATH = '../data/sample_apps'
+const FIN_SEARCH_APPS_PATH = join(APPS_PATH, FINISHED_SEARCH_FILE)
 const FOUND_LIBS = join(OUT, FOUND_LIBS_FILE)
 const FOUND_LIBS_TOTALS = join(OUT, FOUND_LIBS_TOTALS_FILE)
 
@@ -44,9 +53,15 @@ export async function main() {
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
   const apps = await getApps(APPS_PATH)
-  log.info('total apps: %o', apps.length)
+  let finSearchApps = [] as appDesc[]
+  if (await pathExists(FIN_SEARCH_APPS_PATH)) {
+    finSearchApps = await readJSON(FIN_SEARCH_APPS_PATH)
+    log.info('loaded FIN_SEARCH_APPS')
+  }
+  const filtered = differenceWith(isEqual, apps, finSearchApps)
+  log.info('apps: (all=%o)-(fin=%o)=(todo=%o)', apps.length, finSearchApps.length, filtered.length)
 
-  const searchPromises = apps.map((app) => async () => {
+  const searchPromises = filtered.map((app) => async () => {
     return {
       ...app,
       found: terminating
@@ -66,7 +81,18 @@ export async function main() {
     chunkSize: Math.floor(1.5 * pool.maxWorkers),
     chunkTapFn: async (els) => {
       found = found.concat(els)
-      await myWriteJSON({ file: FOUND_LIBS, content: found })
+      const finished = els
+        .filter(({ found }) => !!found)
+        .map(({ type, section, app }): appDesc => ({ type, section, app }))
+
+      const promises = [myWriteJSON({ file: FOUND_LIBS, content: found })]
+      if (finished.length > 0) {
+        finSearchApps = finSearchApps.concat(finished).sort((a, b) => {
+          return `${a.type}/${a.section}/${a.app}`.localeCompare(`${b.type}/${b.section}/${b.app}`)
+        })
+        promises.push(myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps }))
+      }
+      await Promise.all(promises)
     },
   })
   if (terminating) {
@@ -74,6 +100,21 @@ export async function main() {
   } else {
     log.info('finished search')
   }
+
+  const [done, notDone] = partition(({ found }) => !!found, results)
+  const doneLength = done.length
+  const notDoneLength = notDone.length
+
+  log.info(
+    'apps: (done=%o)+(not-done=%o)=(total=%o/%o)',
+    doneLength,
+    notDoneLength,
+    doneLength + notDoneLength,
+    filtered.length,
+  )
+
+  await myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps })
+  log.info('updated FIN_SEARCH_APPS')
 
   log.info('calculating totals')
   const regexTotals = new Map<regexLibs[0], regexLibs[1]>()
