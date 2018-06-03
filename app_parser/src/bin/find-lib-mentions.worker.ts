@@ -74,3 +74,5 @@ worker<messages>({
     return false
   },
 })
+
+process.on('SIGINT', () => {})
