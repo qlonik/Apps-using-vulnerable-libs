@@ -191,13 +191,15 @@ export async function main() {
     filtered.length,
   )
 
+  await myWriteJSON({ file: FOUND_LIBS, content: results })
+  log.info('updated FOUND_LIBS')
+
   await myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps })
   log.info('updated FIN_SEARCH_APPS')
 
   await myWriteJSON({ file: FOUND_LIBS_TOTALS, content: mapToArr(TOTALS) })
   log.info('updated FOUND_LIBS_TOTALS')
 
-  await myWriteJSON({ file: FOUND_LIBS, content: results })
   await pool.terminate()
 }
 
