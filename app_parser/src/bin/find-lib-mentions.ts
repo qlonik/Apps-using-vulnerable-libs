@@ -149,18 +149,15 @@ export async function main() {
     chunkLimit: pool.maxWorkers + 1,
     chunkSize: Math.floor(1.5 * pool.maxWorkers),
     chunkTapFn: async (els) => {
-      const promises = []
-
       allSearchResults = allSearchResults.concat(els)
-      promises.push(myWriteJSON({ file: FOUND_LIBS, content: allSearchResults }))
-
       finSearchApps = addFinishedApps(finSearchApps, els)
-      promises.push(myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps }))
-
       TOTALS = addTotals(TOTALS, els)
-      promises.push(myWriteJSON({ file: FOUND_LIBS_TOTALS, content: mapToArr(TOTALS) }))
 
-      await Promise.all(promises)
+      await Promise.all([
+        myWriteJSON({ file: FOUND_LIBS, content: allSearchResults }),
+        myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps }),
+        myWriteJSON({ file: FOUND_LIBS_TOTALS, content: mapToArr(TOTALS) }),
+      ])
     },
   })
   if (terminating) {
@@ -191,14 +188,15 @@ export async function main() {
     filtered.length,
   )
 
-  await myWriteJSON({ file: FOUND_LIBS, content: results })
-  log.info('updated FOUND_LIBS')
-
-  await myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps })
-  log.info('updated FIN_SEARCH_APPS')
-
-  await myWriteJSON({ file: FOUND_LIBS_TOTALS, content: mapToArr(TOTALS) })
-  log.info('updated FOUND_LIBS_TOTALS')
+  await Promise.all([
+    myWriteJSON({ file: FOUND_LIBS, content: results }).then(() => log.info('updated FOUND_LIBS')),
+    myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps }).then(() =>
+      log.info('updated FIN_SEARCH_APPS'),
+    ),
+    myWriteJSON({ file: FOUND_LIBS_TOTALS, content: mapToArr(TOTALS) }).then(() =>
+      log.info('updated FOUND_LIBS_TOTALS'),
+    ),
+  ])
 
   await pool.terminate()
 }
