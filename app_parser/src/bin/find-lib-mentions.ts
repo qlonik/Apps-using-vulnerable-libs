@@ -86,7 +86,7 @@ export async function main() {
     }
   })
 
-  let found = [] as searchEl[]
+  let allSearchResults = [] as searchEl[]
   log.info('started search')
   const results = await resolveAllOrInParallel(searchPromises, {
     chunkLimit: pool.maxWorkers + 1,
@@ -94,8 +94,8 @@ export async function main() {
     chunkTapFn: async (els) => {
       const promises = []
 
-      found = found.concat(els)
-      promises.push(myWriteJSON({ file: FOUND_LIBS, content: found }))
+      allSearchResults = allSearchResults.concat(els)
+      promises.push(myWriteJSON({ file: FOUND_LIBS, content: allSearchResults }))
 
       const finished = els
         .filter(({ found }) => !!found)
@@ -116,13 +116,13 @@ export async function main() {
     log.info('finished search')
   }
 
-  if (!isEqual(found, results)) {
+  if (!isEqual(allSearchResults, results)) {
     log.warn(
       {
-        'found-results': differenceWith(isEqual, found, results),
-        'results-found': differenceWith(isEqual, results, found),
+        'allSearchResults-results': differenceWith(isEqual, allSearchResults, results),
+        'results-allSearchResults': differenceWith(isEqual, results, allSearchResults),
       },
-      'found !== results',
+      'allSearchResults !== results',
     )
   }
 
