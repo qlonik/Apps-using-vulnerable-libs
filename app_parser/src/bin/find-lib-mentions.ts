@@ -90,18 +90,21 @@ export async function main() {
     chunkLimit: pool.maxWorkers + 1,
     chunkSize: Math.floor(1.5 * pool.maxWorkers),
     chunkTapFn: async (els) => {
+      const promises = []
+
       found = found.concat(els)
+      promises.push(myWriteJSON({ file: FOUND_LIBS, content: found }))
+
       const finished = els
         .filter(({ found }) => !!found)
         .map(({ type, section, app }): appDesc => ({ type, section, app }))
-
-      const promises = [myWriteJSON({ file: FOUND_LIBS, content: found })]
       if (finished.length > 0) {
         finSearchApps = finSearchApps.concat(finished).sort((a, b) => {
           return `${a.type}/${a.section}/${a.app}`.localeCompare(`${b.type}/${b.section}/${b.app}`)
         })
         promises.push(myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps }))
       }
+
       await Promise.all(promises)
     },
   })
