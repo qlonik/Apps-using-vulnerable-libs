@@ -26,7 +26,7 @@ const APPS_PATH = '../data/sample_apps'
 const APPS_TO_SEARCH_LIMIT = 100
 const FIN_SEARCH_APPS_PATH = join(APPS_PATH, FINISHED_SEARCH_FILE)
 const FOUND_LIBS = join(OUT, FOUND_LIBS_FILE)
-const FOUND_LIBS_TOTALS = join(OUT, FOUND_LIBS_TOTALS_FILE)
+const FOUND_LIBS_TOTALS = join(APPS_PATH, FOUND_LIBS_TOTALS_FILE)
 
 export type regexLibs = [string, { count: number; versions: string[] }]
 export type npmLibs = [string, { count: number }]
@@ -120,6 +120,16 @@ export async function main() {
     filtered.length,
   )
 
+  let TOTALS: totals = {
+    reg: new Map<regexLibs[0], regexLibs[1]>(),
+    npm: new Map<npmLibs[0], npmLibs[1]>(),
+  }
+  if (await pathExists(FOUND_LIBS_TOTALS)) {
+    const { reg, npm } = (await readJSON(FOUND_LIBS_TOTALS)) as totalsArr
+    TOTALS = { reg: new Map(reg), npm: new Map(npm) }
+    log.info('loaded FOUND_LIBS_TOTALS')
+  }
+
   const searchPromises = todo.map((app) => async (): Promise<searchEl> => {
     return {
       ...app,
@@ -146,6 +156,9 @@ export async function main() {
 
       finSearchApps = addFinishedApps(finSearchApps, els)
       promises.push(myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps }))
+
+      TOTALS = addTotals(TOTALS, els)
+      promises.push(myWriteJSON({ file: FOUND_LIBS_TOTALS, content: mapToArr(TOTALS) }))
 
       await Promise.all(promises)
     },
@@ -180,6 +193,9 @@ export async function main() {
 
   await myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps })
   log.info('updated FIN_SEARCH_APPS')
+
+  await myWriteJSON({ file: FOUND_LIBS_TOTALS, content: mapToArr(TOTALS) })
+  log.info('updated FOUND_LIBS_TOTALS')
 
   log.info('calculating totals')
   const regexTotals = new Map<regexLibs[0], regexLibs[1]>()
