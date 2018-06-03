@@ -99,7 +99,7 @@ const mapToArr = ({ reg, npm }: totals): totalsArr => {
 export async function main() {
   const pool = poolFactory<messages>(await getWorkerPath(__filename), {
     forkOpts: {
-      execArgv: process.argv.concat(['--max-old-space-size=8192']),
+      execArgv: process.execArgv.concat(['--max-old-space-size=8192']),
     },
   })
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
