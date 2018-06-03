@@ -197,42 +197,7 @@ export async function main() {
   await myWriteJSON({ file: FOUND_LIBS_TOTALS, content: mapToArr(TOTALS) })
   log.info('updated FOUND_LIBS_TOTALS')
 
-  log.info('calculating totals')
-  const regexTotals = new Map<regexLibs[0], regexLibs[1]>()
-  const npmTotals = new Map<npmLibs[0], npmLibs[1]>()
-  for (let { found } of results) {
-    if (typeof found === 'boolean') {
-      continue
-    }
-
-    for (let key of Object.keys(found)) {
-      const { regexLibs, npmLibs } = found[key]
-      for (let [name, { count: foundCount, versions: foundVersions }] of regexLibs) {
-        const { count, versions } = regexTotals.get(name) || { count: 0, versions: [] }
-
-        for (let foundVersion of foundVersions) {
-          if (!includes(foundVersion, versions)) {
-            versions.push(foundVersion)
-          }
-        }
-
-        regexTotals.set(name, { count: count + foundCount, versions })
-      }
-      for (let [name, { count: foundCount }] of npmLibs) {
-        const { count } = npmTotals.get(name) || { count: 0 }
-        npmTotals.set(name, { count: count + foundCount })
-      }
-    }
-  }
-  const countSort = sortBy<regexLibs | npmLibs>((o) => -o[1].count)
-  const totals = {
-    regexTotals: countSort([...regexTotals]),
-    npmTotals: countSort([...npmTotals]),
-  }
-  log.info('finished totals')
-
   await myWriteJSON({ file: FOUND_LIBS, content: results })
-  await myWriteJSON({ file: FOUND_LIBS_TOTALS, content: totals })
   await pool.terminate()
 }
 
