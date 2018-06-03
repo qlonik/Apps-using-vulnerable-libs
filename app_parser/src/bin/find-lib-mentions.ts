@@ -48,6 +48,17 @@ const log = logger.child({ name: 'find-lib-mentions' })
 let terminating = false
 
 type searchEl = appDesc & { found: messages['findLibMentions'][1] }
+const addFinishedApps = (apps: appDesc[], els: searchEl[]): appDesc[] => {
+  return apps
+    .concat(
+      els
+        .filter(({ found }) => !!found)
+        .map(({ type, section, app }): appDesc => ({ type, section, app })),
+    )
+    .sort((a, b) => {
+      return `${a.type}/${a.section}/${a.app}`.localeCompare(`${b.type}/${b.section}/${b.app}`)
+    })
+}
 
 export async function main() {
   const pool = poolFactory<messages>(await getWorkerPath(__filename), {
@@ -97,15 +108,8 @@ export async function main() {
       allSearchResults = allSearchResults.concat(els)
       promises.push(myWriteJSON({ file: FOUND_LIBS, content: allSearchResults }))
 
-      const finished = els
-        .filter(({ found }) => !!found)
-        .map(({ type, section, app }): appDesc => ({ type, section, app }))
-      if (finished.length > 0) {
-        finSearchApps = finSearchApps.concat(finished).sort((a, b) => {
-          return `${a.type}/${a.section}/${a.app}`.localeCompare(`${b.type}/${b.section}/${b.app}`)
-        })
-        promises.push(myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps }))
-      }
+      finSearchApps = addFinishedApps(finSearchApps, els)
+      promises.push(myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps }))
 
       await Promise.all(promises)
     },
