@@ -4,7 +4,9 @@ import includes from 'lodash/fp/includes'
 import isEqual from 'lodash/fp/isEqual'
 import once from 'lodash/fp/once'
 import partition from 'lodash/fp/partition'
+import shuffle from 'lodash/fp/shuffle'
 import sortBy from 'lodash/fp/sortBy'
+import take from 'lodash/fp/take'
 import { join } from 'path'
 import { The } from 'typical-mini'
 import { MessagesMap } from 'workerpool'
@@ -21,6 +23,7 @@ import { getWorkerPath, poolFactory } from '../utils/worker'
 
 const OUT = process.env.OUT!
 const APPS_PATH = '../data/sample_apps'
+const APPS_TO_SEARCH_LIMIT = 100
 const FIN_SEARCH_APPS_PATH = join(APPS_PATH, FINISHED_SEARCH_FILE)
 const FOUND_LIBS = join(OUT, FOUND_LIBS_FILE)
 const FOUND_LIBS_TOTALS = join(OUT, FOUND_LIBS_TOTALS_FILE)
@@ -59,9 +62,16 @@ export async function main() {
     log.info('loaded FIN_SEARCH_APPS')
   }
   const filtered = differenceWith(isEqual, apps, finSearchApps)
-  log.info('apps: (all=%o)-(fin=%o)=(todo=%o)', apps.length, finSearchApps.length, filtered.length)
+  const todo = take(APPS_TO_SEARCH_LIMIT, shuffle(filtered))
+  log.info(
+    'apps: (all=%o)-(fin=%o)=(todo=%o/%o)',
+    apps.length,
+    finSearchApps.length,
+    todo.length,
+    filtered.length,
+  )
 
-  const searchPromises = filtered.map((app) => async () => {
+  const searchPromises = todo.map((app) => async () => {
     return {
       ...app,
       found: terminating
