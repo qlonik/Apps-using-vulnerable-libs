@@ -114,6 +114,16 @@ export async function main() {
     log.info('finished search')
   }
 
+  if (!isEqual(found, results)) {
+    log.warn(
+      {
+        'found-results': differenceWith(isEqual, found, results),
+        'results-found': differenceWith(isEqual, results, found),
+      },
+      'found !== results',
+    )
+  }
+
   const [done, notDone] = partition(({ found }) => !!found, results)
   const doneLength = done.length
   const notDoneLength = notDone.length
