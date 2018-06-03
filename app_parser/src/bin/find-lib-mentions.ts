@@ -47,6 +47,8 @@ export type messages = The<
 const log = logger.child({ name: 'find-lib-mentions' })
 let terminating = false
 
+type searchEl = appDesc & { found: messages['findLibMentions'][1] }
+
 export async function main() {
   const pool = poolFactory<messages>(await getWorkerPath(__filename), {
     forkOpts: {
@@ -71,7 +73,7 @@ export async function main() {
     filtered.length,
   )
 
-  const searchPromises = todo.map((app) => async () => {
+  const searchPromises = todo.map((app) => async (): Promise<searchEl> => {
     return {
       ...app,
       found: terminating
@@ -84,7 +86,7 @@ export async function main() {
     }
   })
 
-  let found = [] as any[]
+  let found = [] as searchEl[]
   log.info('started search')
   const results = await resolveAllOrInParallel(searchPromises, {
     chunkLimit: pool.maxWorkers + 1,
