@@ -59,6 +59,42 @@ const addFinishedApps = (apps: appDesc[], els: searchEl[]): appDesc[] => {
       return `${a.type}/${a.section}/${a.app}`.localeCompare(`${b.type}/${b.section}/${b.app}`)
     })
 }
+type totals = { reg: Map<regexLibs[0], regexLibs[1]>; npm: Map<npmLibs[0], npmLibs[1]> }
+type totalsArr = { reg: regexLibs[]; npm: npmLibs[] }
+const addTotals = ({ reg, npm }: totals, els: searchEl[]): totals => {
+  for (let { found } of els) {
+    if (typeof found === 'boolean') {
+      continue
+    }
+
+    for (let key of Object.keys(found)) {
+      const { regexLibs, npmLibs } = found[key]
+      for (let [name, { count: foundCount, versions: foundVersions }] of regexLibs) {
+        const { count, versions } = reg.get(name) || { count: 0, versions: [] }
+
+        for (let foundVersion of foundVersions) {
+          if (!includes(foundVersion, versions)) {
+            versions.push(foundVersion)
+          }
+        }
+
+        reg.set(name, { count: count + foundCount, versions })
+      }
+      for (let [name, { count: foundCount }] of npmLibs) {
+        const { count } = npm.get(name) || { count: 0 }
+        npm.set(name, { count: count + foundCount })
+      }
+    }
+  }
+
+  return { reg, npm }
+}
+const mapToArr = ({ reg, npm }: totals): totalsArr => {
+  return {
+    reg: sortBy((o) => -o[1].count, [...reg]),
+    npm: sortBy((o) => -o[1].count, [...npm]),
+  }
+}
 
 export async function main() {
   const pool = poolFactory<messages>(await getWorkerPath(__filename), {
