@@ -3,15 +3,81 @@ import { readJSON } from 'fs-extra'
 import { includes } from 'lodash'
 import { worker } from 'workerpool'
 import { APP_TYPES, getAnalysedData, getCordovaAnalysisFiles } from '../parseApps'
-import { foundMentionsMap, messages, npmLibs, regexLibs } from './find-lib-mentions'
+import {
+  foundNpmMentionsMap,
+  foundRegexMentionsMap,
+  messages,
+  npmLibs,
+  regexLibs,
+} from './find-lib-mentions'
 
-const NV_REG_STR = '([\\w-]+)\\s+(?:@?version\\s+)?(v?\\d+\\.\\d+\\.\\d+)'
+const NV_REG = /([\w-]+)\s+(?:@?version\s+)?(v?\d+\.\d+\.\d+)/g
 const NPM_LIBS_PATH = '../data/logs/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
-const NPM_LIBS_ARR = readJSON(NPM_LIBS_PATH) as Promise<{ name: string; versions: string[] }[]>
+
+const getSectionRange = (total: number, section: number, sections: number) => {
+  const sectionSize = Math.ceil(total / sections)
+  return [section * sectionSize, Math.min((section + 1) * sectionSize, total)]
+}
 
 worker<messages>({
-  findLibMentions: async ({ APPS_PATH, app }) => {
-    const npmLibNames = await NPM_LIBS_ARR
+  findRegexMentions: async ({ APPS_PATH, app }) => {
+    if (app.type === APP_TYPES.cordova) {
+      const analysedFiles = await getAnalysedData(
+        APPS_PATH,
+        app,
+        await getCordovaAnalysisFiles(APPS_PATH, app),
+      )
+
+      const found = {} as foundRegexMentionsMap
+
+      for (let { file, signature } of analysedFiles) {
+        if (signature === null) {
+          continue
+        }
+
+        const regexLibsCounts = {} as { [x: string]: number }
+        const regexLibsVersions = {} as { [x: string]: string[] }
+
+        for (let comment of signature.comments) {
+          const commentStr = Array.isArray(comment) ? comment.join('\n') : comment
+
+          let foundMatch
+          // This while loop finds all matches of regex in the string. Found on MDN:
+          // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec#Examples
+          while ((foundMatch = NV_REG.exec(commentStr)) !== null) {
+            const [, name, version] = foundMatch
+            regexLibsCounts[name] = (regexLibsCounts[name] || 0) + 1
+            const versions = regexLibsVersions[name] || []
+            regexLibsVersions[name] = includes(versions, version)
+              ? versions
+              : versions.concat(version)
+          }
+          foundMatch = null as any
+        }
+
+        const regexLibs = Object.keys(regexLibsCounts).map((name): regexLibs => [
+          name,
+          { count: regexLibsCounts[name] || 0, versions: regexLibsVersions[name] || [] },
+        ])
+        found[file.path] = { file, regexLibs }
+      }
+
+      return found
+    }
+
+    if (app.type === APP_TYPES.reactNative) {
+      return false
+    }
+
+    return false
+  },
+  findNpmMentions: async ({ APPS_PATH, app, section, SECTIONS }) => {
+    const npmNVArr = (await readJSON(NPM_LIBS_PATH)) as { name: string; versions: string[] }[]
+    const range = getSectionRange(npmNVArr.length, section, SECTIONS)
+    const npmNameReg = npmNVArr.filter((_, i) => range[0] <= i && i < range[1]).map(({ name }) => ({
+      name,
+      reg: new RegExp(`[\\W_]${escapeStringRegexp(name)}[\\W_]`, 'g'),
+    }))
 
     if (app.type === APP_TYPES.cordova) {
       const analysedFiles = await getAnalysedData(
@@ -20,50 +86,37 @@ worker<messages>({
         await getCordovaAnalysisFiles(APPS_PATH, app),
       )
 
-      const found = {} as foundMentionsMap
+      const found = {} as foundNpmMentionsMap
+
       for (let { file, signature } of analysedFiles) {
         if (signature === null) {
           continue
         }
 
-        const regexLibsMap = new Map<regexLibs[0], regexLibs[1]>()
-        const npmLibsMap = new Map<npmLibs[0], npmLibs[1]>()
+        const npmLibsCounts = {} as { [x: string]: number }
 
         for (let comment of signature.comments) {
           const commentStr = Array.isArray(comment) ? comment.join('\n') : comment
 
-          let foundMatch
-          let reg = new RegExp(NV_REG_STR, 'g')
-          // This while loop finds all matches of regex in the string. Found on MDN:
-          // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec#Examples
-          while ((foundMatch = reg.exec(commentStr)) !== null) {
-            const [, name, version] = foundMatch
-            const { count, versions } = regexLibsMap.get(name) || { count: 0, versions: [] }
-            regexLibsMap.set(name, {
-              count: count + 1,
-              versions: includes(versions, version) ? versions : versions.concat(version),
-            })
-          }
-          foundMatch = null as any
-          reg = null as any
-
-          for (let { name } of npmLibNames) {
-            let reg = new RegExp(`[\\W_]${escapeStringRegexp(name)}[\\W_]`, 'g')
+          for (let { name, reg } of npmNameReg) {
             // same while loop as above
-            while (reg.exec(commentStr) !== null) {
-              const { count } = npmLibsMap.get(name) || { count: 0 }
-              npmLibsMap.set(name, { count: count + 1 })
+            while (reg.test(commentStr)) {
+              npmLibsCounts[name] = (npmLibsCounts[name] || 0) + 1
+              // const { count } = npmLibsMap.get(name) || { count: 0 }
+              // npmLibsMap.set(name, { count: count + 1 })
             }
             reg = null as any
           }
         }
 
-        found[file.path] = {
-          file,
-          regexLibs: [...regexLibsMap] as regexLibs[],
-          npmLibs: [...npmLibsMap] as npmLibs[],
-        }
+        const npmLibs = Object.keys(npmLibsCounts).map((name): npmLibs => [
+          name,
+          { count: npmLibsCounts[name] || 0 },
+        ])
+
+        found[file.path] = { file, npmLibs }
       }
+
       return found
     }
 

@@ -1,16 +1,19 @@
-import { pathExists, readJSON } from 'fs-extra'
+import { mkdirp, pathExists, readJSON } from 'fs-extra'
 import differenceWith from 'lodash/fp/differenceWith'
 import includes from 'lodash/fp/includes'
 import isEqual from 'lodash/fp/isEqual'
+import mergeAllWith from 'lodash/fp/mergeAllWith'
 import once from 'lodash/fp/once'
 import partition from 'lodash/fp/partition'
+import range from 'lodash/fp/range'
 import shuffle from 'lodash/fp/shuffle'
 import sortBy from 'lodash/fp/sortBy'
 import take from 'lodash/fp/take'
+import uniqBy from 'lodash/fp/uniqBy'
 import { join } from 'path'
 import { The } from 'typical-mini'
 import { MessagesMap } from 'workerpool'
-import { analysisFile, appDesc, getApps } from '../parseApps'
+import { analysisFile, appDesc, appPath, getApps } from '../parseApps'
 import {
   FINISHED_SEARCH_FILE,
   FOUND_LIBS_FILE,
@@ -24,6 +27,7 @@ import { getWorkerPath, poolFactory } from '../utils/worker'
 const OUT = process.env.OUT!
 const APPS_PATH = '../data/sample_apps'
 const APPS_TO_SEARCH_LIMIT = 100
+const SECTIONS = 10
 const FIN_SEARCH_APPS_PATH = join(APPS_PATH, FINISHED_SEARCH_FILE)
 const FOUND_LIBS = join(OUT, FOUND_LIBS_FILE)
 const FOUND_LIBS_TOTALS = join(APPS_PATH, FOUND_LIBS_TOTALS_FILE)
@@ -37,17 +41,33 @@ export type foundMentionsMap = {
     npmLibs: npmLibs[]
   }
 }
+export type foundRegexMentionsMap = {
+  [path: string]: {
+    file: analysisFile
+    regexLibs: regexLibs[]
+  }
+}
+export type foundNpmMentionsMap = {
+  [path: string]: {
+    file: analysisFile
+    npmLibs: npmLibs[]
+  }
+}
 export type messages = The<
   MessagesMap,
   {
-    findLibMentions: [[{ APPS_PATH: string; app: appDesc }], foundMentionsMap | false]
+    findRegexMentions: [[{ APPS_PATH: string; app: appDesc }], foundRegexMentionsMap | false]
+    findNpmMentions: [
+      [{ APPS_PATH: string; app: appDesc; section: number; SECTIONS: number }],
+      foundNpmMentionsMap | false
+    ]
   }
 >
 
 const log = logger.child({ name: 'find-lib-mentions' })
 let terminating = false
 
-type searchEl = appDesc & { found: messages['findLibMentions'][1] }
+type searchEl = appDesc & { found: foundMentionsMap | false }
 const addFinishedApps = (apps: appDesc[], els: searchEl[]): appDesc[] => {
   return apps
     .concat(
@@ -97,11 +117,7 @@ const mapToArr = ({ reg, npm }: totals): totalsArr => {
 }
 
 export async function main() {
-  const pool = poolFactory<messages>(await getWorkerPath(__filename), {
-    forkOpts: {
-      execArgv: process.execArgv.concat(['--max-old-space-size=8192']),
-    },
-  })
+  const pool = poolFactory<messages>(await getWorkerPath(__filename))
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
   const apps = await getApps(APPS_PATH)
@@ -131,16 +147,33 @@ export async function main() {
   }
 
   const searchPromises = todo.map((app) => async (): Promise<searchEl> => {
-    return {
-      ...app,
-      found: terminating
-        ? false
-        : ((await (pool.exec('findLibMentions', [
-            { app, APPS_PATH },
-          ]) /* returned promise is extended with .cancel() and .timeout() fns */ as any).timeout(
-            60 * 60 * 1000,
-          )) as messages['findLibMentions'][1]),
+    if (terminating) {
+      return { ...app, found: false }
     }
+
+    const findRegexPromise = pool.exec('findRegexMentions', [{ app, APPS_PATH }])
+    const findNpmPromises = range(0, SECTIONS).map((s) =>
+      pool.exec('findNpmMentions', [{ app, APPS_PATH, section: s, SECTIONS }]),
+    )
+
+    const promises = ([] as Promise<any>[]).concat(findRegexPromise).concat(findNpmPromises)
+
+    const result = (await Promise.all(promises)) as (
+      | foundRegexMentionsMap
+      | foundNpmMentionsMap
+      | false)[]
+
+    const merged: foundMentionsMap = mergeAllWith(
+      (objValue, srcValue) =>
+        Array.isArray(objValue) ? uniqBy(isEqual, objValue.concat(srcValue)) : undefined,
+      result,
+    )
+
+    const p = appPath(join(OUT, 'apps'), app.type, app.section, app.app)
+    await mkdirp(p)
+    await myWriteJSON({ file: join(p, 'found.json'), content: merged })
+
+    return { ...app, found: Object.keys(merged).length === 0 ? false : merged }
   })
 
   let allSearchResults = [] as searchEl[]
