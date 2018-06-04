@@ -21,7 +21,7 @@ import { getWorkerPath, poolFactory } from '../utils/worker'
 const OUT = process.env.OUT!
 const APPS_PATH = '../data/sample_apps'
 const APPS_TO_SEARCH_LIMIT = 100
-const SECTIONS = 10
+const SECTIONS = 50
 const FIN_SEARCH_APPS_PATH = join(APPS_PATH, FINISHED_SEARCH_FILE)
 
 export type regexLibs = [string, { count: number; versions: string[] }]
