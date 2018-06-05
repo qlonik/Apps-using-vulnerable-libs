@@ -12,7 +12,8 @@ import {
 } from './find-lib-mentions'
 
 const NV_REG = /([\w-]+)\s+(?:@?version\s+)?(v?\d+\.\d+\.\d+)/g
-const NPM_LIBS_PATH = '../data/logs/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
+const NPM_LIBS_PATH =
+  '../data/logs/__local.npm-db-dump/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
 
 const getSectionRange = (total: number, section: number, sections: number) => {
   const sectionSize = Math.ceil(total / sections)
