@@ -2,20 +2,20 @@ import { SinonStub, stub } from 'sinon'
 import { contextualize } from '../_helpers/testContext'
 import { Signal, visitNodes } from './visitNodes'
 
-const objectWithPropertySpy = <T>(
-  key: string,
-  value: T,
+const objectWithPropertySpy = <K extends string, V>(
+  key: K,
+  value: V,
 ): {
   getSpy: SinonStub
   setSpy: SinonStub
-  obj: { prop: T }
+  obj: { [S in K]: V }
 } => {
   let valStorage = value
 
   const getSpy = stub().callsFake(() => {
     return valStorage
   })
-  const setSpy = stub().callsFake((newValue: T) => {
+  const setSpy = stub().callsFake((newValue: V) => {
     valStorage = newValue
   })
   const obj = Object.defineProperty({}, key, {
