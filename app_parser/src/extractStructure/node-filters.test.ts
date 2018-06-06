@@ -2,12 +2,19 @@ import { test } from 'ava'
 import { isFunction } from 'babel-types'
 import { parse } from 'babylon'
 import { oneLineTrim, stripIndent, source } from 'common-tags'
-import { fnOnlyTreeCreator, literalValues, rnDeclareFns } from './index'
+import {
+  collapseFnNamesTree,
+  extractStructure,
+  fnNamesConcat,
+  fnOnlyTreeCreator,
+  literalValues,
+  rnDeclareFns,
+} from './index'
 import { Signature } from './nodeFilters/allFnsAndNames'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
 import { TreePath } from './visitNodes'
 
-test('fn filtered correctly', t => {
+test('fn filtered correctly', async t => {
   const fnB1 = stripIndent`
     function fn1() {
       var c = '1';
@@ -130,8 +137,59 @@ test('fn filtered correctly', t => {
       },
     },
   ]
+  const collapsed: Signature[] = [
+    {
+      index: 0,
+      type: 'fn',
+      name: 'b',
+      loc: {
+        start: { line: 2, column: 8 },
+        end: { line: 10, column: 1 },
+      },
+      fnStatementTypes: fnB_types.sort(),
+      fnStatementTokens: fnB_toks.sort(),
+    },
+    {
+      index: 1,
+      type: 'fn',
+      name: ['b', 'fn1'].reduce(fnNamesConcat),
+      loc: {
+        start: { line: 3, column: 2 },
+        end: { line: 6, column: 3 },
+      },
+      fnStatementTypes: fnB1_types.sort(),
+      fnStatementTokens: fnB1_toks.sort(),
+    },
+    {
+      index: 2,
+      type: 'fn',
+      name: ['b', 'fn2'].reduce(fnNamesConcat),
+      loc: {
+        start: { line: 7, column: 3 },
+        end: { line: 9, column: 3 },
+      },
+      fnStatementTypes: fnB2_types.sort(),
+      fnStatementTokens: fnB2_toks.sort(),
+    },
+    {
+      index: 3,
+      type: 'fn',
+      name: 'fn3',
+      loc: {
+        start: { line: 11, column: 8 },
+        end: { line: 13, column: 1 },
+      },
+      fnStatementTypes: fnD_types.sort(),
+      fnStatementTokens: fnD_toks.sort(),
+    },
+  ]
 
-  t.deepEqual(expected, fnOnlyTreeCreator(parse(code)))
+  const tree = fnOnlyTreeCreator(parse(code))
+
+  t.deepEqual(expected, tree)
+  t.deepEqual(collapsed, collapseFnNamesTree(tree))
+  t.deepEqual(collapsed, collapseFnNamesTree(expected))
+  t.deepEqual(collapsed, (await extractStructure({ content: code })).functionSignature)
 })
 
 test('react-native: bundle filtered correctly', t => {

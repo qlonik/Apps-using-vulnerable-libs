@@ -29,7 +29,7 @@ export const fnOnlyTreeCreator = visitNodes<FunctionSignature>({ fn: fnNodeFilte
 export const rnDeclareFns = visitNodes({ fn: rnDeclareFnFilter })
 export const literalValues = visitNodes({ fn: literalValuesFilter })
 
-const collapseFnNamesTree = (
+export const collapseFnNamesTree = (
   tree: TreePath<FunctionSignature>[],
   fnNameSoFar: string = '',
 ): FunctionSignature[] => {
