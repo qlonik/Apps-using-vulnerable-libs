@@ -1,5 +1,4 @@
 import {
-  Function as BabelFunction,
   Identifier,
   isArrowFunctionExpression,
   isAssignmentExpression,
@@ -26,9 +25,10 @@ import {
 import { stripIndent } from 'common-tags'
 import { inspect as utilInspect } from 'util'
 import { stdoutLog } from '../../utils/logger'
-import { getFnStatementTokens } from '../fn-statement-tokens'
+import { EXTRACTOR_VERSION, getFnStatementTokens } from '../fn-statement-tokens'
 import { getFnStatementTypes } from '../fnStatementTypes'
 import { Signal } from '../visitNodes'
+import { opts } from '../index'
 
 const log = stdoutLog('extractStructure:nodeFilters:allFnsAndNames')
 
@@ -87,7 +87,11 @@ const extractNodeLocation = (loc: SourceLocation): SourceLocation => {
   }
 }
 
-export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> => {
+export const fnNodeFilter = (
+  path: string,
+  node: BabelNode,
+  { 'extractor-version': extrVersion = EXTRACTOR_VERSION.v1 }: opts = {},
+): Signal<Signature> => {
   if (node && (<any>node).__skip) {
     return Signal.continue<Signature>(null)
   }
@@ -99,7 +103,7 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
       name: (node.id && node.id.name) || '[anonymous]',
       loc: extractNodeLocation(node.loc),
       fnStatementTypes: getFnStatementTypes(node),
-      fnStatementTokens: getFnStatementTokens(node),
+      fnStatementTokens: getFnStatementTokens({ v: extrVersion })(node),
     })
   } else if (
     isVariableDeclarator(node) ||
@@ -196,7 +200,7 @@ export const fnNodeFilter = (path: string, node: BabelNode): Signal<Signature> =
         name,
         loc: extractNodeLocation(fnNode.loc),
         fnStatementTypes: getFnStatementTypes(fnNode),
-        fnStatementTokens: getFnStatementTokens(fnNode as BabelFunction),
+        fnStatementTokens: getFnStatementTokens({ v: extrVersion })(fnNode),
       })
     }
   }

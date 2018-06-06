@@ -2,6 +2,7 @@ import { Comment as BabelComment, CommentBlock, CommentLine, Node as BabelNode }
 import { parse } from 'babylon'
 import { flatMap, Many } from 'lodash'
 import { stdoutLog } from '../utils/logger'
+import { EXTRACTOR_VERSION } from './fn-statement-tokens'
 import { fnNodeFilter, Signature } from './nodeFilters/allFnsAndNames'
 import {
   collapseLiteralValsTree,
@@ -74,9 +75,18 @@ const mapBabelComments = (
     : comment.value
 }
 
-const _extractStructure = function({ content }: { content: BabelNode }): signatureNew {
-  const functionSignature = collapseFnNamesTree(fnOnlyTreeCreator(content))
-  const literalSignature = collapseLiteralValsTree(literalValues(content))
+export type opts = {
+  'extractor-version'?: EXTRACTOR_VERSION
+}
+const _extractStructure = function({
+  content,
+  opts = {},
+}: {
+  content: BabelNode
+  opts?: opts
+}): signatureNew {
+  const functionSignature = collapseFnNamesTree(fnOnlyTreeCreator(content, opts))
+  const literalSignature = collapseLiteralValsTree(literalValues(content, opts))
 
   return { functionSignature, literalSignature }
 }
@@ -86,24 +96,28 @@ const _extractStructure = function({ content }: { content: BabelNode }): signatu
  */
 export const extractStructure = async function({
   content,
+  opts = {},
 }: {
   content: string
+  opts?: opts
 }): Promise<signatureWithComments> {
   const { program, comments } = parse(content)
-  const signature = _extractStructure({ content: program })
+  const signature = _extractStructure({ content: program, opts })
 
   return { ...signature, comments: comments.map(mapBabelComments) }
 }
 
 export const extractReactNativeStructure = async function({
   content,
+  opts = {},
 }: {
   content: string
+  opts?: opts
 }): Promise<rnSignatureNew[]> {
   const { program } = parse(content)
   return rnDeclareFns(program).map(({ data }) => {
     const { id, factory } = data
-    const structure = _extractStructure({ content: factory })
+    const structure = _extractStructure({ content: factory, opts })
     return { id, ...structure }
   })
 }

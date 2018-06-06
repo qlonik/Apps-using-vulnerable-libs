@@ -1,6 +1,7 @@
 import { Node as BabelNode } from 'babel-types'
 import { flatMap } from 'lodash'
 import { assertNever } from '../utils'
+import { opts } from './'
 
 /**
  * @param prop - property name
@@ -52,10 +53,17 @@ const pathConcat = (p: string, c: string | number): string => {
 
 export const visitNodes = <K>({
   fn = undefined,
+  opts: globOpts = {},
 }: {
-  fn?: (path: string, val: any) => Signal<K>
+  fn?: (path: string, val: any, opts: {}) => Signal<K>
+  opts?: opts
 } = {}) => {
-  return function paths(obj: object | Array<any>, pathSoFar: string = ''): TreePath<K>[] {
+  return function paths(
+    obj: object | Array<any>,
+    localOpts: opts = {},
+    pathSoFar: string = '',
+  ): TreePath<K>[] {
+    const opts = { ...globOpts, ...localOpts }
     let entries: Array<[string | number, any]> = []
     if (Array.isArray(obj)) {
       entries = [...obj.entries()]
@@ -66,12 +74,12 @@ export const visitNodes = <K>({
     return flatMap(entries, ([key, value]: [string | number, any]) => {
       const childPath = pathConcat(pathSoFar, key)
       const { data = null, signal = Signals.preventRecursion } =
-        typeof fn === 'function' ? fn(childPath, value) : {}
+        typeof fn === 'function' ? fn(childPath, value, opts) : {}
       let children = null
 
       if (signal === Signals.continueRecursion) {
         if (value && typeof value === 'object') {
-          const ch = paths(value, childPath)
+          const ch = paths(value, localOpts, childPath)
           if (ch.length > 0) {
             children = ch
           }
