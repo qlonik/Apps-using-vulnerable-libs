@@ -1,6 +1,36 @@
-import { objectWithPropertySpy } from '../_helpers/objectWithPropertySpy'
+import { SinonStub, stub } from 'sinon'
 import { contextualize } from '../_helpers/testContext'
 import { Signal, visitNodes } from './visitNodes'
+
+const objectWithPropertySpy = <T>(
+  key: string,
+  value: T,
+): {
+  getSpy: SinonStub
+  setSpy: SinonStub
+  obj: { prop: T }
+} => {
+  let valStorage = value
+
+  const getSpy = stub().callsFake(() => {
+    return valStorage
+  })
+  const setSpy = stub().callsFake((newValue: T) => {
+    valStorage = newValue
+  })
+  const obj = Object.defineProperty({}, key, {
+    configurable: true,
+    enumerable: true,
+    set: setSpy,
+    get: getSpy,
+  })
+
+  return {
+    getSpy,
+    setSpy,
+    obj,
+  }
+}
 
 const test = contextualize(() => {
   const prop = 'prop'
