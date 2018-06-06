@@ -10,7 +10,7 @@ import {
   SignatureLiteral,
 } from './nodeFilters/literalValues'
 import { rnDeclareFnFilter } from './nodeFilters/rnDeclareFn'
-import { TreePath, visitNodes } from './visitNodes'
+import { TreePath, visitNodes } from './visit-nodes'
 
 const CONCAT_FNS_WITH = ':>>:'
 const NAMESPACE = 'x.Struct'

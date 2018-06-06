@@ -13,7 +13,7 @@ import {
 } from './index'
 import { Signature } from './nodeFilters/allFnsAndNames'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
-import { TreePath } from './visitNodes'
+import { TreePath } from './visit-nodes'
 
 test('fn filtered correctly', async t => {
   const fnB1 = stripIndent`

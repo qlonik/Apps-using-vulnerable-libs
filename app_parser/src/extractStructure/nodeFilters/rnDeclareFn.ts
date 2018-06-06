@@ -9,7 +9,7 @@ import {
   Node as BabelNode,
 } from 'babel-types'
 import { stdoutLog } from '../../utils/logger'
-import { Signal } from '../visitNodes'
+import { Signal } from '../visit-nodes'
 
 const log = stdoutLog('extractStructure:nodeFilters:rnDeclareFn')
 

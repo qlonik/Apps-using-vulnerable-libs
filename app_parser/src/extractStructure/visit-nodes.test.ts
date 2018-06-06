@@ -1,6 +1,6 @@
 import { SinonStub, stub } from 'sinon'
 import { contextualize } from '../_helpers/testContext'
-import { Signal, visitNodes } from './visitNodes'
+import { Signal, visitNodes } from './visit-nodes'
 
 const objectWithPropertySpy = <K extends string, V>(
   key: K,

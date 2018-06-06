@@ -27,7 +27,7 @@ import { inspect as utilInspect } from 'util'
 import { stdoutLog } from '../../utils/logger'
 import { EXTRACTOR_VERSION, getFnStatementTokens } from '../fn-statement-tokens'
 import { getFnStatementTypes } from '../fnStatementTypes'
-import { Signal } from '../visitNodes'
+import { Signal } from '../visit-nodes'
 import { opts } from '../index'
 
 const log = stdoutLog('extractStructure:nodeFilters:allFnsAndNames')
