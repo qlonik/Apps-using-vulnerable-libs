@@ -44,21 +44,16 @@ test(
   }),
 )
 
-test('produces 0% match when comparing empty signatures', t => {
-  t.deepEqual({ val: 0, num: 0, den: 0 }, librarySimilarityByFunctionStatementTypes([], []))
+test('produces 100% match when comparing empty signatures', t => {
+  t.deepEqual({ val: 1, num: 0, den: 0 }, librarySimilarityByFunctionStatementTypes([], []))
 })
 
 test(
-  'produces expected match value when comparing same signatures',
+  'produces 100% match when comparing same signatures',
   check(arbFunctionSignatureArr, (t, a) => {
     const { val, num, den } = librarySimilarityByFunctionStatementTypes(a, a)
 
-    const nonEmpty = a.filter(({ fnStatementTypes: t }) => t.length > 0)
-    const expNum = nonEmpty.length
-    const expDen = 2 * a.length - expNum
-
-    t.is(expNum / expDen, val)
-    t.is(expNum, num)
-    t.is(expDen, den)
+    t.is(1, val)
+    t.is(num, den)
   }),
 )
