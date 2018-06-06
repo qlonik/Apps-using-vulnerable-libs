@@ -2,6 +2,7 @@ import { test } from 'ava'
 import { isFunction } from 'babel-types'
 import { parse } from 'babylon'
 import { oneLineTrim, stripIndent, source } from 'common-tags'
+import { EXTRACTOR_VERSION } from './fn-statement-tokens'
 import {
   collapseFnNamesTree,
   extractStructure,
@@ -190,6 +191,192 @@ test('fn filtered correctly', async t => {
   t.deepEqual(collapsed, collapseFnNamesTree(tree))
   t.deepEqual(collapsed, collapseFnNamesTree(expected))
   t.deepEqual(collapsed, (await extractStructure({ content: code })).functionSignature)
+})
+
+test('fn filtered correctly with v2 extractor', async t => {
+  const fnB1 = stripIndent`
+    function fn1() {
+      var c = '1';
+      return c;
+    }
+  `
+  const fnB1_toks = [
+    `${DECLARATION}:Variable[${PARAM}:Identifier[c] = ${LITERAL}:String]`,
+    `${STATEMENT}:Return[${EXPRESSION}:Identifier[c]]`,
+  ]
+  const fnB1_types = [`t_${STATEMENT}:VariableDeclaration`, `t_${STATEMENT}:ReturnStatement`]
+
+  const fnB2 = stripIndent`
+    function fn2(param) {
+      return param + '2';
+    }
+  `
+  const fnB2_toks = [
+    oneLineTrim`
+      ${STATEMENT}:Return[
+        ${EXPRESSION}:Binary[${EXPRESSION}:Identifier[param] + ${LITERAL}:String]
+      ]
+    `,
+  ]
+  const fnB2_types = [`t_${PARAM}:Identifier`, `t_${STATEMENT}:ReturnStatement`]
+
+  const fnB = source`
+    function () {
+      ${fnB1}
+      ${'(' + fnB2 + ')(a);'}
+    }
+  `
+  const fnB_toks = [
+    `${DECLARATION}:Function[${EXPRESSION}:Identifier[fn1]]`,
+    oneLineTrim`
+      ${EXPRESSION}:Call[
+        ${EXPRESSION}:Function[${EXPRESSION}:Identifier[fn2]](${EXPRESSION}:Identifier[a])
+      ]
+    `,
+  ]
+  const fnB_types = [`t_${STATEMENT}:FunctionDeclaration`, `t_${STATEMENT}:ExpressionStatement`]
+
+  const fnD = stripIndent`
+    function fn3() {
+      return 1 + 2 + 3;
+    }
+  `
+  const fnD_toks = [
+    oneLineTrim`
+      ${STATEMENT}:Return[
+        ${EXPRESSION}:Binary[
+          ${EXPRESSION}:Binary[
+            ${LITERAL}:Numeric + ${LITERAL}:Numeric
+          ] + ${LITERAL}:Numeric
+        ]
+      ]
+    `,
+  ]
+  const fnD_types = [`t_${STATEMENT}:ReturnStatement`]
+
+  const code = source`
+      var a = '1';
+      ${`var b = ${fnB};`}
+      ${`var d = ${fnD};`}
+    `
+  const expected: TreePath<Signature>[] = [
+    {
+      prop: 'program.body[1].declarations[0]',
+      data: {
+        index: -1,
+        type: 'fn',
+        name: 'b',
+        loc: {
+          start: { line: 2, column: 8 },
+          end: { line: 10, column: 1 },
+        },
+        fnStatementTypes: fnB_types.sort(),
+        fnStatementTokens: fnB_toks.sort(),
+      },
+      c: [
+        {
+          prop: 'program.body[1].declarations[0].init.body.body[0]',
+          data: {
+            index: -1,
+            type: 'fn',
+            name: 'fn1',
+            loc: {
+              start: { line: 3, column: 2 },
+              end: { line: 6, column: 3 },
+            },
+            fnStatementTypes: fnB1_types.sort(),
+            fnStatementTokens: fnB1_toks.sort(),
+          },
+        },
+        {
+          prop: 'program.body[1].declarations[0].init.body.body[1].expression.callee',
+          data: {
+            index: -1,
+            type: 'fn',
+            name: 'fn2',
+            loc: {
+              start: { line: 7, column: 3 },
+              end: { line: 9, column: 3 },
+            },
+            fnStatementTypes: fnB2_types.sort(),
+            fnStatementTokens: fnB2_toks.sort(),
+          },
+        },
+      ],
+    },
+    {
+      prop: 'program.body[2].declarations[0]',
+      data: {
+        index: -1,
+        type: 'fn',
+        name: 'fn3',
+        loc: {
+          start: { line: 11, column: 8 },
+          end: { line: 13, column: 1 },
+        },
+        fnStatementTypes: fnD_types.sort(),
+        fnStatementTokens: fnD_toks.sort(),
+      },
+    },
+  ]
+  const collapsed: Signature[] = [
+    {
+      index: 0,
+      type: 'fn',
+      name: 'b',
+      loc: {
+        start: { line: 2, column: 8 },
+        end: { line: 10, column: 1 },
+      },
+      fnStatementTypes: fnB_types.sort(),
+      fnStatementTokens: fnB_toks.sort(),
+    },
+    {
+      index: 1,
+      type: 'fn',
+      name: ['b', 'fn1'].reduce(fnNamesConcat),
+      loc: {
+        start: { line: 3, column: 2 },
+        end: { line: 6, column: 3 },
+      },
+      fnStatementTypes: fnB1_types.sort(),
+      fnStatementTokens: fnB1_toks.sort(),
+    },
+    {
+      index: 2,
+      type: 'fn',
+      name: ['b', 'fn2'].reduce(fnNamesConcat),
+      loc: {
+        start: { line: 7, column: 3 },
+        end: { line: 9, column: 3 },
+      },
+      fnStatementTypes: fnB2_types.sort(),
+      fnStatementTokens: fnB2_toks.sort(),
+    },
+    {
+      index: 3,
+      type: 'fn',
+      name: 'fn3',
+      loc: {
+        start: { line: 11, column: 8 },
+        end: { line: 13, column: 1 },
+      },
+      fnStatementTypes: fnD_types.sort(),
+      fnStatementTokens: fnD_toks.sort(),
+    },
+  ]
+
+  const parsed = parse(code)
+  const tree = fnOnlyTreeCreator(parsed, { 'extractor-version': EXTRACTOR_VERSION.v2 })
+
+  t.deepEqual(expected, tree)
+  t.deepEqual(collapsed, collapseFnNamesTree(tree))
+  t.deepEqual(collapsed, collapseFnNamesTree(expected))
+  t.deepEqual(
+    collapsed,
+    (await extractStructure({ content: code, opts: { 'extractor-version': EXTRACTOR_VERSION.v2 } }))
+      .functionSignature,
+  )
 })
 
 test('react-native: bundle filtered correctly', t => {
