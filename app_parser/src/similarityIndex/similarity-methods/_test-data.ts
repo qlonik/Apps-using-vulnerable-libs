@@ -1,4 +1,6 @@
+import { Fraction } from 'fraction.js'
 import { FunctionSignature } from '../../extractStructure'
+import { FractionToIndexValue } from '../fraction'
 import { jaccardLike } from '../set'
 
 export const UNKNOWN_SIG: FunctionSignature[] = [
@@ -121,3 +123,10 @@ export const EXPECTED_MAPPING = new Map([
   [4, { index: 5, prob: { val: 2 / 7, num: 2, den: 7 } }],
   [5, { index: 4, prob: { val: 4 / 9, num: 4, den: 9 } }],
 ])
+
+export const EXPECTED_SIMILARITY_WITH_MAP_QUALITY = FractionToIndexValue(
+  [...EXPECTED_MAPPING.values()]
+    .reduce((acc, { prob: { num, den } }) => acc.add(num, den), new Fraction(0))
+    .div(EXPECTED_MAPPING.size)
+    .mul(EXPECTED_SIMILARITY.num, EXPECTED_SIMILARITY.den),
+)
