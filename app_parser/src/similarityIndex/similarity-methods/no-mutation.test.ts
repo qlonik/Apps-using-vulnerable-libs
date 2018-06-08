@@ -1,5 +1,7 @@
-import { Macro, test } from 'ava'
+import { test } from 'ava'
 import { cloneDeep } from 'lodash'
+import { arbSignatureWithCommentsPair } from '../../_helpers/arbitraries'
+import { check } from '../../_helpers/property-test'
 import {
   librarySimilarityByFunctionNames,
   librarySimilarityByFunctionNamesAndStatementTokens,
@@ -9,22 +11,28 @@ import {
   librarySimilarityByFunctionStatementTypes,
   librarySimilarityByLiteralValues,
 } from './index'
-import { LIB_SIG, UNKNOWN_SIG } from './_test-data'
 
-const noDataMutation: Macro = (t, fn) => {
-  const unknwn = cloneDeep(UNKNOWN_SIG)
-  const lib = cloneDeep(LIB_SIG)
+const tests: [string, (a: any, b: any) => any][] = [
+  ['FnStTokens_v1', librarySimilarityByFunctionStatementTokens_v1],
+  ['FnStTokens_v2', librarySimilarityByFunctionStatementTokens_v2],
+  ['FnStTokens_v3', librarySimilarityByFunctionStatementTokens_v3],
+  ['FnStTypes', librarySimilarityByFunctionStatementTypes],
+  ['FnNames', librarySimilarityByFunctionNames],
+  ['FnNamesAndStTokens', librarySimilarityByFunctionNamesAndStatementTokens],
+  ['LitVals', librarySimilarityByLiteralValues],
+]
 
-  fn(unknwn, lib)
+for (let [name, fn] of tests) {
+  test(
+    name,
+    check(arbSignatureWithCommentsPair, (t, [a, b]) => {
+      const aCopy = cloneDeep(a)
+      const bCopy = cloneDeep(b)
 
-  t.deepEqual(UNKNOWN_SIG, unknwn)
-  t.deepEqual(LIB_SIG, lib)
+      fn(aCopy, bCopy)
+
+      t.deepEqual(a, aCopy)
+      t.deepEqual(b, bCopy)
+    }),
+  )
 }
-
-test('FnStTokens_v1', noDataMutation, librarySimilarityByFunctionStatementTokens_v1)
-test('FnStTokens_v2', noDataMutation, librarySimilarityByFunctionStatementTokens_v2)
-test('FnStTokens_v3', noDataMutation, librarySimilarityByFunctionStatementTokens_v3)
-test('FnStTypes', noDataMutation, librarySimilarityByFunctionStatementTypes)
-test('FnNames', noDataMutation, librarySimilarityByFunctionNames)
-test('FnNamesAndStTokens', noDataMutation, librarySimilarityByFunctionNamesAndStatementTokens)
-test('LitVals', noDataMutation, librarySimilarityByLiteralValues)
