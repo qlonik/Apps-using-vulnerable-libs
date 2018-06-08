@@ -7,6 +7,8 @@ import {
   fnNamesSplit,
   FunctionSignature,
   LiteralSignature,
+  signatureNew,
+  signatureWithComments,
 } from '../extractStructure'
 import { divByZeroAware, indexValue } from '../similarityIndex/set'
 import { DefiniteMap, probIndex } from '../similarityIndex/similarity-methods/types'
@@ -100,3 +102,39 @@ export const arbCommentSignature = arb
   )
 export const arbCommentSignatureArr = arb.nearray(arbCommentSignature)
 export const arbCommentSignatureArrPair = arraysPair(arbCommentSignature)
+
+export const arbSignature = arb.record<signatureNew>({
+  functionSignature: arb.array(arbFunctionSignature),
+  literalSignature: arb.array(arbLiteralSignature),
+})
+export const arbSignaturePair = arb
+  .pair(arbFunctionSignatureArrPair, arbLiteralSignatureArrPair)
+  .smap<[signatureNew, signatureNew]>(
+    ([fnP, litP]) => [
+      { functionSignature: fnP[0], literalSignature: litP[0] },
+      { functionSignature: fnP[1], literalSignature: litP[1] },
+    ],
+    ([a, b]) => [
+      [a.functionSignature, b.functionSignature],
+      [a.literalSignature, b.literalSignature],
+    ],
+  )
+
+export const arbSignatureWithComments = arb.record<signatureWithComments>({
+  functionSignature: arb.array(arbFunctionSignature),
+  literalSignature: arb.array(arbLiteralSignature),
+  comments: arb.array(arbCommentSignature),
+})
+export const arbSignatureWithCommentsPair = arb
+  .tuple([arbFunctionSignatureArrPair, arbLiteralSignatureArrPair, arbCommentSignatureArrPair])
+  .smap<[signatureWithComments, signatureWithComments]>(
+    ([fn, lit, com]) => [
+      { functionSignature: fn[0], literalSignature: lit[0], comments: com[0] },
+      { functionSignature: fn[1], literalSignature: lit[1], comments: com[1] },
+    ],
+    ([a, b]) => [
+      [a.functionSignature, b.functionSignature],
+      [a.literalSignature, b.literalSignature],
+      [a.comments, b.comments],
+    ],
+  )
