@@ -1,4 +1,6 @@
 import { curry, findIndex, isEqual } from 'lodash'
+import { Fraction } from 'fraction.js'
+import { IndexValueToFraction } from './fraction'
 import {
   DefiniteMap,
   probIndex,
@@ -113,6 +115,15 @@ export const jaccardLikeWithMapping = <T>(
  */
 export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): indexValue => {
   return jaccardLikeWithMapping(a, b).similarity
+}
+
+export const weightedMapIndex = (map: DefiniteMap<number, probIndex>): Fraction => {
+  const num = [...map.values()].reduce(
+    (acc: Fraction, { prob }) => acc.add(IndexValueToFraction(prob)),
+    new Fraction(0),
+  )
+
+  return map.size === 0 ? new Fraction(divByZeroAware(num.valueOf(), map.size)) : num.div(map.size)
 }
 
 export const invertMap = (a: Map<number, number>): Map<number, number> => {
