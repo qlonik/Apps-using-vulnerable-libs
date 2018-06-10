@@ -116,3 +116,13 @@ test(
     t.deepEqual(map_xy, invertMapWithConfidence(map_yx))
   }),
 )
+
+test(
+  'v5 is commutative',
+  check({ size: 1_000_000 }, arbFunctionSignatureArrPair, (t, [x, y]) => {
+    const { similarity: sim_xy, mapping: map_xy } = v5(x, y)
+    const { similarity: sim_yx, mapping: map_yx } = v5(y, x)
+    t.deepEqual(sim_xy, sim_yx)
+    t.deepEqual(map_xy, invertMapWithConfidence(map_yx))
+  }),
+)
