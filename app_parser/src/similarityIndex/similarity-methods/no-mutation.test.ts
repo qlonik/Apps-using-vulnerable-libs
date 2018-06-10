@@ -9,6 +9,7 @@ import {
   librarySimilarityByFunctionStatementTokens_v2,
   librarySimilarityByFunctionStatementTokens_v3,
   librarySimilarityByFunctionStatementTokens_v4,
+  librarySimilarityByFunctionStatementTokens_v5,
   librarySimilarityByFunctionStatementTypes,
   librarySimilarityByLiteralValues,
 } from './index'
@@ -18,6 +19,7 @@ const tests: [string, (a: any, b: any) => any][] = [
   ['FnStTokens_v2', librarySimilarityByFunctionStatementTokens_v2],
   ['FnStTokens_v3', librarySimilarityByFunctionStatementTokens_v3],
   ['FnStTokens_v4', librarySimilarityByFunctionStatementTokens_v4],
+  ['FnStTokens_v5', librarySimilarityByFunctionStatementTokens_v5],
   ['FnStTypes', librarySimilarityByFunctionStatementTypes],
   ['FnNames', librarySimilarityByFunctionNames],
   ['FnNamesAndStTokens', librarySimilarityByFunctionNamesAndStatementTokens],

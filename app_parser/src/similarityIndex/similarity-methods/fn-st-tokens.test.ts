@@ -9,8 +9,10 @@ import {
   LIB_SIG,
   UNKNOWN_SIG,
   EXPECTED_SIMILARITY_WITH_MAP_QUALITY,
+  EXPECTED_MAPPING_FOR_EXACT_MATCHES,
+  EXPECTED_SIMILARITY_FOR_EXACT_MATCHES,
 } from './_test-data'
-import { v1, v2, v3, v4 } from './fn-st-tokens'
+import { v1, v2, v3, v4, v5 } from './fn-st-tokens'
 
 test('v1', t => {
   const { mapping, similarity } = v1(cloneDeep(UNKNOWN_SIG), cloneDeep(LIB_SIG))
@@ -190,6 +192,51 @@ test(
   'v4: produces 100% match when comparing same signatures',
   check({ tests: 250 }, arbFunctionSignatureArr, (t, a) => {
     const { similarity: { val, num, den }, mapping } = v4(a, a)
+
+    t.is(1, val)
+    t.is(num, den)
+    t.is(a.length, mapping.size)
+    for (let [from, { index: to, prob: { val, num, den } }] of mapping) {
+      t.is(from, to)
+      t.is(1, val)
+      t.is(num, den)
+    }
+  }),
+)
+
+test('v5', t => {
+  const { mapping, similarity } = v5(cloneDeep(UNKNOWN_SIG), cloneDeep(LIB_SIG))
+  t.deepEqual(EXPECTED_SIMILARITY_FOR_EXACT_MATCHES, similarity)
+  t.deepEqual(EXPECTED_MAPPING_FOR_EXACT_MATCHES, mapping)
+})
+
+test(
+  'v5: calling with array === calling with object',
+  check(arbFunctionSignatureArrPair, (t, [u, l]) => {
+    t.deepEqual(v5(u, l), v5({ functionSignature: u }, { functionSignature: l }))
+  }),
+)
+
+test(
+  'v5: produces 0% match when comparing with empty signature',
+  check(arbFunctionSignatureArr, (t, a) => {
+    const { similarity, mapping } = v5(a, [])
+
+    t.is(0, similarity.val)
+    t.is(0, similarity.num)
+    t.not(0, similarity.den)
+    t.deepEqual(new Map(), mapping)
+  }),
+)
+
+test('v5: produces 100% match when comparing empty signatures', t => {
+  t.deepEqual({ similarity: { val: 1, num: 0, den: 0 }, mapping: new Map() }, v5([], []))
+})
+
+test(
+  'v5: produces 100% match when comparing same signatures',
+  check({ tests: 250 }, arbFunctionSignatureArr, (t, a) => {
+    const { similarity: { val, num, den }, mapping } = v5(a, a)
 
     t.is(1, val)
     t.is(num, den)

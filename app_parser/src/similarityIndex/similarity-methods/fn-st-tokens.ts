@@ -291,3 +291,61 @@ export function v4<T extends FunctionSignature[] | FunctionSignatures>(
 
   return { similarity: sim, mapping: map }
 }
+
+/**
+ * This function calculates similarity index in the same way as {@link v2}.
+ * However, it only uses functions which got matched to other functions with jaccard index =1.
+ */
+export function v5<T extends FunctionSignature[] | FunctionSignatures>(
+  unknownS: T,
+  libS: T,
+): SimMapWithConfidence {
+  let unknown: FunctionSignature[]
+  let lib: FunctionSignature[]
+  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
+    unknown = unknownS.functionSignature
+    lib = libS.functionSignature
+  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
+    unknown = unknownS
+    lib = libS
+  } else {
+    throw new TypeError(typeErrorMsg)
+  }
+
+  const { map: mapArr } = lib.reduce(
+    ({ map, unkwn }, { fnStatementTokens: libToks }, libIndex) => {
+      const topMatch = unkwn
+        .reduce((sll, { i, el: { fnStatementTokens: unknownToks } }) => {
+          return sll.push({ index: i, prob: jaccardLike(unknownToks, libToks) })
+        }, new SortedLimitedList({ limit: 1, predicate: (o: probIndex) => -o.prob.val }))
+        .value()
+        .shift()
+
+      if (topMatch && topMatch.prob.val === 1) {
+        const { index: unknownIndex, prob } = topMatch
+        return {
+          map: map.concat([[unknownIndex, libIndex, prob]]),
+          unkwn: unkwn.filter(({ i }) => i !== unknownIndex),
+        }
+      }
+
+      return { map, unkwn }
+    },
+    {
+      map: [] as [number, number, indexValue][],
+      unkwn: unknown.map((el, i) => ({ el, i })),
+    },
+  )
+
+  const map = sortBy(mapArr, ([key]) => key).reduce(
+    (acc, [i, index, prob]) => acc.set(i, { index, prob }),
+    new Map() as DefiniteMap<number, probIndex>,
+  )
+
+  const libFnIndexes = lib.map((_, i) => i)
+  const possibleUnknownFnIndexes = unknown.map((_, i) => (map.has(i) ? map.get(i).index : -1))
+
+  const sim = jaccardLike(possibleUnknownFnIndexes, libFnIndexes)
+
+  return { similarity: sim, mapping: map }
+}

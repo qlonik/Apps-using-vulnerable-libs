@@ -2,6 +2,7 @@ import { Fraction } from 'fraction.js'
 import { FunctionSignature } from '../../extractStructure'
 import { FractionToIndexValue } from '../fraction'
 import { jaccardLike } from '../set'
+import { DefiniteMap, probIndex } from './types'
 
 export const UNKNOWN_SIG: FunctionSignature[] = [
   {
@@ -129,4 +130,17 @@ export const EXPECTED_SIMILARITY_WITH_MAP_QUALITY = FractionToIndexValue(
     .reduce((acc, { prob: { num, den } }) => acc.add(num, den), new Fraction(0))
     .div(EXPECTED_MAPPING.size)
     .mul(EXPECTED_SIMILARITY.num, EXPECTED_SIMILARITY.den),
+)
+
+export const EXPECTED_MAPPING_FOR_EXACT_MATCHES = [...EXPECTED_MAPPING]
+  .filter(([, { prob: { val } }]) => val === 1)
+  .reduce((acc, [k, v]) => acc.set(k, v), new Map() as DefiniteMap<number, probIndex>)
+export const EXPECTED_SIMILARITY_FOR_EXACT_MATCHES = jaccardLike(
+  UNKNOWN_SIG.map(
+    (_, i) =>
+      EXPECTED_MAPPING_FOR_EXACT_MATCHES.has(i)
+        ? EXPECTED_MAPPING_FOR_EXACT_MATCHES.get(i).index
+        : -1,
+  ),
+  LIB_SIG.map((_, i) => i),
 )
