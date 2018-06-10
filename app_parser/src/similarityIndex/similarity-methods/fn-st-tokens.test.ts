@@ -109,7 +109,7 @@ for (let [fn, exp] of tests) {
 
 test(
   'v3 is commutative',
-  check({ size: 200 }, arbFunctionSignatureArrPair, (t, [x, y]) => {
+  check({ size: 1_000_000 }, arbFunctionSignatureArrPair, (t, [x, y]) => {
     const { similarity: sim_xy, mapping: map_xy } = v3(x, y)
     const { similarity: sim_yx, mapping: map_yx } = v3(y, x)
     t.deepEqual(sim_xy, sim_yx)
