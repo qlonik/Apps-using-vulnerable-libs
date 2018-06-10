@@ -123,7 +123,7 @@ export const EXPECTED_MAPPING = new Map([
   [3, { index: 3, prob: { val: 4 / 6, num: 4, den: 6 } }],
   [4, { index: 5, prob: { val: 2 / 7, num: 2, den: 7 } }],
   [5, { index: 4, prob: { val: 4 / 9, num: 4, den: 9 } }],
-])
+]) as DefiniteMap<number, probIndex>
 
 export const EXPECTED_SIMILARITY_WITH_MAP_QUALITY = FractionToIndexValue(
   [...EXPECTED_MAPPING.values()]
