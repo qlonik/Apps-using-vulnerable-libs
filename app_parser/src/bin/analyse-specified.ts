@@ -58,6 +58,8 @@ const APP_PATH = '../data/sample_apps'
 const LIB_PATH = '../data/sample_libs'
 const ANALYSIS_PATH = join(process.env.OUT!, 'rnd-10')
 const RESULTS_FILE = join(ANALYSIS_PATH, '_results.json')
+const TO_ANALYSE_FILE = join(process.env.OUT!, '_to_analyse.json')
+const TO_ANALYSE_PREPARED_FILE = join(process.env.OUT!, '_to_analyse_prepared.json')
 
 type toAnalyseType = {
   methods: '*' | METHODS_TYPE | METHODS_TYPE[]
@@ -188,7 +190,10 @@ export const main = async () => {
     }),
   )
 
-  log.debug({ toAnalyse }, 'analysis goal')
+  await Promise.all([
+    myWriteJSON({ content: TO_ANALYSE, file: TO_ANALYSE_FILE }),
+    myWriteJSON({ content: toAnalyse, file: TO_ANALYSE_PREPARED_FILE }),
+  ])
 
   const preprocessLibsPromises = toAnalyse.preprocess.libs.map((lib) => async () => ({
     done: terminating ? false : await raPool.exec('reanalyse-lib', [{ libsPath: LIB_PATH, lib }]),
