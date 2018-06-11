@@ -49,7 +49,7 @@ export const check: CheckFn = function check(...args: any[]): Implementation {
     if (typeof result === 'object') {
       this.title += prettyPrintResult(result)
       return propertyFn.call(this, test, ...result.counterexample)
-    } else {
+    } else if (result === true) {
       for (let log of allLogs[jsc.random(0, allLogs.length - 1)]) {
         this.addLog(log)
       }
