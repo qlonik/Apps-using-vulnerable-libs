@@ -23,6 +23,8 @@ export enum METHODS_ENUM {
   'fn-st-toks-v1',
   'fn-st-toks-v2',
   'fn-st-toks-v3',
+  'fn-st-toks-v4',
+  'fn-st-toks-v5',
   'fn-st-types',
   'fn-names',
   'fn-names-st-toks',

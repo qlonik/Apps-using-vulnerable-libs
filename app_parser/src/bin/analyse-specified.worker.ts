@@ -17,6 +17,8 @@ import { indexValue } from '../similarityIndex/set'
 import {
   librarySimilarityByFunctionStatementTokens,
   librarySimilarityByFunctionStatementTokens_v2,
+  librarySimilarityByFunctionStatementTokens_v4,
+  librarySimilarityByFunctionStatementTokens_v5,
   librarySimilarityByLiteralValues,
 } from '../similarityIndex/similarity-methods'
 import { SimMapWithConfidence } from '../similarityIndex/similarity-methods/types'
@@ -223,6 +225,8 @@ const workerMap: wFnMap = {
   'fn-st-toks-v1': noop,
   'fn-st-toks-v2': noop,
   'fn-st-toks-v3': noop,
+  'fn-st-toks-v4': noop,
+  'fn-st-toks-v5': noop,
   'fn-st-types': noop,
   'fn-names': noop,
   'fn-names-st-toks': noop,
@@ -232,6 +236,8 @@ const methods: fnName[] = [
   // { name: 'fn-st-toks-v1', fn: librarySimilarityByFunctionStatementTokens },
   { name: 'fn-st-toks-v2', fn: librarySimilarityByFunctionStatementTokens_v2 },
   // { name: 'fn-st-toks-v3', fn: librarySimilarityByFunctionStatementTokens_v3 },
+  { name: 'fn-st-toks-v4', fn: librarySimilarityByFunctionStatementTokens_v4 },
+  { name: 'fn-st-toks-v5', fn: librarySimilarityByFunctionStatementTokens_v5 },
   // { name: 'fn-st-types', fn: librarySimilarityByFunctionStatementTypes },
   // { name: 'fn-names', fn: librarySimilarityByFunctionNames },
   // { name: 'fn-names-st-toks', fn: librarySimilarityByFunctionNamesAndStatementTokens },
