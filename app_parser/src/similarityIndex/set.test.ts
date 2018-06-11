@@ -1,8 +1,10 @@
 import { test } from 'ava'
+import { Fraction } from 'fraction.js'
 import arb from 'jsverify'
 import { cloneDeep, intersection as LIntersection } from 'lodash'
-import { arraysPair } from '../_helpers/arbitraries'
+import { arbMapWithConfidence, arraysPair } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
+import { IndexValueToFraction } from './fraction'
 import {
   difference,
   divByZeroAware,
@@ -14,6 +16,7 @@ import {
   jaccardLikeWithMapping,
   similarityIndexToLib,
   union,
+  weightedMapIndex,
 } from './set'
 
 test('isSubset', t => {
@@ -206,5 +209,18 @@ test(
 
     t.deepEqual(a, aClone)
     t.deepEqual(b, bClone)
+  }),
+)
+
+test(
+  'weightedMapIndex',
+  check(arbMapWithConfidence, (t, m) => {
+    const { s, t: tot } = [...m.values()].reduce(
+      ({ s, t }, { prob }) => ({ s: s.add(IndexValueToFraction(prob)), t: t + 1 }),
+      { s: new Fraction(0), t: 0 },
+    )
+    const expected = s.div(tot)
+
+    t.deepEqual(expected, weightedMapIndex(m))
   }),
 )
