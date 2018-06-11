@@ -54,6 +54,8 @@ export const check: CheckFn = function check(...args: any[]): Implementation {
         this.addLog(log)
       }
       test.pass()
+    } else {
+      test.fail('Unknown result returned from JSVerify')
     }
   }
 }
