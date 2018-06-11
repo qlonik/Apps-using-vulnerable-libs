@@ -15,6 +15,9 @@ export const report: CordovaManualAnalysisReport = {
       type: 'bundle',
       match: [
         { name: 'angular', version: '1.5.7', file: '0001.json', isGuess: true },
+        { name: 'jquery', version: '2.2.4', isGuess: true },
+        { name: 'moment', version: '2.10.6', isGuess: true },
+        { name: 'lodash', version: '4.14.1', isGuess: true },
         // there is more
       ],
       algReport: {
