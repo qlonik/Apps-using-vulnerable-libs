@@ -72,6 +72,7 @@
     "request": "^2.85.0",
     "request-promise-native": "^1.0.5",
     "rxjs": "^6.1.0",
+    "shelljs": "^0.8.2",
     "tar": "^4.4.1",
     "typescript": "^2.8.1",
     "typical-ts": "^0.2.1",
