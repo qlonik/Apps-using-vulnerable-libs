@@ -68,3 +68,32 @@ const outputStream = fd ? createWriteStream('', { fd }) : process.stderr
 
 pump(logThrough.clone(), pretty, process.stdout)
 pump(logThrough, outputStream)
+
+export type falsy = false | '' | 0 | null | undefined
+// eslint-disable-next-line import/export,typescript/no-use-before-define
+export function assert<T>(statement: T, msg?: string): Exclude<T, falsy>
+// eslint-disable-next-line import/export,typescript/no-use-before-define
+export function assert<T>(statement: T, _log?: pino.Logger, msg?: string): Exclude<T, falsy>
+// eslint-disable-next-line import/export
+export function assert<T>(
+  statement: T,
+  lOrM?: pino.Logger | string,
+  msg?: string,
+): Exclude<T, falsy> {
+  let _log: pino.Logger
+  if (typeof lOrM === 'string') {
+    msg = lOrM
+    _log = log
+  } else {
+    _log = lOrM || log
+  }
+  msg = msg || 'assertion error'
+
+  if (!statement) {
+    const err = new Error(msg)
+    _log.error({ err })
+    throw err
+  } else {
+    return statement as Exclude<T, falsy>
+  }
+}
