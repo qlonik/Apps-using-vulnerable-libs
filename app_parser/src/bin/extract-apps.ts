@@ -2,6 +2,7 @@ import { readdir, remove } from 'fs-extra'
 import { join } from 'path'
 import { The } from 'typical-mini'
 import { MessagesMap, Pool } from 'workerpool'
+import { appDesc } from '../parseApps'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
 import { getWorkerPath, poolFactory } from '../utils/worker'
@@ -9,6 +10,7 @@ import { getWorkerPath, poolFactory } from '../utils/worker'
 export type messages = The<
   MessagesMap,
   {
+    reextractApp: [[{ inputPath: string; outputPath: string; app: appDesc }], boolean]
     extractApp: [[{ inputPath: string; outputPath: string; section: string; app: string }], boolean]
     moveDecompApp: [
       [{ inputPath: string; outputPath: string; section: string; app: string }],
