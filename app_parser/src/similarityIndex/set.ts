@@ -1,4 +1,4 @@
-import { curry, findIndex, isEqual } from 'lodash'
+import { findIndex, isEqual } from 'lodash'
 import { Fraction } from 'fraction.js'
 import { IndexValueToFraction } from './fraction'
 import {
@@ -51,12 +51,12 @@ export const jaccardIndex = <T>(a: Set<T>, b: Set<T>): indexValue => {
   return { val: num / den, num, den }
 }
 
-export const similarityIndexToLib = curry(<T>(lib: Set<T>, unknown: Set<T>): indexValue => {
+export const similarityIndexToLib = <T>(lib: Set<T>, unknown: Set<T>): indexValue => {
   const setIntersection = intersection(lib, unknown)
   const num = setIntersection.size
   const den = lib.size
   return { val: num / den, num, den }
-})
+}
 
 export const divByZeroAware = (num: number, den: number) => (den === 0 ? 1 : num / den)
 
