@@ -1,5 +1,6 @@
 import { findIndex, isEqual } from 'lodash'
 import { Fraction } from 'fraction.js'
+import { curry, pullAt, isEqual as isEqualFp } from 'lodash/fp'
 import { IndexValueToFraction } from './fraction'
 import {
   DefiniteMap,
@@ -116,6 +117,28 @@ export const jaccardLikeWithMapping = <T>(
 export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): indexValue => {
   return jaccardLikeWithMapping(a, b).similarity
 }
+
+export const libPortion = curry(
+  <T>(unknown: T[] | Iterable<T>, lib: T[] | Iterable<T>): indexValue => {
+    const tot = [...unknown].reduce(
+      ({ t, l }, el) => {
+        const j = findIndex(l, isEqualFp(el))
+        return j === -1 ? { t, l } : { t: t + 1, l: pullAt(j, l) }
+      },
+      { t: 0, l: [...lib] },
+    )
+
+    const num = tot.t
+    const den = tot.t + tot.l.length
+
+    return {
+      // den === 0 only happens when 'lib' was empty
+      val: divByZeroAware(num, den),
+      num,
+      den,
+    }
+  },
+)
 
 export const weightedMapIndex = (map: DefiniteMap<number, probIndex>): Fraction => {
   const num = [...map.values()].reduce(
