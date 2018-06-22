@@ -94,6 +94,32 @@ for (let [fn, exp] of tests) {
     }),
   )
 
+  if (fn.name === 'v6') {
+    test(
+      `${fn.name}: produces 100% match when comparing empty lib signature`,
+      check(arbFunctionSignatureArr, (t, a) => {
+        const { similarity, mapping } = fn(a, [])
+
+        t.is(1, similarity.val)
+        t.is(0, similarity.num)
+        t.is(0, similarity.den)
+        t.deepEqual(new Map(), mapping)
+      }),
+    )
+  } else {
+    test(
+      `${fn.name}: produces 0% match when comparing empty lib signature`,
+      check(arbFunctionSignatureArr, (t, a) => {
+        const { similarity, mapping } = fn(a, [])
+
+        t.is(0, similarity.val)
+        t.is(0, similarity.num)
+        t.not(0, similarity.den)
+        t.deepEqual(new Map(), mapping)
+      }),
+    )
+  }
+
   test(`${fn.name}: produces 100% match when comparing empty signatures`, t => {
     t.deepEqual({ similarity: { val: 1, num: 0, den: 0 }, mapping: new Map() }, fn([], []))
   })
