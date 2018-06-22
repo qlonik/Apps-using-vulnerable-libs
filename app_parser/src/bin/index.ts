@@ -74,7 +74,7 @@ yargs
       let time
       try {
         start = process.hrtime()
-        await main()
+        await main(log)
         time = process.hrtime(start)
         log.info({ 'run-time': time }, 'total time')
       } catch (err) {
