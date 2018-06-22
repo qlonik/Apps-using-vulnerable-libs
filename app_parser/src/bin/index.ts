@@ -3,6 +3,7 @@ import { kebabCase } from 'lodash'
 import * as yargs from 'yargs'
 import { EnvironmentError } from '../utils/errors'
 import logger from '../utils/logger'
+import { MainFn } from './_index.types'
 import { stripIllegalNames } from './_strip-illegal-names'
 
 /**
@@ -59,7 +60,8 @@ yargs
       const log = logger.child({ script: kebabedScriptName })
 
       const module = await import(scriptName)
-      if (typeof module.main !== 'function') {
+      const main: MainFn = module.main
+      if (typeof main !== 'function') {
         log.error({ err: new TypeError('no main exported') })
         throw null
       }
@@ -72,7 +74,7 @@ yargs
       let time
       try {
         start = process.hrtime()
-        await module.main()
+        await main()
         time = process.hrtime(start)
         log.info({ 'run-time': time }, 'total time')
       } catch (err) {
