@@ -4,6 +4,7 @@ export {
   v3 as librarySimilarityByFunctionStatementTokens_v3,
   v4 as librarySimilarityByFunctionStatementTokens_v4,
   v5 as librarySimilarityByFunctionStatementTokens_v5,
+  v6 as librarySimilarityByFunctionStatementTokens_v6,
 } from './fn-st-tokens'
 
 export { librarySimilarityByFunctionStatementTypes } from './fn-st-types'

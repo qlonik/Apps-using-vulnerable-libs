@@ -6,7 +6,7 @@ import {
   isFunctionSignatures,
 } from '../../extractStructure'
 import { FractionToIndexValue } from '../fraction'
-import { indexValue, jaccardLike, weightedMapIndex } from '../set'
+import { indexValue, jaccardLike, libPortion, weightedMapIndex } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
 import {
   DefiniteMap,
@@ -346,6 +346,63 @@ export function v5<T extends FunctionSignature[] | FunctionSignatures>(
   const possibleUnknownFnIndexes = unknown.map((_, i) => (map.has(i) ? map.get(i).index : -1))
 
   const sim = jaccardLike(possibleUnknownFnIndexes, libFnIndexes)
+
+  return { similarity: sim, mapping: map }
+}
+
+/**
+ * This function calculates mapping between unknown signature and known lib signature in the same
+ * way as {@link v5} does. However, this function uses {@link similarityIndexToLib}
+ * @param unknownS
+ * @param libS
+ */
+export function v6<T extends FunctionSignature[] | FunctionSignatures>(
+  unknownS: T,
+  libS: T,
+): SimMapWithConfidence {
+  let unknown: FunctionSignature[]
+  let lib: FunctionSignature[]
+  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
+    unknown = unknownS.functionSignature
+    lib = libS.functionSignature
+  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
+    unknown = unknownS
+    lib = libS
+  } else {
+    throw new TypeError(typeErrorMsg)
+  }
+
+  const { map: mapArr } = lib.reduce(
+    ({ map, unkwn }, { fnStatementTokens: libToks }, libIndex) => {
+      const topMatch = unkwn
+        .reduce((sll, { i, el: { fnStatementTokens: unknownToks } }) => {
+          return sll.push({ index: i, prob: jaccardLike(unknownToks, libToks) })
+        }, new SortedLimitedList({ limit: 1, predicate: (o: probIndex) => -o.prob.val }))
+        .value()
+        .shift()
+
+      return topMatch && topMatch.prob.val === 1
+        ? {
+            map: map.concat([[topMatch.index, libIndex, topMatch.prob]]),
+            unkwn: unkwn.filter(({ i }) => i !== topMatch.index),
+          }
+        : { map, unkwn }
+    },
+    {
+      map: [] as [number, number, indexValue][],
+      unkwn: unknown.map((el, i) => ({ el, i })),
+    },
+  )
+
+  const map = sortBy(mapArr, ([key]) => key).reduce(
+    (acc, [i, index, prob]) => acc.set(i, { index, prob }),
+    new Map() as DefiniteMap<number, probIndex>,
+  )
+
+  const libFnIndexes = lib.map((_, i) => i)
+  const possibleUnknownFnIndexes = unknown.map((_, i) => (map.has(i) ? map.get(i).index : -1))
+
+  const sim = libPortion(possibleUnknownFnIndexes, libFnIndexes)
 
   return { similarity: sim, mapping: map }
 }
