@@ -56,30 +56,28 @@ yargs
         .map(kebabCase)
         .join('/')
       const scriptName = `./${kebabedScriptName}`
+      const log = logger.child({ script: kebabedScriptName })
 
       const module = await import(scriptName)
       if (typeof module.main !== 'function') {
-        logger.error({ script: kebabedScriptName, err: new TypeError('no main exported') })
+        log.error({ err: new TypeError('no main exported') })
         throw null
       }
       if (typeof module.terminate === 'function') {
         process.on('SIGINT', module.terminate)
       }
 
-      logger.info({ script: kebabedScriptName }, 'master process')
+      log.info('master process')
       let start
       let time
       try {
         start = process.hrtime()
         await module.main()
         time = process.hrtime(start)
-        logger.info({ script: kebabedScriptName, 'run-time': time }, 'total time')
+        log.info({ 'run-time': time }, 'total time')
       } catch (err) {
         time = process.hrtime(start)
-        logger.error(
-          { script: kebabedScriptName, 'run-time': time, err },
-          'global error from main()',
-        )
+        log.error({ 'run-time': time, err }, 'global error from main()')
         throw null
       }
     },
