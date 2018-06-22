@@ -1,7 +1,11 @@
+import { Logger } from 'pino'
 import { The } from 'typical-mini'
 import { MessagesMap } from 'workerpool'
 import { appDesc } from '../parseApps'
 import { libNameVersion } from '../parseLibraries'
+
+export type MainFn = (log: Logger) => Promise<any>
+export type TerminateFn = (signal: 'SIGINT') => void
 
 export type allMessages = The<
   MessagesMap,

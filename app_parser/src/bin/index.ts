@@ -3,7 +3,7 @@ import { kebabCase } from 'lodash'
 import * as yargs from 'yargs'
 import { EnvironmentError } from '../utils/errors'
 import logger from '../utils/logger'
-import { MainFn } from './_index.types'
+import { MainFn } from './_all.types'
 import { stripIllegalNames } from './_strip-illegal-names'
 
 /**
