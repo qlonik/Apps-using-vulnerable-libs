@@ -83,9 +83,9 @@ for (let [fn, exp] of tests) {
   )
 
   test(
-    `${fn.name}: produces 0% match when comparing with empty signature`,
+    `${fn.name}: produces 0% match when comparing empty app signature`,
     check(arbFunctionSignatureArr, (t, a) => {
-      const { similarity, mapping } = fn(a, [])
+      const { similarity, mapping } = fn([], a)
 
       t.is(0, similarity.val)
       t.is(0, similarity.num)
