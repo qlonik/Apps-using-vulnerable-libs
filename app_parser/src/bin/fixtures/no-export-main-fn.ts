@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable no-console */
 
 function main() {
   console.log('hello')
