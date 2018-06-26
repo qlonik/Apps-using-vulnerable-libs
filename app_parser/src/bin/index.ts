@@ -57,7 +57,7 @@ yargs
         .map(kebabCase)
         .join('/')
       const scriptName = `./${kebabedScriptName}`
-      const log = logger.child({ script: kebabedScriptName })
+      const log = logger.child({ name: kebabedScriptName })
 
       const module = await import(scriptName)
       const main: MainFn = module.main
