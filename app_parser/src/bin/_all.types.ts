@@ -10,6 +10,7 @@ export type TerminateFn = (signal: 'SIGINT') => void
 export type allMessages = The<
   MessagesMap,
   {
+    'extract-lib-from-dump': [[{ libsPath: string; dumpPath: string; filename: string }], any]
     'reanalyse-lib': [[{ libsPath: string; lib: libNameVersion }], any]
 
     'preprocess-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]

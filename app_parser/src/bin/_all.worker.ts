@@ -6,7 +6,12 @@ import {
   preprocessCordovaApp,
   preprocessReactNativeApp,
 } from '../parseApps'
-import { analyseLibFiles, extractMainFiles, updateUnionLiteralSignature } from '../parseLibraries'
+import {
+  analyseLibFiles,
+  extractMainFiles,
+  extractSingleLibraryFromDump,
+  updateUnionLiteralSignature,
+} from '../parseLibraries'
 import { saveFiles } from '../utils/files'
 import logger from '../utils/logger'
 import { allMessages as messages } from './_all.types'
@@ -14,6 +19,7 @@ import { allMessages as messages } from './_all.types'
 const logFileName = relative(process.cwd(), __filename)
 const makeLog = (fn: string) => logger.child({ name: `${logFileName} >> ${fn}` })
 
+const ellog = makeLog('extract-lib-from-dump')
 const rllog = makeLog('reanalyse-lib')
 const aalog = makeLog('analyse-app')
 
@@ -76,6 +82,27 @@ worker<messages>({
     }
 
     return false
+  },
+
+  'extract-lib-from-dump': async ({ libsPath, dumpPath, filename }) => {
+    let name
+    let version
+    try {
+      const libDesc = await extractSingleLibraryFromDump({ dumpPath, libsPath, filename })
+      name = libDesc.name
+      version = libDesc.version
+    } catch (err) {
+      ellog.error({ err, filename }, 'Could not parse the filename')
+      return false
+    }
+
+    const main = await saveFiles(extractMainFiles({ libsPath, name, version }))
+    const analysis = await saveFiles(analyseLibFiles(main))
+    if (analysis.length > 0) {
+      await updateUnionLiteralSignature({ libsPath, name, version })
+    }
+
+    return true
   },
 })
 
