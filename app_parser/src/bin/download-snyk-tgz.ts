@@ -71,16 +71,17 @@ const buildLibVersionList = (snyk: SnykDB): { [name: string]: string } =>
 
 const notInArray = <T>(arr: T[]) => (el: T) => findIndex(isEqual(el), arr) === -1
 const exec = promisify(execFile)
-const mapNVToLazyNV = map(({ name, version }: libNameVersion) => async () => {
-  const cwd = join(DOWNLOADED_PATH, name)
-  await mkdirp(cwd)
-  try {
-    await exec('npm', ['pack', `${name}@${version}`], { cwd })
-    return { done: true, name, version }
-  } catch {
-    return { done: false, name, version }
-  }
-})
+const mapNVToLazyNV = (dump: string) =>
+  map(({ name, version }: libNameVersion) => async () => {
+    const cwd = join(dump, name)
+    await mkdirp(cwd)
+    try {
+      await exec('npm', ['pack', `${name}@${version}`], { cwd })
+      return { done: true, name, version }
+    } catch {
+      return { done: false, name, version }
+    }
+  })
 
 export const main: MainFn = async (log) => {
   const vulnVersionRanges = buildLibVersionList((await readJSON(SNYK_JSON_PATH)) as SnykDB)
@@ -120,7 +121,7 @@ export const main: MainFn = async (log) => {
   }, Promise.resolve([] as libNameVersion[]))
 
   const [s, f] = await flow(
-    mapNVToLazyNV,
+    mapNVToLazyNV(DOWNLOADED_PATH),
     resolveAllOrInParallel,
     loAsync(partition(({ done }) => done)),
     loAsync(map(map(({ name, version }) => ({ name, version })))),
