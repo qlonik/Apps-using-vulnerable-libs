@@ -129,6 +129,8 @@ export const resolveAllOrInParallel = async function<T, R = T>(
   return resolveParallelGroups<T, R>(chunked, { chunkTapFn, chunkMapFn })
 }
 
+export const loAsync = <T, R>(fn: (t: T) => R) => async (x: Promise<T>): Promise<R> => fn(await x)
+
 /**
  * This function is for the TypeScript compiler to help us
  * with the exhaustiveness of if/switch statements.
