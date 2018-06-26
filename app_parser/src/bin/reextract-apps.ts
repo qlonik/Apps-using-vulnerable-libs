@@ -4,7 +4,7 @@ import { APP_TYPES, getApps } from '../parseApps'
 import { resolveAllOrInParallel } from '../utils'
 import logger from '../utils/logger'
 import { poolFactory } from '../utils/worker'
-import { messages } from './extract-apps'
+import { allMessages, WORKER_FILENAME } from './_all.types'
 
 const FINISHED_APK = '../data/apps_apks'
 const EXTRACTED_JS = '../data/sample_apps.again'
@@ -15,16 +15,15 @@ const log = logger.child({ name: 'reextract-apps' })
 let terminating = false
 
 export async function main() {
-  const wPath = join(__dirname, 'extract-apps.worker.js')
-  const pool = poolFactory<messages>(wPath)
+  const pool = poolFactory<allMessages>(join(__dirname, WORKER_FILENAME))
 
   const appsPromises = (await getApps(FINISHED_APK)).map((app) => async () => {
     if (terminating) {
       return app
     }
 
-    await pool.exec('reextractApp', [{ inputPath: FINISHED_APK, outputPath: TMP_FOLDER, app }])
-    const type = await pool.exec('moveDecompApp', [
+    await pool.exec('re-extract-app', [{ inputPath: FINISHED_APK, outputPath: TMP_FOLDER, app }])
+    const type = await pool.exec('move-decomp-app', [
       {
         inputPath: join(TMP_FOLDER, app.type),
         outputPath: EXTRACTED_JS,

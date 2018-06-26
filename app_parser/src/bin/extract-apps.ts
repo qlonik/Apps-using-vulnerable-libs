@@ -1,33 +1,11 @@
 import { readdir, remove } from 'fs-extra'
 import { join } from 'path'
-import { The } from 'typical-mini'
-import { MessagesMap, Pool } from 'workerpool'
-import { appDesc } from '../parseApps'
+import { Pool } from 'workerpool'
+import { APP_TYPES } from '../parseApps'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
-import { getWorkerPath, poolFactory } from '../utils/worker'
-
-export type messages = The<
-  MessagesMap,
-  {
-    reextractApp: [[{ inputPath: string; outputPath: string; app: appDesc }], boolean]
-    extractApp: [[{ inputPath: string; outputPath: string; section: string; app: string }], boolean]
-    moveDecompApp: [
-      [{ inputPath: string; outputPath: string; section: string; app: string }],
-      APP_TYPE
-    ]
-    copyApk: [
-      [{ inputPath: string; outputPath: string; type: APP_TYPE; section: string; app: string }],
-      boolean
-    ]
-  }
->
-
-export enum APP_TYPE {
-  removed = 'removed',
-  cordova = 'cordova',
-  reactNative = 'react-native',
-}
+import { poolFactory } from '../utils/worker'
+import { allMessages, WORKER_FILENAME } from './_all.types'
 
 // can be '/gi-pool/appdata-ro' or '/home/nvolodin/20180315/crawl-fdroid/crawl-fdroid/apks'
 const INPUT_FOLDER = ''
@@ -74,7 +52,7 @@ const log = stdoutLog('extract-apps')
 log.enabled = true
 
 let terminating: Promise<void>
-let pool: Pool<messages>
+let pool: Pool<allMessages>
 
 export async function main() {
   if (!INPUT_FOLDER) {
@@ -82,11 +60,10 @@ export async function main() {
     return
   }
 
-  const wPath = await getWorkerPath(__filename)
   const sections_todo = await readdir(INPUT_FOLDER)
 
   if (!terminating) {
-    pool = poolFactory(wPath, { minWorkers: 1 })
+    pool = poolFactory(join(__dirname, WORKER_FILENAME), { minWorkers: 1 })
     log('started worker')
   }
 
@@ -103,15 +80,15 @@ export async function main() {
     const appNames = await readdir(join(INPUT_FOLDER, section))
     const appsPromises = appNames.map((app) => {
       return async () => {
-        await pool.exec('extractApp', [
+        await pool.exec('extract-app', [
           { inputPath: INPUT_FOLDER, outputPath: TMP_FOLDER, section, app },
         ])
-        const type = await pool.exec('moveDecompApp', [
+        const type = await pool.exec('move-decomp-app', [
           { inputPath: TMP_FOLDER, outputPath: EXTRACTED_JS, section, app },
         ])
 
-        if (type !== APP_TYPE.removed) {
-          await pool.exec('copyApk', [
+        if (type !== 'removed') {
+          await pool.exec('copy-apk', [
             { inputPath: INPUT_FOLDER, outputPath: FINISHED_APK, type, section, app },
           ])
         }
@@ -121,8 +98,8 @@ export async function main() {
     })
 
     const apps = await resolveAllOrInParallel(appsPromises)
-    const cordovaApps = apps.filter(({ type }) => type === APP_TYPE.cordova)
-    const reactNativeApps = apps.filter(({ type }) => type === APP_TYPE.reactNative)
+    const cordovaApps = apps.filter(({ type }) => type === APP_TYPES.cordova)
+    const reactNativeApps = apps.filter(({ type }) => type === APP_TYPES.reactNative)
     const cordovaAppsLen = cordovaApps.length
     const reactNativeAppsLen = reactNativeApps.length
 

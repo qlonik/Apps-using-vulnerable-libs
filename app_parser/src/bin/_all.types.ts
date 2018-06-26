@@ -1,7 +1,7 @@
 import { Logger } from 'pino'
 import { The } from 'typical-mini'
 import { MessagesMap } from 'workerpool'
-import { appDesc } from '../parseApps'
+import { APP_TYPES, appDesc } from '../parseApps'
 import { libNameVersion } from '../parseLibraries'
 
 export type MainFn = (log: Logger) => Promise<any>
@@ -12,6 +12,20 @@ export type allMessages = The<
   {
     'extract-lib-from-dump': [[{ libsPath: string; dumpPath: string; filename: string }], any]
     'reanalyse-lib': [[{ libsPath: string; lib: libNameVersion }], any]
+
+    'extract-app': [
+      [{ inputPath: string; outputPath: string; section: string; app: string }],
+      boolean
+    ]
+    're-extract-app': [[{ inputPath: string; outputPath: string; app: appDesc }], boolean]
+    'move-decomp-app': [
+      [{ inputPath: string; outputPath: string; section: string; app: string }],
+      APP_TYPES | 'removed'
+    ]
+    'copy-apk': [
+      [{ inputPath: string; outputPath: string; type: APP_TYPES; section: string; app: string }],
+      boolean
+    ]
 
     'preprocess-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
     'analyse-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]

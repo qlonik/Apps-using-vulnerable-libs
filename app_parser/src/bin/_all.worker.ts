@@ -1,8 +1,12 @@
-import { relative } from 'path'
+import { copy, mkdirp, move, remove } from 'fs-extra'
+import { join, relative } from 'path'
+import shell from 'shelljs'
 import { worker } from 'workerpool'
 import {
   analyseCordovaApp,
   APP_TYPES,
+  isCordovaApp,
+  isReactNativeApp,
   preprocessCordovaApp,
   preprocessReactNativeApp,
 } from '../parseApps'
@@ -101,6 +105,64 @@ worker<messages>({
     if (analysis.length > 0) {
       await updateUnionLiteralSignature({ libsPath, name, version })
     }
+
+    return true
+  },
+
+  're-extract-app': async ({ inputPath, outputPath, app }) => {
+    const apkIn = join(inputPath, app.type, app.section, app.app, 'app.apk')
+    const outDir = join(outputPath, app.type, app.section, app.app)
+
+    await mkdirp(outDir)
+
+    shell.exec(`apktool d ${JSON.stringify(apkIn)} -qfo ${JSON.stringify(outDir)}`, {
+      silent: true,
+    })
+
+    return true
+  },
+
+  'extract-app': async ({ inputPath, outputPath, section, app }) => {
+    const apkIn = join(inputPath, section, app)
+    const outDir = join(outputPath, section, app)
+
+    await mkdirp(outDir)
+
+    shell.exec(`apktool d ${JSON.stringify(apkIn)} -qfo ${JSON.stringify(outDir)}`, {
+      silent: true,
+    })
+
+    return true
+  },
+
+  'move-decomp-app': async ({ inputPath, outputPath, section, app }) => {
+    const appPath = join(inputPath, section, app)
+
+    if (await isCordovaApp({ appPath })) {
+      const inAppPath = join(appPath, 'assets', 'www')
+      const outAppPath = join(outputPath, 'cordova', section, app, 'js')
+
+      await move(inAppPath, outAppPath, { overwrite: true })
+      await remove(appPath)
+      return APP_TYPES.cordova
+    } else if (await isReactNativeApp({ appPath })) {
+      const inAppPath = join(appPath, 'assets', 'index.android.bundle')
+      const outAppPath = join(outputPath, 'react-native', section, app, 'bundle.js')
+
+      await move(inAppPath, outAppPath, { overwrite: true })
+      await remove(appPath)
+      return APP_TYPES.reactNative
+    } else {
+      await remove(appPath)
+      return 'removed'
+    }
+  },
+
+  'copy-apk': async ({ inputPath, outputPath, type, section, app }) => {
+    const apkPath = join(inputPath, section, app)
+    const outputApkPath = join(outputPath, type, section, app, 'app.apk')
+
+    await copy(apkPath, outputApkPath)
 
     return true
   },
