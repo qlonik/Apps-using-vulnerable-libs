@@ -263,13 +263,13 @@ export async function extractSingleLibraryFromDump({
     extrFileExists = extrFileExistsL
   }
 
+  if (!extrFileExists) {
+    await tgzUnpack(src, destDir)
+  }
   if (!destFileExists) {
     await move(src, destFile)
   } else {
     await remove(src)
-  }
-  if (!extrFileExists) {
-    await tgzUnpack(destFile)
   }
 
   return { name, version }
