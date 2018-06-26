@@ -7,7 +7,7 @@ import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
 import { poolFactory } from '../utils/worker'
-import { allMessages, WORKER_FILENAME } from './_all.types'
+import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
 const APPS_TO_ANALYSE_LIMIT = 1000
 const ALL_APPS_PATH = '../data/sample_apps'
@@ -19,7 +19,7 @@ const log = stdoutLog('analyse-apps')
 log.enabled = true
 let terminating = false
 
-export async function main() {
+export const main: MainFn = async function main() {
   const apps = (await readJSON(FIN_PRE_APPS_PATH)) as appDesc[]
   let FIN_AN_APPS = [] as appDesc[]
 
@@ -99,7 +99,7 @@ export async function main() {
   await pool.terminate()
 }
 
-export const terminate = once(() => {
+export const terminate: TerminateFn = once(() => {
   log('started terminating')
   terminating = true
 })

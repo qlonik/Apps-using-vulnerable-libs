@@ -4,6 +4,7 @@ import { join } from 'path'
 import { appDesc } from '../parseApps'
 import { FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { myWriteJSON } from '../utils/files'
+import { MainFn } from './_all.types'
 
 const ALL_APPS_PATH = '../data/sample_apps'
 const FIN_PREP_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
@@ -38,7 +39,7 @@ const chooseRandom = (arr: appDesc[], n: number): pickedApps => {
   return { ids: Object.keys(map), map, picked }
 }
 
-export async function main() {
+export const main: MainFn = async function main() {
   const appCandidates = (await readJSON(FIN_PREP_PATH)) as appDesc[]
   const res100 = chooseRandom(appCandidates, 100)
   const res10 = chooseRandom(res100.picked, 10)

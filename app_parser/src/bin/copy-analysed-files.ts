@@ -4,11 +4,12 @@ import { join } from 'path'
 import { appPath, getApps } from '../parseApps'
 import { ANALYSIS_FOLDER } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
+import { MainFn, TerminateFn } from './_all.types'
 
 const INIT_PATH = '../data/sample_apps'
 const DEST_PATH = '../data/sample_apps.old_candidates_method'
 
-export const main = async () => {
+export const main: MainFn = async () => {
   const apps = await getApps(INIT_PATH)
   const fileCopyPromises = apps.map(({ type, section, app }) => async (): Promise<void> => {
     const srcAnalysisPath = join(appPath(INIT_PATH, type, section, app), ANALYSIS_FOLDER)
@@ -27,4 +28,4 @@ export const main = async () => {
   await resolveAllOrInParallel(fileCopyPromises)
 }
 
-export const terminate = once(() => {})
+export const terminate: TerminateFn = once(() => {})

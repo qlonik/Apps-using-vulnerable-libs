@@ -17,6 +17,7 @@ import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import logger from '../utils/logger'
 import { getWorkerPath, poolFactory } from '../utils/worker'
+import { MainFn, TerminateFn } from './_all.types'
 
 const OUT = process.env.OUT!
 const APPS_PATH = '../data/sample_apps'
@@ -72,7 +73,7 @@ const addFinishedApps = (apps: appDesc[], els: searchEl[]): appDesc[] => {
     })
 }
 
-export async function main() {
+export const main: MainFn = async function main() {
   const pool = poolFactory<messages>(await getWorkerPath(__filename))
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
@@ -155,7 +156,7 @@ export async function main() {
   await pool.terminate()
 }
 
-export const terminate = once(() => {
+export const terminate: TerminateFn = once(() => {
   log.info('started terminating')
   terminating = true
 })

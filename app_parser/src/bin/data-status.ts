@@ -5,6 +5,7 @@ import { APP_TYPES, appDesc, getApps } from '../parseApps'
 import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { getLibNameVersions } from '../parseLibraries'
 import { stdoutLog } from '../utils/logger'
+import { MainFn } from './_all.types'
 
 const LIB_FOLDER = '../data/sample_libs'
 const APP_FOLDER = '../data/sample_apps'
@@ -15,7 +16,7 @@ const APP_POOL_FOLDER = '/gi-pool/appdata-ro'
 const log = stdoutLog('data-status')
 log.enabled = true
 
-export async function main() {
+export const main: MainFn = async function main() {
   if (await pathExists(LIB_FOLDER)) {
     const libs = await getLibNameVersions(LIB_FOLDER)
 

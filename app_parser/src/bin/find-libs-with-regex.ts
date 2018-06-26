@@ -8,6 +8,7 @@ import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { stdoutLog } from '../utils/logger'
 import { getWorkerPath, poolFactory } from '../utils/worker'
+import { MainFn, TerminateFn } from './_all.types'
 
 const log = stdoutLog('find-most-used-libs')
 log.enabled = true
@@ -28,7 +29,7 @@ const FOUND_LIBS = join(APPS_PATH, FOUND_LIBS_REGEX_FILE)
 
 let terminating = false
 
-export const main = async () => {
+export const main: MainFn = async () => {
   const wPath = await getWorkerPath(__filename)
   const apps = await getApps(APPS_PATH)
 
@@ -84,7 +85,7 @@ export const main = async () => {
   await pool.terminate()
 }
 
-export const terminate = once(() => {
+export const terminate: TerminateFn = once(() => {
   log('started terminating')
   terminating = true
 })

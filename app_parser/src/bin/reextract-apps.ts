@@ -4,7 +4,7 @@ import { APP_TYPES, getApps } from '../parseApps'
 import { resolveAllOrInParallel } from '../utils'
 import logger from '../utils/logger'
 import { poolFactory } from '../utils/worker'
-import { allMessages, WORKER_FILENAME } from './_all.types'
+import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
 const FINISHED_APK = '../data/apps_apks'
 const EXTRACTED_JS = '../data/sample_apps.again'
@@ -14,7 +14,7 @@ const log = logger.child({ name: 'reextract-apps' })
 
 let terminating = false
 
-export async function main() {
+export const main: MainFn = async function main() {
   const pool = poolFactory<allMessages>(join(__dirname, WORKER_FILENAME))
 
   const appsPromises = (await getApps(FINISHED_APK)).map((app) => async () => {
@@ -55,7 +55,7 @@ export async function main() {
   await pool.terminate()
 }
 
-export const terminate = once(() => {
+export const terminate: TerminateFn = once(() => {
   log.info('started terminating')
   terminating = true
 })

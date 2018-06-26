@@ -5,7 +5,7 @@ import { APP_TYPES } from '../parseApps'
 import { resolveAllOrInParallel } from '../utils'
 import { stdoutLog } from '../utils/logger'
 import { poolFactory } from '../utils/worker'
-import { allMessages, WORKER_FILENAME } from './_all.types'
+import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
 // can be '/gi-pool/appdata-ro' or '/home/nvolodin/20180315/crawl-fdroid/crawl-fdroid/apks'
 const INPUT_FOLDER = ''
@@ -54,7 +54,7 @@ log.enabled = true
 let terminating: Promise<void>
 let pool: Pool<allMessages>
 
-export async function main() {
+export const main: MainFn = async function main() {
   if (!INPUT_FOLDER) {
     log('INPUT_FOLDER is not specified')
     return
@@ -126,7 +126,7 @@ export async function main() {
   await pool.terminate()
 }
 
-export const terminate = () => {
+export const terminate: TerminateFn = () => {
   if (pool) {
     terminating = pool.terminate()
   } else {

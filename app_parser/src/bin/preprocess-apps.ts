@@ -10,7 +10,7 @@ import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { log } from '../utils/logger'
 import { poolFactory } from '../utils/worker'
-import { WORKER_FILENAME, allMessages } from './_all.types'
+import { WORKER_FILENAME, allMessages, MainFn, TerminateFn } from './_all.types'
 
 // const APP_PATH = '/home/nvolodin/Auvl/data/done/js'
 const APP_PATH = '../data/sample_apps'
@@ -21,7 +21,7 @@ const ANALYSE_NUMBER = 1500
 let pool: Pool<allMessages>
 let terminating = false
 
-export async function main() {
+export const main: MainFn = async function main() {
   const wPath = join(__dirname, WORKER_FILENAME)
   const apps = await getApps(APP_PATH)
   let FIN_APPS = [] as appDesc[]
@@ -97,7 +97,7 @@ export async function main() {
   await pool.terminate()
 }
 
-export const terminate = once(() => {
+export const terminate: TerminateFn = once(() => {
   log.info('started terminating')
   terminating = true
 })

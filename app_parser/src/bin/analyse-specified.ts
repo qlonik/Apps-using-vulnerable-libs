@@ -16,7 +16,7 @@ import { assertNever, resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import logger from '../utils/logger'
 import { getWorkerPath, poolFactory } from '../utils/worker'
-import { allMessages, WORKER_FILENAME } from './_all.types'
+import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
 export enum METHODS_ENUM {
   'lit-vals',
@@ -367,7 +367,7 @@ let terminating = false
 const uniqApp = uniqBy<appDesc>(({ type, section, app }) => `${type}@@@${section}@@@${app}`)
 const uniqLibNameVersion = uniqBy<libNameVersion>(({ name, version }) => `${name}@@@${version}`)
 
-export const main = async () => {
+export const main: MainFn = async () => {
   const pool = poolFactory<messages>(await getWorkerPath(__filename), { minWorkers: 0 })
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
@@ -533,7 +533,7 @@ export const main = async () => {
   await pool.terminate()
 }
 
-export const terminate = once(() => {
+export const terminate: TerminateFn = once(() => {
   log.info('started terminating')
   terminating = true
 })
