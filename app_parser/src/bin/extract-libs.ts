@@ -1,9 +1,9 @@
 import { readdir } from 'fs-extra'
-import { partition, shuffle, filter } from 'lodash/fp'
+import { partition, shuffle, filter, once } from 'lodash/fp'
 import { join } from 'path'
 import { resolveAllOrInParallel } from '../utils'
 import { poolFactory } from '../utils/worker'
-import { allMessages, MainFn, WORKER_FILENAME } from './_all.types'
+import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
 const DUMP_PATH = '../data/snyk/dump'
 const LIBS_PATH = '../data/snyk/sample_libs'
@@ -43,3 +43,7 @@ export const main: MainFn = async function main(log) {
 
   await pool.terminate()
 }
+
+export const terminate: TerminateFn = once(() => {
+  terminating = true
+})
