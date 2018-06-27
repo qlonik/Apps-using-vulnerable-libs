@@ -53,7 +53,7 @@ test('runs script which exports main function', async t => {
     'hello',
     result.stdout
       .split('\n')
-      .slice(2, 3)
+      .slice(1, 2)
       .map(v => v.trim())
       .join('\n'),
   )
