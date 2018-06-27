@@ -1,135 +1,147 @@
-import { readdir, remove } from 'fs-extra'
+import { oneLineTrim } from 'common-tags'
+import { pathExists, readdir, remove } from 'fs-extra'
+import { differenceWith, flatten, once, partition } from 'lodash/fp'
 import { join } from 'path'
-import { Pool } from 'workerpool'
-import { APP_TYPES } from '../parseApps'
+import { APP_TYPES, getApps } from '../parseApps'
+import { APK_FILE } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
-import { stdoutLog } from '../utils/logger'
+import { assert } from '../utils/logger'
 import { poolFactory } from '../utils/worker'
 import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
 // can be '/gi-pool/appdata-ro' or '/home/nvolodin/20180315/crawl-fdroid/crawl-fdroid/apks'
 const INPUT_FOLDER = ''
-const TMP_FOLDER = '/home/nvolodin/Auvl/data/tmp'
-const EXTRACTED_JS = '/home/nvolodin/Auvl/data/sample_apps'
-const FINISHED_APK = '/home/nvolodin/Auvl/data/apps_apks'
+const TMP_FOLDER = '../data/tmp'
+const APPS_PATH = '../data/sample_apps'
+const APPS_APKS = '../data/apps_apks'
 
-const sections_fin = [
-  // done using this script
-  '20170726-a_b',
-  '20170726-c_com.ah',
-  '20170726-com.ai_com.ao',
-  '20170726-com.ap',
-  '20170726-com.aq_com.az',
-  '20170726-com.b',
-  '20170726-com.c',
-  '20170726-com.d',
-  '20170726-com.e',
-  '20170726-com.f',
-  '20170726-com.g',
-  '20170726-com.h',
-  '20170726-com.i',
-  '20170726-com.j',
-  '20170726-com.k',
-  '20170726-com.l',
-  '20170726-com.m',
-  '20170726-com.n',
-  '20170726-com.o',
-  '20170726-com.s',
-  '20170726-d-z',
+let terminating = false
 
-  // were done using old script
-  '20170726-com0',
-  '20170726-com.p',
-  '20170726-com.q',
-  '20170726-com.r',
-  '20170726-com.t',
-  '20170726-com.u',
-  '20170726-com.w',
-  '20170726-com.x',
-]
+const filterPrivate = (strings: string[]): string[] => strings.filter((s) => !s.startsWith('_'))
 
-const log = stdoutLog('extract-apps')
-log.enabled = true
+export const main: MainFn = async function main(log) {
+  assert(INPUT_FOLDER, log, 'INPUT_FOLDER is not set', 'fatal')
+  const pool = poolFactory<allMessages>(join(__dirname, WORKER_FILENAME), { minWorkers: 1 })
 
-let terminating: Promise<void>
-let pool: Pool<allMessages>
+  const loadedSections = filterPrivate(await readdir(INPUT_FOLDER))
+  const existingApps = flatten(
+    await Promise.all(
+      loadedSections.map(async (section) =>
+        filterPrivate(await readdir(join(INPUT_FOLDER, section))).map((app) => ({ section, app })),
+      ),
+    ),
+  )
+  const finishedApps = await getApps(APPS_PATH)
 
-export const main: MainFn = async function main() {
-  if (!INPUT_FOLDER) {
-    log('INPUT_FOLDER is not specified')
-    return
+  const appsToDo = differenceWith(
+    (a, b) => `${a.section}/${a.app}` === `${b.section}/${b.app}`,
+    existingApps,
+    finishedApps,
+  )
+
+  log.info(
+    {
+      allExistingApps: existingApps.length,
+      finishedApps: finishedApps.length,
+      todo: appsToDo.length,
+    },
+    'app lengths',
+  )
+
+  const parallelOpts = {
+    chunkLimit: pool.maxWorkers + 1,
+    chunkSize: Math.floor(1.5 * pool.maxWorkers),
   }
 
-  const sections_todo = await readdir(INPUT_FOLDER)
+  await resolveAllOrInParallel(
+    finishedApps.map(({ type, section, app }) => async () => {
+      if (terminating) {
+        return { done: false, type, section, app }
+      }
+      if (await pathExists(join(APPS_APKS, type, section, app, APK_FILE))) {
+        return { done: true, type, section, app }
+      }
+      return {
+        done: await pool.exec('copy-apk', [
+          { inputPath: INPUT_FOLDER, outputPath: APPS_APKS, type, section, app },
+        ]),
+        type,
+        section,
+        app,
+      }
+    }),
+    parallelOpts,
+  )
 
-  if (!terminating) {
-    pool = poolFactory(join(__dirname, WORKER_FILENAME), { minWorkers: 1 })
-    log('started worker')
-  }
+  type sectionApp = { section: string; app: string }
+  type successfulExtractedReport = sectionApp & { done: true; type: APP_TYPES | 'removed' }
+  type failedExtractedReport = sectionApp & { done: false }
+  type extractedReport = successfulExtractedReport | failedExtractedReport
 
-  for (let section of sections_todo) {
-    if (terminating) {
-      break
-    }
+  const results = await resolveAllOrInParallel(
+    appsToDo.map(({ section, app }) => async (): Promise<extractedReport> => {
+      if (terminating) {
+        return { done: false, section, app }
+      }
 
-    if (sections_fin.includes(section)) {
-      log('skp %o (already finished)', section)
-      continue
-    }
-
-    const appNames = await readdir(join(INPUT_FOLDER, section))
-    const appsPromises = appNames.map((app) => {
-      return async () => {
+      try {
         await pool.exec('extract-app', [
           { inputPath: INPUT_FOLDER, outputPath: TMP_FOLDER, section, app },
         ])
         const type = await pool.exec('move-decomp-app', [
-          { inputPath: TMP_FOLDER, outputPath: EXTRACTED_JS, section, app },
+          { inputPath: TMP_FOLDER, outputPath: APPS_PATH, section, app },
         ])
-
         if (type !== 'removed') {
           await pool.exec('copy-apk', [
-            { inputPath: INPUT_FOLDER, outputPath: FINISHED_APK, type, section, app },
+            { inputPath: INPUT_FOLDER, outputPath: APPS_APKS, type, section, app },
           ])
         }
-
-        return { section, app, type }
+        return { done: true, type, section, app }
+      } catch (err) {
+        log.error({ err, section, app }, 'error from child')
+        return { done: false, section, app }
       }
-    })
+    }),
+    parallelOpts,
+  )
 
-    const apps = await resolveAllOrInParallel(appsPromises)
-    const cordovaApps = apps.filter(({ type }) => type === APP_TYPES.cordova)
-    const reactNativeApps = apps.filter(({ type }) => type === APP_TYPES.reactNative)
-    const cordovaAppsLen = cordovaApps.length
-    const reactNativeAppsLen = reactNativeApps.length
+  const [s, f] = partition(({ done }) => done, results) as [
+    successfulExtractedReport[],
+    failedExtractedReport[]
+  ]
+  const cordovaApps = s.filter(({ type }) => type === APP_TYPES.cordova)
+  const reactNativeApps = s.filter(({ type }) => type === APP_TYPES.reactNative)
+  const removedApps = s.filter(({ type }) => type === 'removed')
 
-    log(
-      `fin %o (cr=%o)+(rn=%o)=(total=%o)`,
-      section,
-      cordovaAppsLen,
-      reactNativeAppsLen,
-      cordovaAppsLen + reactNativeAppsLen,
-    )
+  const cl = cordovaApps.length
+  const rnl = reactNativeApps.length
+  const rl = removedApps.length
 
-    const sectionTmpDir = join(TMP_FOLDER, section)
-    const tmpDirContents = await readdir(sectionTmpDir)
-    if (tmpDirContents.length === 0) {
-      await remove(sectionTmpDir)
-    }
-  }
+  log.info(
+    oneLineTrim`
+      fin apps: (
+        (
+          (cr=${cl}) + (rn=${rnl}) = (saved=${cl + rnl})
+        ) + (removed=${rl}) = (s=${cl + rnl + rl}==${s.length})
+      ) + (f=${f.length}) = (total=${results.length})`,
+  )
 
-  const tmpDirContents = await readdir(TMP_FOLDER)
-  if (tmpDirContents.length === 0) {
+  await Promise.all(
+    loadedSections.map(async (section) => {
+      const tmp = join(TMP_FOLDER, section)
+      if ((await pathExists(tmp)) && (await readdir(tmp)).length === 0) {
+        await remove(tmp)
+      }
+    }),
+  )
+
+  if ((await pathExists(TMP_FOLDER)) && (await readdir(TMP_FOLDER)).length === 0) {
     await remove(TMP_FOLDER)
   }
 
   await pool.terminate()
 }
 
-export const terminate: TerminateFn = () => {
-  if (pool) {
-    terminating = pool.terminate()
-  } else {
-    terminating = Promise.resolve()
-  }
-}
+export const terminate: TerminateFn = once(() => {
+  terminating = true
+})
