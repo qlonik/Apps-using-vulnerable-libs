@@ -10,6 +10,7 @@ import {
   preprocessCordovaApp,
   preprocessReactNativeApp,
 } from '../parseApps'
+import { APK_FILE } from '../parseApps/constants'
 import {
   analyseLibFiles,
   extractMainFiles,
@@ -160,7 +161,7 @@ worker<messages>({
 
   'copy-apk': async ({ inputPath, outputPath, type, section, app }) => {
     const apkPath = join(inputPath, section, app)
-    const outputApkPath = join(outputPath, type, section, app, 'app.apk')
+    const outputApkPath = join(outputPath, type, section, app, APK_FILE)
 
     await copy(apkPath, outputApkPath)
 

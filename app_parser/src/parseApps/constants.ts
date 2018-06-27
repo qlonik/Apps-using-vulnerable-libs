@@ -1,6 +1,8 @@
 export const JS_DATA_FOLDER = 'js'
 export const ANALYSIS_FOLDER = 'an'
 
+export const APK_FILE = 'app.apk'
+
 export const FINISHED_PREPROCESSING_FILE = '_fin_pre_prerocess.json'
 export const LIB_CANDIDATES_FILE = '_lib_candidates.json'
 export const LIB_PREPROCESSED_CANDIDATES_FILE = '_lib_prep_candidates.json'
