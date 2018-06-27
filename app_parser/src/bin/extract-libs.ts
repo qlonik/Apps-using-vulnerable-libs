@@ -40,7 +40,7 @@ export const main: MainFn = async function main(log) {
     },
   )
 
-  const [s, f] = partition((done) => done, results)
+  const [s, f] = partition(({ done }) => done, results)
 
   log.info('successful: %o', s.length)
   log.info({ failed: f }, 'failed: %o', f.length)
