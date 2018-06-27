@@ -1,7 +1,7 @@
 import cloneable from 'cloneable-readable'
 import debug from 'debug'
 import { createWriteStream } from 'fs'
-import pino from 'pino'
+import pino, { Level } from 'pino'
 import pump from 'pump'
 import stream from 'stream'
 import { inspect } from 'util'
@@ -74,10 +74,11 @@ export function assert<T>(
   statement: T,
   _log: pino.Logger = log,
   msg: string = 'assertion error',
+  level: pino.Level = 'error',
 ): Exclude<T, falsy> {
   if (!statement) {
     const err = new Error(msg)
-    _log.error({ err })
+    _log[level]({ err })
     throw err
   } else {
     return statement as Exclude<T, falsy>
