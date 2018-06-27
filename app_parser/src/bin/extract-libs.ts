@@ -34,6 +34,10 @@ export const main: MainFn = async function main(log) {
         return { done: false, filename }
       }
     }),
+    {
+      chunkLimit: pool.maxWorkers + 1,
+      chunkSize: Math.floor(1.5 * pool.maxWorkers),
+    },
   )
 
   const [s, f] = partition((done) => done, results)
