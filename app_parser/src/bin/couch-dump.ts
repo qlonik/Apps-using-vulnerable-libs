@@ -5,6 +5,7 @@ import { join } from 'path'
 import { pipe } from 'rxjs'
 import { map, partition } from 'rxjs/operators'
 import { valid } from 'semver'
+import { assert } from '../utils/logger'
 import { streamToRx } from '../utils/observable'
 import { MainFn, TerminateFn } from './_all.types'
 
@@ -35,10 +36,8 @@ const writeIntoFile = (w: WriteStream) => {
 }
 
 let terminateCall: () => void
-export const main: MainFn = async function main() {
-  if (!DB) {
-    throw new Error('DB is not specified')
-  }
+export const main: MainFn = async function main(log) {
+  const db = assert(DB, log, 'DB is not specified')
 
   const writeFile = createWriteStream(outFilePath, {
     encoding: 'utf-8',
@@ -55,7 +54,7 @@ export const main: MainFn = async function main() {
   const writeValid = writeIntoFile(writeFile)
   const writeInValid = writeIntoFile(invalidWriteFile)
 
-  const changesStream = new ChangesStream({ db: DB, include_docs: true })
+  const changesStream = new ChangesStream({ db, include_docs: true })
   terminateCall = once(() => changesStream.destroy())
 
   const changes$ = streamToRx<docType>(changesStream)
