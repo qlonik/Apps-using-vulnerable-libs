@@ -1,7 +1,12 @@
-import { SourceLocation } from 'babel-types' // eslint-disable-line no-unused-vars
+import { SourceLocation } from 'babel-types'
 import { Fraction } from 'fraction.js'
 import { last } from 'lodash/fp'
-import { fnNamesSplit, FunctionSignature, FunctionSignatures } from './index'
+import { fnNamesSplit } from './fn-names-concat'
+import { FunctionSignature, FunctionSignatures } from './types'
+
+/* eslint-disable no-unused-vars*/
+declare const __x: SourceLocation
+/* eslint-enable */
 
 export const LONG_LINE_LENGTH = 130
 const LONG_FN_NAME_LENGTH = 4

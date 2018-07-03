@@ -2,15 +2,9 @@ import { test } from 'ava'
 import { isFunction } from 'babel-types'
 import { parse } from 'babylon'
 import { oneLineTrim, source, stripIndent } from 'common-tags'
-import {
-  collapseFnNamesTree,
-  EXTRACTOR_VERSION,
-  extractStructure,
-  fnNamesConcat,
-  fnOnlyTreeCreator,
-  literalValues,
-  rnDeclareFns,
-} from './index'
+import { fnNamesConcat } from './fn-names-concat'
+import { EXTRACTOR_VERSION, extractStructure } from './index'
+import { collapseFnNamesTree, fnOnlyTreeCreator, literalValues, rnDeclareFns } from './internal'
 import { Signature } from './nodeFilters/allFnsAndNames'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
 import { TreePath } from './visit-nodes'

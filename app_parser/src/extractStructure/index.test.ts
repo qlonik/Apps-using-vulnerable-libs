@@ -1,12 +1,9 @@
 import { test } from 'ava'
 import { oneLineTrim, stripIndent } from 'common-tags'
-import {
-  extractReactNativeStructure,
-  extractStructure,
-  fnNamesConcat,
-  rnSignatureNew,
-} from './index'
+import { fnNamesConcat } from './fn-names-concat'
+import { extractReactNativeStructure, extractStructure } from './index'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
+import { rnSignatureNew } from './types'
 
 test('library: extracted correct signature', async t => {
   const content = stripIndent`
