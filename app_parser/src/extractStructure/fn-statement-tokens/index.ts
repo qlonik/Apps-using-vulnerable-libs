@@ -91,15 +91,11 @@ import {
 import { flatMap } from 'lodash'
 import { assertNever } from '../../utils'
 import logger from '../../utils/logger'
+import { EXTRACTOR_VERSION } from '../index'
 import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT, UNKNOWN } from '../tags'
 
 const NAMESPACE = 'x.tokens'
 const log = logger.child({ name: NAMESPACE })
-
-export enum EXTRACTOR_VERSION {
-  v1,
-  v2,
-}
 
 export type opts = {
   v: EXTRACTOR_VERSION

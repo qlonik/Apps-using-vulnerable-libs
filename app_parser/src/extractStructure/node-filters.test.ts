@@ -1,10 +1,10 @@
 import { test } from 'ava'
 import { isFunction } from 'babel-types'
 import { parse } from 'babylon'
-import { oneLineTrim, stripIndent, source } from 'common-tags'
-import { EXTRACTOR_VERSION } from './fn-statement-tokens'
+import { oneLineTrim, source, stripIndent } from 'common-tags'
 import {
   collapseFnNamesTree,
+  EXTRACTOR_VERSION,
   extractStructure,
   fnNamesConcat,
   fnOnlyTreeCreator,

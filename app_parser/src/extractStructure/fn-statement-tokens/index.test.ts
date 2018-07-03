@@ -1,8 +1,8 @@
 import { test } from 'ava'
 import { stripIndent } from 'common-tags'
+import { EXTRACTOR_VERSION } from '../index'
 import { DIRECTIVE, PARAM } from '../tags'
 import { checkTokensMacro } from './_macros'
-import { EXTRACTOR_VERSION } from './index'
 
 test(
   'empty function',

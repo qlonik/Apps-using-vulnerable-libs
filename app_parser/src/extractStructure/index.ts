@@ -2,7 +2,6 @@ import { Comment as BabelComment, CommentBlock, CommentLine, Node as BabelNode }
 import { parse } from 'babylon'
 import { flatMap, Many } from 'lodash'
 import { stdoutLog } from '../utils/logger'
-import { EXTRACTOR_VERSION } from './fn-statement-tokens'
 import { fnNodeFilter, Signature } from './nodeFilters/allFnsAndNames'
 import {
   collapseLiteralValsTree,
@@ -15,6 +14,11 @@ import { TreePath, visitNodes } from './visit-nodes'
 const CONCAT_FNS_WITH = ':>>:'
 const NAMESPACE = 'x.Struct'
 const log = stdoutLog(NAMESPACE)
+
+export enum EXTRACTOR_VERSION {
+  v1,
+  v2,
+}
 
 export const fnNamesConcat = (p: string, f: string): string => {
   const st = p.length ? CONCAT_FNS_WITH : ''
