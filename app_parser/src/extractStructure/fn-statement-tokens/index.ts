@@ -38,7 +38,6 @@ import {
   isForInStatement,
   isForOfStatement,
   isForStatement,
-  isFunction,
   isFunctionDeclaration,
   isFunctionExpression,
   isIdentifier,
@@ -91,15 +90,11 @@ import {
 import { flatMap } from 'lodash'
 import { assertNever } from '../../utils'
 import logger from '../../utils/logger'
-import { EXTRACTOR_VERSION } from '../options'
+import { EXTRACTOR_VERSION, getDefaultOpts, opts } from '../options'
 import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT, UNKNOWN } from '../tags'
 
 const NAMESPACE = 'x.tokens'
 const log = logger.child({ name: NAMESPACE })
-
-export type opts = {
-  v: EXTRACTOR_VERSION
-}
 
 // EIR = Expression Internal Representation
 type EIR = {
@@ -127,7 +122,7 @@ const collapseIR = (eir: EIR | null): string | null => {
   }
 }
 
-const fnStTokensParserWithOptions = (o: opts) => {
+const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
   const getLiteralIR = (lit: Literal | null): EIR => {
     const descr: EIR = {
       title: LITERAL,
@@ -510,14 +505,14 @@ const fnStTokensParserWithOptions = (o: opts) => {
         .map((declaration) => {
           const id = getTokensFromLVal(declaration.id)
           const init = getTokensFromExpression(declaration.init)
-          if (o.v === EXTRACTOR_VERSION.v1) {
-          } else if (o.v === EXTRACTOR_VERSION.v2) {
+          if (V === EXTRACTOR_VERSION.v1) {
+          } else if (V === EXTRACTOR_VERSION.v2) {
             if (!init) {
               return null
             }
           } else {
             /* istanbul ignore next */
-            assertNever(o.v)
+            assertNever(V)
           }
           const pred = box(`${id}${box(init, ' = ', '')}`)
           return `${DECLARATION}:Variable${pred}`
@@ -574,12 +569,12 @@ const fnStTokensParserWithOptions = (o: opts) => {
     let result: string[] = []
     const { params, body } = node
 
-    if (o.v === EXTRACTOR_VERSION.v1) {
+    if (V === EXTRACTOR_VERSION.v1) {
       result = result.concat(getTokensFromLVals(params))
-    } else if (o.v === EXTRACTOR_VERSION.v2) {
+    } else if (V === EXTRACTOR_VERSION.v2) {
     } else {
       /* istanbul ignore next */
-      assertNever(o.v)
+      assertNever(V)
     }
 
     if (isExpression(body)) {
@@ -595,19 +590,6 @@ const fnStTokensParserWithOptions = (o: opts) => {
   }
 }
 
-export const DEFAULT_OPTIONS: opts = {
-  v: EXTRACTOR_VERSION.v1,
-}
-
-// eslint-disable-next-line import/export
-export function getFnStatementTokens(opts?: opts): (node: Function) => string[]
-// eslint-disable-next-line import/export
-export function getFnStatementTokens(node: Function): string[]
-// eslint-disable-next-line import/export
-export function getFnStatementTokens(x?: Function | opts) {
-  if (x && isFunction(x)) {
-    return fnStTokensParserWithOptions(DEFAULT_OPTIONS)(x)
-  } else {
-    return fnStTokensParserWithOptions({ ...DEFAULT_OPTIONS, ...x })
-  }
+export function getFnStatementTokens(opts?: opts): (node: Function) => string[] {
+  return fnStTokensParserWithOptions(getDefaultOpts(opts))
 }

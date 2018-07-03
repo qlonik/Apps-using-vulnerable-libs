@@ -10,5 +10,11 @@ export enum EXTRACTOR_VERSION {
 }
 
 export type opts = {
-  'extractor-version'?: EXTRACTOR_VERSION
+  'extractor-version': EXTRACTOR_VERSION
 }
+
+export const getDefaultOpts = ({
+  'extractor-version': v = EXTRACTOR_VERSION.v1,
+}: Partial<opts> = {}): opts => ({
+  'extractor-version': v,
+})

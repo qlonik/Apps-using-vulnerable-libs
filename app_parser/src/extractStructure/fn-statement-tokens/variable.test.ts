@@ -105,7 +105,7 @@ test(
     }
   `,
   [`${LITERAL}:String`],
-  { v: EXTRACTOR_VERSION.v2 },
+  { 'extractor-version': EXTRACTOR_VERSION.v2 },
 )
 
 test(
@@ -117,5 +117,5 @@ test(
     }
   `,
   [`${DECLARATION}:Variable[${PARAM}:Identifier[b] = ${LITERAL}:Numeric]`],
-  { v: EXTRACTOR_VERSION.v2 },
+  { 'extractor-version': EXTRACTOR_VERSION.v2 },
 )

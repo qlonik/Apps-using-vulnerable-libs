@@ -2,7 +2,7 @@ import { Comment as BabelComment, CommentBlock, CommentLine, Node as BabelNode }
 import { parse } from 'babylon'
 import { collapseFnNamesTree, fnOnlyTreeCreator, literalValues, rnDeclareFns } from './internal'
 import { collapseLiteralValsTree } from './nodeFilters/literalValues'
-import { opts } from './options'
+import { getDefaultOpts, opts } from './options'
 import { rnSignatureNew, signatureNew, signatureWithComments } from './types'
 
 export * from './types'
@@ -19,10 +19,10 @@ const mapBabelComments = (
 
 const _extractStructure = function({
   content,
-  opts = {},
+  opts,
 }: {
   content: BabelNode
-  opts?: opts
+  opts: opts
 }): signatureNew {
   const functionSignature = collapseFnNamesTree(fnOnlyTreeCreator(content, opts))
   const literalSignature = collapseLiteralValsTree(literalValues(content, opts))
@@ -35,11 +35,13 @@ const _extractStructure = function({
  */
 export const extractStructure = async function({
   content,
-  opts = {},
+  options,
 }: {
   content: string
-  opts?: opts
+  options?: Partial<opts>
 }): Promise<signatureWithComments> {
+  const opts = getDefaultOpts(options)
+
   const { program, comments } = parse(content)
   const signature = _extractStructure({ content: program, opts })
 
@@ -48,13 +50,15 @@ export const extractStructure = async function({
 
 export const extractReactNativeStructure = async function({
   content,
-  opts = {},
+  options,
 }: {
   content: string
-  opts?: opts
+  options?: Partial<opts>
 }): Promise<rnSignatureNew[]> {
+  const opts = getDefaultOpts(options)
+
   const { program } = parse(content)
-  return rnDeclareFns(program).map(({ data }) => {
+  return rnDeclareFns(program, opts).map(({ data }) => {
     const { id, factory } = data
     const structure = _extractStructure({ content: factory, opts })
     return { id, ...structure }

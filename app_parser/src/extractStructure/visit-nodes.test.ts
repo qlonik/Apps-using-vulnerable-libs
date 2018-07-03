@@ -1,5 +1,6 @@
 import { SinonStub, stub } from 'sinon'
 import { contextualize } from '../_helpers/testContext'
+import { getDefaultOpts } from './options'
 import { Signal, visitNodes } from './visit-nodes'
 
 const objectWithPropertySpy = <K extends string, V>(
@@ -79,7 +80,7 @@ test('empty options', t => {
   const { tree, getSpy, setSpy } = t.context
 
   const iterator = visitNodes()
-  const result = iterator(tree)
+  const result = iterator(tree, getDefaultOpts())
 
   t.true(getSpy.notCalled)
   t.true(setSpy.notCalled)
@@ -92,7 +93,7 @@ test('filter returns null', t => {
   const iterator = visitNodes({
     fn: () => Signal.continue<any>(null),
   })
-  const result = iterator(tree)
+  const result = iterator(tree, getDefaultOpts())
 
   t.true(getSpy.calledOnce)
   t.true(setSpy.notCalled)
@@ -114,7 +115,7 @@ test('filter returns some data and continues recursion', t => {
       return Signal.continue<any>(null)
     },
   })
-  const result = iterator(tree)
+  const result = iterator(tree, getDefaultOpts())
 
   t.true(getSpy.calledOnce)
   t.true(setSpy.notCalled)
@@ -154,7 +155,7 @@ test('filter returns some data and prevents recursion', t => {
       return Signal.continue<any>(null)
     },
   })
-  const result = iterator(tree)
+  const result = iterator(tree, getDefaultOpts())
 
   t.true(getSpy.notCalled)
   t.true(setSpy.notCalled)
@@ -188,7 +189,7 @@ test('filter returns spied object', t => {
       return Signal.continue<any>(null)
     },
   })
-  const result = iterator(tree)
+  const result = iterator(tree, getDefaultOpts())
 
   t.true(getSpy.calledOnce)
   t.true(setSpy.notCalled)

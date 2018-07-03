@@ -53,17 +53,14 @@ const pathConcat = (p: string, c: string | number): string => {
 
 export const visitNodes = <K>({
   fn = undefined,
-  opts: globOpts = {},
 }: {
-  fn?: (path: string, val: any, opts: {}) => Signal<K>
-  opts?: opts
+  fn?: (path: string, val: any, opts: opts) => Signal<K>
 } = {}) => {
   return function paths(
     obj: object | Array<any>,
-    localOpts: opts = {},
+    opts: opts,
     pathSoFar: string = '',
   ): TreePath<K>[] {
-    const opts = { ...globOpts, ...localOpts }
     let entries: Array<[string | number, any]> = []
     if (Array.isArray(obj)) {
       entries = [...obj.entries()]
@@ -79,7 +76,7 @@ export const visitNodes = <K>({
 
       if (signal === Signals.continueRecursion) {
         if (value && typeof value === 'object') {
-          const ch = paths(value, localOpts, childPath)
+          const ch = paths(value, opts, childPath)
           if (ch.length > 0) {
             children = ch
           }

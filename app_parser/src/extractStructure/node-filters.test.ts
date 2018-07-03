@@ -6,7 +6,7 @@ import { fnNamesConcat } from './fn-names-concat'
 import { extractStructure } from './index'
 import { collapseFnNamesTree, fnOnlyTreeCreator, literalValues, rnDeclareFns } from './internal'
 import { Signature } from './nodeFilters/allFnsAndNames'
-import { EXTRACTOR_VERSION } from './options'
+import { EXTRACTOR_VERSION, getDefaultOpts } from './options'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
 import { TreePath } from './visit-nodes'
 
@@ -180,7 +180,7 @@ test('fn filtered correctly', async t => {
     },
   ]
 
-  const tree = fnOnlyTreeCreator(parse(code))
+  const tree = fnOnlyTreeCreator(parse(code), getDefaultOpts())
 
   t.deepEqual(expected, tree)
   t.deepEqual(collapsed, collapseFnNamesTree(tree))
@@ -369,8 +369,10 @@ test('fn filtered correctly with v2 extractor', async t => {
   t.deepEqual(collapsed, collapseFnNamesTree(expected))
   t.deepEqual(
     collapsed,
-    (await extractStructure({ content: code, opts: { 'extractor-version': EXTRACTOR_VERSION.v2 } }))
-      .functionSignature,
+    (await extractStructure({
+      content: code,
+      options: { 'extractor-version': EXTRACTOR_VERSION.v2 },
+    })).functionSignature,
   )
 })
 
@@ -392,7 +394,7 @@ test('react-native: bundle filtered correctly', t => {
       return 456;
     }, 3, [])
   `
-  const [first, second, third, fourth] = rnDeclareFns(parse(content))
+  const [first, second, third, fourth] = rnDeclareFns(parse(content), getDefaultOpts())
 
   t.is(first.data!.id, '0')
   t.true(isFunction(first.data!.factory as any))
@@ -430,6 +432,6 @@ test('literals: extracted needed, skipped common', t => {
       var common5 = 1;
     }
   `
-  const sig = literalValues(parse(content))
+  const sig = literalValues(parse(content), getDefaultOpts())
   t.is(8, sig.length)
 })

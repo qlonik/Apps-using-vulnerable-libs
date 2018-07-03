@@ -27,7 +27,7 @@ import { inspect as utilInspect } from 'util'
 import { stdoutLog } from '../../utils/logger'
 import { getFnStatementTokens } from '../fn-statement-tokens'
 import { getFnStatementTypes } from '../fnStatementTypes'
-import { EXTRACTOR_VERSION, opts } from '../options'
+import { opts } from '../options'
 import { Signal } from '../visit-nodes'
 
 const log = stdoutLog('extractStructure:nodeFilters:allFnsAndNames')
@@ -87,11 +87,7 @@ const extractNodeLocation = (loc: SourceLocation): SourceLocation => {
   }
 }
 
-export const fnNodeFilter = (
-  path: string,
-  node: BabelNode,
-  { 'extractor-version': extrVersion = EXTRACTOR_VERSION.v1 }: opts = {},
-): Signal<Signature> => {
+export const fnNodeFilter = (path: string, node: BabelNode, opts: opts): Signal<Signature> => {
   if (node && (<any>node).__skip) {
     return Signal.continue<Signature>(null)
   }
@@ -103,7 +99,7 @@ export const fnNodeFilter = (
       name: (node.id && node.id.name) || '[anonymous]',
       loc: extractNodeLocation(node.loc),
       fnStatementTypes: getFnStatementTypes(node),
-      fnStatementTokens: getFnStatementTokens({ v: extrVersion })(node),
+      fnStatementTokens: getFnStatementTokens(opts)(node),
     })
   } else if (
     isVariableDeclarator(node) ||
@@ -200,7 +196,7 @@ export const fnNodeFilter = (
         name,
         loc: extractNodeLocation(fnNode.loc),
         fnStatementTypes: getFnStatementTypes(fnNode),
-        fnStatementTokens: getFnStatementTokens({ v: extrVersion })(fnNode),
+        fnStatementTokens: getFnStatementTokens(opts)(fnNode),
       })
     }
   }

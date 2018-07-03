@@ -1,7 +1,8 @@
 import { ExecutionContext, Macro } from 'ava'
 import { isFunction } from 'babel-types'
 import { parse } from 'babylon'
-import { DEFAULT_OPTIONS, getFnStatementTokens, opts } from './index'
+import { getDefaultOpts, opts } from '../options'
+import { getFnStatementTokens } from './index'
 
 const parseContent = (
   t: ExecutionContext,
@@ -21,9 +22,9 @@ const parseContent = (
 const extractTokens = (
   t: ExecutionContext,
   parsed: ReturnType<typeof parse>,
-  options?: opts,
+  options?: Partial<opts>,
   msg = 'Script has to contain only one function',
-): false | ReturnType<typeof getFnStatementTokens> => {
+) => {
   const body = parsed.program.body
   if (body.length !== 1) {
     t.fail(msg)
@@ -34,15 +35,14 @@ const extractTokens = (
     t.fail(msg)
     return false
   }
-  const opts = { ...DEFAULT_OPTIONS, ...(options || {}) }
-  return getFnStatementTokens(opts)(fn)
+  return getFnStatementTokens(getDefaultOpts(options))(fn)
 }
 
 export const checkTokensMacro: Macro = async (
   t: ExecutionContext,
   content: string = '',
   expected: string[] = [],
-  opts?: opts,
+  opts?: Partial<opts>,
 ) => {
   t.truthy(content, 'Script content is empty')
 
@@ -68,7 +68,7 @@ export const checkSameSignature: Macro = async (
   t: ExecutionContext,
   one: string,
   two: string,
-  opts?: opts,
+  opts?: Partial<opts>,
 ) => {
   t.truthy(one, 'First script is empty')
   t.truthy(two, 'Second script is empty')

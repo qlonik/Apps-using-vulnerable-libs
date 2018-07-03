@@ -32,7 +32,7 @@ test(
     }
   `,
   [],
-  { v: EXTRACTOR_VERSION.v2 },
+  { 'extractor-version': EXTRACTOR_VERSION.v2 },
 )
 
 test(
