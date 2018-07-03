@@ -62,7 +62,7 @@ export const main: MainFn = async function main(log) {
   const [validDocs, invalidDocs] = pipe(
     partition(
       ({ id, doc }: docType) =>
-        !!id && !id.startsWith('_') && !id.startsWith('.') && !!doc.versions && !!doc.time,
+        !!id && !id.startsWith('_') && !id.startsWith('.') && !!doc.versions,
     ),
   )(changes$)
 
@@ -74,7 +74,7 @@ export const main: MainFn = async function main(log) {
           (a: string[], b: string[]) => a.concat(b),
           (a) => [...new Set(a)],
           (a) => a.filter((v) => !!valid(v)),
-          (a) => a.map((v) => ({ v, time: time[v] || '0' })),
+          (a) => a.map((v) => ({ v, time: time[v] || 'unknown' })),
         )(Object.keys(versions), Object.keys(time)),
       })),
     )
