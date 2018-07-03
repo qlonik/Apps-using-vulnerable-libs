@@ -1,6 +1,6 @@
 import { test } from 'ava'
 import { oneLineTrim, stripIndent } from 'common-tags'
-import { EXTRACTOR_VERSION } from '../index'
+import { EXTRACTOR_VERSION } from '../options'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM } from '../tags'
 import { checkTokensMacro } from './_macros'
 

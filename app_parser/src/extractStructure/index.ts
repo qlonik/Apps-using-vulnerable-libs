@@ -2,21 +2,12 @@ import { Comment as BabelComment, CommentBlock, CommentLine, Node as BabelNode }
 import { parse } from 'babylon'
 import { collapseFnNamesTree, fnOnlyTreeCreator, literalValues, rnDeclareFns } from './internal'
 import { collapseLiteralValsTree } from './nodeFilters/literalValues'
+import { opts } from './options'
 import { rnSignatureNew, signatureNew, signatureWithComments } from './types'
 
 export * from './types'
 export * from './fn-names-concat'
-
-export enum EXTRACTOR_VERSION {
-  /**
-   * default, extracts everything
-   */
-  v1,
-  /**
-   * This option makes extractor skip all variable and parameter declarations
-   */
-  v2,
-}
+export { opts }
 
 const mapBabelComments = (
   comment: BabelComment | CommentBlock | CommentLine,
@@ -26,9 +17,6 @@ const mapBabelComments = (
     : comment.value
 }
 
-export type opts = {
-  'extractor-version'?: EXTRACTOR_VERSION
-}
 const _extractStructure = function({
   content,
   opts = {},

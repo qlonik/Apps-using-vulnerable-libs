@@ -91,7 +91,7 @@ import {
 import { flatMap } from 'lodash'
 import { assertNever } from '../../utils'
 import logger from '../../utils/logger'
-import { EXTRACTOR_VERSION } from '../index'
+import { EXTRACTOR_VERSION } from '../options'
 import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT, UNKNOWN } from '../tags'
 
 const NAMESPACE = 'x.tokens'

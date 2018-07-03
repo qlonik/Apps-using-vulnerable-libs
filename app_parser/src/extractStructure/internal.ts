@@ -1,10 +1,10 @@
 import { Node as BabelNode, SourceLocation } from 'babel-types'
 import { flatMap, Many } from 'lodash'
 import { fnNamesConcat } from './fn-names-concat'
-import { EXTRACTOR_VERSION } from './index'
 import { fnNodeFilter } from './nodeFilters/allFnsAndNames'
 import { literalValuesFilter } from './nodeFilters/literalValues'
 import { rnDeclareFnFilter } from './nodeFilters/rnDeclareFn'
+import { EXTRACTOR_VERSION } from './options'
 import { FunctionSignature } from './types'
 import { TreePath, visitNodes } from './visit-nodes'
 
