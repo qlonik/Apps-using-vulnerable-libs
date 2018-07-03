@@ -352,7 +352,7 @@ export function v5<T extends FunctionSignature[] | FunctionSignatures>(
 
 /**
  * This function calculates mapping between unknown signature and known lib signature in the same
- * way as {@link v5} does. However, this function uses {@link similarityIndexToLib}
+ * way as {@link v5} does. However, this function uses {@link libPortion}
  * @param unknownS
  * @param libS
  */
