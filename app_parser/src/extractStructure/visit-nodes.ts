@@ -13,6 +13,7 @@ export type TreePath<T> = {
   prop: string
   data: T
   node?: BabelNode
+  // eslint-disable-next-line typescript/no-use-before-define
   c?: TreePath<T>[]
 }
 
