@@ -1,89 +1,115 @@
 import { test } from 'ava'
-import { isFunction } from 'babel-types'
+import { isFunction, SourceLocation } from 'babel-types'
 import { parse } from 'babylon'
 import { oneLineTrim, source, stripIndent } from 'common-tags'
+import { assertNever } from '../utils'
 import { fnNamesConcat } from './fn-names-concat'
 import { extractStructure } from './index'
 import { collapseFnNamesTree, fnOnlyTreeCreator, literalValues, rnDeclareFns } from './internal'
 import { Signature } from './nodeFilters/allFnsAndNames'
-import { EXTRACTOR_VERSION, getDefaultOpts } from './options'
+import { EXTRACTOR_VERSION as EV, getDefaultOpts, opts } from './options'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
 import { TreePath } from './visit-nodes'
 
-test('fn filtered correctly', async t => {
+/**
+ * @param l String in format: "<sl>:<sc>-<el>:<ec>", where sl, sc, el, and ec are location numbers
+ */
+const tLoc = (l: string): SourceLocation => {
+  const [[sLine, sCol], [eLine, eCol]] = l.split('-').map(l => l.split(':').map(i => parseInt(i)))
+  return { start: { line: sLine, column: sCol }, end: { line: eLine, column: eCol } }
+}
+
+const getCode = ({ 'extractor-version': V }: opts) => {
   const fnB1 = stripIndent`
     function fn1() {
       var c = '1';
       return c;
     }
   `
-  const fnB1_toks = [
-    `${DECLARATION}:Variable[${PARAM}:Identifier[c] = ${LITERAL}:String]`,
-    `${STATEMENT}:Return[${EXPRESSION}:Identifier[c]]`,
-  ]
-  const fnB1_types = [`t_${STATEMENT}:VariableDeclaration`, `t_${STATEMENT}:ReturnStatement`]
-
   const fnB2 = stripIndent`
     function fn2(param) {
       return param + '2';
     }
   `
-  const fnB2_toks = [
-    `${PARAM}:Identifier[param]`,
-    `${STATEMENT}:Return[${EXPRESSION}:Binary[${EXPRESSION}:Identifier[param] + ${LITERAL}:String]]`,
-  ]
-  const fnB2_types = [`t_${PARAM}:Identifier`, `t_${STATEMENT}:ReturnStatement`]
-
   const fnB = source`
     function () {
       ${fnB1}
       ${'(' + fnB2 + ')(a);'}
     }
   `
-  const fnB_toks = [
-    `${DECLARATION}:Function[${EXPRESSION}:Identifier[fn1]]`,
-    oneLineTrim`
-      ${EXPRESSION}:Call[
-        ${EXPRESSION}:Function[${EXPRESSION}:Identifier[fn2]](${EXPRESSION}:Identifier[a])
-      ]
-    `,
-  ]
-  const fnB_types = [`t_${STATEMENT}:FunctionDeclaration`, `t_${STATEMENT}:ExpressionStatement`]
-
   const fnD = stripIndent`
     function fn3() {
       return 1 + 2 + 3;
     }
   `
-  const fnD_toks = [
+  const code = source`
+    var a = '1';
+    ${`var b = ${fnB};`}
+    ${`var d = ${fnD};`}
+  `
+
+  const fnB1_toks =
+    V === EV.v1 || V === EV.v2
+      ? [
+          `${DECLARATION}:Variable[${PARAM}:Identifier[c] = ${LITERAL}:String]`,
+          `${STATEMENT}:Return[${EXPRESSION}:Identifier[c]]`,
+        ]
+      : assertNever(V)
+  const fnB1_types = [`t_${STATEMENT}:VariableDeclaration`, `t_${STATEMENT}:ReturnStatement`]
+  const fnB1_loc = tLoc('3:2-6:3')
+
+  const fnB2_toks = (V === EV.v1
+    ? [`${PARAM}:Identifier[param]`]
+    : V === EV.v2 ? [] : assertNever(V)
+  ).concat([
     oneLineTrim`
       ${STATEMENT}:Return[
-        ${EXPRESSION}:Binary[
-          ${EXPRESSION}:Binary[
-            ${LITERAL}:Numeric + ${LITERAL}:Numeric
-          ] + ${LITERAL}:Numeric
-        ]
+        ${EXPRESSION}:Binary[${EXPRESSION}:Identifier[param] + ${LITERAL}:String]
       ]
     `,
-  ]
-  const fnD_types = [`t_${STATEMENT}:ReturnStatement`]
+  ])
+  const fnB2_types = [`t_${PARAM}:Identifier`, `t_${STATEMENT}:ReturnStatement`]
+  const fnB2_loc = tLoc('7:3-9:3')
 
-  const code = source`
-      var a = '1';
-      ${`var b = ${fnB};`}
-      ${`var d = ${fnD};`}
-    `
-  const expected: TreePath<Signature>[] = [
+  const fnB_toks =
+    V === EV.v1 || V === EV.v2
+      ? [
+          `${DECLARATION}:Function[${EXPRESSION}:Identifier[fn1]]`,
+          oneLineTrim`
+            ${EXPRESSION}:Call[
+              ${EXPRESSION}:Function[${EXPRESSION}:Identifier[fn2]](${EXPRESSION}:Identifier[a])
+            ]
+          `,
+        ]
+      : assertNever(V)
+  const fnB_types = [`t_${STATEMENT}:FunctionDeclaration`, `t_${STATEMENT}:ExpressionStatement`]
+  const fnB_loc = tLoc('2:8-10:1')
+
+  const fnD_toks =
+    V === EV.v1 || V === EV.v2
+      ? [
+          oneLineTrim`
+            ${STATEMENT}:Return[
+              ${EXPRESSION}:Binary[
+                ${EXPRESSION}:Binary[
+                  ${LITERAL}:Numeric + ${LITERAL}:Numeric
+                ] + ${LITERAL}:Numeric
+              ]
+            ]
+          `,
+        ]
+      : assertNever(V)
+  const fnD_types = [`t_${STATEMENT}:ReturnStatement`]
+  const fnD_loc = tLoc('11:8-13:1')
+
+  const treePath: TreePath<Signature>[] = [
     {
       prop: 'program.body[1].declarations[0]',
       data: {
         index: -1,
         type: 'fn',
         name: 'b',
-        loc: {
-          start: { line: 2, column: 8 },
-          end: { line: 10, column: 1 },
-        },
+        loc: fnB_loc,
         fnStatementTypes: fnB_types.sort(),
         fnStatementTokens: fnB_toks.sort(),
       },
@@ -94,10 +120,7 @@ test('fn filtered correctly', async t => {
             index: -1,
             type: 'fn',
             name: 'fn1',
-            loc: {
-              start: { line: 3, column: 2 },
-              end: { line: 6, column: 3 },
-            },
+            loc: fnB1_loc,
             fnStatementTypes: fnB1_types.sort(),
             fnStatementTokens: fnB1_toks.sort(),
           },
@@ -108,10 +131,7 @@ test('fn filtered correctly', async t => {
             index: -1,
             type: 'fn',
             name: 'fn2',
-            loc: {
-              start: { line: 7, column: 3 },
-              end: { line: 9, column: 3 },
-            },
+            loc: fnB2_loc,
             fnStatementTypes: fnB2_types.sort(),
             fnStatementTokens: fnB2_toks.sort(),
           },
@@ -124,24 +144,18 @@ test('fn filtered correctly', async t => {
         index: -1,
         type: 'fn',
         name: 'fn3',
-        loc: {
-          start: { line: 11, column: 8 },
-          end: { line: 13, column: 1 },
-        },
+        loc: fnD_loc,
         fnStatementTypes: fnD_types.sort(),
         fnStatementTokens: fnD_toks.sort(),
       },
     },
   ]
-  const collapsed: Signature[] = [
+  const signature: Signature[] = [
     {
       index: 0,
       type: 'fn',
       name: 'b',
-      loc: {
-        start: { line: 2, column: 8 },
-        end: { line: 10, column: 1 },
-      },
+      loc: fnB_loc,
       fnStatementTypes: fnB_types.sort(),
       fnStatementTokens: fnB_toks.sort(),
     },
@@ -149,10 +163,7 @@ test('fn filtered correctly', async t => {
       index: 1,
       type: 'fn',
       name: ['b', 'fn1'].reduce(fnNamesConcat),
-      loc: {
-        start: { line: 3, column: 2 },
-        end: { line: 6, column: 3 },
-      },
+      loc: fnB1_loc,
       fnStatementTypes: fnB1_types.sort(),
       fnStatementTokens: fnB1_toks.sort(),
     },
@@ -160,10 +171,7 @@ test('fn filtered correctly', async t => {
       index: 2,
       type: 'fn',
       name: ['b', 'fn2'].reduce(fnNamesConcat),
-      loc: {
-        start: { line: 7, column: 3 },
-        end: { line: 9, column: 3 },
-      },
+      loc: fnB2_loc,
       fnStatementTypes: fnB2_types.sort(),
       fnStatementTokens: fnB2_toks.sort(),
     },
@@ -171,16 +179,19 @@ test('fn filtered correctly', async t => {
       index: 3,
       type: 'fn',
       name: 'fn3',
-      loc: {
-        start: { line: 11, column: 8 },
-        end: { line: 13, column: 1 },
-      },
+      loc: fnD_loc,
       fnStatementTypes: fnD_types.sort(),
       fnStatementTokens: fnD_toks.sort(),
     },
   ]
 
-  const tree = fnOnlyTreeCreator(parse(code), getDefaultOpts())
+  return { code, treePath, signature }
+}
+
+test('fn filtered correctly', async t => {
+  const opts = getDefaultOpts()
+  const { code, treePath: expected, signature: collapsed } = getCode(opts)
+  const tree = fnOnlyTreeCreator(parse(code), opts)
 
   t.deepEqual(expected, tree)
   t.deepEqual(collapsed, collapseFnNamesTree(tree))
@@ -189,190 +200,16 @@ test('fn filtered correctly', async t => {
 })
 
 test('fn filtered correctly with v2 extractor', async t => {
-  const fnB1 = stripIndent`
-    function fn1() {
-      var c = '1';
-      return c;
-    }
-  `
-  const fnB1_toks = [
-    `${DECLARATION}:Variable[${PARAM}:Identifier[c] = ${LITERAL}:String]`,
-    `${STATEMENT}:Return[${EXPRESSION}:Identifier[c]]`,
-  ]
-  const fnB1_types = [`t_${STATEMENT}:VariableDeclaration`, `t_${STATEMENT}:ReturnStatement`]
-
-  const fnB2 = stripIndent`
-    function fn2(param) {
-      return param + '2';
-    }
-  `
-  const fnB2_toks = [
-    oneLineTrim`
-      ${STATEMENT}:Return[
-        ${EXPRESSION}:Binary[${EXPRESSION}:Identifier[param] + ${LITERAL}:String]
-      ]
-    `,
-  ]
-  const fnB2_types = [`t_${PARAM}:Identifier`, `t_${STATEMENT}:ReturnStatement`]
-
-  const fnB = source`
-    function () {
-      ${fnB1}
-      ${'(' + fnB2 + ')(a);'}
-    }
-  `
-  const fnB_toks = [
-    `${DECLARATION}:Function[${EXPRESSION}:Identifier[fn1]]`,
-    oneLineTrim`
-      ${EXPRESSION}:Call[
-        ${EXPRESSION}:Function[${EXPRESSION}:Identifier[fn2]](${EXPRESSION}:Identifier[a])
-      ]
-    `,
-  ]
-  const fnB_types = [`t_${STATEMENT}:FunctionDeclaration`, `t_${STATEMENT}:ExpressionStatement`]
-
-  const fnD = stripIndent`
-    function fn3() {
-      return 1 + 2 + 3;
-    }
-  `
-  const fnD_toks = [
-    oneLineTrim`
-      ${STATEMENT}:Return[
-        ${EXPRESSION}:Binary[
-          ${EXPRESSION}:Binary[
-            ${LITERAL}:Numeric + ${LITERAL}:Numeric
-          ] + ${LITERAL}:Numeric
-        ]
-      ]
-    `,
-  ]
-  const fnD_types = [`t_${STATEMENT}:ReturnStatement`]
-
-  const code = source`
-      var a = '1';
-      ${`var b = ${fnB};`}
-      ${`var d = ${fnD};`}
-    `
-  const expected: TreePath<Signature>[] = [
-    {
-      prop: 'program.body[1].declarations[0]',
-      data: {
-        index: -1,
-        type: 'fn',
-        name: 'b',
-        loc: {
-          start: { line: 2, column: 8 },
-          end: { line: 10, column: 1 },
-        },
-        fnStatementTypes: fnB_types.sort(),
-        fnStatementTokens: fnB_toks.sort(),
-      },
-      c: [
-        {
-          prop: 'program.body[1].declarations[0].init.body.body[0]',
-          data: {
-            index: -1,
-            type: 'fn',
-            name: 'fn1',
-            loc: {
-              start: { line: 3, column: 2 },
-              end: { line: 6, column: 3 },
-            },
-            fnStatementTypes: fnB1_types.sort(),
-            fnStatementTokens: fnB1_toks.sort(),
-          },
-        },
-        {
-          prop: 'program.body[1].declarations[0].init.body.body[1].expression.callee',
-          data: {
-            index: -1,
-            type: 'fn',
-            name: 'fn2',
-            loc: {
-              start: { line: 7, column: 3 },
-              end: { line: 9, column: 3 },
-            },
-            fnStatementTypes: fnB2_types.sort(),
-            fnStatementTokens: fnB2_toks.sort(),
-          },
-        },
-      ],
-    },
-    {
-      prop: 'program.body[2].declarations[0]',
-      data: {
-        index: -1,
-        type: 'fn',
-        name: 'fn3',
-        loc: {
-          start: { line: 11, column: 8 },
-          end: { line: 13, column: 1 },
-        },
-        fnStatementTypes: fnD_types.sort(),
-        fnStatementTokens: fnD_toks.sort(),
-      },
-    },
-  ]
-  const collapsed: Signature[] = [
-    {
-      index: 0,
-      type: 'fn',
-      name: 'b',
-      loc: {
-        start: { line: 2, column: 8 },
-        end: { line: 10, column: 1 },
-      },
-      fnStatementTypes: fnB_types.sort(),
-      fnStatementTokens: fnB_toks.sort(),
-    },
-    {
-      index: 1,
-      type: 'fn',
-      name: ['b', 'fn1'].reduce(fnNamesConcat),
-      loc: {
-        start: { line: 3, column: 2 },
-        end: { line: 6, column: 3 },
-      },
-      fnStatementTypes: fnB1_types.sort(),
-      fnStatementTokens: fnB1_toks.sort(),
-    },
-    {
-      index: 2,
-      type: 'fn',
-      name: ['b', 'fn2'].reduce(fnNamesConcat),
-      loc: {
-        start: { line: 7, column: 3 },
-        end: { line: 9, column: 3 },
-      },
-      fnStatementTypes: fnB2_types.sort(),
-      fnStatementTokens: fnB2_toks.sort(),
-    },
-    {
-      index: 3,
-      type: 'fn',
-      name: 'fn3',
-      loc: {
-        start: { line: 11, column: 8 },
-        end: { line: 13, column: 1 },
-      },
-      fnStatementTypes: fnD_types.sort(),
-      fnStatementTokens: fnD_toks.sort(),
-    },
-  ]
-
-  const parsed = parse(code)
-  const tree = fnOnlyTreeCreator(parsed, { 'extractor-version': EXTRACTOR_VERSION.v2 })
+  const opts = getDefaultOpts({ 'extractor-version': EV.v2 })
+  const { code, treePath: expected, signature: collapsed } = getCode(opts)
+  const tree = fnOnlyTreeCreator(parse(code), opts)
 
   t.deepEqual(expected, tree)
   t.deepEqual(collapsed, collapseFnNamesTree(tree))
   t.deepEqual(collapsed, collapseFnNamesTree(expected))
   t.deepEqual(
     collapsed,
-    (await extractStructure({
-      content: code,
-      options: { 'extractor-version': EXTRACTOR_VERSION.v2 },
-    })).functionSignature,
+    (await extractStructure({ content: code, options: opts })).functionSignature,
   )
 })
 
