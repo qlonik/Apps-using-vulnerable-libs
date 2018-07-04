@@ -306,8 +306,8 @@ for (let V of EVs) {
     const tree = fnOnlyTreeCreator(parse(code), opts)
 
     t.deepEqual(expected, tree)
-    t.deepEqual(collapsed, collapseFnNamesTree(tree))
-    t.deepEqual(collapsed, collapseFnNamesTree(expected))
+    t.deepEqual(collapsed, collapseFnNamesTree(tree, opts))
+    t.deepEqual(collapsed, collapseFnNamesTree(expected, opts))
     t.deepEqual(
       collapsed,
       (await extractStructure({ content: code, options: opts })).functionSignature,

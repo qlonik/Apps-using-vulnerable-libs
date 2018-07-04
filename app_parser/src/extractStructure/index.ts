@@ -24,7 +24,9 @@ const _extractStructure = function({
   content: BabelNode
   opts: opts
 }): signatureNew {
-  const functionSignature = collapseFnNamesTree(fnOnlyTreeCreator(content, opts))
+  // remark: passing opts twice to different fns
+  // see for another way of passing opts to fns
+  const functionSignature = collapseFnNamesTree(fnOnlyTreeCreator(content, opts), opts)
   const literalSignature = collapseLiteralValsTree(literalValues(content, opts))
 
   return { functionSignature, literalSignature }

@@ -4,7 +4,7 @@ import { fnNamesConcat } from './fn-names-concat'
 import { fnNodeFilter } from './nodeFilters/allFnsAndNames'
 import { literalValuesFilter } from './nodeFilters/literalValues'
 import { rnDeclareFnFilter } from './nodeFilters/rnDeclareFn'
-import { EXTRACTOR_VERSION } from './options'
+import { EXTRACTOR_VERSION, opts } from './options'
 import { FunctionSignature } from './types'
 import { TreePath, visitNodes } from './visit-nodes'
 
@@ -24,12 +24,13 @@ export const literalValues = visitNodes({ fn: literalValuesFilter })
 
 export const collapseFnNamesTree = (
   tree: TreePath<FunctionSignature>[],
+  opts: opts,
   fnNameSoFar: string = '',
 ): FunctionSignature[] => {
   return flatMap(tree, (fnDesc: TreePath<FunctionSignature>): Many<FunctionSignature> => {
     const fnName = fnNamesConcat(fnNameSoFar, fnDesc.data.name)
     const treeElem: FunctionSignature = { ...fnDesc.data, name: fnName }
-    return !fnDesc.c ? treeElem : [treeElem].concat(collapseFnNamesTree(fnDesc.c, fnName))
+    return !fnDesc.c ? treeElem : [treeElem].concat(collapseFnNamesTree(fnDesc.c, opts, fnName))
   })
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((el, index) => ({ ...el, index }))
