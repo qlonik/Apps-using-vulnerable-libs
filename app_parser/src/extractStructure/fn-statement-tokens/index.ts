@@ -505,7 +505,7 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
         .map((declaration) => {
           const id = getTokensFromLVal(declaration.id)
           const init = getTokensFromExpression(declaration.init)
-          if (V === EXTRACTOR_VERSION.v1) {
+          if (V === EXTRACTOR_VERSION.v1 || V === EXTRACTOR_VERSION.v3) {
           } else if (V === EXTRACTOR_VERSION.v2) {
             if (!init) {
               return null
@@ -571,7 +571,7 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
 
     if (V === EXTRACTOR_VERSION.v1) {
       result = result.concat(getTokensFromLVals(params))
-    } else if (V === EXTRACTOR_VERSION.v2) {
+    } else if (V === EXTRACTOR_VERSION.v2 || V === EXTRACTOR_VERSION.v3) {
     } else {
       /* istanbul ignore next */
       assertNever(V)

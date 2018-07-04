@@ -67,7 +67,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
 
   // region fnB1 data
   const fnB1_toks =
-    V === EV.v1 || V === EV.v2
+    V === EV.v1 || V === EV.v2 || V === EV.v3
       ? [
           `${DECLARATION}:Variable[${PARAM}:Identifier[c] = ${LITERAL}:String]`,
           `${STATEMENT}:Return[${EXPRESSION}:Identifier[c]]`,
@@ -79,7 +79,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
   // region fnB2 data
   const fnB2_toks = (V === EV.v1
     ? [`${PARAM}:Identifier[param]`]
-    : V === EV.v2 ? [] : assertNever(V)
+    : V === EV.v2 || V === EV.v3 ? [] : assertNever(V)
   ).concat([
     oneLineTrim`
       ${STATEMENT}:Return[
@@ -92,7 +92,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
   // endregion
   // region fnB data
   const fnB_toks =
-    V === EV.v1 || V === EV.v2
+    V === EV.v1 || V === EV.v2 || V === EV.v3
       ? [
           `${DECLARATION}:Function[${EXPRESSION}:Identifier[fn1]]`,
           oneLineTrim`
@@ -107,7 +107,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
   // endregion
   // region fnD data
   const fnD_toks =
-    V === EV.v1 || V === EV.v2
+    V === EV.v1 || V === EV.v2 || V === EV.v3
       ? [
           oneLineTrim`
             ${STATEMENT}:Return[
@@ -125,13 +125,15 @@ const getCode = ({ 'extractor-version': V }: opts) => {
   // endregion
   // region fnE data
   const fnE_toks =
-    V === EV.v1 ? [`${PARAM}:Identifier[param2]`] : V === EV.v2 ? ([] as string[]) : assertNever(V)
+    V === EV.v1
+      ? [`${PARAM}:Identifier[param2]`]
+      : V === EV.v2 || V === EV.v3 ? ([] as string[]) : assertNever(V)
   const fnE_types = [`t_${PARAM}:Identifier`]
   const fnE_loc = tLoc('14:8-15:1')
   // endregion
   // region fnF1 data
   const fnF1_toks =
-    V === EV.v1 || V === EV.v2
+    V === EV.v1 || V === EV.v2 || V === EV.v3
       ? [
           `${DECLARATION}:Variable[${PARAM}:Identifier[g] = ${LITERAL}:Numeric]`,
           oneLineTrim`
@@ -270,22 +272,26 @@ const getCode = ({ 'extractor-version': V }: opts) => {
       fnStatementTypes: fnD_types.sort(),
       fnStatementTokens: fnD_toks.sort(),
     },
-    {
-      index: 4,
-      type,
-      name: 'fn5',
-      loc: fnE_loc,
-      fnStatementTypes: fnE_types.sort(),
-      fnStatementTokens: fnE_toks.sort(),
-    },
-    {
-      index: 5,
-      type,
-      name: 'fn6',
-      loc: fnF_loc,
-      fnStatementTypes: fnF_types.sort(),
-      fnStatementTokens: fnF_toks.sort(),
-    },
+    V === EV.v1 || V === EV.v2
+      ? {
+          index: 4,
+          type,
+          name: 'fn5',
+          loc: fnE_loc,
+          fnStatementTypes: fnE_types.sort(),
+          fnStatementTokens: fnE_toks.sort(),
+        }
+      : V === EV.v3 ? null : assertNever(V),
+    V === EV.v1 || V === EV.v2
+      ? {
+          index: 5,
+          type,
+          name: 'fn6',
+          loc: fnF_loc,
+          fnStatementTypes: fnF_types.sort(),
+          fnStatementTokens: fnF_toks.sort(),
+        }
+      : V === EV.v3 ? null : assertNever(V),
     {
       index: 6,
       type,
@@ -294,7 +300,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
       fnStatementTypes: fnF1_types.sort(),
       fnStatementTokens: fnF1_toks.sort(),
     },
-  ]
+  ].filter((o): o is NonNullable<typeof o> => o !== null && o !== undefined)
 
   return { code, treePath, signature }
 }
