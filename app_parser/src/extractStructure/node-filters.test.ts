@@ -42,10 +42,27 @@ const getCode = ({ 'extractor-version': V }: opts) => {
       return 1 + 2 + 3;
     }
   `
+  const fnE = stripIndent`
+    function fn5(param2) {
+    }
+  `
+  const fnF1 = stripIndent`
+    function () {
+      var g = 1;
+      return g + 2;
+    }
+  `
+  const fnF = stripIndent`
+    function fn6(param3) {
+      ${`return ${fnF1};`}
+    }
+  `
   const code = source`
     var a = '1';
     ${`var b = ${fnB};`}
     ${`var d = ${fnD};`}
+    ${`var e = ${fnE};`}
+    ${`var f = ${fnF};`}
   `
 
   // region fnB1 data
@@ -106,6 +123,35 @@ const getCode = ({ 'extractor-version': V }: opts) => {
   const fnD_types = [`t_${STATEMENT}:ReturnStatement`]
   const fnD_loc = tLoc('11:8-13:1')
   // endregion
+  // region fnE data
+  const fnE_toks =
+    V === EV.v1 ? [`${PARAM}:Identifier[param2]`] : V === EV.v2 ? ([] as string[]) : assertNever(V)
+  const fnE_types = [`t_${PARAM}:Identifier`]
+  const fnE_loc = tLoc('14:8-15:1')
+  // endregion
+  // region fnF1 data
+  const fnF1_toks =
+    V === EV.v1 || V === EV.v2
+      ? [
+          `${DECLARATION}:Variable[${PARAM}:Identifier[g] = ${LITERAL}:Numeric]`,
+          oneLineTrim`
+            ${STATEMENT}:Return[
+              ${EXPRESSION}:Binary[${EXPRESSION}:Identifier[g] + ${LITERAL}:Numeric]
+            ]
+          `,
+        ]
+      : assertNever(V)
+  const fnF1_types = [`t_${STATEMENT}:VariableDeclaration`, `t_${STATEMENT}:ReturnStatement`]
+  const fnF1_loc = tLoc('17:13-20:1')
+  // endregion
+  // region fnF data
+  const fnF_toks = (V === EV.v1
+    ? [`${PARAM}:Identifier[param3]`]
+    : V === EV.v2 ? [] : assertNever(V)
+  ).concat([`${STATEMENT}:Return[${EXPRESSION}:Function[anonymous]]`])
+  const fnF_types = [`t_${PARAM}:Identifier`, `t_${STATEMENT}:ReturnStatement`]
+  const fnF_loc = tLoc('16:8-21:5')
+  // endregion
 
   const treePath: TreePath<Signature>[] = [
     {
@@ -154,6 +200,41 @@ const getCode = ({ 'extractor-version': V }: opts) => {
         fnStatementTokens: fnD_toks.sort(),
       },
     },
+    {
+      prop: 'program.body[3].declarations[0]',
+      data: {
+        index: -1,
+        type: 'fn',
+        name: 'fn5',
+        loc: fnE_loc,
+        fnStatementTypes: fnE_types.sort(),
+        fnStatementTokens: fnE_toks.sort(),
+      },
+    },
+    {
+      prop: 'program.body[4].declarations[0]',
+      data: {
+        index: -1,
+        type: 'fn',
+        name: 'fn6',
+        loc: fnF_loc,
+        fnStatementTypes: fnF_types.sort(),
+        fnStatementTokens: fnF_toks.sort(),
+      },
+      c: [
+        {
+          prop: 'program.body[4].declarations[0].init.body.body[0]',
+          data: {
+            index: -1,
+            type: 'fn',
+            name: '[anonymous]',
+            loc: fnF1_loc,
+            fnStatementTypes: fnF1_types.sort(),
+            fnStatementTokens: fnF1_toks.sort(),
+          },
+        },
+      ],
+    },
   ]
   const signature: Signature[] = [
     {
@@ -187,6 +268,30 @@ const getCode = ({ 'extractor-version': V }: opts) => {
       loc: fnD_loc,
       fnStatementTypes: fnD_types.sort(),
       fnStatementTokens: fnD_toks.sort(),
+    },
+    {
+      index: 4,
+      type: 'fn',
+      name: 'fn5',
+      loc: fnE_loc,
+      fnStatementTypes: fnE_types.sort(),
+      fnStatementTokens: fnE_toks.sort(),
+    },
+    {
+      index: 5,
+      type: 'fn',
+      name: 'fn6',
+      loc: fnF_loc,
+      fnStatementTypes: fnF_types.sort(),
+      fnStatementTokens: fnF_toks.sort(),
+    },
+    {
+      index: 6,
+      type: 'fn',
+      name: ['fn6', '[anonymous]'].reduce(fnNamesConcat),
+      loc: fnF1_loc,
+      fnStatementTypes: fnF1_types.sort(),
+      fnStatementTokens: fnF1_toks.sort(),
     },
   ]
 
