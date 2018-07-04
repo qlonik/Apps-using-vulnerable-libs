@@ -120,3 +120,41 @@ export const arbSignatureWithCommentsPair = arb
       [a.comments, b.comments],
     ],
   )
+
+const sqrtsize = (size: number) => {
+  return Math.max(Math.round(Math.sqrt(size + 1)), 0)
+}
+const minArrSizeGeneratorFn = (min: number) =>
+  /**
+   * Returns array of arbitraries passed as parameter. This array has property,
+   * that already generated elements could be included again with 20% probability.
+   * @param a
+   */
+  function<T>(a: arb.Arbitrary<T>): arb.Arbitrary<T[]> {
+    if (!a.shrink) {
+      throw new Error('no shrink on arbitrary')
+    }
+    return arb.bless({
+      generator: arb.generator.bless(function(size: number) {
+        const arrsize = arb.random(min, sqrtsize(size))
+        const arr = []
+        if (arrsize > 0) {
+          arr.push(a.generator(size))
+          for (let i = 0; i < arrsize - 1; i++) {
+            switch (arb.random(0, 4)) {
+              case 0:
+                arr.push(arr[arb.random(0, arr.length - 1)])
+                break
+              default:
+                arr.push(a.generator(size))
+                break
+            }
+          }
+        }
+        return arr
+      }),
+      shrink: arb.shrink.array(a.shrink),
+    })
+  }
+export const repeatingArr = minArrSizeGeneratorFn(0)
+export const repeatingNeArr = minArrSizeGeneratorFn(1)
