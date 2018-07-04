@@ -298,30 +298,22 @@ const getCode = ({ 'extractor-version': V }: opts) => {
   return { code, treePath, signature }
 }
 
-test('fn filtered correctly', async t => {
-  const opts = getDefaultOpts()
-  const { code, treePath: expected, signature: collapsed } = getCode(opts)
-  const tree = fnOnlyTreeCreator(parse(code), opts)
+const EVs = Object.values(EV).filter(n => typeof n === 'string') as (keyof typeof EV)[]
+for (let V of EVs) {
+  test(`extractor ${V}: fn filtered correctly`, async t => {
+    const opts = getDefaultOpts({ 'extractor-version': EV[V] })
+    const { code, treePath: expected, signature: collapsed } = getCode(opts)
+    const tree = fnOnlyTreeCreator(parse(code), opts)
 
-  t.deepEqual(expected, tree)
-  t.deepEqual(collapsed, collapseFnNamesTree(tree))
-  t.deepEqual(collapsed, collapseFnNamesTree(expected))
-  t.deepEqual(collapsed, (await extractStructure({ content: code })).functionSignature)
-})
-
-test('fn filtered correctly with v2 extractor', async t => {
-  const opts = getDefaultOpts({ 'extractor-version': EV.v2 })
-  const { code, treePath: expected, signature: collapsed } = getCode(opts)
-  const tree = fnOnlyTreeCreator(parse(code), opts)
-
-  t.deepEqual(expected, tree)
-  t.deepEqual(collapsed, collapseFnNamesTree(tree))
-  t.deepEqual(collapsed, collapseFnNamesTree(expected))
-  t.deepEqual(
-    collapsed,
-    (await extractStructure({ content: code, options: opts })).functionSignature,
-  )
-})
+    t.deepEqual(expected, tree)
+    t.deepEqual(collapsed, collapseFnNamesTree(tree))
+    t.deepEqual(collapsed, collapseFnNamesTree(expected))
+    t.deepEqual(
+      collapsed,
+      (await extractStructure({ content: code, options: opts })).functionSignature,
+    )
+  })
+}
 
 test('react-native: bundle filtered correctly', t => {
   const content = stripIndent`
