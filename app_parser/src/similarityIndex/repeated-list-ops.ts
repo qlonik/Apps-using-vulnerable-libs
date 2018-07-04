@@ -8,6 +8,7 @@ export interface ComparatorFn<T> {
 export interface Ops<T> {
   i: T[]
   d: T[]
+  rd: T[]
 }
 
 export const repeatedOps = <T>(cmp: ComparatorFn<T>) => (
@@ -32,21 +33,20 @@ export const repeatedOps = <T>(cmp: ComparatorFn<T>) => (
     }
   }
 
-  return { i: intersection, d: difference }
+  return { i: intersection, d: difference, rd: _b }
 }
 
 export const repeatedOpsFp = <T>(cmp: ComparatorFn<T>) => (
   a: Iterable<T>,
   b: Iterable<T>,
 ): Ops<T> => {
-  const { i, d } = [...a].reduce(
-    ({ i, d, b }, el) => {
-      const j = findIndex(cmp(el), b)
-      return j === -1 ? { i, d: d.concat([el]), b } : { i: i.concat([el]), d, b: pullAt(j, b) }
+  return [...a].reduce(
+    ({ i, d, rd }, el) => {
+      const j = findIndex(cmp(el), rd)
+      return j === -1 ? { i, d: d.concat([el]), rd } : { i: i.concat([el]), d, rd: pullAt(j, rd) }
     },
-    { i: [] as T[], d: [] as T[], b: [...b] },
+    { i: [] as T[], d: [] as T[], rd: [...b] },
   )
-  return { i, d }
 }
 
 export const repeatedIntersection = curry(
