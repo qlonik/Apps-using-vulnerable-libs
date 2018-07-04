@@ -126,4 +126,19 @@ fn.forEach(({ name, fn }) => {
     `${name}: (a subtr b) inter (b subtr a) === []`,
     check({ tests: 1000 }, AB, (t, [a, b]) => t.deepEqual([], fn(fn(a, b).d, fn(b, a).d).i)),
   )
+
+  test(
+    `${name}: a inter b ~= a subtr (a subtr b) ~= b subtr (a rSubt b)`,
+    check({ tests: 1000 }, AB, (t, [a, b]) => {
+      const { i, d, rd } = fn(a, b)
+
+      const i1 = sort(i)
+      const i2 = sort(fn(a, d).d)
+      const i3 = sort(fn(b, rd).d)
+
+      t.deepEqual(i1, i2)
+      t.deepEqual(i1, i3)
+      t.deepEqual(i2, i3)
+    }),
+  )
 })
