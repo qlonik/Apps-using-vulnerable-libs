@@ -1,9 +1,13 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
 import { join } from 'path'
-import { memoize, MemoizedFunction } from 'lodash' // eslint-disable-line no-unused-vars
+import { memoize, MemoizedFunction } from 'lodash'
 import { signatureNew } from '../extractStructure'
 import { resolveAllOrInParallel } from '../utils'
 import { SIG_FOLDER } from './constants'
+
+/* eslint-disable no-unused-vars */
+declare const __x: MemoizedFunction
+/* eslint-enable */
 
 export type libName = {
   name: string
