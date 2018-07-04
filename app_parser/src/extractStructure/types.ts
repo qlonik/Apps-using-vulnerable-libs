@@ -4,7 +4,7 @@ import { SignatureLiteral } from './nodeFilters/literalValues'
 // todo: refactor existing types rather than alias them
 export type FunctionSignature = Signature
 export type LiteralSignature = SignatureLiteral
-export type CommentSignature = string | string[]
+export type CommentSignature = string
 
 export type FunctionSignatures = { functionSignature: FunctionSignature[] }
 export const isFunctionSignatures = (o: any): o is FunctionSignatures => {
