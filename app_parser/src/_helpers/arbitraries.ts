@@ -68,7 +68,7 @@ const arbFunctionSignature = arb.record<FunctionSignature>({
   name: arb
     .nearray(arb.either(arb.constant('[anonymous]'), arb.asciinestring))
     .smap(
-      (arr) => arr.map((v: any): string => v.value),
+      (arr) => arr.map((v) => (v as any).value as typeof v),
       (arr) => arr.map((v) => (v === '[anonymous]' ? (arb as any).left(v) : (arb as any).right(v))),
     )
     .smap((a) => a.reduce(fnNamesConcat, ''), fnNamesSplit),
@@ -86,8 +86,8 @@ export const arbFunctionSignatureArrPair = arraysPair(arbFunctionSignature).smap
 
 const arbLiteralSignature = arb
   .either(arb.asciistring, arb.number)
-  .smap(
-    (v: any): LiteralSignature => v.value,
+  .smap<LiteralSignature>(
+    (v) => (v as any).value as typeof v,
     (v) => (typeof v === 'string' ? (arb as any).left(v) : (arb as any).right(v)),
   )
 export const arbLiteralSignatureArr = arb.nearray(arbLiteralSignature)
@@ -95,8 +95,8 @@ export const arbLiteralSignatureArrPair = arraysPair(arbLiteralSignature)
 
 const arbCommentSignature = arb
   .either(arb.asciinestring, arb.nearray(arb.asciinestring))
-  .smap(
-    (v: any): CommentSignature => v.value,
+  .smap<CommentSignature>(
+    (v) => (v as any).value as typeof v,
     (v) => (typeof v === 'string' ? (arb as any).left(v) : (arb as any).right(v)),
   )
 const arbCommentSignatureArrPair = arraysPair(arbCommentSignature)
