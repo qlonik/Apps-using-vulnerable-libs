@@ -7,7 +7,6 @@ import {
   fnNamesSplit,
   FunctionSignature,
   LiteralSignature,
-  signatureNew,
   signatureWithComments,
 } from '../extractStructure'
 import { divByZeroAware, indexValue } from '../similarityIndex/set'
@@ -63,7 +62,7 @@ export const arbLocation = arb.record<SourceLocation>({
 const indAM = (v: FunctionSignature, index: number): FunctionSignature => ({ ...v, index })
 const unInd = (v: FunctionSignature): FunctionSignature => ({ ...v, index: -1 })
 
-export const arbFunctionSignature = arb.record<FunctionSignature>({
+const arbFunctionSignature = arb.record<FunctionSignature>({
   index: arb.constant(-1),
   type: arb.constant('fn') as arb.Arbitrary<'fn'>,
   name: arb
@@ -85,7 +84,7 @@ export const arbFunctionSignatureArrPair = arraysPair(arbFunctionSignature).smap
   ([a, b]) => [a.map(unInd), b.map(unInd)],
 )
 
-export const arbLiteralSignature = arb
+const arbLiteralSignature = arb
   .either(arb.asciistring, arb.number)
   .smap(
     (v: any): LiteralSignature => v.value,
@@ -94,37 +93,14 @@ export const arbLiteralSignature = arb
 export const arbLiteralSignatureArr = arb.nearray(arbLiteralSignature)
 export const arbLiteralSignatureArrPair = arraysPair(arbLiteralSignature)
 
-export const arbCommentSignature = arb
+const arbCommentSignature = arb
   .either(arb.asciinestring, arb.nearray(arb.asciinestring))
   .smap(
     (v: any): CommentSignature => v.value,
     (v) => (typeof v === 'string' ? (arb as any).left(v) : (arb as any).right(v)),
   )
-export const arbCommentSignatureArr = arb.nearray(arbCommentSignature)
-export const arbCommentSignatureArrPair = arraysPair(arbCommentSignature)
+const arbCommentSignatureArrPair = arraysPair(arbCommentSignature)
 
-export const arbSignature = arb.record<signatureNew>({
-  functionSignature: arb.array(arbFunctionSignature),
-  literalSignature: arb.array(arbLiteralSignature),
-})
-export const arbSignaturePair = arb
-  .pair(arbFunctionSignatureArrPair, arbLiteralSignatureArrPair)
-  .smap<[signatureNew, signatureNew]>(
-    ([fnP, litP]) => [
-      { functionSignature: fnP[0], literalSignature: litP[0] },
-      { functionSignature: fnP[1], literalSignature: litP[1] },
-    ],
-    ([a, b]) => [
-      [a.functionSignature, b.functionSignature],
-      [a.literalSignature, b.literalSignature],
-    ],
-  )
-
-export const arbSignatureWithComments = arb.record<signatureWithComments>({
-  functionSignature: arb.array(arbFunctionSignature),
-  literalSignature: arb.array(arbLiteralSignature),
-  comments: arb.array(arbCommentSignature),
-})
 export const arbSignatureWithCommentsPair = arb
   .tuple([arbFunctionSignatureArrPair, arbLiteralSignatureArrPair, arbCommentSignatureArrPair])
   .smap<[signatureWithComments, signatureWithComments]>(
