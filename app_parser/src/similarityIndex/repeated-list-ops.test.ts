@@ -141,4 +141,19 @@ fn.forEach(({ name, fn }) => {
       t.deepEqual(i2, i3)
     }),
   )
+
+  test(
+    `${name}: union: (a + b) subtr (a inter b) ~= b + (a subtr b) ~= a + (a rSubt b)`,
+    check({ tests: 1000 }, AB, (t, [a, b]) => {
+      const { i, d, rd } = fn(a, b)
+
+      const u1 = sort(fn(a.concat(b), i).d)
+      const u2 = sort(b.concat(d))
+      const u3 = sort(a.concat(rd))
+
+      t.deepEqual(u1, u2)
+      t.deepEqual(u1, u3)
+      t.deepEqual(u2, u3)
+    }),
+  )
 })
