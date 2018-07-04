@@ -2,7 +2,6 @@ import { SourceLocation } from 'babel-types'
 import arb from 'jsverify'
 import { clone, differenceWith, identity, intersectionWith, isEqual, shuffle, uniqBy } from 'lodash'
 import {
-  CommentSignature,
   fnNamesConcat,
   fnNamesSplit,
   FunctionSignature,
@@ -93,16 +92,8 @@ const arbLiteralSignature = arb
 export const arbLiteralSignatureArr = arb.nearray(arbLiteralSignature)
 export const arbLiteralSignatureArrPair = arraysPair(arbLiteralSignature)
 
-const arbCommentSignature = arb
-  .either(arb.asciinestring, arb.nearray(arb.asciinestring))
-  .smap<CommentSignature>(
-    (v) => (v as any).value as typeof v,
-    (v) => (typeof v === 'string' ? (arb as any).left(v) : (arb as any).right(v)),
-  )
-const arbCommentSignatureArrPair = arraysPair(arbCommentSignature)
-
 export const arbSignatureWithCommentsPair = arb
-  .tuple([arbFunctionSignatureArrPair, arbLiteralSignatureArrPair, arbCommentSignatureArrPair])
+  .tuple([arbFunctionSignatureArrPair, arbLiteralSignatureArrPair, arraysPair(arb.asciinestring)])
   .smap<[signatureWithComments, signatureWithComments]>(
     ([fn, lit, com]) => [
       { functionSignature: fn[0], literalSignature: lit[0], comments: com[0] },
