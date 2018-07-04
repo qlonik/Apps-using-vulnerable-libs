@@ -1,9 +1,9 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
 import { join } from 'path'
 import { memoize, MemoizedFunction } from 'lodash'
-import { signatureNew } from '../extractStructure'
+import { LiteralSignature, signatureNew } from '../extractStructure'
 import { resolveAllOrInParallel } from '../utils'
-import { SIG_FOLDER } from './constants'
+import { LIB_LITERAL_SIGNATURE_FILE, SIG_FOLDER } from './constants'
 
 /* eslint-disable no-unused-vars */
 declare const __x: MemoizedFunction
@@ -20,6 +20,9 @@ export type libNameVersionSigFile = libNameVersion & {
 }
 export type libNameVersionSigContent = libNameVersionSigFile & {
   signature: signatureNew
+}
+export type libNameLiteralSigContent = libName & {
+  literal: Set<LiteralSignature>
 }
 
 export const libPath = memoize(function _libPath(
@@ -119,6 +122,20 @@ export const getLibNameVersionSigFiles = memoize(async function _getLibNameVersi
   }, Promise.resolve([] as libNameVersionSigFile[]))
 },
 (libsPath: string, name = '', version = '', file = '') => `${libsPath}/${name}/${version}/${file}`)
+
+export const getLibLiteralSig = async function _getLibLiteralSig(
+  libsPath: string,
+  name?: string,
+): Promise<libNameLiteralSigContent[]> {
+  const libs = await getLibNames(libsPath, name)
+  return Promise.all(
+    libs.map(async ({ name }) => {
+      const path = join(libsPath, name, LIB_LITERAL_SIGNATURE_FILE)
+      const loaded = (await readJSON(path)) as LiteralSignature[]
+      return { name, literal: new Set(loaded) }
+    }),
+  )
+}
 
 export async function getLibNameVersionSigContents(
   libsPath: string,
