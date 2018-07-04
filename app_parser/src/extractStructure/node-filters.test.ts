@@ -147,12 +147,13 @@ const getCode = ({ 'extractor-version': V }: opts) => {
   // region fnF data
   const fnF_toks = (V === EV.v1
     ? [`${PARAM}:Identifier[param3]`]
-    : V === EV.v2 ? [] : assertNever(V)
+    : V === EV.v2 || V === EV.v3 ? [] : assertNever(V)
   ).concat([`${STATEMENT}:Return[${EXPRESSION}:Function[anonymous]]`])
   const fnF_types = [`t_${PARAM}:Identifier`, `t_${STATEMENT}:ReturnStatement`]
   const fnF_loc = tLoc('16:8-21:5')
   // endregion
 
+  const type = 'fn' as 'fn'
   const treePath: TreePath<Signature>[] = [
     {
       prop: 'program.body[1].declarations[0]',
@@ -239,7 +240,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
   const signature: Signature[] = [
     {
       index: 0,
-      type: 'fn',
+      type,
       name: 'b',
       loc: fnB_loc,
       fnStatementTypes: fnB_types.sort(),
@@ -247,7 +248,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
     },
     {
       index: 1,
-      type: 'fn',
+      type,
       name: ['b', 'fn1'].reduce(fnNamesConcat),
       loc: fnB1_loc,
       fnStatementTypes: fnB1_types.sort(),
@@ -255,7 +256,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
     },
     {
       index: 2,
-      type: 'fn',
+      type,
       name: ['b', 'fn2'].reduce(fnNamesConcat),
       loc: fnB2_loc,
       fnStatementTypes: fnB2_types.sort(),
@@ -263,7 +264,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
     },
     {
       index: 3,
-      type: 'fn',
+      type,
       name: 'fn3',
       loc: fnD_loc,
       fnStatementTypes: fnD_types.sort(),
@@ -271,7 +272,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
     },
     {
       index: 4,
-      type: 'fn',
+      type,
       name: 'fn5',
       loc: fnE_loc,
       fnStatementTypes: fnE_types.sort(),
@@ -279,7 +280,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
     },
     {
       index: 5,
-      type: 'fn',
+      type,
       name: 'fn6',
       loc: fnF_loc,
       fnStatementTypes: fnF_types.sort(),
@@ -287,7 +288,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
     },
     {
       index: 6,
-      type: 'fn',
+      type,
       name: ['fn6', '[anonymous]'].reduce(fnNamesConcat),
       loc: fnF1_loc,
       fnStatementTypes: fnF1_types.sort(),
