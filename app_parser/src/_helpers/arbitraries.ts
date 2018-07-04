@@ -1,14 +1,6 @@
 import { SourceLocation } from 'babel-types'
 import arb from 'jsverify'
-import {
-  clone,
-  differenceWith,
-  identity,
-  intersectionWith,
-  isEqual,
-  shuffle,
-  uniqBy,
-} from 'lodash/fp'
+import { clone, identity, isEqual, shuffle, uniqBy } from 'lodash/fp'
 import {
   fnNamesConcat,
   fnNamesSplit,
@@ -16,6 +8,7 @@ import {
   LiteralSignature,
   signatureWithComments,
 } from '../extractStructure'
+import { repeatedDifference, repeatedIntersection } from '../similarityIndex/repeated-list-ops'
 import { divByZeroAware, indexValue } from '../similarityIndex/set'
 import { DefiniteMap, probIndex } from '../similarityIndex/similarity-methods/types'
 
@@ -54,11 +47,11 @@ export const arraysPair = <T>(
       shuffle(two.concat(intersection)),
     ],
     ([one, two]) => {
-      const intersection = intersectionWith(isEqual, one, two)
+      const intersection = repeatedIntersection(isEqual, one, two)
       return [
-        differenceWith(isEqual, one, intersection),
+        repeatedDifference(isEqual, one, intersection),
         intersection,
-        differenceWith(isEqual, two, intersection),
+        repeatedDifference(isEqual, two, intersection),
       ]
     },
   )
