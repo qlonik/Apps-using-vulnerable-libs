@@ -48,6 +48,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
     ${`var d = ${fnD};`}
   `
 
+  // region fnB1 data
   const fnB1_toks =
     V === EV.v1 || V === EV.v2
       ? [
@@ -57,7 +58,8 @@ const getCode = ({ 'extractor-version': V }: opts) => {
       : assertNever(V)
   const fnB1_types = [`t_${STATEMENT}:VariableDeclaration`, `t_${STATEMENT}:ReturnStatement`]
   const fnB1_loc = tLoc('3:2-6:3')
-
+  // endregion
+  // region fnB2 data
   const fnB2_toks = (V === EV.v1
     ? [`${PARAM}:Identifier[param]`]
     : V === EV.v2 ? [] : assertNever(V)
@@ -70,7 +72,8 @@ const getCode = ({ 'extractor-version': V }: opts) => {
   ])
   const fnB2_types = [`t_${PARAM}:Identifier`, `t_${STATEMENT}:ReturnStatement`]
   const fnB2_loc = tLoc('7:3-9:3')
-
+  // endregion
+  // region fnB data
   const fnB_toks =
     V === EV.v1 || V === EV.v2
       ? [
@@ -84,7 +87,8 @@ const getCode = ({ 'extractor-version': V }: opts) => {
       : assertNever(V)
   const fnB_types = [`t_${STATEMENT}:FunctionDeclaration`, `t_${STATEMENT}:ExpressionStatement`]
   const fnB_loc = tLoc('2:8-10:1')
-
+  // endregion
+  // region fnD data
   const fnD_toks =
     V === EV.v1 || V === EV.v2
       ? [
@@ -101,6 +105,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
       : assertNever(V)
   const fnD_types = [`t_${STATEMENT}:ReturnStatement`]
   const fnD_loc = tLoc('11:8-13:1')
+  // endregion
 
   const treePath: TreePath<Signature>[] = [
     {
