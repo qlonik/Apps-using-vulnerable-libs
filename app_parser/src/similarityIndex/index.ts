@@ -1,16 +1,12 @@
-import { pathExists, readJSON } from 'fs-extra'
 import { clone, head, sortBy } from 'lodash'
-import { join } from 'path'
-import { FunctionSignature, LiteralSignature, signatureNew } from '../extractStructure'
+import { FunctionSignature, LiteralSignatures, signatureNew } from '../extractStructure'
 import {
-  getLibNames,
+  getLibLiteralSig,
   getLibNameVersions,
   getLibNameVersionSigContents,
   libNameVersion,
   libNameVersionSigFile,
-  libPath,
 } from '../parseLibraries'
-import { LIB_LITERAL_SIGNATURE_FILE } from '../parseLibraries/constants'
 import { resolveAllOrInParallel } from '../utils'
 import { indexValue, isSubset, jaccardIndex } from './set'
 import {
@@ -241,25 +237,19 @@ export const getCandidateLibs = async ({
   libsPath,
   opts: { limit = undefined } = {},
 }: {
-  signature: { literalSignature: LiteralSignature[] }
+  signature: LiteralSignatures
   libsPath: string
   opts?: { limit?: number }
 }): Promise<candidateLib[]> => {
   const appLitSig = new Set(signature.literalSignature)
-
   if (appLitSig.size === 0) {
     return []
   }
 
-  const nameSigsPromises = (await getLibNames(libsPath)).map(({ name }) => async () => {
-    const sigPath = join(libPath(libsPath, name), LIB_LITERAL_SIGNATURE_FILE)
-    const sigContent = (await pathExists(sigPath)) ? await readJSON(sigPath) : []
-    return { name, sig: new Set(sigContent) as Set<LiteralSignature> }
-  })
-  const nameSigs = await resolveAllOrInParallel(nameSigsPromises)
+  const nameSigs = await getLibLiteralSig(libsPath)
   const candidates = nameSigs
-    .filter(({ sig }) => sig.size > 0)
-    .filter(({ sig }) => isSubset(appLitSig, sig))
+    .filter(({ literal }) => literal.size > 0)
+    .filter(({ literal }) => isSubset(appLitSig, literal))
     .map(({ name }) => ({ name, index: { val: 1, num: -1, den: -1 } }))
 
   if (candidates.length > 0) {
@@ -267,13 +257,14 @@ export const getCandidateLibs = async ({
   }
 
   // probably a bad idea VVV
-  const sll = new SortedLimitedList({
-    predicate: (o: { name: string; index: indexValue }) => -o.index.val,
-    limit,
-  })
-  for (let { name, sig } of nameSigs) {
-    sll.push({ name, index: jaccardIndex(appLitSig, sig) })
-  }
-
-  return sll.value().filter(({ index }) => index.val !== 0)
+  return nameSigs
+    .reduce(
+      (sll, { name, literal }) => sll.push({ name, index: jaccardIndex(appLitSig, literal) }),
+      new SortedLimitedList({
+        predicate: (o: { name: string; index: indexValue }) => -o.index.val,
+        limit,
+      }),
+    )
+    .value()
+    .filter(({ index }) => index.val !== 0)
 }
