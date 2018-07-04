@@ -1,6 +1,14 @@
 import { SourceLocation } from 'babel-types'
 import arb from 'jsverify'
-import { clone, differenceWith, identity, intersectionWith, isEqual, shuffle, uniqBy } from 'lodash'
+import {
+  clone,
+  differenceWith,
+  identity,
+  intersectionWith,
+  isEqual,
+  shuffle,
+  uniqBy,
+} from 'lodash/fp'
 import {
   fnNamesConcat,
   fnNamesSplit,
@@ -17,8 +25,8 @@ declare const __x: signatureWithComments
 
 export const arbMap = arb
   .nearray(arb.pair(arb.nat, arb.nat))
-  .smap((arr) => uniqBy(arr, (x) => x[0]), identity)
-  .smap((arr) => uniqBy(arr, (x) => x[1]), identity)
+  .smap((arr) => uniqBy((x) => x[0], arr), identity)
+  .smap((arr) => uniqBy((x) => x[1], arr), identity)
   .smap((arr) => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
   .smap((arr): Map<number, number> => new Map(arr), (map) => [...map])
 
@@ -31,8 +39,8 @@ export const arbIndexValue = arb
 
 export const arbMapWithConfidence = arb
   .nearray(arb.pair(arb.nat, arb.record({ index: arb.nat, prob: arbIndexValue })))
-  .smap((arr) => uniqBy(arr, (x) => x[0]), identity)
-  .smap((arr) => uniqBy(arr, (x) => x[1].index), identity)
+  .smap((arr) => uniqBy((x) => x[0], arr), identity)
+  .smap((arr) => uniqBy((x) => x[1].index, arr), identity)
   .smap((arr) => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
   .smap((arr) => new Map(arr) as DefiniteMap<number, probIndex>, (map) => [...map])
 
@@ -43,11 +51,11 @@ export const arraysPair = <T>(a: arb.Arbitrary<T>): arb.Arbitrary<[T[], T[]]> =>
       shuffle(two.concat(intersection)),
     ],
     ([one, two]) => {
-      const intersection = intersectionWith(one, two, isEqual)
+      const intersection = intersectionWith(isEqual, one, two)
       return [
-        differenceWith(one, intersection, isEqual),
+        differenceWith(isEqual, one, intersection),
         intersection,
-        differenceWith(two, intersection, isEqual),
+        differenceWith(isEqual, two, intersection),
       ]
     },
   )
