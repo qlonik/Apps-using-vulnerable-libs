@@ -44,8 +44,11 @@ export const arbMapWithConfidence = arb
   .smap((arr) => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
   .smap((arr) => new Map(arr) as DefiniteMap<number, probIndex>, (map) => [...map])
 
-export const arraysPair = <T>(a: arb.Arbitrary<T>): arb.Arbitrary<[T[], T[]]> => {
-  return arb.tuple([arb.array(a), arb.array(a), arb.array(a)]).smap(
+export const arraysPair = <T>(
+  a: arb.Arbitrary<T>,
+  arr: <U>(x: arb.Arbitrary<U>) => arb.Arbitrary<U[]> = arb.array,
+): arb.Arbitrary<[T[], T[]]> => {
+  return arb.tuple([arr(a), arr(a), arr(a)]).smap(
     ([one, intersection, two]: [T[], T[], T[]]): [T[], T[]] => [
       shuffle(one.concat(intersection)),
       shuffle(two.concat(intersection)),
