@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" promptOnRemoteOverwrite="CHECK_CONTENT">
+  <component name="PublishConfigData" promptOnRemoteOverwrite="CHECK_CONTENT" showNewOnSourceInSync="false" showExcludedInSync="true">
     <serverData>
       <paths name="gi-gateway">
         <serverdata>
@@ -9,7 +9,6 @@
             <mapping deploy="/app_parser" local="$PROJECT_DIR$/app_parser" web="/" />
           </mappings>
           <excludedPaths>
-            <excludedPath path="/data" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/src.ignored" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/node_modules" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/coverage" />
@@ -20,6 +19,7 @@
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/heapsnapshots" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.tmp" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.vscode" />
+            <excludedPath path="/data" />
           </excludedPaths>
         </serverdata>
       </paths>
@@ -30,7 +30,6 @@
             <mapping deploy="/app_parser" local="$PROJECT_DIR$/app_parser" web="/" />
           </mappings>
           <excludedPaths>
-            <excludedPath path="/data" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/src.ignored" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/node_modules" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/coverage" />
@@ -41,6 +40,7 @@
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/heapsnapshots" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.tmp" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.vscode" />
+            <excludedPath path="/data" />
           </excludedPaths>
         </serverdata>
       </paths>
@@ -51,7 +51,6 @@
             <mapping deploy="/app_parser" local="$PROJECT_DIR$/app_parser" web="/" />
           </mappings>
           <excludedPaths>
-            <excludedPath path="/data" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/src.ignored" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/node_modules" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/coverage" />
@@ -62,6 +61,7 @@
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/heapsnapshots" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.tmp" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.vscode" />
+            <excludedPath path="/data" />
           </excludedPaths>
         </serverdata>
       </paths>
