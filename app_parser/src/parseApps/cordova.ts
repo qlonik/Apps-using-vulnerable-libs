@@ -1,11 +1,14 @@
 import { mkdirp, pathExists, readFile, readJSON } from 'fs-extra'
 import { JSDOM } from 'jsdom'
-import { flatten, groupBy } from 'lodash'
+import { flatten, groupBy, head } from 'lodash'
 import { join, sep } from 'path'
 import { URL } from 'url'
-import { extractStructure, signatureNew } from '../extractStructure'
+import { extractStructure, signatureWithComments } from '../extractStructure'
 import { isSigMinified, isSrcMinified } from '../extractStructure/tools'
-import { getCandidateLibs, getSimilarityToLibs } from '../similarityIndex'
+import { getLibNames } from '../parseLibraries'
+import { bundle_similarity_fn, getCandidateLibs, Similarity } from '../similarityIndex'
+import { probIndex } from '../similarityIndex/similarity-methods/types'
+import { SortedLimitedList } from '../similarityIndex/SortedLimitedList'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { CordovaAppDataError } from '../utils/errors'
 import { fileDescOp, fileOp, saveFiles } from '../utils/files'
@@ -22,13 +25,13 @@ import {
   CORDOVA_SIM_FILE,
   JS_DATA_FOLDER,
 } from './constants'
-import {
-  appDesc,
-  appPath as appPathFn,
-  getCordovaAnalysisFiles,
-  APP_TYPES, // eslint-disable-line no-unused-vars
-} from './getters'
+import { APP_TYPES, appDesc, appPath as appPathFn, getCordovaAnalysisFiles } from './getters'
 import { AppAnalysisReport, CordovaAnalysisReport, IsAppTypeFn } from './index'
+
+/* eslint-disable no-unused-vars */
+declare const __x: APP_TYPES
+declare const __y: Similarity
+/* eslint-enable */
 
 const fileLog = logger.child({ name: 'a.cordova' })
 const createLocationLog = (
@@ -263,7 +266,7 @@ export const analyseCordovaApp = async ({
       const log = createLocationLog(type, section, app, location, id)
       const cwd = join(analysisPath, location, id)
       const sigPath = join(cwd, CORDOVA_SIG_FILE)
-      const signature = (await readJSON(sigPath)) as signatureNew
+      const signature = (await readJSON(sigPath)) as signatureWithComments
 
       const candidateLibs = await getCandidateLibs({ signature, libsPath })
       const noCandidatesFound = candidateLibs.length === 0
@@ -271,11 +274,43 @@ export const analyseCordovaApp = async ({
         log.warn('%o candidates', 0)
       }
 
-      const sim = await getSimilarityToLibs({
-        signature,
-        libsPath,
-        names: !noCandidatesFound ? candidateLibs.map(({ name }) => name) : undefined,
-      })
+      let sim: any[] = []
+      if (noCandidatesFound) {
+        const libNames = await getLibNames(libsPath)
+        const sll = await libNames
+          .map(({ name }) => ({ name, index: { val: 1, num: -1, den: -1 } }))
+          .reduce(
+            async (acc, cand) => {
+              const sll = await acc
+              const res = await bundle_similarity_fn(signature, [cand], libsPath)
+
+              const rank = head(res.rank)
+              if (rank) {
+                for (let { name, version, file, similarity } of rank.matches) {
+                  sll.push({ name, version, file, similarity })
+                }
+              }
+
+              return sll
+            },
+            Promise.resolve(
+              new SortedLimitedList<Similarity>({
+                predicate: (o) => -o.similarity.val,
+              }),
+            ),
+          )
+        sim = sll.value()
+      } else {
+        const { rank } = await bundle_similarity_fn(signature, candidateLibs, libsPath)
+        sim = rank.map((r) => ({
+          ...r,
+          matches: r.matches.map((m) => ({
+            ...m,
+            mapping: [...m.mapping.entries()] as [number, probIndex][],
+          })),
+        }))
+      }
+
       await saveFiles({
         cwd,
         dst: CORDOVA_SIM_FILE,
