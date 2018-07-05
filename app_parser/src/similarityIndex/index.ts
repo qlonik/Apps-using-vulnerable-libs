@@ -56,10 +56,11 @@ export const bundle_similarity_fn = async (
         .filter((o) => o.similarity.val > 0)
         .map((v) => ({
           ...v,
-          mapping: [...v.mapping.entries()]
-            .map(([index, pi]): [number, probIndex] => [remaining[index].index, pi])
-            .sort((a, b) => a[0] - b[0])
-            .reduce((acc, [key, pi]) => acc.set(key, pi), new Map() as typeof v.mapping),
+          mapping: new Map(
+            [...v.mapping.entries()]
+              .map(([index, pi]): [number, probIndex] => [remaining[index].index, pi])
+              .sort((a, b) => a[0] - b[0]),
+          ) as typeof v.mapping,
         }))
 
       const top = matches.length > 0 ? matches[0].mapping : null
