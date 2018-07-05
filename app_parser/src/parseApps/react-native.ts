@@ -30,13 +30,16 @@ export const preprocessReactNativeApp = async (
     allLibsPath?: string
     app: appDesc
   },
-  { conservative = false }: opts = {},
+  { conservative = false, extractorOpts }: opts = {},
 ) => {
   const appPath = join(allAppsPath, type, section, app)
 
   const bundlePath = join(appPath, REACT_NATIVE_MAIN_FILE)
   const bundleContent = await readFile(bundlePath, 'utf-8')
-  const parsedBundle = await extractReactNativeStructure({ content: bundleContent })
+  const parsedBundle = await extractReactNativeStructure({
+    content: bundleContent,
+    options: extractorOpts,
+  })
 
   const jsAnalysisPath = join(appPath, ANALYSIS_FOLDER)
   await mkdirp(jsAnalysisPath)

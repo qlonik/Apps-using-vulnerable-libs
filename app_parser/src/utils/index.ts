@@ -2,6 +2,7 @@ import { IDebugger } from 'debug'
 import leftPadOrig from 'left-pad'
 import { dirname } from 'path'
 import { extract } from 'tar'
+import { opts as extractorOpts } from '../extractStructure'
 import { stdoutLog } from './logger'
 
 const pendingPromise = function<T>(): Promise<T> {
@@ -109,6 +110,7 @@ export type opts = {
   chunkLimit?: number
   chunkSize?: number
   log?: IDebugger
+  extractorOpts?: extractorOpts
 }
 
 export const resolveAllOrInParallel = async function<T, R = T>(

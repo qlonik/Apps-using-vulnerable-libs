@@ -59,7 +59,7 @@ export const preprocessCordovaApp = async (
     allLibsPath?: string
     app: appDesc
   },
-  { conservative = false }: opts = {},
+  { conservative = false, extractorOpts }: opts = {},
 ) => {
   const appPath = join(allAppsPath, type, section, app)
   const indexHtmlPath = join(appPath, JS_DATA_FOLDER, CORDOVA_MAIN_FILE)
@@ -162,7 +162,7 @@ export const preprocessCordovaApp = async (
 
           let signature
           try {
-            signature = await extractStructure({ content })
+            signature = await extractStructure({ content, options: extractorOpts })
           } catch (err) {
             log.error({ err, info: infoObject }, 'could not parse js file')
             fileOps.push({

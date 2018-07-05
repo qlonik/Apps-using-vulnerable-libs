@@ -196,13 +196,13 @@ export async function extractMainFiles(
 
 async function analyseOneLibFile(
   { file, i }: { file: fileDesc; i: number },
-  { conservative = true }: opts,
+  { conservative = true, extractorOpts }: opts,
 ): Promise<fileDescOp> {
   const { cwd, dst } = file
   const destSig = `sigs/${leftPad(i)}.json`
   const fileP = join(cwd, dst)
   const content = await readFile(fileP, 'utf-8')
-  const signature = await extractStructure({ content })
+  const signature = await extractStructure({ content, options: extractorOpts })
 
   return { type: fileOp.json, cwd, dst: destSig, json: signature, conservative }
 }
