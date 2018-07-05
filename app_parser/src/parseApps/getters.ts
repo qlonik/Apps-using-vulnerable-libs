@@ -2,7 +2,6 @@ import { pathExists, readdir, readJSON } from 'fs-extra'
 import { flatten, memoize, MemoizedFunction } from 'lodash' // eslint-disable-line no-unused-vars
 import { join } from 'path'
 import { signatureWithComments } from '../extractStructure'
-import { SimilarityToLibs } from '../similarityIndex'
 import { indexValue } from '../similarityIndex/set'
 import { assertNever, resolveAllOrInParallel } from '../utils'
 import {
@@ -144,7 +143,7 @@ export type analysedDataFile<T> = {
   file: T
   signature: signatureWithComments | null
   candidates: { name: string; index: indexValue }[] | null
-  similarity: SimilarityToLibs | null
+  similarity: any[] | null
 }
 /* eslint-disable import/export,typescript/no-use-before-define */
 export async function getAnalysedData<T extends analysisFile>(
