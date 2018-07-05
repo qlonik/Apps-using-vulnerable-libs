@@ -7,7 +7,9 @@ import { rnSignatureNew, signatureNew, signatureWithComments } from './types'
 
 export * from './types'
 export * from './fn-names-concat'
-export { opts }
+
+type PartialOpts = Partial<opts>
+export { PartialOpts as opts }
 
 const _extractStructure = function({
   content,
