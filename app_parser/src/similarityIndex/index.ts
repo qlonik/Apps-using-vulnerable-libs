@@ -1,4 +1,4 @@
-import { clone, head, sortBy } from 'lodash'
+import { sortBy } from 'lodash'
 import {
   FunctionSignature,
   LiteralSignatures,
@@ -14,16 +14,9 @@ import {
 } from '../parseLibraries'
 import { resolveAllOrInParallel } from '../utils'
 import { indexValue, isSubset, jaccardIndex } from './set'
-import {
-  librarySimilarityByFunctionNamesAndStatementTokens,
-  librarySimilarityByFunctionStatementTokens_v2,
-} from './similarity-methods'
+import { librarySimilarityByFunctionNamesAndStatementTokens } from './similarity-methods'
 import { v6 } from './similarity-methods/fn-st-tokens'
-import {
-  FunctionSignatureMatched,
-  probIndex,
-  SimMapWithConfidence,
-} from './similarity-methods/types'
+import { probIndex, SimMapWithConfidence } from './similarity-methods/types'
 import { SortedLimitedList } from './SortedLimitedList'
 
 export type Similarity = libNameVersion & {
@@ -195,50 +188,6 @@ export const getSimilarityToLibs = async ({
     }
   }
   return result
-}
-
-export const getBundleSimilarityToLibs = async ({
-  signature: unknown,
-  candidates,
-  libsPath,
-}: {
-  signature: signatureNew
-  candidates: candidateLib[]
-  libsPath: string
-}) => {
-  let unknownCopy = clone(unknown.functionSignature)
-
-  type candidatesSim = {
-    candidate: string
-    similarity: Similarity[]
-  }
-  const sortedCandidates = sortBy(candidates, (o) => -o.index.val)
-  return await sortedCandidates.reduce(async (candProm, candidate) => {
-    type matchedLib = libNameVersionSigFile & SimMapWithConfidence
-
-    const cand = await candProm
-    const libVerSigs = await getLibNameVersionSigContents(libsPath, candidate.name)
-
-    const topThree = libVerSigs
-      .reduce((sll, { name, version, file, signature: lib }) => {
-        const { similarity, mapping } = librarySimilarityByFunctionStatementTokens_v2(
-          unknownCopy,
-          lib.functionSignature,
-        )
-
-        return sll.push({ name, version, file, similarity, mapping } as matchedLib)
-      }, new SortedLimitedList<matchedLib>({ limit: 3, predicate: (o) => -o.similarity.val }))
-      .value()
-
-    const topOne = head(topThree)
-    if (topOne) {
-      unknownCopy = unknownCopy.map((el, i): FunctionSignature | FunctionSignatureMatched => {
-        return topOne.mapping.has(i) ? { ...el, __matched: true } : el
-      })
-    }
-
-    return cand.concat({ candidate: candidate.name, similarity: topThree })
-  }, Promise.resolve([] as candidatesSim[]))
 }
 
 export type matchedLib = libNameVersionSigFile & SimMapWithConfidence
