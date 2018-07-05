@@ -1,3 +1,4 @@
+import { SourceLocation } from 'babel-types'
 import { sortBy } from 'lodash'
 import {
   FunctionSignature,
@@ -18,6 +19,11 @@ import { librarySimilarityByFunctionNamesAndStatementTokens } from './similarity
 import { v6 } from './similarity-methods/fn-st-tokens'
 import { probIndex, SimMapWithConfidence } from './similarity-methods/types'
 import { SortedLimitedList } from './SortedLimitedList'
+
+/* eslint-disable no-unused-vars */
+declare const __x: SourceLocation
+declare const __y: probIndex
+/* eslint-enable */
 
 export type Similarity = libNameVersion & {
   file: string
