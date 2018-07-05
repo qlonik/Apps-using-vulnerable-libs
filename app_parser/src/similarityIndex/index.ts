@@ -1,5 +1,10 @@
 import { clone, head, sortBy } from 'lodash'
-import { FunctionSignature, LiteralSignatures, signatureNew } from '../extractStructure'
+import {
+  FunctionSignature,
+  LiteralSignatures,
+  signatureNew,
+  signatureWithComments,
+} from '../extractStructure'
 import {
   getLibLiteralSig,
   getLibNameVersions,
@@ -13,7 +18,12 @@ import {
   librarySimilarityByFunctionNamesAndStatementTokens,
   librarySimilarityByFunctionStatementTokens_v2,
 } from './similarity-methods'
-import { FunctionSignatureMatched, SimMapWithConfidence } from './similarity-methods/types'
+import { v6 } from './similarity-methods/fn-st-tokens'
+import {
+  FunctionSignatureMatched,
+  probIndex,
+  SimMapWithConfidence,
+} from './similarity-methods/types'
 import { SortedLimitedList } from './SortedLimitedList'
 
 export type Similarity = libNameVersion & {
@@ -229,6 +239,61 @@ export const getBundleSimilarityToLibs = async ({
 
     return cand.concat({ candidate: candidate.name, similarity: topThree })
   }, Promise.resolve([] as candidatesSim[]))
+}
+
+export type matchedLib = libNameVersionSigFile & SimMapWithConfidence
+export type rankType = {
+  name: string
+  candidateIndex: indexValue
+  candidateTop: number
+  matches: matchedLib[]
+}
+export const bundle_similarity_fn = async (
+  unknownSig: signatureWithComments,
+  candidates: candidateLib[],
+  libsPath: string,
+  fn: (a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence = v6,
+): Promise<{ rank: rankType[]; remaining: FunctionSignature[] }> => {
+  // sort candidates by most likely one
+  // for each candidate:
+  //   match all versions against bundle
+  //   keep top5, which has similarity value > 0
+  //   update top5's mapping to map to real indexes from unknownSig
+  //   from copy of unknownSig, remove mapped functions of top1 candidate
+  //   run from beginning of for-loop with remaining unmapped functions
+  return sortBy(candidates, (o) => -o.index.val).reduce(
+    async (acc, { name, index: candidateIndex }, i) => {
+      const { rank, remaining } = await acc
+
+      const matches = (await getLibNameVersionSigContents(libsPath, name))
+        .reduce(
+          (acc, { name, version, file, signature: { functionSignature } }) =>
+            acc.push({ name, version, file, ...fn(remaining, functionSignature) }),
+          new SortedLimitedList<matchedLib>({ limit: 5, predicate: (o) => -o.similarity.val }),
+        )
+        .value()
+        .filter((o) => o.similarity.val > 0)
+        .map((v) => ({
+          ...v,
+          mapping: [...v.mapping.entries()]
+            .map(([index, pi]): [number, probIndex] => [remaining[index].index, pi])
+            .sort((a, b) => a[0] - b[0])
+            .reduce((acc, [key, pi]) => acc.set(key, pi), new Map() as typeof v.mapping),
+        }))
+
+      const top = matches.length > 0 ? matches[0].mapping : null
+      const reduced = top === null ? remaining : remaining.filter(({ index }) => !top.has(index))
+
+      return {
+        rank: rank.concat({ name, candidateIndex, candidateTop: i + 1, matches }),
+        remaining: reduced,
+      }
+    },
+    Promise.resolve({
+      rank: [] as rankType[],
+      remaining: [...unknownSig.functionSignature] as FunctionSignature[],
+    }),
+  )
 }
 
 export type candidateLib = { name: string; index: indexValue }
