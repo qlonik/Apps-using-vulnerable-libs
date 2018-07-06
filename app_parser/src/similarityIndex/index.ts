@@ -1,5 +1,6 @@
 import { SourceLocation } from 'babel-types'
 import { sortBy } from 'lodash/fp'
+import { Omit } from 'typical-mini'
 import { FunctionSignature, LiteralSignatures, signatureWithComments } from '../extractStructure'
 import {
   getLibLiteralSig,
@@ -66,29 +67,34 @@ export const bundle_similarity_fn = async (
   //   from copy of unknownSig, remove mapped functions of top1 candidate
   //   run from beginning of for-loop with remaining unmapped functions
   const mRemainingToLib = matchesToLibFactory(libsPath, fn)
-  return sortBy((o) => -o.index.val, candidates)
+  const { rank, later, remaining } = await sortBy((o) => -o.index.val, candidates)
     .map(({ name, index }, i) => ({ name, index, top: i + 1 }))
     .reduce(
       async (acc, candidate) => {
-        const { rank, remaining } = await acc
+        const { rank, later, remaining } = await acc
         const matches = await mRemainingToLib(remaining, candidate.name)
 
         const top = matches.length > 0 ? matches[0] : null
         return top && top.similarity.val === 1
           ? {
               rank: rank.concat({ ...candidate, matches }),
+              later: later,
               remaining: remaining.filter(({ index }) => !top.mapping.has(index)),
             }
           : {
               rank: rank,
+              later: later.concat(candidate),
               remaining: remaining,
             }
       },
       Promise.resolve({
         rank: [] as rankType[],
+        later: [] as Omit<rankType, 'matches'>[],
         remaining: [...unknownSig.functionSignature] as FunctionSignature[],
       }),
     )
+
+  return { rank, remaining }
 }
 
 export type candidateLib = { name: string; index: indexValue }
