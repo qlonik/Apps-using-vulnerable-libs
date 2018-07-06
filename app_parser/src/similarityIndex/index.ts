@@ -29,6 +29,29 @@ export type rankType = {
   candidateTop: number
   matches: matchedLib[]
 }
+
+const matchesToLibFactory = (
+  libsPath: string,
+  fn: (a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence,
+) => async (remaining: FunctionSignature[], name: string): Promise<matchedLib[]> => {
+  return (await getLibNameVersionSigContents(libsPath, name))
+    .reduce(
+      (acc, { name, version, file, signature: { functionSignature } }) =>
+        acc.push({ name, version, file, ...fn(remaining, functionSignature) }),
+      new SortedLimitedList<matchedLib>({ limit: 5, predicate: (o) => -o.similarity.val }),
+    )
+    .value()
+    .filter((o) => o.similarity.val > 0)
+    .map((v) => ({
+      ...v,
+      mapping: new Map(
+        [...v.mapping.entries()]
+          .map(([index, pi]): [number, probIndex] => [remaining[index].index, pi])
+          .sort((a, b) => a[0] - b[0]),
+      ) as typeof v.mapping,
+    }))
+}
+
 export const bundle_similarity_fn = async (
   unknownSig: signatureWithComments,
   candidates: candidateLib[],
@@ -42,26 +65,11 @@ export const bundle_similarity_fn = async (
   //   update top5's mapping to map to real indexes from unknownSig
   //   from copy of unknownSig, remove mapped functions of top1 candidate
   //   run from beginning of for-loop with remaining unmapped functions
+  const mRemainingToLib = matchesToLibFactory(libsPath, fn)
   return sortBy(candidates, (o) => -o.index.val).reduce(
     async (acc, { name, index: candidateIndex }, i) => {
       const { rank, remaining } = await acc
-
-      const matches = (await getLibNameVersionSigContents(libsPath, name))
-        .reduce(
-          (acc, { name, version, file, signature: { functionSignature } }) =>
-            acc.push({ name, version, file, ...fn(remaining, functionSignature) }),
-          new SortedLimitedList<matchedLib>({ limit: 5, predicate: (o) => -o.similarity.val }),
-        )
-        .value()
-        .filter((o) => o.similarity.val > 0)
-        .map((v) => ({
-          ...v,
-          mapping: new Map(
-            [...v.mapping.entries()]
-              .map(([index, pi]): [number, probIndex] => [remaining[index].index, pi])
-              .sort((a, b) => a[0] - b[0]),
-          ) as typeof v.mapping,
-        }))
+      const matches = await mRemainingToLib(remaining, name)
 
       const top = matches.length > 0 ? matches[0].mapping : null
       const reduced = top === null ? remaining : remaining.filter(({ index }) => !top.has(index))
