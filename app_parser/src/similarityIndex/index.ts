@@ -25,8 +25,8 @@ export type Similarity = libNameVersion & {
 export type matchedLib = libNameVersionSigFile & SimMapWithConfidence
 export type rankType = {
   name: string
-  candidateIndex: indexValue
-  candidateTop: number
+  index: indexValue
+  top: number
   matches: matchedLib[]
 }
 
@@ -67,7 +67,7 @@ export const bundle_similarity_fn = async (
   //   run from beginning of for-loop with remaining unmapped functions
   const mRemainingToLib = matchesToLibFactory(libsPath, fn)
   return sortBy((o) => -o.index.val, candidates).reduce(
-    async (acc, { name, index: candidateIndex }, i) => {
+    async (acc, { name, index }, i) => {
       const { rank, remaining } = await acc
       const matches = await mRemainingToLib(remaining, name)
 
@@ -75,7 +75,7 @@ export const bundle_similarity_fn = async (
       const reduced = top === null ? remaining : remaining.filter(({ index }) => !top.has(index))
 
       return {
-        rank: rank.concat({ name, candidateIndex, candidateTop: i + 1, matches }),
+        rank: rank.concat({ name, index, top: i + 1, matches }),
         remaining: reduced,
       }
     },
