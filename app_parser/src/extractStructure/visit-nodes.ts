@@ -1,7 +1,7 @@
 import { Node as BabelNode } from 'babel-types'
 import { flatMap } from 'lodash'
 import { assertNever } from '../utils'
-import { opts } from './'
+import { opts } from './options'
 
 /**
  * @param prop - property name
