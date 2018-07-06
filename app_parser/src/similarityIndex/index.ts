@@ -73,13 +73,16 @@ export const bundle_similarity_fn = async (
         const { rank, remaining } = await acc
         const matches = await mRemainingToLib(remaining, candidate.name)
 
-        const top = matches.length > 0 ? matches[0].mapping : null
-        const reduced = top === null ? remaining : remaining.filter(({ index }) => !top.has(index))
-
-        return {
-          rank: rank.concat({ ...candidate, matches }),
-          remaining: reduced,
-        }
+        const top = matches.length > 0 ? matches[0] : null
+        return top && top.similarity.val === 1
+          ? {
+              rank: rank.concat({ ...candidate, matches }),
+              remaining: remaining.filter(({ index }) => !top.mapping.has(index)),
+            }
+          : {
+              rank: rank,
+              remaining: remaining,
+            }
       },
       Promise.resolve({
         rank: [] as rankType[],
