@@ -58,7 +58,7 @@ export const bundle_similarity_fn = async (
   candidates: candidateLib[],
   libsPath: string,
   fn: (a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence = v6,
-): Promise<{ rank: rankType[]; remaining: FunctionSignature[] }> => {
+): Promise<{ rank: rankType[]; secondary: rankType[]; remaining: FunctionSignature[] }> => {
   // sort candidates by most likely one
   // for each candidate:
   //   match all versions against bundle
@@ -116,7 +116,7 @@ export const bundle_similarity_fn = async (
     }),
   )
 
-  return { rank, remaining }
+  return { rank, secondary, remaining }
 }
 
 export type candidateLib = { name: string; index: indexValue }
