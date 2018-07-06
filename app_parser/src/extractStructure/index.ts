@@ -2,13 +2,13 @@ import { Node as BabelNode } from 'babel-types'
 import { parse } from 'babylon'
 import { collapseFnNamesTree, fnOnlyTreeCreator, literalValues, rnDeclareFns } from './internal'
 import { collapseLiteralValsTree } from './nodeFilters/literalValues'
-import { getDefaultOpts, opts } from './options'
+import { getDefaultOpts, opts as StrictOptions } from './options'
 import { rnSignatureNew, signatureNew, signatureWithComments } from './types'
 
 export * from './types'
 export * from './fn-names-concat'
 
-type PartialOpts = Partial<opts>
+type PartialOpts = Partial<StrictOptions>
 export { PartialOpts as opts }
 
 const _extractStructure = function({
@@ -16,7 +16,7 @@ const _extractStructure = function({
   opts,
 }: {
   content: BabelNode
-  opts: opts
+  opts: StrictOptions
 }): signatureNew {
   // remark: passing opts twice to different fns
   // see for another way of passing opts to fns
@@ -34,7 +34,7 @@ export const extractStructure = async function({
   options,
 }: {
   content: string
-  options?: Partial<opts>
+  options?: PartialOpts
 }): Promise<signatureWithComments> {
   const opts = getDefaultOpts(options)
 
@@ -49,7 +49,7 @@ export const extractReactNativeStructure = async function({
   options,
 }: {
   content: string
-  options?: Partial<opts>
+  options?: PartialOpts
 }): Promise<rnSignatureNew[]> {
   const opts = getDefaultOpts(options)
 
