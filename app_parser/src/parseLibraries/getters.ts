@@ -137,6 +137,11 @@ export const getLibLiteralSig = async function _getLibLiteralSig(
   )
 }
 
+const memLoadSig = memoize(
+  (libsPath: string, name: string, version: string, file: string): Promise<signatureNew> =>
+    readJSON(libPath(libsPath, name, version, file)),
+  (a: string, b: string, c: string, d: string): string => `${a}/${b}/${c}/${d}`,
+)
 export async function getLibNameVersionSigContents(
   libsPath: string,
   name?: string,
@@ -145,11 +150,11 @@ export async function getLibNameVersionSigContents(
 ): Promise<libNameVersionSigContent[]> {
   const files = await getLibNameVersionSigFiles(libsPath, name, version, file)
   return resolveAllOrInParallel(
-    files.map(({ name, version, file }) => {
-      return async () => {
-        const signature = (await readJSON(libPath(libsPath, name, version, file))) as signatureNew
-        return { name, version, file, signature }
-      }
-    }),
+    files.map(({ name, version, file }) => async () => ({
+      name,
+      version,
+      file,
+      signature: await memLoadSig(libsPath, name, version, file),
+    })),
   )
 }
