@@ -66,24 +66,26 @@ export const bundle_similarity_fn = async (
   //   from copy of unknownSig, remove mapped functions of top1 candidate
   //   run from beginning of for-loop with remaining unmapped functions
   const mRemainingToLib = matchesToLibFactory(libsPath, fn)
-  return sortBy((o) => -o.index.val, candidates).reduce(
-    async (acc, { name, index }, i) => {
-      const { rank, remaining } = await acc
-      const matches = await mRemainingToLib(remaining, name)
+  return sortBy((o) => -o.index.val, candidates)
+    .map(({ name, index }, i) => ({ name, index, top: i + 1 }))
+    .reduce(
+      async (acc, candidate) => {
+        const { rank, remaining } = await acc
+        const matches = await mRemainingToLib(remaining, candidate.name)
 
-      const top = matches.length > 0 ? matches[0].mapping : null
-      const reduced = top === null ? remaining : remaining.filter(({ index }) => !top.has(index))
+        const top = matches.length > 0 ? matches[0].mapping : null
+        const reduced = top === null ? remaining : remaining.filter(({ index }) => !top.has(index))
 
-      return {
-        rank: rank.concat({ name, index, top: i + 1, matches }),
-        remaining: reduced,
-      }
-    },
-    Promise.resolve({
-      rank: [] as rankType[],
-      remaining: [...unknownSig.functionSignature] as FunctionSignature[],
-    }),
-  )
+        return {
+          rank: rank.concat({ ...candidate, matches }),
+          remaining: reduced,
+        }
+      },
+      Promise.resolve({
+        rank: [] as rankType[],
+        remaining: [...unknownSig.functionSignature] as FunctionSignature[],
+      }),
+    )
 }
 
 export type candidateLib = { name: string; index: indexValue }
