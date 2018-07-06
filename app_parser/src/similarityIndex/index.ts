@@ -94,7 +94,29 @@ export const bundle_similarity_fn = async (
       }),
     )
 
-  return { rank, remaining: remaining_ }
+  const { secondary, remaining } = await later.reduce(
+    async (acc, candidate) => {
+      const { secondary, remaining } = await acc
+      const matches = await mRemainingToLib(remaining, candidate.name)
+
+      const top = matches.length > 0 ? matches[0] : null
+      return top
+        ? {
+            secondary: secondary.concat({ ...candidate, matches }),
+            remaining: remaining.filter(({ index }) => !top.mapping.has(index)),
+          }
+        : {
+            secondary,
+            remaining,
+          }
+    },
+    Promise.resolve({
+      secondary: [] as rankType[],
+      remaining: remaining_,
+    }),
+  )
+
+  return { rank, remaining }
 }
 
 export type candidateLib = { name: string; index: indexValue }
