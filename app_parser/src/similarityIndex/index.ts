@@ -1,5 +1,5 @@
 import { SourceLocation } from 'babel-types'
-import { sortBy } from 'lodash'
+import { sortBy } from 'lodash/fp'
 import { FunctionSignature, LiteralSignatures, signatureWithComments } from '../extractStructure'
 import {
   getLibLiteralSig,
@@ -66,7 +66,7 @@ export const bundle_similarity_fn = async (
   //   from copy of unknownSig, remove mapped functions of top1 candidate
   //   run from beginning of for-loop with remaining unmapped functions
   const mRemainingToLib = matchesToLibFactory(libsPath, fn)
-  return sortBy(candidates, (o) => -o.index.val).reduce(
+  return sortBy((o) => -o.index.val, candidates).reduce(
     async (acc, { name, index: candidateIndex }, i) => {
       const { rank, remaining } = await acc
       const matches = await mRemainingToLib(remaining, name)
