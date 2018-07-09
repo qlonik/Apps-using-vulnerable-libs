@@ -1,14 +1,20 @@
 import { mkdirp, pathExists, readFile, readJSON } from 'fs-extra'
 import { JSDOM } from 'jsdom'
-import { flatten, groupBy, head } from 'lodash'
+import { flatten, groupBy } from 'lodash'
+import { map } from 'lodash/fp'
 import { join, sep } from 'path'
 import { URL } from 'url'
 import { extractStructure, signatureWithComments } from '../extractStructure'
 import { isSigMinified, isSrcMinified } from '../extractStructure/tools'
 import { getLibNames } from '../parseLibraries'
-import { bundle_similarity_fn, getCandidateLibs, Similarity } from '../similarityIndex'
+import {
+  bundle_similarity_fn,
+  candidateLib,
+  getCandidateLibs,
+  rankType,
+  Similarity,
+} from '../similarityIndex'
 import { probIndex } from '../similarityIndex/similarity-methods/types'
-import { SortedLimitedList } from '../similarityIndex/SortedLimitedList'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { CordovaAppDataError } from '../utils/errors'
 import { fileDescOp, fileOp, saveFiles } from '../utils/files'
@@ -232,6 +238,14 @@ export const preprocessCordovaApp = async (
   await resolveAllOrInParallel(parseScriptTags)
 }
 
+const changeMapToArrayPairs = map((r: rankType) => ({
+  ...r,
+  matches: r.matches.map((m) => ({
+    ...m,
+    mapping: [...m.mapping.entries()] as [number, probIndex][],
+  })),
+}))
+
 export const analyseCordovaApp = async ({
   allAppsPath,
   libsPath,
@@ -267,56 +281,33 @@ export const analyseCordovaApp = async ({
       const cwd = join(analysisPath, location, id)
       const sigPath = join(cwd, CORDOVA_SIG_FILE)
       const signature = (await readJSON(sigPath)) as signatureWithComments
+      const candPath = join(cwd, CORDOVA_CAND_FILE)
+      const candidates = (await readJSON(candPath)) as candidateLib[]
 
-      const candidateLibs = await getCandidateLibs({ signature, libsPath })
-      const noCandidatesFound = candidateLibs.length === 0
+      const noCandidatesFound = candidates.length === 0
       if (noCandidatesFound) {
         log.warn('%o candidates', 0)
       }
 
-      let sim: any[] = []
-      if (noCandidatesFound) {
-        const libNames = await getLibNames(libsPath)
-        const sll = await libNames
-          .map(({ name }) => ({ name, index: { val: 1, num: -1, den: -1 } }))
-          .reduce(
-            async (acc, cand) => {
-              const sll = await acc
-              const res = await bundle_similarity_fn(signature, [cand], libsPath)
+      const cand = noCandidatesFound
+        ? (await getLibNames(libsPath)).map(({ name }) => ({
+            name,
+            index: { val: 1, num: -1, den: -1 },
+          }))
+        : candidates
 
-              const rank = head(res.rank)
-              if (rank) {
-                for (let { name, version, file, similarity } of rank.matches) {
-                  sll.push({ name, version, file, similarity })
-                }
-              }
-
-              return sll
-            },
-            Promise.resolve(
-              new SortedLimitedList<Similarity>({
-                predicate: (o) => -o.similarity.val,
-              }),
-            ),
-          )
-        sim = sll.value()
-      } else {
-        const { rank } = await bundle_similarity_fn(signature, candidateLibs, libsPath)
-        sim = rank.map((r) => ({
-          ...r,
-          matches: r.matches.map((m) => ({
-            ...m,
-            mapping: [...m.mapping.entries()] as [number, probIndex][],
-          })),
-        }))
-      }
+      const sim = await bundle_similarity_fn(signature, cand, libsPath)
 
       await saveFiles({
         cwd,
         dst: CORDOVA_SIM_FILE,
         conservative: false,
         type: fileOp.json,
-        json: sim,
+        json: {
+          rank: changeMapToArrayPairs(sim.rank),
+          secondary: changeMapToArrayPairs(sim.secondary),
+          remaining: sim.remaining,
+        },
       })
 
       return { location, id, noCandidatesFound }
