@@ -123,17 +123,21 @@ export const getLibNameVersionSigFiles = memoize(async function _getLibNameVersi
 },
 (libsPath: string, name = '', version = '', file = '') => `${libsPath}/${name}/${version}/${file}`)
 
+const memLoadLibLiteralSig = memoize(
+  (libsPath: string, name: string): Promise<LiteralSignature[]> =>
+    readJSON(join(libsPath, name, LIB_LITERAL_SIGNATURE_FILE)),
+  (a: string, b: string): string => `${a}/${b}`,
+)
 export const getLibLiteralSig = async function _getLibLiteralSig(
   libsPath: string,
   name?: string,
 ): Promise<libNameLiteralSigContent[]> {
   const libs = await getLibNames(libsPath, name)
   return Promise.all(
-    libs.map(async ({ name }) => {
-      const path = join(libsPath, name, LIB_LITERAL_SIGNATURE_FILE)
-      const loaded = (await readJSON(path)) as LiteralSignature[]
-      return { name, literal: new Set(loaded) }
-    }),
+    libs.map(async ({ name }) => ({
+      name,
+      literal: new Set(await memLoadLibLiteralSig(libsPath, name)),
+    })),
   )
 }
 
