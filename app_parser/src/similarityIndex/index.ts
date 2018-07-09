@@ -6,6 +6,7 @@ import {
   getLibLiteralSig,
   getLibNameVersionSigContents,
   libNameVersion,
+  libNameVersionSigContent,
   libNameVersionSigFile,
 } from '../parseLibraries'
 import { indexValue, isSubset, jaccardIndex } from './set'
@@ -34,8 +35,8 @@ export type rankType = {
 const matchesToLibFactory = (
   libsPath: string,
   fn: (a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence,
-) => async (remaining: FunctionSignature[], name: string): Promise<matchedLib[]> => {
-  return (await getLibNameVersionSigContents(libsPath, name))
+) => (remaining: FunctionSignature[], libNVS: libNameVersionSigContent[]): matchedLib[] => {
+  return libNVS
     .reduce(
       (acc, { name, version, file, signature: { functionSignature } }) =>
         acc.push({ name, version, file, ...fn(remaining, functionSignature) }),
@@ -72,7 +73,8 @@ export const bundle_similarity_fn = async (
     .reduce(
       async (acc, candidate) => {
         const { rank, later, remaining_ } = await acc
-        const matches = await mRemainingToLib(remaining_, candidate.name)
+        const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
+        const matches = mRemainingToLib(remaining_, libNVS)
 
         const top = matches.length > 0 ? matches[0] : null
         return top && top.similarity.val === 1
@@ -97,7 +99,8 @@ export const bundle_similarity_fn = async (
   const { secondary, remaining } = await later.reduce(
     async (acc, candidate) => {
       const { secondary, remaining } = await acc
-      const matches = await mRemainingToLib(remaining, candidate.name)
+      const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
+      const matches = mRemainingToLib(remaining, libNVS)
 
       const top = matches.length > 0 ? matches[0] : null
       return top
