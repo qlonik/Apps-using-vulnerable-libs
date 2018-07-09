@@ -2,17 +2,12 @@ import { pathExists, readJSON, writeFile } from 'fs-extra'
 import { find } from 'lodash/fp'
 import { join } from 'path'
 import { assert } from '../utils/logger'
-import { MainFn } from './_all.types'
+import { MainFn, CouchDumpFormat } from './_all.types'
 
 const IN_COUCH_DUMP_FOLDER = ''
 const COUCH_DUMP_FILE = 'liblibNamesVersions.json'
 const FORMATTED_PREFIX = 'formatted-'
 const OUT_COUCH_DUMP_FOLDER = process.env.OUT!
-
-type format = {
-  name: string
-  versions: { v: string; time: string }[]
-}
 
 export const main: MainFn = async function main(log) {
   const inCouchDumpDir = assert(IN_COUCH_DUMP_FOLDER, log, 'Location of COUCH_DUMP is not set')
@@ -22,10 +17,10 @@ export const main: MainFn = async function main(log) {
   assert(await pathExists(inCouchDumpDir), log, 'COUCH_DUMP folder does not exist')
   assert(await pathExists(inCouchDumpFile), log, 'COUCH_DUMP file in this folder does not exist')
 
-  const map = new Map<format['name'], format['versions']>()
-  let file = (await readJSON(inCouchDumpFile)) as format[]
+  const map = new Map<CouchDumpFormat['name'], CouchDumpFormat['versions']>()
+  let file = (await readJSON(inCouchDumpFile)) as CouchDumpFormat[]
   for (let { name, versions } of file) {
-    const existing: format['versions'] = map.get(name) || []
+    const existing: CouchDumpFormat['versions'] = map.get(name) || []
     for (let ver of versions) {
       const el = find((el) => el.v === ver.v, existing)
       if (!el) {
