@@ -2,12 +2,14 @@ import { pathExists, readJSON, writeFile } from 'fs-extra'
 import { find } from 'lodash/fp'
 import { join } from 'path'
 import { assert } from '../utils/logger'
-import { MainFn, CouchDumpFormat } from './_all.types'
+import { CouchDumpFormat, MainFn } from './_all.types'
 
 const IN_COUCH_DUMP_FOLDER = ''
 const COUCH_DUMP_FILE = 'liblibNamesVersions.json'
 const FORMATTED_PREFIX = 'formatted-'
 const OUT_COUCH_DUMP_FOLDER = process.env.OUT!
+
+type CouchDumpIn = { name: string; versions: { v: string; time: string }[] }
 
 export const main: MainFn = async function main(log) {
   const inCouchDumpDir = assert(IN_COUCH_DUMP_FOLDER, log, 'Location of COUCH_DUMP is not set')
@@ -17,10 +19,10 @@ export const main: MainFn = async function main(log) {
   assert(await pathExists(inCouchDumpDir), log, 'COUCH_DUMP folder does not exist')
   assert(await pathExists(inCouchDumpFile), log, 'COUCH_DUMP file in this folder does not exist')
 
-  const map = new Map<CouchDumpFormat['name'], CouchDumpFormat['versions']>()
-  let file = (await readJSON(inCouchDumpFile)) as CouchDumpFormat[]
+  const map = new Map<CouchDumpIn['name'], CouchDumpIn['versions']>()
+  const file = (await readJSON(inCouchDumpFile)) as CouchDumpIn[]
   for (let { name, versions } of file) {
-    const existing: CouchDumpFormat['versions'] = map.get(name) || []
+    const existing: CouchDumpIn['versions'] = map.get(name) || []
     for (let ver of versions) {
       const el = find((el) => el.v === ver.v, existing)
       if (!el) {
@@ -37,11 +39,16 @@ export const main: MainFn = async function main(log) {
     map.set(name, existing)
   }
 
-  file = []
-  for (let name of [...map.keys()].sort()) {
-    file.push({ name, versions: map.get(name)! })
-  }
+  const formatted: CouchDumpFormat = ([...map.entries()] as [
+    CouchDumpIn['name'],
+    CouchDumpIn['versions']
+  ][]).reduce(
+    (acc, [name, versions]) => ({
+      ...acc,
+      [name]: versions.reduce((acc, { v, time }) => ({ ...acc, [v]: time }), {}),
+    }),
+    {},
+  )
 
-  const formatted = '[\n  ' + file.map((x) => JSON.stringify(x)).join(',\n  ') + '\n]'
-  await writeFile(outCouchDumpFile, formatted, { encoding: 'utf-8' })
+  await writeFile(outCouchDumpFile, JSON.stringify(formatted), { encoding: 'utf-8' })
 }

@@ -7,9 +7,12 @@ import { libNameVersion } from '../parseLibraries'
 export type MainFn = (log: Logger) => Promise<any>
 export type TerminateFn = (signal: 'SIGINT') => void
 
-export type CouchDumpFormat = {
-  name: string
-  versions: { v: string; time: string }[]
+export interface CouchDumpFormat {
+  [name: string]:
+    | undefined
+    | {
+        [version: string]: undefined | string
+      }
 }
 
 export type allMessages = The<
