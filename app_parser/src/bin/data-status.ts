@@ -4,7 +4,6 @@ import { join } from 'path'
 import { APP_TYPES, appDesc, getApps } from '../parseApps'
 import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { getLibNames, getLibNameVersions } from '../parseLibraries'
-import { stdoutLog } from '../utils/logger'
 import { MainFn } from './_all.types'
 
 const LIB_FOLDER = '../data/sample_libs'
@@ -13,24 +12,23 @@ const FIN_PRE_APPS_PATH = join(APP_FOLDER, FINISHED_PREPROCESSING_FILE)
 const FIN_AN_APPS_PATH = join(APP_FOLDER, FINISHED_ANALYSIS_FILE)
 const APP_POOL_FOLDER = '/gi-pool/appdata-ro'
 
-const log = stdoutLog('data-status')
-log.enabled = true
+export const main: MainFn = async function main(log) {
+  const report = {} as { [title: string]: number }
 
-export const main: MainFn = async function main() {
   if (await pathExists(LIB_FOLDER)) {
     const libs = await getLibNames(LIB_FOLDER)
     const libName = await getLibNameVersions(LIB_FOLDER)
 
-    log('total libs:                %o', libs.length)
-    log('total libs+vers:           %o', libName.length)
+    report['total libs'] = libs.length
+    report['total libs+vers'] = libName.length
   }
 
   if (await pathExists(APP_FOLDER)) {
     const cordovaApps = await getApps(APP_FOLDER, APP_TYPES.cordova)
     const rnApps = await getApps(APP_FOLDER, APP_TYPES.reactNative)
 
-    log('total cordova:             %o', cordovaApps.length)
-    log('total react-native:        %o', rnApps.length)
+    report['total cordova'] = cordovaApps.length
+    report['total react-native'] = rnApps.length
   }
 
   if (await pathExists(FIN_PRE_APPS_PATH)) {
@@ -39,8 +37,8 @@ export const main: MainFn = async function main() {
     const cordova = appTypes[APP_TYPES.cordova] || []
     const reactNative = appTypes[APP_TYPES.reactNative] || []
 
-    log('preprocessed cordova:      %o', cordova.length)
-    log('preprocessed react-native: %o', reactNative.length)
+    report['preprocessed cordova'] = cordova.length
+    report['preprocessed react-native'] = reactNative.length
   }
 
   if (await pathExists(FIN_AN_APPS_PATH)) {
@@ -49,8 +47,8 @@ export const main: MainFn = async function main() {
     const cordova = appTypes[APP_TYPES.cordova] || []
     const reactNative = appTypes[APP_TYPES.reactNative] || []
 
-    log('analysed cordova:          %o', cordova.length)
-    log('analysed react-native:     %o', reactNative.length)
+    report['analysed cordova'] = cordova.length
+    report['analysed react-native'] = reactNative.length
   }
 
   if (await pathExists(APP_POOL_FOLDER)) {
@@ -61,6 +59,8 @@ export const main: MainFn = async function main() {
       return prev.concat(sectionApps.map((app) => ({ section, app })))
     }, Promise.resolve([] as { section: string; app: string }[]))
 
-    log('total apps in pool:        %o', apps.length)
+    report['total apps in pool'] = apps.length
   }
+
+  log.info(report)
 }
