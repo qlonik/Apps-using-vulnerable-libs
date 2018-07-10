@@ -18,7 +18,18 @@ export interface CouchDumpFormat {
 export type allMessages = The<
   MessagesMap,
   {
-    'extract-lib-from-dump': [[{ libsPath: string; dumpPath: string; filename: string }], any]
+    'extract-lib-from-dump': [
+      [
+        {
+          libsPath: string
+          dumpPath: string
+          filename: string
+          VERSIONS_PATH: string
+          DATE: string
+        }
+      ],
+      any
+    ]
     'reanalyse-lib': [[{ libsPath: string; lib: libNameVersion }], any]
 
     'extract-app': [

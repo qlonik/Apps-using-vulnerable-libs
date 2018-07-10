@@ -7,6 +7,8 @@ import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
 const DUMP_PATH = '../data/snyk/dump'
 const LIBS_PATH = '../data/snyk/sample_libs'
+const DATE = ''
+const VERSIONS_PATH = ''
 
 let terminating = false
 export const main: MainFn = async function main(log) {
@@ -25,7 +27,7 @@ export const main: MainFn = async function main(log) {
       try {
         return {
           done: await pool.exec('extract-lib-from-dump', [
-            { filename, libsPath: LIBS_PATH, dumpPath: DUMP_PATH },
+            { filename, libsPath: LIBS_PATH, dumpPath: DUMP_PATH, VERSIONS_PATH, DATE },
           ]),
           filename,
         }

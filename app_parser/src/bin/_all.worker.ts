@@ -1,4 +1,5 @@
-import { copy, mkdirp, move, remove } from 'fs-extra'
+import { copy, mkdirp, move, readJSON, remove } from 'fs-extra'
+import { memoize } from 'lodash/fp'
 import { join, relative } from 'path'
 import shell from 'shelljs'
 import { worker } from 'workerpool'
@@ -14,12 +15,14 @@ import { APK_FILE } from '../parseApps/constants'
 import {
   analyseLibFiles,
   extractMainFiles,
+  extractNameVersionFromFilename,
   extractSingleLibraryFromDump,
   updateUnionLiteralSignature,
 } from '../parseLibraries'
+import { isInBlacklist } from '../pkgBlacklist'
 import { saveFiles } from '../utils/files'
 import logger from '../utils/logger'
-import { allMessages as messages } from './_all.types'
+import { allMessages as messages, CouchDumpFormat } from './_all.types'
 
 const logFileName = relative(process.cwd(), __filename)
 const makeLog = (fn: string) => logger.child({ name: `${logFileName} >> ${fn}` })
@@ -27,6 +30,8 @@ const makeLog = (fn: string) => logger.child({ name: `${logFileName} >> ${fn}` }
 const ellog = makeLog('extract-lib-from-dump')
 const rllog = makeLog('reanalyse-lib')
 const aalog = makeLog('analyse-app')
+
+const memoReadJSON = memoize((p: string): Promise<any> => readJSON(p))
 
 worker<messages>({
   'reanalyse-lib': async ({ libsPath, lib }) => {
@@ -89,18 +94,32 @@ worker<messages>({
     return false
   },
 
-  'extract-lib-from-dump': async ({ libsPath, dumpPath, filename }) => {
-    let name
-    let version
-    try {
-      const libDesc = await extractSingleLibraryFromDump({ dumpPath, libsPath, filename })
-      name = libDesc.name
-      version = libDesc.version
-    } catch (err) {
-      ellog.error({ err, filename }, 'Could not parse the filename')
+  'extract-lib-from-dump': async ({ libsPath, dumpPath, filename, VERSIONS_PATH, DATE: D }) => {
+    const VERSIONS = (await memoReadJSON(VERSIONS_PATH)) as CouchDumpFormat
+    const DATE = new Date(D)
+
+    const libDesc = extractNameVersionFromFilename(filename)
+    if (libDesc === null) {
+      ellog.error({ filename }, 'Could not parse the filename')
+      return false
+    }
+    const { name, version } = libDesc
+
+    const versionTimeMap = VERSIONS[name]
+    if (versionTimeMap) {
+      const versionTime = versionTimeMap[version]
+      if (versionTime) {
+        const time = new Date(versionTime)
+        if (time > DATE) {
+          return false
+        }
+      }
+    }
+    if (isInBlacklist({ name, version })) {
       return false
     }
 
+    await extractSingleLibraryFromDump({ dumpPath, libsPath, filename })
     const main = await saveFiles(extractMainFiles({ libsPath, name, version }))
     const analysis = await saveFiles(analyseLibFiles(main))
     if (analysis.length > 0) {

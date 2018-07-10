@@ -17,7 +17,7 @@ enum PKG_TYPE {
   guessed,
 }
 
-function extractNameVersionFromFilename(filename: string): libNameVersion | null {
+export function extractNameVersionFromFilename(filename: string): libNameVersion | null {
   const nameVersionRegex = /(.*)-(\d+\.\d+\.\d+.*)\.tgz/
   const match = nameVersionRegex.exec(filename)
   if (match === null) {
