@@ -5,7 +5,6 @@ import { map } from 'lodash/fp'
 import { join, sep } from 'path'
 import { URL } from 'url'
 import { extractStructure, signatureWithComments } from '../extractStructure'
-import { isSigMinified, isSrcMinified } from '../extractStructure/tools'
 import { getLibNames } from '../parseLibraries'
 import {
   bundle_similarity_fn,
@@ -25,7 +24,6 @@ import {
   CORDOVA_INFO_FILE,
   CORDOVA_LIB_FILE,
   CORDOVA_MAIN_FILE,
-  CORDOVA_MINIFIED_NOTICE_FILE,
   CORDOVA_NON_PARSED_NOTICE_FILE,
   CORDOVA_SIG_FILE,
   CORDOVA_SIM_FILE,
@@ -206,27 +204,6 @@ export const preprocessCordovaApp = async (
               json: candidates,
               conservative,
             })
-          }
-
-          const minified = {
-            srcMinified: isSrcMinified(content),
-            sigMinified: isSigMinified(signature),
-          }
-          fileOps.push({
-            cwd,
-            dst: CORDOVA_MINIFIED_NOTICE_FILE,
-            type: fileOp.json,
-            json: minified,
-            conservative,
-          })
-
-          if (minified.srcMinified || minified.sigMinified) {
-            const mappedFileOps = fileOps.map((o) => {
-              const splitPath = o.cwd.split(sep)
-              splitPath[splitPath.length - 1] = '_' + splitPath[splitPath.length - 1]
-              return { ...o, cwd: join(...splitPath) }
-            })
-            return await saveFiles(mappedFileOps)
           }
 
           return await saveFiles(fileOps)

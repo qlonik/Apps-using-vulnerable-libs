@@ -19,7 +19,6 @@ export const CORDOVA_NON_PARSED_NOTICE_FILE = 'NOT_PARSED.txt'
 export const CORDOVA_SIG_FILE = 'libStructure.json'
 export const CORDOVA_SIM_FILE = 'sim.json'
 export const CORDOVA_CAND_FILE = 'candidates.json'
-export const CORDOVA_MINIFIED_NOTICE_FILE = 'minified.json'
 
 export const REACT_NATIVE_MAIN_FILE = 'bundle.js'
 export const REACT_NATIVE_SIG_FILE = 'sig.json'
