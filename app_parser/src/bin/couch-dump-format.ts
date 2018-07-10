@@ -19,8 +19,9 @@ export const main: MainFn = async function main(log) {
   assert(await pathExists(inCouchDumpDir), log, 'COUCH_DUMP folder does not exist')
   assert(await pathExists(inCouchDumpFile), log, 'COUCH_DUMP file in this folder does not exist')
 
-  const map = new Map<CouchDumpIn['name'], CouchDumpIn['versions']>()
   const file = (await readJSON(inCouchDumpFile)) as CouchDumpIn[]
+
+  const map = new Map<CouchDumpIn['name'], CouchDumpIn['versions']>()
   for (let { name, versions } of file) {
     const existing: CouchDumpIn['versions'] = map.get(name) || []
     for (let ver of versions) {
@@ -39,16 +40,16 @@ export const main: MainFn = async function main(log) {
     map.set(name, existing)
   }
 
-  const formatted: CouchDumpFormat = ([...map.entries()] as [
-    CouchDumpIn['name'],
-    CouchDumpIn['versions']
-  ][]).reduce(
-    (acc, [name, versions]) => ({
-      ...acc,
-      [name]: versions.reduce((acc, { v, time }) => ({ ...acc, [v]: time }), {}),
-    }),
-    {},
-  )
+  const entries: [CouchDumpIn['name'], CouchDumpIn['versions']][] = [...map.entries()]
+
+  const formatted: CouchDumpFormat = {}
+  for (let [name, versions] of entries) {
+    const vtMap = {} as { [version: string]: string }
+    for (let { v, time } of versions) {
+      vtMap[v] = time
+    }
+    formatted[name] = vtMap
+  }
 
   await writeFile(outCouchDumpFile, JSON.stringify(formatted), { encoding: 'utf-8' })
 }
