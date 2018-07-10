@@ -2,9 +2,11 @@ import { test } from 'ava'
 import { Fraction } from 'fraction.js'
 import arb from 'jsverify'
 import { cloneDeep, intersection as LIntersection } from 'lodash'
+import { isEqual } from 'lodash/fp'
 import { arbMapWithConfidence, arraysPair } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import { IndexValueToFraction } from './fraction'
+import { repeatedIntersection } from './repeated-list-ops'
 import {
   difference,
   divByZeroAware,
@@ -165,6 +167,16 @@ test(
   'libPortion produces expected values',
   check({ tests: 500 }, arraysPair(arb.number), (t, [a, b]) => {
     const num = LIntersection(a, b).length
+    const den = b.length
+    const val = divByZeroAware(num, den)
+    t.deepEqual({ val, num, den }, libPortion(a, b))
+  }),
+)
+
+test(
+  'libPortion produces expected values for complex objects',
+  check({ tests: 500 }, arraysPair(arb.json), (t, [a, b]) => {
+    const num = repeatedIntersection(isEqual, a, b).length
     const den = b.length
     const val = divByZeroAware(num, den)
     t.deepEqual({ val, num, den }, libPortion(a, b))
