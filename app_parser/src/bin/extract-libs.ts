@@ -3,7 +3,7 @@ import { partition, shuffle, filter, once } from 'lodash/fp'
 import { join } from 'path'
 import { resolveAllOrInParallel } from '../utils'
 import { poolFactory } from '../utils/worker'
-import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
+import { allMessages, DONE, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
 const DUMP_PATH = '../data/snyk/dump'
 const LIBS_PATH = '../data/snyk/sample_libs'
@@ -21,7 +21,7 @@ export const main: MainFn = async function main(log) {
   const results = await resolveAllOrInParallel(
     filenames.map((filename) => async () => {
       if (terminating) {
-        return { done: false, filename }
+        return { done: DONE.fail, filename }
       }
 
       try {
@@ -33,7 +33,7 @@ export const main: MainFn = async function main(log) {
         }
       } catch (err) {
         log.error({ err }, 'error from child')
-        return { done: false, filename }
+        return { done: DONE.fail, filename }
       }
     }),
     {
@@ -42,10 +42,18 @@ export const main: MainFn = async function main(log) {
     },
   )
 
-  const [s, f] = partition(({ done }) => done, results)
+  const [s, x] = partition(({ done }) => done === DONE.ok, results)
+  const [eT, y] = partition(({ done }) => done === DONE.exclTime, x)
+  const [eB, z] = partition(({ done }) => done === DONE.exclBL, y)
+  const [fPN, f] = partition(({ done }) => done == DONE.failParseName, z)
 
-  log.info('successful: %o', s.length)
-  log.info({ failed: f }, 'failed: %o', f.length)
+  log.info({
+    success: s.length,
+    'excluded-by-time': eT.length,
+    'excluded-by-blacklist': eB.length,
+    'failed-to-parse-filename': fPN.length,
+    failed: f.length,
+  })
 
   await pool.terminate()
 }

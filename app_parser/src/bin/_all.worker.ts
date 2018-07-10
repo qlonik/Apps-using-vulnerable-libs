@@ -22,7 +22,7 @@ import {
 import { isInBlacklist } from '../pkgBlacklist'
 import { saveFiles } from '../utils/files'
 import logger from '../utils/logger'
-import { allMessages as messages, CouchDumpFormat } from './_all.types'
+import { allMessages as messages, CouchDumpFormat, DONE } from './_all.types'
 
 const logFileName = relative(process.cwd(), __filename)
 const makeLog = (fn: string) => logger.child({ name: `${logFileName} >> ${fn}` })
@@ -101,7 +101,7 @@ worker<messages>({
     const libDesc = extractNameVersionFromFilename(filename)
     if (libDesc === null) {
       ellog.error({ filename }, 'Could not parse the filename')
-      return false
+      return DONE.failParseName
     }
     const { name, version } = libDesc
 
@@ -111,12 +111,12 @@ worker<messages>({
       if (versionTime) {
         const time = new Date(versionTime)
         if (time > DATE) {
-          return false
+          return DONE.exclTime
         }
       }
     }
     if (isInBlacklist({ name, version })) {
-      return false
+      return DONE.exclBL
     }
 
     await extractSingleLibraryFromDump({ dumpPath, libsPath, filename })
@@ -126,7 +126,7 @@ worker<messages>({
       await updateUnionLiteralSignature({ libsPath, name, version })
     }
 
-    return true
+    return DONE.ok
   },
 
   're-extract-app': async ({ inputPath, outputPath, app }) => {

@@ -15,6 +15,14 @@ export interface CouchDumpFormat {
       }
 }
 
+export enum DONE {
+  ok,
+  fail,
+  failParseName, // failed to parse filename
+  exclTime, // excluded because of cut-off time
+  exclBL, // excluded because of black list
+}
+
 export type allMessages = The<
   MessagesMap,
   {
@@ -28,7 +36,7 @@ export type allMessages = The<
           DATE: string
         }
       ],
-      any
+      DONE
     ]
     'reanalyse-lib': [[{ libsPath: string; lib: libNameVersion }], any]
 
