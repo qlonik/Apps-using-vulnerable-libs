@@ -2,17 +2,24 @@ import { Many, sortedLastIndex, sortedLastIndexBy, ValueIteratee } from 'lodash'
 
 const LIMIT = 100
 
+export interface FilterFn<T> {
+  <S extends T>(value: T): value is S
+  (value: T): boolean
+}
 export class SortedLimitedList<T> {
   private _arr: T[] = []
   private _predicate: ValueIteratee<T> | undefined
+  private readonly _filter: FilterFn<T> | undefined
   private _limit: number
   private _finished = false
 
   public constructor({
     predicate = undefined,
+    filter = undefined,
     limit = LIMIT,
-  }: { predicate?: ValueIteratee<T>; limit?: number } = {}) {
+  }: { predicate?: ValueIteratee<T>; filter?: FilterFn<T>; limit?: number } = {}) {
     this._predicate = predicate
+    this._filter = filter
     this._limit = limit
   }
 
@@ -23,6 +30,10 @@ export class SortedLimitedList<T> {
 
     if (Array.isArray(el)) {
       el.forEach((el) => this.push(el))
+      return this
+    }
+
+    if (this._filter && !this._filter(el)) {
       return this
     }
 
