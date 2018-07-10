@@ -3,7 +3,7 @@ import { groupBy } from 'lodash'
 import { join } from 'path'
 import { APP_TYPES, appDesc, getApps } from '../parseApps'
 import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
-import { getLibNameVersions } from '../parseLibraries'
+import { getLibNames, getLibNameVersions } from '../parseLibraries'
 import { stdoutLog } from '../utils/logger'
 import { MainFn } from './_all.types'
 
@@ -18,9 +18,11 @@ log.enabled = true
 
 export const main: MainFn = async function main() {
   if (await pathExists(LIB_FOLDER)) {
-    const libs = await getLibNameVersions(LIB_FOLDER)
+    const libs = await getLibNames(LIB_FOLDER)
+    const libName = await getLibNameVersions(LIB_FOLDER)
 
-    log('total libs+vers:           %o', libs.length)
+    log('total libs:                %o', libs.length)
+    log('total libs+vers:           %o', libName.length)
   }
 
   if (await pathExists(APP_FOLDER)) {
