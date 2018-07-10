@@ -108,60 +108,6 @@ test(
   }),
 )
 
-test('applies filter', t => {
-  const sll = new SortedLimitedList<number>({ limit: 5 })
-  const val = sll
-    .push([9, 8, 7, 6, 5, 4, 3, 2, 1])
-    .filter(v => v % 2 === 0)
-    .value()
-  t.deepEqual([2, 4], val)
-})
-
-test(
-  'filter is honoured',
-  check(arb.nat, arb.array(arb.number), arb.fn(arb.bool), (t, limit, arr, filter) => {
-    const sll = new SortedLimitedList<number>({ limit })
-    const val = sll
-      .push(arr)
-      .filter(filter)
-      .value()
-    const expected = _filter(take(sortBy(arr), limit), filter)
-    t.deepEqual(expected, val)
-  }),
-)
-
-test('applies filter and mutates type', t => {
-  type t1 = { a: string; b: { c: number; d: string } }
-  type t2 = { b: { c: number; d: string }; e: string }
-
-  const o1: t1 = { a: 'a', b: { c: 1, d: '1' } }
-  const o2: t2 = { b: { c: 2, d: '2' }, e: 'b' }
-  const o3: t1 = { a: 'c', b: { c: 3, d: '3' } }
-  const o4: t2 = { b: { c: 4, d: '4' }, e: 'd' }
-
-  const oIsT2 = (o: t1 | t2): o is t2 => 'e' in o
-
-  const sll = new SortedLimitedList<t1 | t2>({
-    predicate: (o: t1 | t2) => o.b.c,
-    limit: 5,
-  })
-  const val = sll
-    .push([o1, o2, o3, o4])
-    .filter(oIsT2)
-    .value()
-
-  t.deepEqual([o2, o4], val)
-  for (let el of val) {
-    if (!oIsT2(el)) {
-      try {
-        assertNever(el)
-      } catch {
-        t.fail('failed type assertion')
-      }
-    }
-  }
-})
-
 test('does not push after value()', t => {
   const sll = new SortedLimitedList<number>()
   const val = sll.push([4, 3, 2, 1]).value()

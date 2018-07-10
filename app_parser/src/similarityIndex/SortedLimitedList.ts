@@ -42,21 +42,6 @@ export class SortedLimitedList<T> {
     return this
   }
 
-  public filter<S extends T = T>(
-    func: (value: T, index: number, array: T[]) => value is S,
-  ): SortedLimitedList<S>
-  public filter(func: (value: T, index: number, array: T[]) => any): SortedLimitedList<T>
-  public filter(func: (value: T, index: number, array: T[]) => any): SortedLimitedList<any> {
-    const newSll = new SortedLimitedList({
-      predicate: this._predicate,
-      limit: this._limit,
-    })
-
-    newSll._arr = this._arr.filter(func)
-
-    return newSll
-  }
-
   public value(): T[] {
     if (this._finished) {
       throw new Error('Cannot get value of finished SortedLimitedList')
