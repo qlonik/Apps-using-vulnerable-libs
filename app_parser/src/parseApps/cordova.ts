@@ -5,7 +5,6 @@ import { map } from 'lodash/fp'
 import { join, sep } from 'path'
 import { URL } from 'url'
 import { extractStructure, signatureWithComments } from '../extractStructure'
-import { getLibNames } from '../parseLibraries'
 import {
   bundle_similarity_fn,
   candidateLib,
@@ -263,17 +262,11 @@ export const analyseCordovaApp = async ({
 
       const noCandidatesFound = candidates.length === 0
       if (noCandidatesFound) {
-        log.warn('%o candidates', 0)
+        log.warn({ app: { type, section, app }, file: { location, id } }, 'no candidates')
+        return { location, id, noCandidatesFound }
       }
 
-      const cand = noCandidatesFound
-        ? (await getLibNames(libsPath)).map(({ name }) => ({
-            name,
-            index: { val: 1, num: -1, den: -1 },
-          }))
-        : candidates
-
-      const sim = await bundle_similarity_fn(signature, cand, libsPath)
+      const sim = await bundle_similarity_fn(signature, candidates, libsPath)
 
       await saveFiles({
         cwd,
