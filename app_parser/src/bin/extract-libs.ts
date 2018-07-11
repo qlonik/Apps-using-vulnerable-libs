@@ -24,16 +24,11 @@ export const main: MainFn = async function main(log) {
         return { done: DONE.fail, filename }
       }
 
-      try {
-        return {
-          done: await pool.exec('extract-lib-from-dump', [
-            { filename, libsPath: LIBS_PATH, dumpPath: DUMP_PATH, VERSIONS_PATH, DATE },
-          ]),
-          filename,
-        }
-      } catch (err) {
-        log.error({ err }, 'error from child')
-        return { done: DONE.fail, filename }
+      return {
+        done: await pool.exec('extract-lib-from-dump', [
+          { filename, libsPath: LIBS_PATH, dumpPath: DUMP_PATH, VERSIONS_PATH, DATE },
+        ]),
+        filename,
       }
     }),
     {

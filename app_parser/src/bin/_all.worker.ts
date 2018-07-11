@@ -94,6 +94,20 @@ worker<messages>({
     return false
   },
 
+  /**
+   * Function which extracts and analyses one library from the dump. It returns the lib .tgz into
+   * failed portion of the dump, if it can't be parsed.
+   *
+   * remark: rewrite this function and its supporting functions
+   *   Supporting functions: {@link extractSingleLibraryFromDump}, {@link extractMainFiles},
+   *   {@link analyseLibFiles}, and {@link updateUnionLiteralSignature}
+   *
+   * @param libsPath
+   * @param dumpPath
+   * @param filename
+   * @param VERSIONS_PATH
+   * @param D
+   */
   'extract-lib-from-dump': async ({ libsPath, dumpPath, filename, VERSIONS_PATH, DATE: D }) => {
     const VERSIONS = (await memoReadJSON(VERSIONS_PATH)) as CouchDumpFormat
     const DATE = new Date(D)
@@ -119,10 +133,21 @@ worker<messages>({
       return DONE.exclBL
     }
 
-    await extractSingleLibraryFromDump({ dumpPath, libsPath, filename })
-    const main = await saveFiles(extractMainFiles({ libsPath, name, version }))
-    await saveFiles(analyseLibFiles(main))
-    await updateUnionLiteralSignature({ libsPath, name, version })
+    try {
+      await extractSingleLibraryFromDump({ dumpPath, libsPath, filename })
+      const main = await saveFiles(extractMainFiles({ libsPath, name, version }))
+      await saveFiles(analyseLibFiles(main))
+      await updateUnionLiteralSignature({ libsPath, name, version })
+    } catch (err) {
+      ellog.error({ err }, 'error while extracting')
+
+      const dumpPathFailed = `${dumpPath}.failed`
+      await mkdirp(dumpPathFailed)
+      await move(join(libsPath, name, version, filename), join(dumpPathFailed, filename))
+      await remove(join(libsPath, name, version))
+
+      return DONE.fail
+    }
 
     return DONE.ok
   },
