@@ -1,6 +1,7 @@
-import { readdir } from 'fs-extra'
+import { readdir, remove } from 'fs-extra'
 import { partition, shuffle, filter, once } from 'lodash/fp'
 import { join } from 'path'
+import { getLibNames } from '../parseLibraries'
 import { poolFactory } from '../utils/worker'
 import { allMessages, DONE, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
@@ -44,6 +45,25 @@ export const main: MainFn = async function main(log) {
     'failed-to-parse-filename': fPN.length,
     failed: f.length,
   })
+
+  await Promise.all(
+    (await readdir(LIBS_PATH)).filter((x) => !x.startsWith('_')).map(async (name) => {
+      const libPath = join(LIBS_PATH, name)
+      const content = await readdir(libPath)
+      if (content.length === 0 || content.every((x) => x.startsWith('_'))) {
+        await remove(libPath)
+      }
+    }),
+  )
+
+  await Promise.all(
+    (await getLibNames(LIBS_PATH)).map(async ({ name }) => ({
+      done: terminating
+        ? false
+        : await pool.exec('create-lib-literal-sig', [{ libsPath: LIBS_PATH, name }]),
+      name,
+    })),
+  )
 
   await pool.terminate()
 }

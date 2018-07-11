@@ -142,7 +142,6 @@ worker<messages>({
       await extractSingleLibraryFromDump({ dumpPath, libsPath, filename })
       const main = await saveFiles(extractMainFiles({ libsPath, name, version }))
       await saveFiles(analyseLibFiles(main))
-      await updateUnionLiteralSignature({ libsPath, name, version })
     } catch (err) {
       ellog.error({ err }, 'error while extracting')
 
