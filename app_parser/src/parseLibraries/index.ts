@@ -276,7 +276,7 @@ export async function extractSingleLibraryFromDump({
 }
 
 export async function updateUnionLiteralSignature(
-  { libsPath, name, version }: { libsPath: string } & libNameVersion,
+  { libsPath, name, version }: { libsPath: string; name: string; version?: string },
   {  }: opts = {},
 ): Promise<void> {
   const sigs = await getLibNameVersionSigContents(libsPath, name, version)
