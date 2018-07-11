@@ -45,6 +45,13 @@ const createLocationLog = (
   id: string,
 ) => fileLog.child({ app: { type, section, app }, script: { location, id } })
 
+const hideFile = (fileOps: fileDescOp[]) =>
+  fileOps.map((o) => {
+    const splitPath = o.cwd.split(sep)
+    splitPath[splitPath.length - 1] = '_' + splitPath[splitPath.length - 1]
+    return { ...o, cwd: join(...splitPath) }
+  })
+
 export const isCordovaApp: IsAppTypeFn = async function({ appPath }): Promise<boolean> {
   const indexHtmlPath = join(appPath, ...['assets', 'www', 'index.html'])
   const cordovaJsPath = join(appPath, ...['assets', 'www', 'cordova.js'])
@@ -175,12 +182,7 @@ export const preprocessCordovaApp = async (
               text: 'THIS FILE COULD NOT BE PARSED',
               conservative,
             })
-            const mappedFileOps = fileOps.map((o) => {
-              const splitPath = o.cwd.split(sep)
-              splitPath[splitPath.length - 1] = '_' + splitPath[splitPath.length - 1]
-              return { ...o, cwd: join(...splitPath) }
-            })
-            return await saveFiles(mappedFileOps)
+            return await saveFiles(hideFile(fileOps))
           }
           fileOps.push({
             cwd,
