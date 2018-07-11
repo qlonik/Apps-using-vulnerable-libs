@@ -121,10 +121,8 @@ worker<messages>({
 
     await extractSingleLibraryFromDump({ dumpPath, libsPath, filename })
     const main = await saveFiles(extractMainFiles({ libsPath, name, version }))
-    const analysis = await saveFiles(analyseLibFiles(main))
-    if (analysis.length > 0) {
-      await updateUnionLiteralSignature({ libsPath, name, version })
-    }
+    await saveFiles(analyseLibFiles(main))
+    await updateUnionLiteralSignature({ libsPath, name, version })
 
     return DONE.ok
   },
