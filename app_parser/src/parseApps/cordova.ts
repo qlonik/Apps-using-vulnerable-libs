@@ -23,6 +23,7 @@ import {
   CORDOVA_INFO_FILE,
   CORDOVA_LIB_FILE,
   CORDOVA_MAIN_FILE,
+  CORDOVA_NON_EXISTENT_NOTICE_FILE,
   CORDOVA_NON_PARSED_NOTICE_FILE,
   CORDOVA_SIG_FILE,
   CORDOVA_SIM_FILE,
@@ -123,14 +124,26 @@ export const preprocessCordovaApp = async (
             }
 
             if (url.protocol === 'file:') {
-              fileOps.push({
-                cwd,
-                dst: CORDOVA_LIB_FILE,
-                type: fileOp.copy,
-                src: url.pathname,
-                conservative,
-              })
-              content = await readFile(url.pathname, 'utf-8')
+              if (await pathExists(url.pathname)) {
+                fileOps.push({
+                  cwd,
+                  dst: CORDOVA_LIB_FILE,
+                  type: fileOp.copy,
+                  src: url.pathname,
+                  conservative,
+                })
+                content = await readFile(url.pathname, 'utf-8')
+              } else {
+                log.debug({ info: infoObject }, 'script source does not exist')
+                fileOps.push({
+                  cwd,
+                  dst: CORDOVA_NON_EXISTENT_NOTICE_FILE,
+                  type: fileOp.text,
+                  text: 'SOURCE FILE DOES NOT EXIST IN APK',
+                  conservative,
+                })
+                return await saveFiles(hideFile(fileOps))
+              }
             } else if (url.protocol === 'http:' || url.protocol === 'https:') {
               log.debug({ info: infoObject }, 'script referenced via http / https!')
             } else {
