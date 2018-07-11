@@ -38,6 +38,7 @@ export type allMessages = The<
       ],
       DONE
     ]
+    'create-lib-literal-sig': [[{ libsPath: string; name: string }], boolean]
     'reanalyse-lib': [[{ libsPath: string; lib: libNameVersion }], any]
 
     'extract-app': [

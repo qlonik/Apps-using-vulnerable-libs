@@ -157,6 +157,11 @@ worker<messages>({
     return DONE.ok
   },
 
+  'create-lib-literal-sig': async ({ libsPath, name }) => {
+    await updateUnionLiteralSignature({ libsPath, name })
+    return true
+  },
+
   're-extract-app': async ({ inputPath, outputPath, app }) => {
     const apkIn = join(inputPath, app.type, app.section, app.app, 'app.apk')
     const outDir = join(outputPath, app.type, app.section, app.app)
