@@ -111,6 +111,7 @@ worker<messages>({
   'extract-lib-from-dump': async ({ libsPath, dumpPath, filename, VERSIONS_PATH, DATE: D }) => {
     const VERSIONS = (await memoReadJSON(VERSIONS_PATH)) as CouchDumpFormat
     const DATE = new Date(D)
+    const exclDir = `${dumpPath}.excl`
 
     const libDesc = extractNameVersionFromFilename(filename)
     if (libDesc === null) {
@@ -125,11 +126,15 @@ worker<messages>({
       if (versionTime) {
         const time = new Date(versionTime)
         if (time > DATE) {
+          await mkdirp(exclDir)
+          await move(join(dumpPath, filename), join(exclDir, filename))
           return DONE.exclTime
         }
       }
     }
     if (isInBlacklist({ name, version })) {
+      await mkdirp(exclDir)
+      await move(join(dumpPath, filename), join(exclDir, filename))
       return DONE.exclBL
     }
 
