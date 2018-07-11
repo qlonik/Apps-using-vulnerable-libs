@@ -1,7 +1,6 @@
 import { readdir } from 'fs-extra'
 import { partition, shuffle, filter, once } from 'lodash/fp'
 import { join } from 'path'
-import { resolveAllOrInParallel } from '../utils'
 import { poolFactory } from '../utils/worker'
 import { allMessages, DONE, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
@@ -18,8 +17,8 @@ export const main: MainFn = async function main(log) {
   )
 
   log.info('started processing %o files', filenames.length)
-  const results = await resolveAllOrInParallel(
-    filenames.map((filename) => async () => {
+  const results = await Promise.all(
+    filenames.map(async (filename) => {
       if (terminating) {
         return { done: DONE.fail, filename }
       }
@@ -31,10 +30,6 @@ export const main: MainFn = async function main(log) {
         filename,
       }
     }),
-    {
-      chunkLimit: pool.maxWorkers + 1,
-      chunkSize: Math.floor(1.5 * pool.maxWorkers),
-    },
   )
 
   const [s, x] = partition(({ done }) => done === DONE.ok, results)
