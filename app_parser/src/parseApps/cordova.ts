@@ -278,7 +278,7 @@ export const analyseCordovaApp = async ({
 
       const noCandidatesFound = candidates.length === 0
       if (noCandidatesFound) {
-        log.warn({ app: { type, section, app }, file: { location, id } }, 'no candidates')
+        log.warn('no candidates')
         return { location, id, noCandidatesFound }
       }
 
