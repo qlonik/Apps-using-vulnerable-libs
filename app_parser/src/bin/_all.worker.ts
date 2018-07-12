@@ -3,6 +3,7 @@ import { memoize } from 'lodash/fp'
 import { join, relative } from 'path'
 import shell from 'shelljs'
 import { worker } from 'workerpool'
+import { EXTRACTOR_VERSION } from '../extractStructure/options'
 import {
   analyseCordovaApp,
   APP_TYPES,
@@ -64,7 +65,10 @@ worker<messages>({
 
     if (app.type === APP_TYPES.cordova) {
       try {
-        await preprocessCordovaApp({ allAppsPath, allLibsPath, app })
+        await preprocessCordovaApp(
+          { allAppsPath, allLibsPath, app },
+          { extractorOpts: { 'extractor-version': EXTRACTOR_VERSION.v3 } },
+        )
         return true
       } catch {
         return false
