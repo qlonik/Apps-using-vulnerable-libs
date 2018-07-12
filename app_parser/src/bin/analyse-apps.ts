@@ -5,7 +5,6 @@ import { appDesc } from '../parseApps'
 import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
-import { stdoutLog } from '../utils/logger'
 import { poolFactory } from '../utils/worker'
 import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
@@ -15,11 +14,9 @@ const FIN_PRE_APPS_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
 const FIN_AN_APPS_PATH = join(ALL_APPS_PATH, FINISHED_ANALYSIS_FILE)
 const ALL_LIBS_PATH = '../data/sample_libs'
 
-const log = stdoutLog('analyse-apps')
-log.enabled = true
 let terminating = false
 
-export const main: MainFn = async function main() {
+export const main: MainFn = async function main(log) {
   const apps = (await readJSON(FIN_PRE_APPS_PATH)) as appDesc[]
   let FIN_AN_APPS = [] as appDesc[]
 
@@ -29,12 +26,12 @@ export const main: MainFn = async function main() {
 
   if (await pathExists(FIN_AN_APPS_PATH)) {
     FIN_AN_APPS = await readJSON(FIN_AN_APPS_PATH)
-    log('loaded FIN_AN_APPS')
+    log.info('loaded FIN_AN_APPS')
   }
 
   const filtered = differenceWith(apps, FIN_AN_APPS, isEqual)
   const subset = take(filtered, APPS_TO_ANALYSE_LIMIT)
-  log(
+  log.info(
     'apps: (all=%o)-(fin_an=%o)=(todo=%o/%o)',
     apps.length,
     FIN_AN_APPS.length,
@@ -43,7 +40,7 @@ export const main: MainFn = async function main() {
   )
 
   const pool = poolFactory<allMessages>(join(__dirname, WORKER_FILENAME), { minWorkers: 0 })
-  log('pool: min=%o, max=%o, %o', pool.minWorkers, pool.maxWorkers, pool.stats())
+  log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
   const appsPromises = subset.map((app) => async () => {
     if (terminating) {
@@ -55,7 +52,7 @@ export const main: MainFn = async function main() {
     return { done, ...app }
   })
 
-  log('started analysis')
+  log.info('started analysis')
   const results = await resolveAllOrInParallel(appsPromises, {
     chunkLimit: pool.maxWorkers + 1,
     chunkSize: Math.floor(1.5 * pool.maxWorkers),
@@ -74,16 +71,16 @@ export const main: MainFn = async function main() {
     },
   })
   if (terminating) {
-    log('terminated analysis')
+    log.info('terminated analysis')
   } else {
-    log('finished analysis')
+    log.info('finished analysis')
   }
 
   const [done, notDone] = partition(results, ({ done }) => done)
   const doneLength = done.length
   const notDoneLength = notDone.length
 
-  log(
+  log.info(
     'apps: (done=%o)+(not-done=%o)=(total=%o)',
     doneLength,
     notDoneLength,
@@ -94,12 +91,11 @@ export const main: MainFn = async function main() {
     return `${a.type}/${a.section}/${a.app}`.localeCompare(`${b.type}/${b.section}/${b.app}`)
   })
   await myWriteJSON({ content: FIN_AN_APPS, file: FIN_AN_APPS_PATH })
-  log('updated FIN_AN_APPS')
+  log.info('updated FIN_AN_APPS')
 
   await pool.terminate()
 }
 
 export const terminate: TerminateFn = once(() => {
-  log('started terminating')
   terminating = true
 })
