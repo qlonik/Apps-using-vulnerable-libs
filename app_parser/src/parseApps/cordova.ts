@@ -1,6 +1,6 @@
 import { mkdirp, pathExists, readFile, readJSON } from 'fs-extra'
 import { JSDOM } from 'jsdom'
-import { flatten, groupBy } from 'lodash'
+import { groupBy } from 'lodash'
 import { map } from 'lodash/fp'
 import { join, sep } from 'path'
 import { URL } from 'url'
@@ -77,155 +77,152 @@ export const preprocessCordovaApp = async (
   const jsAnalysisPath = join(appPath, ANALYSIS_FOLDER)
   await mkdirp(jsAnalysisPath)
   const { window: { document } } = await JSDOM.fromFile(indexHtmlPath)
-  const parseScriptTags = flatten(
-    ['head', 'body'].map((location) => {
-      const scriptTags = document.querySelectorAll(`${location} script`) as NodeListOf<
-        HTMLScriptElement
-      >
-
-      return [...scriptTags].map((script: HTMLScriptElement, i) => {
-        return async () => {
-          const cwd = join(jsAnalysisPath, location, leftPad(i))
-          const fileOps: fileDescOp[] = []
-          const log = createLocationLog(type, section, app, location, leftPad(i))
-
-          /**
-           * Important object
-           */
-          let infoObject: {
-            scriptTagLocation: string
-            scriptTagIndex: number
-          } & (
-            | {
-                type: 'src'
-                originalSrc: string
-                originalPath: string
-                originalProtocol: string
-              }
-            | {
-                type: 'content'
-              }
-            | {
-                type: 'unknown'
-                tagKeys: string[]
-              })
-
-          let content: string = ''
-          let extractionWarnMsg = ''
-          if (script.src) {
-            const url = new URL(script.src)
-            infoObject = {
-              scriptTagLocation: location,
-              scriptTagIndex: i,
-
-              type: 'src',
-              originalSrc: script.src,
-              originalPath: url.pathname,
-              originalProtocol: url.protocol,
-            }
-
-            if (url.protocol === 'file:') {
-              if (await pathExists(url.pathname)) {
-                fileOps.push({
-                  cwd,
-                  dst: CORDOVA_LIB_FILE,
-                  type: fileOp.copy,
-                  src: url.pathname,
-                  conservative,
-                })
-                content = await readFile(url.pathname, 'utf-8')
-              } else {
-                extractionWarnMsg = 'script source file does not exist'
-              }
-            } else if (url.protocol === 'http:' || url.protocol === 'https:') {
-              extractionWarnMsg = 'script referenced via http / https'
-            } else {
-              extractionWarnMsg = 'script has an unknown source type'
-            }
-          } else if (script.text) {
-            infoObject = {
-              scriptTagLocation: location,
-              scriptTagIndex: i,
-
-              type: 'content',
-            }
-            fileOps.push({
-              cwd,
-              dst: CORDOVA_LIB_FILE,
-              type: fileOp.text,
-              text: script.text,
-              conservative,
-            })
-            content = script.text
-          } else {
-            infoObject = {
-              scriptTagLocation: location,
-              scriptTagIndex: i,
-
-              type: 'unknown',
-              tagKeys: Object.keys(script),
-            }
-            extractionWarnMsg = 'unknown script tag type'
-          }
-          fileOps.push({
-            cwd,
-            dst: CORDOVA_INFO_FILE,
-            type: fileOp.json,
-            json: infoObject,
-            conservative,
-          })
-          if (!content) {
-            log.warn({ info: infoObject }, extractionWarnMsg)
-            fileOps.push({
-              cwd,
-              dst: CORDOVA_NON_EXISTENT_NOTICE_FILE,
-              type: fileOp.text,
-              text: extractionWarnMsg,
-              conservative,
-            })
-            return await saveFiles(hideFile(fileOps))
-          }
-
-          let signature
-          try {
-            signature = await extractStructure({ content, options: extractorOpts })
-          } catch (err) {
-            log.error({ err, info: infoObject }, 'could not parse js file')
-            fileOps.push({
-              cwd,
-              dst: CORDOVA_NON_PARSED_NOTICE_FILE,
-              type: fileOp.text,
-              text: 'THIS FILE COULD NOT BE PARSED',
-              conservative,
-            })
-            return await saveFiles(hideFile(fileOps))
-          }
-          fileOps.push({
-            cwd,
-            dst: CORDOVA_SIG_FILE,
-            type: fileOp.json,
-            json: signature,
-            conservative,
-          })
-
-          const candidates = await getCandidateLibs({
-            signature,
-            libsPath: allLibsPath,
-            opts: { limit: 10 },
-          })
-          fileOps.push({
-            cwd,
-            dst: CORDOVA_CAND_FILE,
-            type: fileOp.json,
-            json: candidates,
-            conservative,
-          })
-
-          return await saveFiles(fileOps)
-        }
-      })
-    }),
+  const scriptTags = ['head', 'body'].reduce(
+    (acc, location) => {
+      const scripts = document.querySelectorAll<HTMLScriptElement>(`${location} script`)
+      return acc.concat([...scripts].map((script) => ({ location, script })))
+    },
+    [] as { location: string; script: HTMLScriptElement }[],
   )
+  const parseScriptTags = scriptTags.map(({ location, script }, i) => async () => {
+    const cwd = join(jsAnalysisPath, location, leftPad(i))
+    const fileOps: fileDescOp[] = []
+    const log = createLocationLog(type, section, app, location, leftPad(i))
+
+    /**
+     * Important object
+     */
+    let infoObject: {
+      scriptTagLocation: string
+      scriptTagIndex: number
+    } & (
+      | {
+          type: 'src'
+          originalSrc: string
+          originalPath: string
+          originalProtocol: string
+        }
+      | {
+          type: 'content'
+        }
+      | {
+          type: 'unknown'
+          tagKeys: string[]
+        })
+
+    let content: string = ''
+    let extractionWarnMsg = ''
+    if (script.src) {
+      const url = new URL(script.src)
+      infoObject = {
+        scriptTagLocation: location,
+        scriptTagIndex: i,
+
+        type: 'src',
+        originalSrc: script.src,
+        originalPath: url.pathname,
+        originalProtocol: url.protocol,
+      }
+
+      if (url.protocol === 'file:') {
+        if (await pathExists(url.pathname)) {
+          fileOps.push({
+            cwd,
+            dst: CORDOVA_LIB_FILE,
+            type: fileOp.copy,
+            src: url.pathname,
+            conservative,
+          })
+          content = await readFile(url.pathname, 'utf-8')
+        } else {
+          extractionWarnMsg = 'script source file does not exist'
+        }
+      } else if (url.protocol === 'http:' || url.protocol === 'https:') {
+        extractionWarnMsg = 'script referenced via http / https'
+      } else {
+        extractionWarnMsg = 'script has an unknown source type'
+      }
+    } else if (script.text) {
+      infoObject = {
+        scriptTagLocation: location,
+        scriptTagIndex: i,
+
+        type: 'content',
+      }
+      fileOps.push({
+        cwd,
+        dst: CORDOVA_LIB_FILE,
+        type: fileOp.text,
+        text: script.text,
+        conservative,
+      })
+      content = script.text
+    } else {
+      infoObject = {
+        scriptTagLocation: location,
+        scriptTagIndex: i,
+
+        type: 'unknown',
+        tagKeys: Object.keys(script),
+      }
+      extractionWarnMsg = 'unknown script tag type'
+    }
+    fileOps.push({
+      cwd,
+      dst: CORDOVA_INFO_FILE,
+      type: fileOp.json,
+      json: infoObject,
+      conservative,
+    })
+    if (!content) {
+      log.warn({ info: infoObject }, extractionWarnMsg)
+      fileOps.push({
+        cwd,
+        dst: CORDOVA_NON_EXISTENT_NOTICE_FILE,
+        type: fileOp.text,
+        text: extractionWarnMsg,
+        conservative,
+      })
+      return await saveFiles(hideFile(fileOps))
+    }
+
+    let signature
+    try {
+      signature = await extractStructure({ content, options: extractorOpts })
+    } catch (err) {
+      log.error({ err, info: infoObject }, 'could not parse js file')
+      fileOps.push({
+        cwd,
+        dst: CORDOVA_NON_PARSED_NOTICE_FILE,
+        type: fileOp.text,
+        text: 'THIS FILE COULD NOT BE PARSED',
+        conservative,
+      })
+      return await saveFiles(hideFile(fileOps))
+    }
+    fileOps.push({
+      cwd,
+      dst: CORDOVA_SIG_FILE,
+      type: fileOp.json,
+      json: signature,
+      conservative,
+    })
+
+    const candidates = await getCandidateLibs({
+      signature,
+      libsPath: allLibsPath,
+      opts: { limit: 10 },
+    })
+    fileOps.push({
+      cwd,
+      dst: CORDOVA_CAND_FILE,
+      type: fileOp.json,
+      json: candidates,
+      conservative,
+    })
+
+    return await saveFiles(fileOps)
+  })
 
   await resolveAllOrInParallel(parseScriptTags)
 }
