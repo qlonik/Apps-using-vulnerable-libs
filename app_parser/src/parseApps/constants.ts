@@ -20,6 +20,7 @@ export const CORDOVA_NON_EXISTENT_NOTICE_FILE = 'DOES_NOT_EXIST.txt'
 export const CORDOVA_SIG_FILE = 'libStructure.json'
 export const CORDOVA_SIM_FILE = 'sim.json'
 export const CORDOVA_CAND_FILE = 'candidates.json'
+export const CORDOVA_ANALYSIS_REPORT_FILE = '_report.json'
 
 export const REACT_NATIVE_MAIN_FILE = 'bundle.js'
 export const REACT_NATIVE_SIG_FILE = 'sig.json'

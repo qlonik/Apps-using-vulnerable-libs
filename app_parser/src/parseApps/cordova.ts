@@ -19,6 +19,7 @@ import { fileDescOp, fileOp, saveFiles } from '../utils/files'
 import logger from '../utils/logger'
 import {
   ANALYSIS_FOLDER,
+  CORDOVA_ANALYSIS_REPORT_FILE,
   CORDOVA_CAND_FILE,
   CORDOVA_INFO_FILE,
   CORDOVA_LIB_FILE,
@@ -302,6 +303,14 @@ export const analyseCordovaApp = async ({
     localReport.noCandidatesPerLocation[location] = (
       localReport.noCandidatesPerLocation[location] || []
     ).concat(id)
+  })
+
+  await saveFiles({
+    cwd: analysisPath,
+    dst: CORDOVA_ANALYSIS_REPORT_FILE,
+    conservative: false,
+    type: fileOp.json,
+    json: localReport,
   })
 
   return localReport
