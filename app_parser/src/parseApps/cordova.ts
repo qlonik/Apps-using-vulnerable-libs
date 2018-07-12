@@ -109,8 +109,9 @@ export const preprocessCordovaApp = async (
                 type: 'unknown'
                 tagKeys: string[]
               })
-          let content: string = ''
 
+          let content: string = ''
+          let extractionWarnMsg = ''
           if (script.src) {
             const url = new URL(script.src)
             infoObject = {
@@ -134,20 +135,12 @@ export const preprocessCordovaApp = async (
                 })
                 content = await readFile(url.pathname, 'utf-8')
               } else {
-                log.debug({ info: infoObject }, 'script source does not exist')
-                fileOps.push({
-                  cwd,
-                  dst: CORDOVA_NON_EXISTENT_NOTICE_FILE,
-                  type: fileOp.text,
-                  text: 'SOURCE FILE DOES NOT EXIST IN APK',
-                  conservative,
-                })
-                return await saveFiles(hideFile(fileOps))
+                extractionWarnMsg = 'script source file does not exist'
               }
             } else if (url.protocol === 'http:' || url.protocol === 'https:') {
-              log.debug({ info: infoObject }, 'script referenced via http / https!')
+              extractionWarnMsg = 'script referenced via http / https'
             } else {
-              log.warn({ info: infoObject }, `script has an unknown src!`)
+              extractionWarnMsg = 'script has an unknown source type'
             }
           } else if (script.text) {
             infoObject = {
@@ -156,7 +149,6 @@ export const preprocessCordovaApp = async (
 
               type: 'content',
             }
-
             fileOps.push({
               cwd,
               dst: CORDOVA_LIB_FILE,
@@ -173,7 +165,7 @@ export const preprocessCordovaApp = async (
               type: 'unknown',
               tagKeys: Object.keys(script),
             }
-            log.warn({ info: infoObject }, `something unknown`)
+            extractionWarnMsg = 'unknown script tag type'
           }
           fileOps.push({
             cwd,
@@ -182,6 +174,17 @@ export const preprocessCordovaApp = async (
             json: infoObject,
             conservative,
           })
+          if (!content) {
+            log.warn({ info: infoObject }, extractionWarnMsg)
+            fileOps.push({
+              cwd,
+              dst: CORDOVA_NON_EXISTENT_NOTICE_FILE,
+              type: fileOp.text,
+              text: extractionWarnMsg,
+              conservative,
+            })
+            return await saveFiles(hideFile(fileOps))
+          }
 
           let signature
           try {
