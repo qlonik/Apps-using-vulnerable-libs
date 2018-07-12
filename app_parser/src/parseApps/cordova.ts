@@ -67,7 +67,7 @@ export const preprocessCordovaApp = async (
     app: { type, section, app },
   }: {
     allAppsPath: string
-    allLibsPath?: string
+    allLibsPath: string
     app: appDesc
   },
   { conservative = false, extractorOpts }: opts = {},
@@ -208,20 +208,18 @@ export const preprocessCordovaApp = async (
             conservative,
           })
 
-          if (allLibsPath) {
-            const candidates = await getCandidateLibs({
-              signature,
-              libsPath: allLibsPath,
-              opts: { limit: 10 },
-            })
-            fileOps.push({
-              cwd,
-              dst: CORDOVA_CAND_FILE,
-              type: fileOp.json,
-              json: candidates,
-              conservative,
-            })
-          }
+          const candidates = await getCandidateLibs({
+            signature,
+            libsPath: allLibsPath,
+            opts: { limit: 10 },
+          })
+          fileOps.push({
+            cwd,
+            dst: CORDOVA_CAND_FILE,
+            type: fileOp.json,
+            json: candidates,
+            conservative,
+          })
 
           return await saveFiles(fileOps)
         }
