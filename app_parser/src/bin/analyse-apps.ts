@@ -1,5 +1,5 @@
 import { pathExists, readJSON } from 'fs-extra'
-import { differenceWith, isEqual, once, partition, take } from 'lodash/fp'
+import { differenceWith, isEqual, once, partition, shuffle, take } from 'lodash/fp'
 import { join } from 'path'
 import { appDesc } from '../parseApps'
 import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
@@ -30,7 +30,7 @@ export const main: MainFn = async function main(log) {
   }
 
   const filtered = differenceWith(isEqual, apps, FIN_AN_APPS)
-  const subset = take(APPS_TO_ANALYSE_LIMIT, filtered)
+  const subset = take(APPS_TO_ANALYSE_LIMIT, shuffle(filtered))
   log.info(
     'apps: (all=%o)-(fin_an=%o)=(todo=%o/%o)',
     apps.length,
