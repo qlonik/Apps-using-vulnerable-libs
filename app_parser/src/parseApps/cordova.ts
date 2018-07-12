@@ -44,7 +44,7 @@ const createLocationLog = (
   app: appDesc['app'],
   location: string,
   id: string,
-) => fileLog.child({ app: { type, section, app }, script: { location, id } })
+) => fileLog.child({ app: { type, section, app }, file: { location, id } })
 
 const hideFile = (fileOps: fileDescOp[]) =>
   fileOps.map((o) => {
