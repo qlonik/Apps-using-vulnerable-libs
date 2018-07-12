@@ -28,4 +28,4 @@ export const main: MainFn = async () => {
   await resolveAllOrInParallel(fileCopyPromises)
 }
 
-export const terminate: TerminateFn = once(() => {})
+export const terminate: TerminateFn = () => once(() => {})

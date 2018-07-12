@@ -89,6 +89,8 @@ export const main: MainFn = async function main(log) {
   invalidWriteFile.end('\n]\n')
 }
 
-export const terminate: TerminateFn = once(() => {
-  terminateCall()
-})
+export const terminate: TerminateFn = (log) =>
+  once(() => {
+    log.info('started terminating')
+    terminateCall()
+  })

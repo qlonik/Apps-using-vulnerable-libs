@@ -6,7 +6,6 @@ import { Pool } from 'workerpool'
 import { appDesc, getApps } from '../parseApps'
 import { FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { myWriteJSON } from '../utils/files'
-import { log } from '../utils/logger'
 import { poolFactory } from '../utils/worker'
 import { WORKER_FILENAME, allMessages, MainFn, TerminateFn } from './_all.types'
 
@@ -18,7 +17,7 @@ const LIB_PATH = '../data/sample_libs'
 let pool: Pool<allMessages>
 let terminating = false
 
-export const main: MainFn = async function main() {
+export const main: MainFn = async function main(log) {
   const wPath = join(__dirname, WORKER_FILENAME)
   const apps = await getApps(APP_PATH)
   let FIN_APPS = [] as appDesc[]
@@ -84,7 +83,8 @@ export const main: MainFn = async function main() {
   await pool.terminate()
 }
 
-export const terminate: TerminateFn = once(() => {
-  log.info('started terminating')
-  terminating = true
-})
+export const terminate: TerminateFn = (log) =>
+  once(() => {
+    log.info('started terminating')
+    terminating = true
+  })

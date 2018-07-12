@@ -15,7 +15,6 @@ import { analysisFile, appDesc, appPath, getApps } from '../parseApps'
 import { FINISHED_SEARCH_FILE } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
-import logger from '../utils/logger'
 import { getWorkerPath, poolFactory } from '../utils/worker'
 import { MainFn, TerminateFn } from './_all.types'
 
@@ -57,7 +56,6 @@ export type messages = The<
   }
 >
 
-const log = logger.child({ name: 'find-lib-mentions' })
 let terminating = false
 
 type searchEl = appDesc & { found: boolean }
@@ -73,7 +71,7 @@ const addFinishedApps = (apps: appDesc[], els: searchEl[]): appDesc[] => {
     })
 }
 
-export const main: MainFn = async function main() {
+export const main: MainFn = async function main(log) {
   const pool = poolFactory<messages>(await getWorkerPath(__filename))
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
@@ -156,7 +154,8 @@ export const main: MainFn = async function main() {
   await pool.terminate()
 }
 
-export const terminate: TerminateFn = once(() => {
-  log.info('started terminating')
-  terminating = true
-})
+export const terminate: TerminateFn = (log) =>
+  once(() => {
+    log.info('started terminating')
+    terminating = true
+  })

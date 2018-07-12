@@ -66,7 +66,7 @@ yargs
         throw null
       }
       if (typeof module.terminate === 'function') {
-        process.on('SIGINT', module.terminate)
+        process.on('SIGINT', module.terminate(log))
       }
 
       log.info('master process')

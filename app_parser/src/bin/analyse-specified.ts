@@ -14,7 +14,6 @@ import {
 } from '../parseLibraries'
 import { assertNever, resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
-import logger from '../utils/logger'
 import { getWorkerPath, poolFactory } from '../utils/worker'
 import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
@@ -362,13 +361,12 @@ const TO_ANALYSE: toAnalyseType[] = [
   },
 ]
 
-const log = logger.child({ name: 'analyse-specified' })
 let terminating = false
 
 const uniqApp = uniqBy<appDesc>(({ type, section, app }) => `${type}@@@${section}@@@${app}`)
 const uniqLibNameVersion = uniqBy<libNameVersion>(({ name, version }) => `${name}@@@${version}`)
 
-export const main: MainFn = async () => {
+export const main: MainFn = async (log) => {
   const pool = poolFactory<messages>(await getWorkerPath(__filename), { minWorkers: 0 })
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 
@@ -534,7 +532,8 @@ export const main: MainFn = async () => {
   await pool.terminate()
 }
 
-export const terminate: TerminateFn = once(() => {
-  log.info('started terminating')
-  terminating = true
-})
+export const terminate: TerminateFn = (log) =>
+  once(() => {
+    log.info('started terminating')
+    terminating = true
+  })

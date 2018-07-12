@@ -5,7 +5,7 @@ import { APP_TYPES, appDesc } from '../parseApps'
 import { libNameVersion } from '../parseLibraries'
 
 export type MainFn = (log: Logger) => Promise<any>
-export type TerminateFn = (signal: 'SIGINT') => void
+export type TerminateFn = (log: Logger) => (signal: 'SIGINT') => void
 
 export interface CouchDumpFormat {
   [name: string]:

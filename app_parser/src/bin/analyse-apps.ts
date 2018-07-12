@@ -96,6 +96,8 @@ export const main: MainFn = async function main(log) {
   await pool.terminate()
 }
 
-export const terminate: TerminateFn = once(() => {
-  terminating = true
-})
+export const terminate: TerminateFn = (log) =>
+  once(() => {
+    log.info('started terminating')
+    terminating = true
+  })

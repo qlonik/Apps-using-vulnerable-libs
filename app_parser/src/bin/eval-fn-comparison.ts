@@ -258,4 +258,4 @@ export const main: MainFn = async function main(log) {
   )
 }
 
-export const terminate: TerminateFn = once(function terminate() {})
+export const terminate: TerminateFn = () => once(function terminate() {})
