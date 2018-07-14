@@ -59,7 +59,9 @@ export const getApps = memoize(async function _getApps(
         return async () => {
           const typePath = join(appsPath, type)
           return (await pathExists(typePath))
-            ? (await readdir(typePath)).map((section) => ({ type, section }))
+            ? (await readdir(typePath))
+                .filter((section) => !section.startsWith('_'))
+                .map((section) => ({ type, section }))
             : []
         }
       }),
@@ -72,7 +74,9 @@ export const getApps = memoize(async function _getApps(
         return async () => {
           const sectionPath = join(appsPath, type, section)
           return (await pathExists(sectionPath))
-            ? (await readdir(sectionPath)).map((app) => ({ type, section, app }))
+            ? (await readdir(sectionPath))
+                .filter((app) => !app.startsWith('_'))
+                .map((app) => ({ type, section, app }))
             : []
         }
       }),
