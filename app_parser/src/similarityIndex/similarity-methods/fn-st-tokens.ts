@@ -372,27 +372,34 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
     throw new TypeError(typeErrorMsg)
   }
 
-  const { map: mapArr } = lib.reduce(
-    ({ map, unkwn }, { fnStatementTokens: libToks }, libIndex) => {
-      const topMatch = unkwn
-        .reduce((sll, { i, el: { fnStatementTokens: unknownToks } }) => {
-          return sll.push({ index: i, prob: jaccardLike(unknownToks, libToks) })
-        }, new SortedLimitedList({ limit: 1, predicate: (o: probIndex) => -o.prob.val }))
-        .value()
-        .shift()
+  const mapArr = [] as [number, number, indexValue][]
+  const unkwn = unknown.map((el, i) => ({ el, i }))
 
-      return topMatch && topMatch.prob.val === 1
-        ? {
-            map: map.concat([[topMatch.index, libIndex, topMatch.prob]]),
-            unkwn: unkwn.filter(({ i }) => i !== topMatch.index),
-          }
-        : { map, unkwn }
-    },
-    {
-      map: [] as [number, number, indexValue][],
-      unkwn: unknown.map((el, i) => ({ el, i })),
-    },
-  )
+  for (let libIndex = 0, len = lib.length; libIndex < len; libIndex++) {
+    const { fnStatementTokens: libToks } = lib[libIndex]
+
+    const sll = new SortedLimitedList<probIndex>({ limit: 1, predicate: (o) => -o.prob.val })
+    for (let { i, el: { fnStatementTokens: unknownToks } } of unkwn) {
+      sll.push({ index: i, prob: jaccardLike(unknownToks, libToks) })
+    }
+    const topMatch = sll.value().shift()
+
+    if (topMatch && topMatch.prob.val === 1) {
+      mapArr.push([topMatch.index, libIndex, topMatch.prob])
+
+      // filter unkwn
+      let index = -1
+      let resIndex = 0
+      const length = unkwn.length
+      while (++index < length) {
+        const value = unkwn[index]
+        if (value.i !== topMatch.index) {
+          unkwn[resIndex++] = value
+        }
+      }
+      unkwn.length = resIndex
+    }
+  }
 
   const map = sortBy(mapArr, ([key]) => key).reduce(
     (acc, [i, index, prob]) => acc.set(i, { index, prob }),
