@@ -68,56 +68,65 @@ export const bundle_similarity_fn = async (
   //   from copy of unknownSig, remove mapped functions of top1 candidate
   //   run from beginning of for-loop with remaining unmapped functions
   const mRemainingToLib = matchesToLibFactory(libsPath, fn)
-  const { rank, later, remaining_ } = await sortBy((o) => -o.index.val, candidates)
-    .map(({ name, index }, i) => ({ name, index, top: i + 1 }))
-    .reduce(
-      async (acc, candidate) => {
-        const { rank, later, remaining_ } = await acc
-        const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
-        const matches = mRemainingToLib(remaining_, libNVS)
+  const preparedCandidates = sortBy((o) => -o.index.val, candidates).map(({ name, index }, i) => ({
+    name,
+    index,
+    top: i + 1,
+  }))
 
-        const top = matches.length > 0 ? matches[0] : null
-        return top && top.similarity.val === 1
-          ? {
-              rank: rank.concat({ ...candidate, matches }),
-              later: later,
-              remaining_: remaining_.filter(({ index }) => !top.mapping.has(index)),
-            }
-          : {
-              rank: rank,
-              later: later.concat(candidate),
-              remaining_: remaining_,
-            }
-      },
-      Promise.resolve({
-        rank: [] as rankType[],
-        later: [] as Omit<rankType, 'matches'>[],
-        remaining_: [...unknownSig.functionSignature] as FunctionSignature[],
-      }),
-    )
+  const rank: rankType[] = []
+  const secondary: rankType[] = []
+  const later: Omit<rankType, 'matches'>[] = []
+  const remaining: FunctionSignature[] = [...unknownSig.functionSignature]
 
-  const { secondary, remaining } = await later.reduce(
-    async (acc, candidate) => {
-      const { secondary, remaining } = await acc
-      const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
-      const matches = mRemainingToLib(remaining, libNVS)
+  for (let candidate of preparedCandidates) {
+    const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
+    const matches = mRemainingToLib(remaining, libNVS)
+    const top = matches.length > 0 ? matches[0] : null
 
-      const top = matches.length > 0 ? matches[0] : null
-      return top
-        ? {
-            secondary: secondary.concat({ ...candidate, matches }),
-            remaining: remaining.filter(({ index }) => !top.mapping.has(index)),
-          }
-        : {
-            secondary,
-            remaining,
-          }
-    },
-    Promise.resolve({
-      secondary: [] as rankType[],
-      remaining: remaining_,
-    }),
-  )
+    if (top && top.similarity.val === 1) {
+      rank.push({ ...candidate, matches })
+
+      // filter out elements from remaining array which are in the top mapping
+      // original filter implementation comes from lodash's _arrayFilter.js file
+      let index = -1
+      let resIndex = 0
+      const length = remaining.length
+      while (++index < length) {
+        const value = remaining[index]
+        if (!top.mapping.has(value.index)) {
+          remaining[resIndex++] = value
+        }
+      }
+      remaining.length = resIndex
+    } else {
+      later.push(candidate)
+    }
+  }
+
+  for (let candidate of later) {
+    const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
+    const matches = mRemainingToLib(remaining, libNVS)
+    const top = matches.length > 0 ? matches[0] : null
+
+    // remark: bad idea as it is prioritizing libs sorted by name
+    // So, lib starting with 'a' has higher chance of being selected
+    // compared to lib starting with 'z'.
+    if (top) {
+      secondary.push({ ...candidate, matches })
+
+      let index = -1
+      let resIndex = 0
+      const length = remaining.length
+      while (++index < length) {
+        const value = remaining[index]
+        if (!top.mapping.has(value.index)) {
+          remaining[resIndex++] = value
+        }
+      }
+      remaining.length = resIndex
+    }
+  }
 
   return { rank, secondary, remaining }
 }
