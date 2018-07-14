@@ -103,7 +103,7 @@ export const getCordovaAnalysisFiles = memoize(async function _getCordovaAnalysi
   const locations = (await readdir(analysisFolder)) as string[]
   const locationId = flatten(
     await resolveAllOrInParallel(
-      locations.map((location) => async () => {
+      locations.filter((location) => !location.startsWith('_')).map((location) => async () => {
         return (await readdir(join(analysisFolder, location))).map((id) => ({ location, id }))
       }),
     ),
