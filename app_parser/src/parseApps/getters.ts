@@ -49,39 +49,26 @@ export const getApps = memoize(async function _getApps(
   appsPath: string,
   type?: APP_TYPES,
 ): Promise<appDesc[]> {
-  const appTypes = type
-    ? [{ type }]
-    : [{ type: APP_TYPES.cordova }, { type: APP_TYPES.reactNative }]
-
-  const appSections = flatten(
-    await resolveAllOrInParallel(
-      appTypes.map(({ type }) => {
-        return async () => {
-          const typePath = join(appsPath, type)
-          return (await pathExists(typePath))
-            ? (await readdir(typePath))
-                .filter((section) => !section.startsWith('_'))
-                .map((section) => ({ type, section }))
-            : []
+  const appTypes = type ? [type] : [APP_TYPES.cordova, APP_TYPES.reactNative]
+  return appTypes.reduce(async (acc, type) => {
+    const typePath = join(appsPath, type)
+    if (!await pathExists(typePath)) {
+      return acc
+    }
+    return (await readdir(typePath))
+      .filter((section) => !section.startsWith('_'))
+      .reduce(async (acc, section) => {
+        const sectionPath = join(typePath, section)
+        if (!await pathExists(sectionPath)) {
+          return acc
         }
-      }),
-    ),
-  )
-
-  return flatten(
-    await resolveAllOrInParallel(
-      appSections.map(({ type, section }) => {
-        return async () => {
-          const sectionPath = join(appsPath, type, section)
-          return (await pathExists(sectionPath))
-            ? (await readdir(sectionPath))
-                .filter((app) => !app.startsWith('_'))
-                .map((app) => ({ type, section, app }))
-            : []
-        }
-      }),
-    ),
-  )
+        return (await acc).concat(
+          (await readdir(sectionPath))
+            .filter((app) => !app.startsWith('_'))
+            .map((app) => ({ type, section, app })),
+        )
+      }, acc)
+  }, Promise.resolve([] as appDesc[]))
 },
 (appsPath: string, type: keyof typeof APP_TYPES | '' = '') => `${appsPath}/${type}`)
 
