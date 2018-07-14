@@ -108,14 +108,37 @@ export const jaccardLikeWithMapping = <T>(
  * 'intersection' of two arrays (including repeating elements) and rest of elements in both arrays.
  * This function returns variation of Jaccard index which is not made for sets, but made for
  * arrays, which might have repeating elements.
- * This function will return 1 for two empty arrays.
  *
- * <b>NOTE:</b> elements in arrays will be compared with '===' for equality.
- *
- * @deprecated
+ * @see divByZeroAware for division by zero
  */
 export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): indexValue => {
-  return jaccardLikeWithMapping(a, b).similarity
+  let aRest = 0
+  let intersection = 0
+  const bRest = [...b]
+
+  for (let el of a) {
+    let j = findIndex(bRest, (o) => isEqual(o, el))
+    if (j === -1) {
+      aRest++
+    } else {
+      intersection++
+      // filter out mapped value from bRest
+      for (let len = bRest.length - 1; j < len; j++) {
+        bRest[j] = bRest[j + 1]
+      }
+      bRest.length = j
+    }
+  }
+
+  const num = intersection
+  const den = aRest + intersection + bRest.length
+
+  return {
+    // den === 0 only happens when both 'a' and 'b' were empty
+    val: divByZeroAware(num, den),
+    num,
+    den,
+  }
 }
 
 export const libPortion = curry(
