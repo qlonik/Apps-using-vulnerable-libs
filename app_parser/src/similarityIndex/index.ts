@@ -1,6 +1,5 @@
 import { SourceLocation } from 'babel-types'
 import { sortBy } from 'lodash/fp'
-import { Omit } from 'typical-mini'
 import { FunctionSignature, LiteralSignatures, signatureWithComments } from '../extractStructure'
 import {
   getLibLiteralSig,
@@ -76,7 +75,7 @@ export const bundle_similarity_fn = async (
 
   const rank: rankType[] = []
   const secondary: rankType[] = []
-  const later: Omit<rankType, 'matches'>[] = []
+  const later: typeof preparedCandidates = []
   const remaining: FunctionSignature[] = [...unknownSig.functionSignature]
 
   for (let candidate of preparedCandidates) {
