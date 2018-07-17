@@ -131,13 +131,10 @@ export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): inde
 
   const num = intersection
   const den = aRest + intersection + bRest.length
+  // den === 0 only happens when both 'a' and 'b' were empty
+  const val = divByZeroAware(num, den)
 
-  return {
-    // den === 0 only happens when both 'a' and 'b' were empty
-    val: divByZeroAware(num, den),
-    num,
-    den,
-  }
+  return { val, num, den }
 }
 
 export const libPortion = curry(
