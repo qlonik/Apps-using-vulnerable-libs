@@ -1,5 +1,5 @@
 import { Fraction } from 'fraction.js'
-import { findIndex, isEqual, pullAt } from 'lodash/fp'
+import { findIndex, isEqual } from 'lodash/fp'
 import { IndexValueToFraction } from './fraction'
 import {
   DefiniteMap,
@@ -138,23 +138,27 @@ export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): inde
 }
 
 export const libPortion = <T>(unknown: T[] | Iterable<T>, lib: T[] | Iterable<T>): indexValue => {
-  const tot = [...unknown].reduce(
-    ({ t, l }, el) => {
-      const j = findIndex(isEqual(el), l)
-      return j === -1 ? { t, l } : { t: t + 1, l: pullAt(j, l) }
-    },
-    { t: 0, l: [...lib] },
-  )
+  let tot = 0
+  const libRest = [...lib]
 
-  const num = tot.t
-  const den = tot.t + tot.l.length
-
-  return {
-    // den === 0 only happens when 'lib' was empty
-    val: divByZeroAware(num, den),
-    num,
-    den,
+  for (let el of unknown) {
+    let j = findIndex(isEqual(el), libRest)
+    if (j !== -1) {
+      tot++
+      // pull el from libRest at index j
+      for (let len = libRest.length - 1; j < len; j++) {
+        libRest[j] = libRest[j + 1]
+      }
+      libRest.length = j
+    }
   }
+
+  const num = tot
+  const den = tot + libRest.length
+  // den === 0 only happens when 'lib' was empty
+  const val = divByZeroAware(num, den)
+
+  return { val, num, den }
 }
 
 export const weightedMapIndex = (map: DefiniteMap<number, probIndex>): Fraction => {
