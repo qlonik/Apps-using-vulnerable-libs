@@ -116,6 +116,7 @@ worker<messages>({
     const VERSIONS = (await memoReadJSON(VERSIONS_PATH)) as CouchDumpFormat
     const DATE = new Date(D)
     const exclDir = `${dumpPath}.excl`
+    const dumpPathFailed = `${dumpPath}.failed`
 
     const libDesc = extractNameVersionFromFilename(filename)
     if (libDesc === null) {
@@ -149,7 +150,6 @@ worker<messages>({
     } catch (err) {
       ellog.error({ err }, 'error while extracting')
 
-      const dumpPathFailed = `${dumpPath}.failed`
       await mkdirp(dumpPathFailed)
       await move(join(libsPath, name, version, filename), join(dumpPathFailed, filename))
       await remove(join(libsPath, name, version))
