@@ -3,6 +3,7 @@ import { memoize } from 'lodash/fp'
 import { join, relative } from 'path'
 import shell from 'shelljs'
 import { worker } from 'workerpool'
+import { extractStructure } from '../extractStructure'
 import { EXTRACTOR_VERSION } from '../extractStructure/options'
 import {
   analyseCordovaApp,
@@ -21,7 +22,7 @@ import {
   updateUnionLiteralSignature,
 } from '../parseLibraries'
 import { isInBlacklist } from '../pkgBlacklist'
-import { saveFiles } from '../utils/files'
+import { fileOp, saveFiles } from '../utils/files'
 import logger from '../utils/logger'
 import { allMessages as messages, CouchDumpFormat, DONE } from './_all.types'
 
@@ -117,6 +118,7 @@ worker<messages>({
     const DATE = new Date(D)
     const exclDir = `${dumpPath}.excl`
     const dumpPathFailed = `${dumpPath}.failed`
+    const emptySigPath = `${dumpPath}.empty-sig`
 
     const libDesc = extractNameVersionFromFilename(filename)
     if (libDesc === null) {
@@ -143,10 +145,29 @@ worker<messages>({
       return DONE.exclBL
     }
 
+    type UnboxPromise<T> = T extends Promise<infer R> ? R : never
+
     try {
       await extractSingleLibraryFromDump({ dumpPath, libsPath, filename })
       const main = await saveFiles(extractMainFiles({ libsPath, name, version }))
-      await saveFiles(analyseLibFiles(main))
+      const analysisFiles = await analyseLibFiles(main)
+
+      const someAnalysisSigsAreEmpty = analysisFiles.some(
+        (v) =>
+          v.type === fileOp.json &&
+          (v.json as UnboxPromise<ReturnType<typeof extractStructure>>).functionSignature.length ===
+            0,
+      )
+
+      if (someAnalysisSigsAreEmpty) {
+        await mkdirp(emptySigPath)
+        await move(join(libsPath, name, version, filename), join(emptySigPath, filename))
+        await remove(join(libsPath, name, version))
+
+        return DONE.emptySig
+      } else {
+        await saveFiles(analysisFiles)
+      }
     } catch (err) {
       ellog.error({ err }, 'error while extracting')
 

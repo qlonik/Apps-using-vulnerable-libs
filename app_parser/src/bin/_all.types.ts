@@ -19,6 +19,7 @@ export enum DONE {
   ok,
   fail,
   failParseName, // failed to parse filename
+  emptySig, // extracted signature is empty
   exclTime, // excluded because of cut-off time
   exclBL, // excluded because of black list
 }

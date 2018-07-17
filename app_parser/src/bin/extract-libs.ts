@@ -36,12 +36,14 @@ export const main: MainFn = async function main(log) {
   const [s, x] = partition(({ done }) => done === DONE.ok, results)
   const [eT, y] = partition(({ done }) => done === DONE.exclTime, x)
   const [eB, z] = partition(({ done }) => done === DONE.exclBL, y)
-  const [fPN, f] = partition(({ done }) => done == DONE.failParseName, z)
+  const [eS, w] = partition(({ done }) => done == DONE.emptySig, z)
+  const [fPN, f] = partition(({ done }) => done == DONE.failParseName, w)
 
   log.info({
     success: s.length,
     'excluded-by-time': eT.length,
     'excluded-by-blacklist': eB.length,
+    'empty-signatures': eS.length,
     'failed-to-parse-filename': fPN.length,
     failed: f.length,
   })
