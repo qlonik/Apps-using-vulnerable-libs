@@ -214,13 +214,6 @@ test(
 )
 
 test(
-  'libPortion is curried',
-  check(arraysPair(arb.number), (t, [a, b]) => {
-    t.deepEqual(libPortion(a, b), libPortion(a)(b))
-  }),
-)
-
-test(
   'jaccardIndex() does not mutate original data',
   check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
     const aClone = new Set(cloneDeep(a))

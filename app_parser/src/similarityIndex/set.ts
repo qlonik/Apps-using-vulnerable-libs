@@ -1,5 +1,5 @@
 import { Fraction } from 'fraction.js'
-import { curry, findIndex, isEqual, pullAt } from 'lodash/fp'
+import { findIndex, isEqual, pullAt } from 'lodash/fp'
 import { IndexValueToFraction } from './fraction'
 import {
   DefiniteMap,
@@ -137,27 +137,25 @@ export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): inde
   return { val, num, den }
 }
 
-export const libPortion = curry(
-  <T>(unknown: T[] | Iterable<T>, lib: T[] | Iterable<T>): indexValue => {
-    const tot = [...unknown].reduce(
-      ({ t, l }, el) => {
-        const j = findIndex(isEqual(el), l)
-        return j === -1 ? { t, l } : { t: t + 1, l: pullAt(j, l) }
-      },
-      { t: 0, l: [...lib] },
-    )
+export const libPortion = <T>(unknown: T[] | Iterable<T>, lib: T[] | Iterable<T>): indexValue => {
+  const tot = [...unknown].reduce(
+    ({ t, l }, el) => {
+      const j = findIndex(isEqual(el), l)
+      return j === -1 ? { t, l } : { t: t + 1, l: pullAt(j, l) }
+    },
+    { t: 0, l: [...lib] },
+  )
 
-    const num = tot.t
-    const den = tot.t + tot.l.length
+  const num = tot.t
+  const den = tot.t + tot.l.length
 
-    return {
-      // den === 0 only happens when 'lib' was empty
-      val: divByZeroAware(num, den),
-      num,
-      den,
-    }
-  },
-)
+  return {
+    // den === 0 only happens when 'lib' was empty
+    val: divByZeroAware(num, den),
+    num,
+    den,
+  }
+}
 
 export const weightedMapIndex = (map: DefiniteMap<number, probIndex>): Fraction => {
   const num = [...map.values()].reduce(
