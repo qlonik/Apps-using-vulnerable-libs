@@ -5,6 +5,7 @@ import {
   FunctionSignatures, // eslint-disable-line no-unused-vars
   isFunctionSignatures,
 } from '../../extractStructure'
+import logger from '../../utils/logger'
 import { FractionToIndexValue } from '../fraction'
 import { indexValue, jaccardLike, libPortion, weightedMapIndex } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
@@ -350,6 +351,8 @@ export function v5<T extends FunctionSignature[] | FunctionSignatures>(
   return { similarity: sim, mapping: map }
 }
 
+const v6log = logger.child({ name: 'fn-st-toks-v6' })
+
 /**
  * This function calculates mapping between unknown signature and known lib signature in the same
  * way as {@link v5} does. However, this function uses {@link libPortion}
@@ -360,6 +363,8 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
+  const fnStart = process.hrtime()
+
   let unknown: FunctionSignature[]
   let lib: FunctionSignature[]
   if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
@@ -375,6 +380,7 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
   const mapArr = [] as [number, number, indexValue][]
   const unkwn = unknown.map((el, i) => ({ el, i }))
 
+  const compStart = process.hrtime()
   for (let libIndex = 0, len = lib.length; libIndex < len; libIndex++) {
     const { fnStatementTokens: libToks } = lib[libIndex]
 
@@ -400,6 +406,7 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
       unkwn.length = resIndex
     }
   }
+  const compEnd = process.hrtime(compStart)
 
   const map = sortBy(mapArr, ([key]) => key).reduce(
     (acc, [i, index, prob]) => acc.set(i, { index, prob }),
@@ -410,6 +417,20 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
   const possibleUnknownFnIndexes = unknown.map((_, i) => (map.has(i) ? map.get(i).index : -1))
 
   const sim = libPortion(possibleUnknownFnIndexes, libFnIndexes)
+
+  const fnEnd = process.hrtime(fnStart)
+  const fnTime = fnEnd[0] * 1e9 + fnEnd[1]
+  const tComp = compEnd[0] * 1e9 + compEnd[1]
+  v6log.debug(
+    {
+      fnTime,
+      tComp,
+      tCompProp: tComp / fnTime,
+      libLen: lib.length,
+      unkLen: unknown.length,
+    },
+    'fn-st-toks-v6 timings',
+  )
 
   return { similarity: sim, mapping: map }
 }
