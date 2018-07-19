@@ -53,12 +53,17 @@ const matchesToLibFactory = (
     }))
 }
 
-export const bundle_similarity_fn = async (
-  unknownSig: signatureWithComments,
-  candidates: candidateLib[],
-  libsPath: string,
-  fn: (a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence = v6,
-): Promise<{ rank: rankType[]; secondary: rankType[]; remaining: FunctionSignature[] }> => {
+export const bundle_similarity_fn = async ({
+  libsPath,
+  signature: unknownSig,
+  candidates,
+  fn = v6,
+}: {
+  libsPath: string
+  signature: signatureWithComments
+  candidates: candidateLib[]
+  fn?: (a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence
+}): Promise<{ rank: rankType[]; secondary: rankType[]; remaining: FunctionSignature[] }> => {
   // sort candidates by most likely one
   // for each candidate:
   //   match all versions against bundle
