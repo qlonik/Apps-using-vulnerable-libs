@@ -113,21 +113,19 @@ export const jaccardLikeWithMapping = <T>(
 export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): indexValue => {
   let aRest = 0
   let intersection = 0
-  const bRest = [...b]
+  let bRest = [...b].map((val) => ({ __mapped: false, val }))
 
   for (let el of a) {
-    let j = findIndex(isEqual(el), bRest)
+    const j = findIndex((o) => !o.__mapped && isEqual(o.val, el), bRest)
     if (j === -1) {
       aRest++
     } else {
       intersection++
-      // filter out mapped value from bRest
-      for (let len = bRest.length - 1; j < len; j++) {
-        bRest[j] = bRest[j + 1]
-      }
-      bRest.length = j
+      bRest[j].__mapped = true
     }
   }
+
+  bRest = bRest.filter((o) => !o.__mapped)
 
   const num = intersection
   const den = aRest + intersection + bRest.length
