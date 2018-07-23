@@ -1,11 +1,11 @@
 import { Fraction } from 'fraction.js'
 import { clone, head, sortBy } from 'lodash'
+import { Logger } from 'pino'
 import {
   FunctionSignature,
   FunctionSignatures, // eslint-disable-line no-unused-vars
   isFunctionSignatures,
 } from '../../extractStructure'
-import logger from '../../utils/logger'
 import { FractionToIndexValue } from '../fraction'
 import { indexValue, jaccardLike, libPortion, weightedMapIndex } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
@@ -351,18 +351,19 @@ export function v5<T extends FunctionSignature[] | FunctionSignatures>(
   return { similarity: sim, mapping: map }
 }
 
-const v6log = logger.child({ name: 'fn-st-toks-v6' })
-
 /**
  * This function calculates mapping between unknown signature and known lib signature in the same
  * way as {@link v5} does. However, this function uses {@link libPortion}
+ * @param log
  * @param unknownS
  * @param libS
  */
 export function v6<T extends FunctionSignature[] | FunctionSignatures>(
+  log: Logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
+  const v6log = log.child({ name: 'fn-st-toks-v6' })
   const fnStart = process.hrtime()
 
   let unknown: FunctionSignature[]
