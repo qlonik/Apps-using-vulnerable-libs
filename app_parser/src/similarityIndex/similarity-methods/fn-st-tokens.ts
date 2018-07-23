@@ -18,6 +18,7 @@ import {
   SimMapWithConfidence,
   typeErrorMsg,
 } from './types'
+import logger from '../../utils/logger'
 
 /**
  * This function produces similarity index between two signature based on the function statement
@@ -359,7 +360,7 @@ export function v5<T extends FunctionSignature[] | FunctionSignatures>(
  * @param libS
  */
 export function v6<T extends FunctionSignature[] | FunctionSignatures>(
-  log: Logger,
+  log: Logger = logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
