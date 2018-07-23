@@ -1,6 +1,7 @@
 import { SourceLocation } from 'babel-types'
 import { sortBy } from 'lodash/fp'
 import { Logger } from 'pino'
+import { promisify } from 'util'
 import { FunctionSignature, LiteralSignatures, signatureWithComments } from '../extractStructure'
 import {
   getLibLiteralSig,
@@ -13,6 +14,8 @@ import { indexValue, isSubset, jaccardIndex } from './set'
 import { v6 } from './similarity-methods/fn-st-tokens'
 import { probIndex, SimMapWithConfidence } from './similarity-methods/types'
 import { SortedLimitedList } from './SortedLimitedList'
+
+const nextTick = promisify(setImmediate)
 
 /* eslint-disable no-unused-vars */
 declare const __x: SourceLocation
@@ -35,15 +38,16 @@ export type rankType = {
 const matchesToLibFactory = (
   libsPath: string,
   fn: (log: Logger, a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence,
-) => (
+) => async (
   log: Logger,
   remaining: FunctionSignature[],
   libNVS: libNameVersionSigContent[],
   stopOnFirstExactMatch = false,
-): matchedLib[] => {
+): Promise<matchedLib[]> => {
   const sll = new SortedLimitedList<matchedLib>({ limit: 5, predicate: (o) => -o.similarity.val })
 
   for (let { name, version, file, signature: { functionSignature } } of libNVS) {
+    await nextTick()
     const verLog = log.child({ 'candidate-info': { version, file } })
     const res = fn(verLog, remaining, functionSignature)
     sll.push({ name, version, file, ...res })
@@ -100,7 +104,7 @@ export const bundle_similarity_fn = async ({
   for (let candidate of preparedCandidates) {
     const candLog = log.child({ candidate })
     const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
-    const matches = mRemainingToLib(candLog, remaining, libNVS)
+    const matches = await mRemainingToLib(candLog, remaining, libNVS)
     const top = matches.length > 0 ? matches[0] : null
 
     if (top && top.similarity.val === 1) {
@@ -126,7 +130,7 @@ export const bundle_similarity_fn = async ({
   for (let candidate of later) {
     const candLog = log.child({ candidate })
     const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
-    const matches = mRemainingToLib(candLog, remaining, libNVS)
+    const matches = await mRemainingToLib(candLog, remaining, libNVS)
     const top = matches.length > 0 ? matches[0] : null
 
     // remark: bad idea as it is prioritizing libs sorted by name
