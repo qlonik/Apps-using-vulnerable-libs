@@ -41,11 +41,9 @@ const matchesToLibFactory = (
   libNVS: libNameVersionSigContent[],
 ): matchedLib[] => {
   return libNVS
-    .reduce(
-      (acc, { name, version, file, signature: { functionSignature } }) =>
-        acc.push({ name, version, file, ...fn(remaining, functionSignature) }),
-      new SortedLimitedList<matchedLib>({ limit: 5, predicate: (o) => -o.similarity.val }),
-    )
+    .reduce((acc, { name, version, file, signature: { functionSignature } }) => {
+      return acc.push({ name, version, file, ...fn(remaining, functionSignature) })
+    }, new SortedLimitedList<matchedLib>({ limit: 5, predicate: (o) => -o.similarity.val }))
     .value()
     .filter((o) => o.similarity.val > 0)
     .map((v) => ({
