@@ -85,7 +85,7 @@ export const main: MainFn = async function main(log) {
         loadLibSig(_log, spec.target),
       ])
 
-      const { similarity } = librarySimilarityByFunctionStatementTokens_v6(appSig, libSig)
+      const { similarity } = librarySimilarityByFunctionStatementTokens_v6(_log, appSig, libSig)
 
       const t = await acc
       return {

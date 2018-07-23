@@ -240,7 +240,10 @@ const methods: fnName[] = [
   // { name: 'fn-st-toks-v3', fn: librarySimilarityByFunctionStatementTokens_v3 },
   { name: 'fn-st-toks-v4', fn: librarySimilarityByFunctionStatementTokens_v4 },
   { name: 'fn-st-toks-v5', fn: librarySimilarityByFunctionStatementTokens_v5 },
-  { name: 'fn-st-toks-v6', fn: librarySimilarityByFunctionStatementTokens_v6 },
+  {
+    name: 'fn-st-toks-v6',
+    fn: (a, b) => librarySimilarityByFunctionStatementTokens_v6(undefined, a, b),
+  },
   // { name: 'fn-st-types', fn: librarySimilarityByFunctionStatementTypes },
   // { name: 'fn-names', fn: librarySimilarityByFunctionNames },
   // { name: 'fn-names-st-toks', fn: librarySimilarityByFunctionNamesAndStatementTokens },

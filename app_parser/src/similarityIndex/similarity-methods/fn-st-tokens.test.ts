@@ -17,7 +17,7 @@ import {
   EXPECTED_SIMILARITY_FOR_EXACT_MATCHES,
   EXPECTED_SIMILARITY_FOR_EXACT_MATCHES_AS_LIB_PORTION,
 } from './_test-data'
-import { v1, v2, v3, v4, v5, v6 } from './fn-st-tokens'
+import { v1, v2, v3, v4, v5, v6 as v6_ } from './fn-st-tokens'
 import {
   SimMapWithConfidence, // eslint-disable-line no-unused-vars
 } from './types'
@@ -62,7 +62,9 @@ const tests: [
     },
   ],
   [
-    v6,
+    function v6(a, b) {
+      return v6_(undefined, a, b)
+    },
     {
       similarity: EXPECTED_SIMILARITY_FOR_EXACT_MATCHES_AS_LIB_PORTION,
       mapping: EXPECTED_MAPPING_FOR_EXACT_MATCHES,
