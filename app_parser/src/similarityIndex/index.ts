@@ -34,7 +34,7 @@ export type rankType = {
 
 const matchesToLibFactory = (
   libsPath: string,
-  fn: (a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence,
+  fn: (log: Logger, a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence,
 ) => (
   log: Logger,
   remaining: FunctionSignature[],
@@ -44,7 +44,8 @@ const matchesToLibFactory = (
   const sll = new SortedLimitedList<matchedLib>({ limit: 5, predicate: (o) => -o.similarity.val })
 
   for (let { name, version, file, signature: { functionSignature } } of libNVS) {
-    const res = fn(remaining, functionSignature)
+    const verLog = log.child({ 'candidate-info': { version, file } })
+    const res = fn(verLog, remaining, functionSignature)
     sll.push({ name, version, file, ...res })
     if (stopOnFirstExactMatch && res.similarity.val === 1) {
       break
@@ -75,7 +76,7 @@ export const bundle_similarity_fn = async ({
   signature: signatureWithComments
   candidates: candidateLib[]
   log: Logger
-  fn?: (a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence
+  fn?: (log: Logger, a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence
 }): Promise<{ rank: rankType[]; secondary: rankType[]; remaining: FunctionSignature[] }> => {
   // sort candidates by most likely one
   // for each candidate:
