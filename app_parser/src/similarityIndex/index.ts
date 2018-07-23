@@ -1,5 +1,6 @@
 import { SourceLocation } from 'babel-types'
 import { sortBy } from 'lodash/fp'
+import { Logger } from 'pino'
 import { FunctionSignature, LiteralSignatures, signatureWithComments } from '../extractStructure'
 import {
   getLibLiteralSig,
@@ -34,7 +35,11 @@ export type rankType = {
 const matchesToLibFactory = (
   libsPath: string,
   fn: (a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence,
-) => (remaining: FunctionSignature[], libNVS: libNameVersionSigContent[]): matchedLib[] => {
+) => (
+  log: Logger,
+  remaining: FunctionSignature[],
+  libNVS: libNameVersionSigContent[],
+): matchedLib[] => {
   return libNVS
     .reduce(
       (acc, { name, version, file, signature: { functionSignature } }) =>
@@ -57,11 +62,13 @@ export const bundle_similarity_fn = async ({
   libsPath,
   signature: unknownSig,
   candidates,
+  log,
   fn = v6,
 }: {
   libsPath: string
   signature: signatureWithComments
   candidates: candidateLib[]
+  log: Logger
   fn?: (a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence
 }): Promise<{ rank: rankType[]; secondary: rankType[]; remaining: FunctionSignature[] }> => {
   // sort candidates by most likely one
@@ -84,8 +91,9 @@ export const bundle_similarity_fn = async ({
   const remaining: FunctionSignature[] = [...unknownSig.functionSignature]
 
   for (let candidate of preparedCandidates) {
+    const candLog = log.child({ candidate })
     const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
-    const matches = mRemainingToLib(remaining, libNVS)
+    const matches = mRemainingToLib(candLog, remaining, libNVS)
     const top = matches.length > 0 ? matches[0] : null
 
     if (top && top.similarity.val === 1) {
@@ -109,8 +117,9 @@ export const bundle_similarity_fn = async ({
   }
 
   for (let candidate of later) {
+    const candLog = log.child({ candidate })
     const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
-    const matches = mRemainingToLib(remaining, libNVS)
+    const matches = mRemainingToLib(candLog, remaining, libNVS)
     const top = matches.length > 0 ? matches[0] : null
 
     // remark: bad idea as it is prioritizing libs sorted by name
