@@ -381,6 +381,8 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
 
   const mapArr = [] as [number, number, indexValue][]
   const unkwn = unknown.map((el, i) => ({ el, i }))
+  let jlTime = 0
+  let jlCount = 0
 
   const compStart = process.hrtime()
   for (let libIndex = 0, len = lib.length; libIndex < len; libIndex++) {
@@ -388,7 +390,14 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
 
     const sll = new SortedLimitedList<probIndex>({ limit: 1, predicate: (o) => -o.prob.val })
     for (let { i, el: { fnStatementTokens: unknownToks } } of unkwn) {
-      sll.push({ index: i, prob: jaccardLike(unknownToks, libToks) })
+      const start = process.hrtime()
+      const prob = jaccardLike(unknownToks, libToks)
+      const end = process.hrtime(start)
+
+      jlTime += end[0] * 1e9 + end[1]
+      jlCount += 1
+
+      sll.push({ index: i, prob })
     }
     const topMatch = sll.value().shift()
 
@@ -430,6 +439,8 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
       fnTime,
       tComp,
       tCompProp: tComp / fnTime,
+      jlTime,
+      jlCount,
       libLen: lib.length,
       unkLen: unknown.length,
     },
