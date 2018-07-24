@@ -1,6 +1,7 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
 import { join } from 'path'
 import { memoize, MemoizedFunction } from 'lodash'
+import { groupBy } from 'lodash/fp'
 import { LiteralSignature, signatureNew } from '../extractStructure'
 import { resolveAllOrInParallel } from '../utils'
 import { LIB_LITERAL_SIGNATURE_FILE, SIG_FOLDER } from './constants'
@@ -160,5 +161,29 @@ export async function getLibNameVersionSigContents(
       file,
       signature: await memLoadSig(libsPath, name, version, file),
     })),
+  )
+}
+
+export function shuffleVersions(versions: libNameVersion[]): libNameVersion[] {
+  return Object.entries(groupBy((v) => v.name, versions)).reduce(
+    (acc, [, versions]) => {
+      const result: libNameVersion[] = []
+
+      if (versions.length > 0) {
+        const startPoint = Math.floor((versions.length - 1) * 9 / 10)
+        result.push(versions[startPoint])
+        for (let i = 1; 0 <= startPoint - i || startPoint + i < versions.length; i++) {
+          if (startPoint - i >= 0) {
+            result.push(versions[startPoint - i])
+          }
+          if (startPoint + i < versions.length) {
+            result.push(versions[startPoint + i])
+          }
+        }
+      }
+
+      return acc.concat(result)
+    },
+    [] as libNameVersion[],
   )
 }
