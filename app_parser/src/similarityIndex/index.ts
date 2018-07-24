@@ -130,7 +130,7 @@ export const bundle_similarity_fn = async ({
 
     candLog.debug({ versionCount: libNVS.length }, '>---> starting analysis against all versions')
     const start = process.hrtime()
-    const matches = await mRemainingToLib(candLog, remaining, libNVS)
+    const matches = await mRemainingToLib(candLog, remaining, libNVS, true)
     const end = process.hrtime(start)
     candLog.debug({ 'candidate-time-taken': end }, '>---> finished analysis of all versions')
 
