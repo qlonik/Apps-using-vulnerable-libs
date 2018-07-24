@@ -107,3 +107,23 @@ test('shuffles versions of few libs', t => {
     ]),
   )
 })
+test('preserves additional data in the object', t => {
+  t.deepEqual(
+    [
+      { name: 'a', version: '5' },
+      { name: 'a', version: '4' },
+      { name: 'a', version: '6' },
+      { name: 'a', version: '3' },
+      { name: 'a', version: '2', data: false },
+      { name: 'a', version: '1', data: true },
+    ],
+    shuffleVersions([
+      { name: 'a', version: '1', data: true },
+      { name: 'a', version: '2', data: false },
+      { name: 'a', version: '3' },
+      { name: 'a', version: '4' },
+      { name: 'a', version: '5' },
+      { name: 'a', version: '6' },
+    ]),
+  )
+})
