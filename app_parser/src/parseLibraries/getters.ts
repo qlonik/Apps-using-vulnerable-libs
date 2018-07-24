@@ -164,10 +164,10 @@ export async function getLibNameVersionSigContents(
   )
 }
 
-export function shuffleVersions(versions: libNameVersion[]): libNameVersion[] {
+export function shuffleVersions<T extends libNameVersion>(versions: T[]): T[] {
   return Object.entries(groupBy((v) => v.name, versions)).reduce(
     (acc, [, versions]) => {
-      const result: libNameVersion[] = []
+      const result: T[] = []
 
       if (versions.length > 0) {
         const startPoint = Math.floor((versions.length - 1) * 9 / 10)
@@ -184,6 +184,6 @@ export function shuffleVersions(versions: libNameVersion[]): libNameVersion[] {
 
       return acc.concat(result)
     },
-    [] as libNameVersion[],
+    [] as T[],
   )
 }
