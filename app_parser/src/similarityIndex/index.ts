@@ -49,7 +49,19 @@ const matchesToLibFactory = (
   for (let { name, version, file, signature: { functionSignature } } of libNVS) {
     await nextTick()
     const verLog = log.child({ 'candidate-info': { version, file } })
+
+    verLog.debug(
+      { functionCount: functionSignature.length },
+      '>----> start candidate version comparison',
+    )
+    const start = process.hrtime()
     const res = fn(verLog, remaining, functionSignature)
+    const end = process.hrtime(start)
+    verLog.debug(
+      { 'time-taken': end, similarity: res.similarity },
+      '>----> finish candidate version comparison',
+    )
+
     sll.push({ name, version, file, ...res })
     if (stopOnFirstExactMatch && res.similarity.val === 1) {
       break
@@ -96,15 +108,32 @@ export const bundle_similarity_fn = async ({
     top: i + 1,
   }))
 
+  let time_
+  let done_
   const rank: rankType[] = []
   const secondary: rankType[] = []
   const later: typeof preparedCandidates = []
   const remaining: FunctionSignature[] = [...unknownSig.functionSignature]
 
+  log.debug(
+    {
+      firstCandidates: preparedCandidates.length,
+      functionsToMatch: remaining.length,
+    },
+    '>--> first candidate list run',
+  )
+
+  time_ = process.hrtime()
   for (let candidate of preparedCandidates) {
     const candLog = log.child({ candidate })
     const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
+
+    candLog.debug({ versionCount: libNVS.length }, '>---> starting analysis against all versions')
+    const start = process.hrtime()
     const matches = await mRemainingToLib(candLog, remaining, libNVS)
+    const end = process.hrtime(start)
+    candLog.debug({ 'candidate-time-taken': end }, '>---> finished analysis of all versions')
+
     const top = matches.length > 0 ? matches[0] : null
 
     if (top && top.similarity.val === 1) {
@@ -126,11 +155,29 @@ export const bundle_similarity_fn = async ({
       later.push(candidate)
     }
   }
+  done_ = process.hrtime(time_)
 
+  log.debug(
+    {
+      timeSpent: done_,
+      secondCandidates: later.length,
+      matchedInFirst: rank.length,
+      functionsToMatch: remaining.length,
+    },
+    '>--> second candidate list run',
+  )
+
+  time_ = process.hrtime()
   for (let candidate of later) {
     const candLog = log.child({ candidate })
     const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
+
+    candLog.debug({ versionCount: libNVS.length }, '>---> starting analysis against all versions')
+    const start = process.hrtime()
     const matches = await mRemainingToLib(candLog, remaining, libNVS)
+    const end = process.hrtime(start)
+    candLog.debug({ 'candidate-time-taken': end }, '>---> finished analysis of all versions')
+
     const top = matches.length > 0 ? matches[0] : null
 
     // remark: bad idea as it is prioritizing libs sorted by name
@@ -151,6 +198,16 @@ export const bundle_similarity_fn = async ({
       remaining.length = resIndex
     }
   }
+  done_ = process.hrtime(time_)
+
+  log.debug(
+    {
+      timeSpent: done_,
+      matchedInSecond: secondary.length,
+      functionsLeftUnmatched: remaining.length,
+    },
+    '>--> fin both candidate runs',
+  )
 
   return { rank, secondary, remaining }
 }

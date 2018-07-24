@@ -444,7 +444,7 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
       libLen: lib.length,
       unkLen: unknown.length,
     },
-    'fn-st-toks-v6 timings',
+    '>-----> fn-st-toks-v6 timings',
   )
 
   return { similarity: sim, mapping: map }

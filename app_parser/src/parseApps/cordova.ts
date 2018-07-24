@@ -280,7 +280,9 @@ export const analyseCordovaApp = async ({
         return { location, id, noCandidatesFound }
       }
 
+      log.debug('>-> started bundle_similarity_fn')
       const sim = await bundle_similarity_fn({ libsPath, signature, candidates, log })
+      log.debug('>-> finished bundle_similarity_fn')
 
       await saveFiles({
         cwd,
