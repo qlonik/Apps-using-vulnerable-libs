@@ -137,19 +137,17 @@ export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): inde
 
 export const libPortion = <T>(unknown: T[] | Iterable<T>, lib: T[] | Iterable<T>): indexValue => {
   let tot = 0
-  const libRest = [...lib]
+  let libRest = [...lib].map((val) => ({ __mapped: false, val }))
 
   for (let el of unknown) {
-    let j = findIndex(isEqual(el), libRest)
+    let j = findIndex((o) => !o.__mapped && isEqual(o.val, el), libRest)
     if (j !== -1) {
       tot++
-      // pull el from libRest at index j
-      for (let len = libRest.length - 1; j < len; j++) {
-        libRest[j] = libRest[j + 1]
-      }
-      libRest.length = j
+      libRest[j].__mapped = true
     }
   }
+
+  libRest = libRest.filter((o) => !o.__mapped)
 
   const num = tot
   const den = tot + libRest.length
