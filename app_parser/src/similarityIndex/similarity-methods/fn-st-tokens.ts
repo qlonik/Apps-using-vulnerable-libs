@@ -410,10 +410,12 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
   }
   const compEnd = process.hrtime(compStart)
 
-  const map = sortBy(mapArr, ([key]) => key).reduce(
-    (acc, [i, index, prob]) => acc.set(i, { index, prob }),
-    new Map() as DefiniteMap<number, probIndex>,
-  )
+  const map = mapArr
+    .sort((a, b) => a[0] - b[0])
+    .reduce((acc, [i, index, prob]) => acc.set(i, { index, prob }), new Map() as DefiniteMap<
+      number,
+      probIndex
+    >)
 
   const libFnIndexes = lib.map((_, i) => i)
   const possibleUnknownFnIndexes = unknown.map((_, i) => (map.has(i) ? map.get(i).index : -1))
