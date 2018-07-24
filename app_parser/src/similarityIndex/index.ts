@@ -9,6 +9,7 @@ import {
   libNameVersion,
   libNameVersionSigContent,
   libNameVersionSigFile,
+  shuffleVersions,
 } from '../parseLibraries'
 import { indexValue, isSubset, jaccardIndex } from './set'
 import { v6 } from './similarity-methods/fn-st-tokens'
@@ -127,10 +128,11 @@ export const bundle_similarity_fn = async ({
   for (let candidate of preparedCandidates) {
     const candLog = log.child({ candidate })
     const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
+    const shLibNVS = shuffleVersions(libNVS)
 
-    candLog.debug({ versionCount: libNVS.length }, '>---> starting analysis against all versions')
+    candLog.debug({ versionCount: shLibNVS.length }, '>---> starting analysis against all versions')
     const start = process.hrtime()
-    const matches = await mRemainingToLib(candLog, remaining, libNVS, true)
+    const matches = await mRemainingToLib(candLog, remaining, shLibNVS, true)
     const end = process.hrtime(start)
     candLog.debug({ 'candidate-time-taken': end }, '>---> finished analysis of all versions')
 
@@ -171,10 +173,11 @@ export const bundle_similarity_fn = async ({
   for (let candidate of later) {
     const candLog = log.child({ candidate })
     const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
+    const shLibNVS = shuffleVersions(libNVS)
 
-    candLog.debug({ versionCount: libNVS.length }, '>---> starting analysis against all versions')
+    candLog.debug({ versionCount: shLibNVS.length }, '>---> starting analysis against all versions')
     const start = process.hrtime()
-    const matches = await mRemainingToLib(candLog, remaining, libNVS)
+    const matches = await mRemainingToLib(candLog, remaining, shLibNVS)
     const end = process.hrtime(start)
     candLog.debug({ 'candidate-time-taken': end }, '>---> finished analysis of all versions')
 
