@@ -17,23 +17,21 @@ export const repeatedOps = <T>(cmp: ComparatorFn<T>) => (
 ): Ops<T> => {
   const intersection = [] as T[]
   const difference = [] as T[]
-  const _b = [...b]
+  const _b = [...b].map((val) => ({ m: false, val }))
 
   for (let el of a) {
-    const j = findIndex(cmp(el), _b)
+    const j = findIndex((o) => !o.m && cmp(o.val, el), _b)
     if (j === -1) {
       difference.push(el)
     } else {
       intersection.push(el)
-      const size = _b.length - 1
-      for (let i = j; i < size; i++) {
-        _b[i] = _b[i + 1]
-      }
-      _b.length = size
+      _b[j].m = true
     }
   }
 
-  return { i: intersection, d: difference, rd: _b }
+  const reverseDiff = _b.filter((o) => !o.m).map((o) => o.val)
+
+  return { i: intersection, d: difference, rd: reverseDiff }
 }
 
 export const repeatedOpsFp = <T>(cmp: ComparatorFn<T>) => (
