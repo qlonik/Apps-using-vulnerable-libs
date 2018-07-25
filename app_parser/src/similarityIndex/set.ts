@@ -224,6 +224,41 @@ export const libPortion = <T>(unknown: T[] | Iterable<T>, lib: T[] | Iterable<T>
   return { val, num, den }
 }
 
+/**
+ * This function is a special version of {@link libPortion}. It assumes that unknown and
+ * lib are special number arrays. Specifically, it treats these arrays as arrays of indexes.
+ * Additionally, it makes an assumption that unknown array might have '-1' values, but
+ * lib array will never have those values. Since this function knows that two passed arrays
+ * are always number arrays, it can sort lib array and perform binary search on it, in
+ * order to speed up function execution.
+ *
+ * @see binarySearch
+ *
+ * @param unknown
+ * @param lib
+ */
+export const libPortionIndexes = (unknown: number[], lib: number[]): indexValue => {
+  let tot = 0
+  let libRest = [...lib].sort(numComp)
+
+  for (let el of unknown) {
+    if (el !== -1) {
+      let j = binarySearch(libRest, el, numComp)
+      if (j !== -1) {
+        tot++
+        libRest = libRest.filter((_, i) => i !== j)
+      }
+    }
+  }
+
+  const num = tot
+  const den = tot + libRest.length
+  // den === 0 only happens when 'lib' was empty
+  const val = divByZeroAware(num, den)
+
+  return { val, num, den }
+}
+
 export const weightedMapIndex = (map: DefiniteMap<number, probIndex>): Fraction => {
   const num = [...map.values()].reduce(
     (acc: Fraction, { prob }) => acc.add(IndexValueToFraction(prob)),

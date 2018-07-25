@@ -2,7 +2,7 @@ import { test } from 'ava'
 import { Fraction } from 'fraction.js'
 import arb from 'jsverify'
 import { cloneDeep, intersection as LIntersection } from 'lodash'
-import { isEqual } from 'lodash/fp'
+import { identity, isEqual } from 'lodash/fp'
 import { arbMapWithConfidence, arraysPair } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import { IndexValueToFraction } from './fraction'
@@ -19,6 +19,7 @@ import {
   jaccardLikeStrings,
   jaccardLikeWithMapping,
   libPortion,
+  libPortionIndexes,
   similarityIndexToLib,
   union,
   weightedMapIndex,
@@ -262,6 +263,19 @@ test(
 )
 
 test(
+  'libPortion is same as libPortionIndexes',
+  check(
+    arraysPair(arb.integer(-1, 1000)).smap<[number[], number[]]>(
+      ([a, b]) => [a, b.filter(el => el !== -1)],
+      identity,
+    ),
+    (t, [a, b]) => {
+      t.deepEqual(libPortion(a, b), libPortionIndexes(a, b))
+    },
+  ),
+)
+
+test(
   'jaccardIndex() does not mutate original data',
   check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
     const aClone = new Set(cloneDeep(a))
@@ -346,6 +360,19 @@ test(
     const bClone = cloneDeep(b)
 
     libPortion(aClone, bClone)
+
+    t.deepEqual(a, aClone)
+    t.deepEqual(b, bClone)
+  }),
+)
+
+test(
+  'libPortionIndexes() does not mutate original data',
+  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
+    const aClone = cloneDeep(a)
+    const bClone = cloneDeep(b)
+
+    libPortionIndexes(aClone, bClone)
 
     t.deepEqual(a, aClone)
     t.deepEqual(b, bClone)
