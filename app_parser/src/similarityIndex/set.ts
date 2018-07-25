@@ -204,10 +204,12 @@ export const jaccardLikeNumbers = (a: number[], b: number[]): indexValue => {
 }
 
 export const libPortion = <T>(unknown: T[] | Iterable<T>, lib: T[] | Iterable<T>): indexValue => {
+  let unkLen = 0
   let tot = 0
   let libRest = [...lib].map((val) => ({ __mapped: false, val }))
 
   for (let el of unknown) {
+    unkLen += 1
     let j = findIndex((o) => !o.__mapped && isEqual(o.val, el), libRest)
     if (j !== -1) {
       tot++
@@ -219,8 +221,10 @@ export const libPortion = <T>(unknown: T[] | Iterable<T>, lib: T[] | Iterable<T>
 
   const num = tot
   const den = tot + libRest.length
-  // den === 0 only happens when 'lib' was empty
-  const val = divByZeroIsZero(num, den)
+  // if len(unknown) = 0
+  //   then (if len(lib) = 0 then both are empty, treat as 100%)
+  //   else (if len(lib) = 0 then only lib is empty, treat as 0%)
+  const val = unkLen === 0 ? divByZeroIsOne(num, den) : divByZeroIsZero(num, den)
 
   return { val, num, den }
 }
@@ -254,8 +258,10 @@ export const libPortionIndexes = (unknown: number[], lib: number[]): indexValue 
 
   const num = tot
   const den = tot + libRest.length
-  // den === 0 only happens when 'lib' was empty
-  const val = divByZeroIsZero(num, den)
+  // if len(unknown) = 0
+  //   then (if len(lib) = 0 then both are empty, treat as 100%)
+  //   else (if len(lib) = 0 then only lib is empty, treat as 0%)
+  const val = unknown.length === 0 ? divByZeroIsOne(num, den) : divByZeroIsZero(num, den)
 
   return { val, num, den }
 }
