@@ -280,109 +280,50 @@ test(
   ),
 )
 
-test(
-  'jaccardIndex() does not mutate original data',
-  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
-    const aClone = new Set(cloneDeep(a))
-    const bClone = new Set(cloneDeep(b))
+const setDataMutationTests: [string, arb.Arbitrary<any>, (a: Set<any>, b: Set<any>) => any][] = [
+  ['jaccardIndex', arb.number, jaccardIndex],
 
-    jaccardIndex(aClone, bClone)
+  ['similarityIndexToLib', arb.number, similarityIndexToLib],
+]
 
-    t.deepEqual(new Set(a), aClone)
-    t.deepEqual(new Set(b), bClone)
-  }),
-)
+for (let [name, arbEl, fn] of setDataMutationTests) {
+  test(
+    `${name}() does not mutate original data`,
+    check({ tests: 5 }, arraysPair(arbEl), (t, [a, b]) => {
+      const aClone = new Set(cloneDeep(a))
+      const bClone = new Set(cloneDeep(b))
 
-test(
-  'similarityIndexToLib() does not mutate original data',
-  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
-    const aClone = new Set(cloneDeep(a))
-    const bClone = new Set(cloneDeep(b))
+      fn(aClone, bClone)
 
-    similarityIndexToLib(aClone, bClone)
+      t.deepEqual(new Set(a), aClone)
+      t.deepEqual(new Set(b), bClone)
+    }),
+  )
+}
 
-    t.deepEqual(new Set(a), aClone)
-    t.deepEqual(new Set(b), bClone)
-  }),
-)
+const dataMutationTests: [string, arb.Arbitrary<any>, (a: any, b: any) => any][] = [
+  ['jaccardLike', arb.number, jaccardLike],
+  ['jaccardLikeWithMapping', arb.number, jaccardLikeWithMapping],
+  ['jaccardLikeStrings', arb.string, jaccardLikeStrings],
+  ['jaccardLikeNumbers', arb.number, jaccardLikeNumbers],
+  ['libPortion', arb.number, libPortion],
+  ['libPortionIndexes', arb.number, libPortionIndexes],
+]
 
-test(
-  'jaccardLike() does not mutate original data',
-  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
-    const aClone = cloneDeep(a)
-    const bClone = cloneDeep(b)
+for (let [name, arbEl, fn] of dataMutationTests) {
+  test(
+    `${name}() does not mutate original data`,
+    check({ tests: 5 }, arraysPair(arbEl), (t, [a, b]) => {
+      const aClone = cloneDeep(a)
+      const bClone = cloneDeep(b)
 
-    jaccardLike(aClone, bClone)
+      fn(aClone, bClone)
 
-    t.deepEqual(a, aClone)
-    t.deepEqual(b, bClone)
-  }),
-)
-
-test(
-  'jaccardLikeWithMapping() does not mutate original data',
-  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
-    const aClone = cloneDeep(a)
-    const bClone = cloneDeep(b)
-
-    jaccardLikeWithMapping(aClone, bClone)
-
-    t.deepEqual(a, aClone)
-    t.deepEqual(b, bClone)
-  }),
-)
-
-test(
-  'jaccardLikeStrings() does not mutate original data',
-  check({ tests: 5 }, arraysPair(arb.string), (t, [a, b]) => {
-    const aClone = cloneDeep(a)
-    const bClone = cloneDeep(b)
-
-    jaccardLikeStrings(aClone, bClone)
-
-    t.deepEqual(a, aClone)
-    t.deepEqual(b, bClone)
-  }),
-)
-
-test(
-  'jaccardLikeNumbers() does not mutate original data',
-  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
-    const aClone = cloneDeep(a)
-    const bClone = cloneDeep(b)
-
-    jaccardLikeNumbers(aClone, bClone)
-
-    t.deepEqual(a, aClone)
-    t.deepEqual(b, bClone)
-  }),
-)
-
-test(
-  'libPortion() does not mutate original data',
-  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
-    const aClone = cloneDeep(a)
-    const bClone = cloneDeep(b)
-
-    libPortion(aClone, bClone)
-
-    t.deepEqual(a, aClone)
-    t.deepEqual(b, bClone)
-  }),
-)
-
-test(
-  'libPortionIndexes() does not mutate original data',
-  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
-    const aClone = cloneDeep(a)
-    const bClone = cloneDeep(b)
-
-    libPortionIndexes(aClone, bClone)
-
-    t.deepEqual(a, aClone)
-    t.deepEqual(b, bClone)
-  }),
-)
+      t.deepEqual(a, aClone)
+      t.deepEqual(b, bClone)
+    }),
+  )
+}
 
 test(
   'weightedMapIndex',
