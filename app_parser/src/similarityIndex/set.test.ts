@@ -15,6 +15,8 @@ import {
   isSubset,
   jaccardIndex,
   jaccardLike,
+  jaccardLikeNumbers,
+  jaccardLikeStrings,
   jaccardLikeWithMapping,
   libPortion,
   similarityIndexToLib,
@@ -127,6 +129,38 @@ test('jaccard like works for unsorted arrays', t => {
   t.deepEqual(ex, jaccardLike(a, b))
 })
 
+test('jaccardLikeStrings() works', t => {
+  const a = ['a', 'b', 'c']
+  const b = ['b', 'c', 'd']
+  const ex = { val: 0.5, num: 2, den: 4 }
+
+  t.deepEqual(ex, jaccardLikeStrings(a, b))
+})
+
+test('jaccardLikeStrings() works with repeating els', t => {
+  const a = ['a', 'b', 'b', 'c', 'c']
+  const b = ['b', 'b', 'c', 'd']
+  const ex = { val: 0.5, num: 3, den: 6 }
+
+  t.deepEqual(ex, jaccardLikeStrings(a, b))
+})
+
+test('jaccardLikeNumbers() works', t => {
+  const a = [1, 2, 3]
+  const b = [2, 3, 4]
+  const ex = { val: 0.5, num: 2, den: 4 }
+
+  t.deepEqual(ex, jaccardLikeNumbers(a, b))
+})
+
+test('jaccardLikeNumbers() works with repeating els', t => {
+  const a = [1, 2, 2, 3, 3]
+  const b = [2, 2, 3, 4]
+  const ex = { val: 0.5, num: 3, den: 6 }
+
+  t.deepEqual(ex, jaccardLikeNumbers(a, b))
+})
+
 test(
   'jaccardLike produces expected values',
   check(arraysPair(arb.number), (t, [a, b]) => {
@@ -141,6 +175,20 @@ test(
   'jaccardLike is commutative',
   check(arraysPair(arb.number), (t, [a, b]) => {
     t.deepEqual(jaccardLike(a, b), jaccardLike(b, a))
+  }),
+)
+
+test(
+  'jaccardLikeNumbers() is commutative',
+  check(arraysPair(arb.number), (t, [a, b]) => {
+    t.deepEqual(jaccardLikeNumbers(a, b), jaccardLikeNumbers(b, a))
+  }),
+)
+
+test(
+  'jaccardLikeStrings() is commutative',
+  check(arraysPair(arb.string), (t, [a, b]) => {
+    t.deepEqual(jaccardLikeStrings(a, b), jaccardLikeStrings(b, a))
   }),
 )
 
@@ -259,6 +307,32 @@ test(
     const bClone = cloneDeep(b)
 
     jaccardLikeWithMapping(aClone, bClone)
+
+    t.deepEqual(a, aClone)
+    t.deepEqual(b, bClone)
+  }),
+)
+
+test(
+  'jaccardLikeStrings() does not mutate original data',
+  check({ tests: 5 }, arraysPair(arb.string), (t, [a, b]) => {
+    const aClone = cloneDeep(a)
+    const bClone = cloneDeep(b)
+
+    jaccardLikeStrings(aClone, bClone)
+
+    t.deepEqual(a, aClone)
+    t.deepEqual(b, bClone)
+  }),
+)
+
+test(
+  'jaccardLikeNumbers() does not mutate original data',
+  check({ tests: 5 }, arraysPair(arb.number), (t, [a, b]) => {
+    const aClone = cloneDeep(a)
+    const bClone = cloneDeep(b)
+
+    jaccardLikeNumbers(aClone, bClone)
 
     t.deepEqual(a, aClone)
     t.deepEqual(b, bClone)

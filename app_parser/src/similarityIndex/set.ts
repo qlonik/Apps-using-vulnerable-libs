@@ -1,5 +1,6 @@
 import { Fraction } from 'fraction.js'
 import { findIndex, isEqual } from 'lodash/fp'
+import { binarySearch, numComp, strComp } from './bin-search'
 import { IndexValueToFraction } from './fraction'
 import {
   DefiniteMap,
@@ -126,6 +127,72 @@ export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): inde
   }
 
   bRest = bRest.filter((o) => !o.__mapped)
+
+  const num = intersection
+  const den = aRest + intersection + bRest.length
+  // den === 0 only happens when both 'a' and 'b' were empty
+  const val = divByZeroAware(num, den)
+
+  return { val, num, den }
+}
+
+/**
+ * This function is a special version of {@link jaccardLike}. It assumes that two passed
+ * arrays are arrays of strings. Then it can sort second array and perform binary search
+ * on the second array, in order to speed up the function execution.
+ *
+ * @see binarySearch
+ *
+ * @param a
+ * @param b
+ */
+export const jaccardLikeStrings = (a: string[], b: string[]): indexValue => {
+  let aRest = 0
+  let intersection = 0
+  let bRest = [...b].sort(strComp)
+
+  for (let el of a) {
+    const j = binarySearch(bRest, el, strComp)
+    if (j === -1) {
+      aRest++
+    } else {
+      intersection++
+      bRest = bRest.filter((_, i) => i !== j)
+    }
+  }
+
+  const num = intersection
+  const den = aRest + intersection + bRest.length
+  // den === 0 only happens when both 'a' and 'b' were empty
+  const val = divByZeroAware(num, den)
+
+  return { val, num, den }
+}
+
+/**
+ * This function is a special version of {@link jaccardLike}. It assumes that two passed
+ * arrays are arrays of numbers. Then it can sort second array and perform binary search
+ * on the second array, in order to speed up the function execution.
+ *
+ * @see binarySearch
+ *
+ * @param a
+ * @param b
+ */
+export const jaccardLikeNumbers = (a: number[], b: number[]): indexValue => {
+  let aRest = 0
+  let intersection = 0
+  let bRest = [...b].sort(numComp)
+
+  for (let el of a) {
+    const j = binarySearch(bRest, el, numComp)
+    if (j === -1) {
+      aRest++
+    } else {
+      intersection++
+      bRest = bRest.filter((_, i) => i !== j)
+    }
+  }
 
   const num = intersection
   const den = aRest + intersection + bRest.length
