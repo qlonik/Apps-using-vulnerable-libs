@@ -164,6 +164,20 @@ test('jaccardLikeNumbers() works with repeating els', t => {
 })
 
 test(
+  'jaccardLike() same as jaccardLikeStrings()',
+  check(arraysPair(arb.string), (t, [a, b]) => {
+    t.deepEqual(jaccardLike(a, b), jaccardLikeStrings(a, b))
+  }),
+)
+
+test(
+  'jaccardLike() same as jaccardLikeNumbers()',
+  check(arraysPair(arb.number), (t, [a, b]) => {
+    t.deepEqual(jaccardLike(a, b), jaccardLikeNumbers(a, b))
+  }),
+)
+
+test(
   'jaccardLike produces expected values',
   check(arraysPair(arb.number), (t, [a, b]) => {
     const num = LIntersection(a, b).length
