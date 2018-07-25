@@ -10,6 +10,7 @@ import { repeatedIntersection } from './repeated-list-ops'
 import {
   difference,
   divByZeroIsOne,
+  divByZeroIsZero,
   intersection,
   invertMap,
   isSubset,
@@ -233,7 +234,7 @@ test(
   check({ tests: 500 }, arraysPair(arb.number), (t, [a, b]) => {
     const num = LIntersection(a, b).length
     const den = b.length
-    const val = divByZeroIsOne(num, den)
+    const val = divByZeroIsZero(num, den)
     t.deepEqual({ val, num, den }, libPortion(a, b))
   }),
 )
@@ -243,7 +244,7 @@ test(
   check({ tests: 500 }, arraysPair(arb.json), (t, [a, b]) => {
     const num = repeatedIntersection(isEqual, a, b).length
     const den = b.length
-    const val = divByZeroIsOne(num, den)
+    const val = divByZeroIsZero(num, den)
     t.deepEqual({ val, num, den }, libPortion(a, b))
   }),
 )
@@ -251,14 +252,18 @@ test(
 test(
   'libPortion produces 100% for same values',
   check({ tests: 500 }, arb.array(arb.number), (t, a) => {
-    t.deepEqual({ val: 1, num: a.length, den: a.length }, libPortion(a, a))
+    if (a.length === 0) {
+      t.deepEqual({ val: 0, num: 0, den: 0 }, libPortion(a, a))
+    } else {
+      t.deepEqual({ val: 1, num: a.length, den: a.length }, libPortion(a, a))
+    }
   }),
 )
 
 test(
-  'libPortion produces 100% when comparing with empty lib',
+  'libPortion produces 0% when comparing with empty lib',
   check(arb.nearray(arb.number), (t, a) => {
-    t.deepEqual({ val: 1, num: 0, den: 0 }, libPortion(a, []))
+    t.deepEqual({ val: 0, num: 0, den: 0 }, libPortion(a, []))
   }),
 )
 

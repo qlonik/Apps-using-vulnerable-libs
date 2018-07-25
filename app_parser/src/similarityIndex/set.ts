@@ -60,6 +60,7 @@ export const similarityIndexToLib = <T>(lib: Set<T>, unknown: Set<T>): indexValu
 }
 
 export const divByZeroIsOne = (num: number, den: number) => (den === 0 ? 1 : num / den)
+export const divByZeroIsZero = (num: number, den: number) => (den === 0 ? 0 : num / den)
 
 export const jaccardLikeWithMapping = <T>(
   a: T[] | Iterable<T>,
@@ -219,7 +220,7 @@ export const libPortion = <T>(unknown: T[] | Iterable<T>, lib: T[] | Iterable<T>
   const num = tot
   const den = tot + libRest.length
   // den === 0 only happens when 'lib' was empty
-  const val = divByZeroIsOne(num, den)
+  const val = divByZeroIsZero(num, den)
 
   return { val, num, den }
 }
@@ -254,7 +255,7 @@ export const libPortionIndexes = (unknown: number[], lib: number[]): indexValue 
   const num = tot
   const den = tot + libRest.length
   // den === 0 only happens when 'lib' was empty
-  const val = divByZeroIsOne(num, den)
+  const val = divByZeroIsZero(num, den)
 
   return { val, num, den }
 }
