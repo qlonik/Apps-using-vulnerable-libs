@@ -9,7 +9,7 @@ import { IndexValueToFraction } from './fraction'
 import { repeatedIntersection } from './repeated-list-ops'
 import {
   difference,
-  divByZeroAware,
+  divByZeroIsOne,
   intersection,
   invertMap,
   isSubset,
@@ -167,7 +167,7 @@ test(
   check(arraysPair(arb.number), (t, [a, b]) => {
     const num = LIntersection(a, b).length
     const den = a.length + b.length - num
-    const val = divByZeroAware(num, den)
+    const val = divByZeroIsOne(num, den)
     t.deepEqual({ val, num, den }, jaccardLike(a, b))
   }),
 )
@@ -216,7 +216,7 @@ test(
   check(arraysPair(arb.number), (t, [a, b]) => {
     const num = LIntersection(a, b).length
     const den = a.length + b.length - num
-    const val = divByZeroAware(num, den)
+    const val = divByZeroIsOne(num, den)
     t.deepEqual({ val, num, den }, jaccardLikeWithMapping(a, b).similarity)
   }),
 )
@@ -233,7 +233,7 @@ test(
   check({ tests: 500 }, arraysPair(arb.number), (t, [a, b]) => {
     const num = LIntersection(a, b).length
     const den = b.length
-    const val = divByZeroAware(num, den)
+    const val = divByZeroIsOne(num, den)
     t.deepEqual({ val, num, den }, libPortion(a, b))
   }),
 )
@@ -243,7 +243,7 @@ test(
   check({ tests: 500 }, arraysPair(arb.json), (t, [a, b]) => {
     const num = repeatedIntersection(isEqual, a, b).length
     const den = b.length
-    const val = divByZeroAware(num, den)
+    const val = divByZeroIsOne(num, den)
     t.deepEqual({ val, num, den }, libPortion(a, b))
   }),
 )

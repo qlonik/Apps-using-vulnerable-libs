@@ -59,7 +59,7 @@ export const similarityIndexToLib = <T>(lib: Set<T>, unknown: Set<T>): indexValu
   return { val: num / den, num, den }
 }
 
-export const divByZeroAware = (num: number, den: number) => (den === 0 ? 1 : num / den)
+export const divByZeroIsOne = (num: number, den: number) => (den === 0 ? 1 : num / den)
 
 export const jaccardLikeWithMapping = <T>(
   a: T[] | Iterable<T>,
@@ -94,7 +94,7 @@ export const jaccardLikeWithMapping = <T>(
   return {
     similarity: {
       // den === 0 only happens when both 'a' and 'b' were empty
-      val: divByZeroAware(num, den),
+      val: divByZeroIsOne(num, den),
       num,
       den,
     },
@@ -109,7 +109,7 @@ export const jaccardLikeWithMapping = <T>(
  * This function returns variation of Jaccard index which is not made for sets, but made for
  * arrays, which might have repeating elements.
  *
- * @see divByZeroAware for division by zero
+ * @see divByZeroIsOne for division by zero
  */
 export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): indexValue => {
   let aRest = 0
@@ -131,7 +131,7 @@ export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): inde
   const num = intersection
   const den = aRest + intersection + bRest.length
   // den === 0 only happens when both 'a' and 'b' were empty
-  const val = divByZeroAware(num, den)
+  const val = divByZeroIsOne(num, den)
 
   return { val, num, den }
 }
@@ -164,7 +164,7 @@ export const jaccardLikeStrings = (a: string[], b: string[]): indexValue => {
   const num = intersection
   const den = aRest + intersection + bRest.length
   // den === 0 only happens when both 'a' and 'b' were empty
-  const val = divByZeroAware(num, den)
+  const val = divByZeroIsOne(num, den)
 
   return { val, num, den }
 }
@@ -197,7 +197,7 @@ export const jaccardLikeNumbers = (a: number[], b: number[]): indexValue => {
   const num = intersection
   const den = aRest + intersection + bRest.length
   // den === 0 only happens when both 'a' and 'b' were empty
-  const val = divByZeroAware(num, den)
+  const val = divByZeroIsOne(num, den)
 
   return { val, num, den }
 }
@@ -219,7 +219,7 @@ export const libPortion = <T>(unknown: T[] | Iterable<T>, lib: T[] | Iterable<T>
   const num = tot
   const den = tot + libRest.length
   // den === 0 only happens when 'lib' was empty
-  const val = divByZeroAware(num, den)
+  const val = divByZeroIsOne(num, den)
 
   return { val, num, den }
 }
@@ -254,7 +254,7 @@ export const libPortionIndexes = (unknown: number[], lib: number[]): indexValue 
   const num = tot
   const den = tot + libRest.length
   // den === 0 only happens when 'lib' was empty
-  const val = divByZeroAware(num, den)
+  const val = divByZeroIsOne(num, den)
 
   return { val, num, den }
 }
@@ -265,7 +265,7 @@ export const weightedMapIndex = (map: DefiniteMap<number, probIndex>): Fraction 
     new Fraction(0),
   )
 
-  return map.size === 0 ? new Fraction(divByZeroAware(num.valueOf(), map.size)) : num.div(map.size)
+  return map.size === 0 ? new Fraction(divByZeroIsOne(num.valueOf(), map.size)) : num.div(map.size)
 }
 
 export const invertMap = (a: Map<number, number>): Map<number, number> => {

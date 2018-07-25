@@ -9,7 +9,7 @@ import {
   signatureWithComments,
 } from '../extractStructure'
 import { repeatedDifference, repeatedIntersection } from '../similarityIndex/repeated-list-ops'
-import { divByZeroAware, indexValue } from '../similarityIndex/set'
+import { divByZeroIsOne, indexValue } from '../similarityIndex/set'
 import { DefiniteMap, probIndex } from '../similarityIndex/similarity-methods/types'
 
 /* eslint-disable no-unused-vars */
@@ -26,7 +26,7 @@ export const arbMap = arb
 export const arbIndexValue = arb
   .suchthat(arb.pair(arb.nat, arb.nat), ([num, den]) => num <= den)
   .smap<indexValue>(
-    ([num, den]) => ({ val: divByZeroAware(num, den), num, den }),
+    ([num, den]) => ({ val: divByZeroIsOne(num, den), num, den }),
     ({ num, den }) => [num, den],
   )
 
