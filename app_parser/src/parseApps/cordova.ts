@@ -289,7 +289,7 @@ export const analyseCordovaApp = async ({
       log.debug('>-> started bundle_similarity_fn')
       const sim = pool
         ? await pool.exec('bundle_similarity_fn', [
-            { libsPath, signature, candidates, log: logDescrObj },
+            { libsPath, signaturePath: sigPath, candidatesPath: candPath, log: logDescrObj },
           ])
         : await bundle_similarity_fn({ libsPath, signature, candidates, log })
       log.debug('>-> finished bundle_similarity_fn')
