@@ -42,13 +42,6 @@ declare const __y: Similarity
 /* eslint-enable */
 
 const fileLog = logger.child({ name: 'a.cordova' })
-const createLocationLog = (
-  type: appDesc['type'],
-  section: appDesc['section'],
-  app: appDesc['app'],
-  location: string,
-  id: string,
-) => fileLog.child({ app: { type, section, app }, file: { location, id } })
 
 const hideFile = (fileOps: fileDescOp[]) =>
   fileOps.map((o) => {
@@ -91,7 +84,10 @@ export const preprocessCordovaApp = async (
   const parseScriptTags = scriptTags.map(({ location, script }, i) => async () => {
     const cwd = join(jsAnalysisPath, location, leftPad(i))
     const fileOps: fileDescOp[] = []
-    const log = createLocationLog(type, section, app, location, leftPad(i))
+    const log = fileLog.child({
+      app: { type, section, app },
+      file: { location, id: leftPad(i) },
+    })
 
     /**
      * Important object
@@ -274,7 +270,8 @@ export const analyseCordovaApp = async ({
 
   const candidateLibsMissing = await resolveAllOrInParallel(
     locationId.map(({ location, id }) => async () => {
-      const log = createLocationLog(type, section, app, location, id)
+      const logDescrObj = { app: { type, section, app }, file: { location, id } }
+      const log = fileLog.child(logDescrObj)
       const cwd = join(analysisPath, location, id)
       const sigPath = join(cwd, CORDOVA_SIG_FILE)
       const signature = (await readJSON(sigPath)) as signatureWithComments
