@@ -21,11 +21,7 @@
     "util:esw": "esw --ext .ts src/",
     "util:esw:watch": "npm run util:esw -- -w",
     "util:nibble": "eslint-nibble --ext .ts src/",
-    "bin": "npm run build && export OUT=../data/logs/$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ) && mkdir -p $OUT && exec {fout}>$OUT/everything.log && export FD=${fout} && echo OUT=$OUT && NODE_OPTIONS=--max_old_space_size=16384 node $NODE_DEBUG_OPTION lib/bin",
-    "start": "npm run build && time node $NODE_DEBUG_OPTION lib/index.js",
-    "reanalyseLibs": "npm run build && node $NODE_DEBUG_OPTION lib/dumpWatch/reanalyser",
-    "parseJSON": "npm run build && time node $NODE_DEBUG_OPTION lib/parseJSON.js",
-    "watch:lib_dump": "npm run build && node $NODE_DEBUG_OPTION lib/dumpWatch"
+    "bin": "npm run build && export OUT=../data/logs/$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ) && mkdir -p $OUT && exec {fout}>$OUT/everything.log && export FD=${fout} && echo OUT=$OUT && NODE_OPTIONS=--max_old_space_size=16384 node $NODE_DEBUG_OPTION lib/bin"
   },
   "dependencies": {
     "@types/babel-types": "^6.25.2",
