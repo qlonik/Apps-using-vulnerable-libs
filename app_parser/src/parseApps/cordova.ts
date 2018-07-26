@@ -8,7 +8,7 @@ import { Pool } from 'workerpool'
 import { extractStructure, signatureWithComments } from '../extractStructure'
 import {
   bundle_similarity_fn,
-  BundleSimFnArg,
+  BundleSimFnArgSerializable,
   BundleSimFnReturn,
   candidateLib,
   getCandidateLibs,
@@ -235,7 +235,9 @@ const changeMapToArrayPairs = map((r: rankType) => ({
   })),
 }))
 
-type BundleSimilarityFnPool = Pool<{ bundle_similarity_fn: [[BundleSimFnArg], BundleSimFnReturn] }>
+type BundleSimilarityFnPool = Pool<{
+  bundle_similarity_fn: [[BundleSimFnArgSerializable], BundleSimFnReturn]
+}>
 
 export const analyseCordovaApp = async ({
   allAppsPath,
@@ -284,11 +286,12 @@ export const analyseCordovaApp = async ({
         return { location, id, noCandidatesFound }
       }
 
-      const arg = { libsPath, signature, candidates, log }
       log.debug('>-> started bundle_similarity_fn')
       const sim = pool
-        ? await pool.exec('bundle_similarity_fn', [arg])
-        : await bundle_similarity_fn(arg)
+        ? await pool.exec('bundle_similarity_fn', [
+            { libsPath, signature, candidates, log: logDescrObj },
+          ])
+        : await bundle_similarity_fn({ libsPath, signature, candidates, log })
       log.debug('>-> finished bundle_similarity_fn')
 
       await saveFiles({
