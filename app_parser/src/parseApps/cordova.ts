@@ -235,11 +235,8 @@ const changeMapToArrayPairs = map((r: rankType) => ({
   })),
 }))
 
-type BundleSimilarityFnPool = Pool<{
-  bundle_similarity_fn: [[BundleSimFnArgSerializable], BundleSimFnReturn]
-}>
-
-export const analyseCordovaApp = async ({
+export type BundSim = { bundle_similarity_fn: [[BundleSimFnArgSerializable], BundleSimFnReturn] }
+export const analyseCordovaApp = async <T extends BundSim>({
   allAppsPath,
   libsPath,
   app: { type, section, app },
@@ -248,7 +245,7 @@ export const analyseCordovaApp = async ({
   allAppsPath: string
   libsPath: string
   app: appDesc
-  pool?: BundleSimilarityFnPool
+  pool?: Pool<T>
   report?: AppAnalysisReport | null
 }): Promise<CordovaAnalysisReport> => {
   const appPath = appPathFn(allAppsPath, type, section, app)
