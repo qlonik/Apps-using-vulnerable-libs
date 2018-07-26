@@ -38,10 +38,12 @@ export type rankType = {
 
 export type candidateLib = { name: string; index: indexValue }
 
-export type BundleSimFnArg = {
+export type BundleSimFnCommonArg = {
   libsPath: string
   signature: signatureWithComments
   candidates: candidateLib[]
+}
+export type BundleSimFnArg = BundleSimFnCommonArg & {
   log: Logger
   fn?: (log: Logger, a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence
 }
@@ -49,6 +51,19 @@ export type BundleSimFnReturn = {
   rank: rankType[]
   secondary: rankType[]
   remaining: FunctionSignature[]
+}
+
+export type primitive = string | number | null | undefined | boolean
+/* eslint-disable typescript/no-use-before-define */
+export type serializableObject =
+  | primitive
+  | { [x: number]: serializableObject }
+  | { [y: string]: serializableObject }
+/* eslint-enable typescript/no-use-before-define */
+
+export type BundleSimFnArgSerializable = BundleSimFnCommonArg & {
+  log: { [x: string]: serializableObject }
+  fn?: 'v6'
 }
 
 const matchesToLibFactory = (
