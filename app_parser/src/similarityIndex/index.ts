@@ -23,6 +23,14 @@ declare const __x: SourceLocation
 declare const __y: probIndex
 /* eslint-enable */
 
+export type primitive = string | number | null | undefined | boolean
+/* eslint-disable typescript/no-use-before-define */
+export type serializableObject =
+  | primitive
+  | { [x: number]: serializableObject }
+  | { [y: string]: serializableObject }
+/* eslint-enable typescript/no-use-before-define */
+
 export type Similarity = libNameVersion & {
   file: string
   similarity: indexValue
@@ -52,14 +60,6 @@ export type BundleSimFnReturn = {
   secondary: rankType[]
   remaining: FunctionSignature[]
 }
-
-export type primitive = string | number | null | undefined | boolean
-/* eslint-disable typescript/no-use-before-define */
-export type serializableObject =
-  | primitive
-  | { [x: number]: serializableObject }
-  | { [y: string]: serializableObject }
-/* eslint-enable typescript/no-use-before-define */
 
 export type BundleSimFnArgSerializable = BundleSimFnCommonArg & {
   log: { [x: string]: serializableObject }
