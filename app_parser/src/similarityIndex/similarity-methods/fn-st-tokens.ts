@@ -7,7 +7,13 @@ import {
   isFunctionSignatures,
 } from '../../extractStructure'
 import { FractionToIndexValue } from '../fraction'
-import { indexValue, jaccardLike, jaccardLikeStrings, libPortion, weightedMapIndex } from '../set'
+import {
+  indexValue,
+  jaccardLike,
+  jaccardLikeStrings,
+  libPortionIndexes,
+  weightedMapIndex,
+} from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
 import {
   DefiniteMap,
@@ -421,7 +427,7 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
   }
   const compEnd = process.hrtime(compStart)
 
-  const sim = libPortion(uPos, lPos)
+  const sim = libPortionIndexes(uPos, lPos)
 
   const fnEnd = process.hrtime(fnStart)
   const fnTime = fnEnd[0] * 1e9 + fnEnd[1]
