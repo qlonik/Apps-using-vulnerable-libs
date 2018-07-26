@@ -4,9 +4,12 @@ import { groupBy } from 'lodash'
 import { map } from 'lodash/fp'
 import { join, sep } from 'path'
 import { URL } from 'url'
+import { Pool } from 'workerpool'
 import { extractStructure, signatureWithComments } from '../extractStructure'
 import {
   bundle_similarity_fn,
+  BundleSimFnArg,
+  BundleSimFnReturn,
   candidateLib,
   getCandidateLibs,
   rankType,
@@ -236,14 +239,18 @@ const changeMapToArrayPairs = map((r: rankType) => ({
   })),
 }))
 
+type BundleSimilarityFnPool = Pool<{ bundle_similarity_fn: [[BundleSimFnArg], BundleSimFnReturn] }>
+
 export const analyseCordovaApp = async ({
   allAppsPath,
   libsPath,
   app: { type, section, app },
+  pool,
 }: {
   allAppsPath: string
   libsPath: string
   app: appDesc
+  pool?: BundleSimilarityFnPool
   report?: AppAnalysisReport | null
 }): Promise<CordovaAnalysisReport> => {
   const appPath = appPathFn(allAppsPath, type, section, app)
@@ -280,8 +287,11 @@ export const analyseCordovaApp = async ({
         return { location, id, noCandidatesFound }
       }
 
+      const arg = { libsPath, signature, candidates, log }
       log.debug('>-> started bundle_similarity_fn')
-      const sim = await bundle_similarity_fn({ libsPath, signature, candidates, log })
+      const sim = pool
+        ? await pool.exec('bundle_similarity_fn', [arg])
+        : await bundle_similarity_fn(arg)
       log.debug('>-> finished bundle_similarity_fn')
 
       await saveFiles({
