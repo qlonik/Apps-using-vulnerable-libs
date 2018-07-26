@@ -402,8 +402,8 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
     lPos[libIndex] = libIndex
 
     const { fnStatementTokens: libToks } = lib[libIndex]
-
     const sll = new SortedLimitedList<probIndex>({ limit: 1, predicate: (o) => -o.prob.val })
+
     for (let unknownIndex = 0, uLen = unkwn.length; unknownIndex < uLen; unknownIndex++) {
       const { matched, el: { fnStatementTokens: unknownToks } } = unkwn[unknownIndex]
       if (!matched) {
@@ -417,8 +417,8 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
         sll.push({ index: unknownIndex, prob })
       }
     }
-    const topMatch = sll.value()[0]
 
+    const topMatch = sll.value()[0]
     if (topMatch && topMatch.prob.val === 1) {
       map.set(topMatch.index, { index: libIndex, prob: topMatch.prob })
       unkwn[topMatch.index].matched = true
