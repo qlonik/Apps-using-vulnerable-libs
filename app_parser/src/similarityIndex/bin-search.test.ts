@@ -15,6 +15,7 @@ for (let [name, a, b, comp] of tests) {
     `${name} binary search`,
     check(a, b, (t, arr, el) => {
       t.is(arr.indexOf(el), binarySearch(arr, el, comp))
+      t.is(arr.lastIndexOf(el), binarySearch(arr, el, comp, false))
     }),
   )
 }
