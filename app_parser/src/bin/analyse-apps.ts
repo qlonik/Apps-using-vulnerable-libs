@@ -1,9 +1,9 @@
 import { pathExists, readJSON } from 'fs-extra'
 import { differenceWith, isEqual, once, partition, shuffle, take } from 'lodash/fp'
 import { join } from 'path'
-import { appDesc } from '../parseApps'
+import { analyseCordovaApp, APP_TYPES, appDesc } from '../parseApps'
 import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
-import { resolveAllOrInParallel } from '../utils'
+import { assertNever, resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { poolFactory } from '../utils/worker'
 import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
@@ -46,10 +46,20 @@ export const main: MainFn = async function main(log) {
     if (terminating) {
       return { done: false, ...app }
     }
-    const done = await pool.exec('analyse-app', [
-      { app, allAppsPath: ALL_APPS_PATH, allLibsPath: ALL_LIBS_PATH },
-    ])
-    return { done, ...app }
+
+    if (app.type === APP_TYPES.reactNative) {
+      return { done: false, ...app }
+    } else if (app.type === APP_TYPES.cordova) {
+      try {
+        await analyseCordovaApp({ allAppsPath: ALL_APPS_PATH, libsPath: ALL_LIBS_PATH, app, pool })
+        return { done: true, ...app }
+      } catch (err) {
+        log.error({ err, app }, 'analyseCordovaApp() threw an error')
+        return { done: false, ...app }
+      }
+    } else {
+      return assertNever(app.type)
+    }
   })
 
   log.info('started analysis')
