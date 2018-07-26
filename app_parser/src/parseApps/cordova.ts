@@ -235,7 +235,9 @@ const changeMapToArrayPairs = map((r: rankType) => ({
   })),
 }))
 
-export type BundSim = { bundle_similarity_fn: [[BundleSimFnArgSerializable], BundleSimFnReturn] }
+export type BundSim = {
+  bundle_similarity_fn: [[BundleSimFnArgSerializable], true | BundleSimFnReturn]
+}
 export const analyseCordovaApp = async <T extends BundSim>({
   allAppsPath,
   libsPath,
@@ -273,23 +275,37 @@ export const analyseCordovaApp = async <T extends BundSim>({
       const log = fileLog.child(logDescrObj)
       const cwd = join(analysisPath, location, id)
       const sigPath = join(cwd, CORDOVA_SIG_FILE)
-      const signature = (await readJSON(sigPath)) as signatureWithComments
       const candPath = join(cwd, CORDOVA_CAND_FILE)
-      const candidates = (await readJSON(candPath)) as candidateLib[]
 
-      const noCandidatesFound = candidates.length === 0
-      if (noCandidatesFound) {
-        log.warn('no candidates')
-        return { location, id, noCandidatesFound }
+      let sim: BundleSimFnReturn
+
+      if (pool) {
+        log.debug('>-> started bundle_similarity_fn on worker')
+        const res = await pool.exec('bundle_similarity_fn', [
+          { libsPath, signaturePath: sigPath, candidatesPath: candPath, log: logDescrObj },
+        ])
+        log.debug('>-> finished bundle_similarity_fn on worker')
+
+        if (res === true) {
+          log.warn('no candidates')
+          return { location, id, noCandidatesFound: true }
+        } else {
+          sim = res as BundleSimFnReturn
+        }
+      } else {
+        const candidates = (await readJSON(candPath)) as candidateLib[]
+
+        if (candidates.length === 0) {
+          log.warn('no candidates')
+          return { location, id, noCandidatesFound: true }
+        }
+
+        const signature = (await readJSON(sigPath)) as signatureWithComments
+
+        log.debug('>-> started bundle_similarity_fn')
+        sim = await bundle_similarity_fn({ libsPath, signature, candidates, log })
+        log.debug('>-> finished bundle_similarity_fn')
       }
-
-      log.debug('>-> started bundle_similarity_fn')
-      const sim = pool
-        ? await pool.exec('bundle_similarity_fn', [
-            { libsPath, signaturePath: sigPath, candidatesPath: candPath, log: logDescrObj },
-          ])
-        : await bundle_similarity_fn({ libsPath, signature, candidates, log })
-      log.debug('>-> finished bundle_similarity_fn')
 
       await saveFiles({
         cwd,
@@ -303,7 +319,7 @@ export const analyseCordovaApp = async <T extends BundSim>({
         },
       })
 
-      return { location, id, noCandidatesFound }
+      return { location, id, noCandidatesFound: false }
     }),
   )
 
