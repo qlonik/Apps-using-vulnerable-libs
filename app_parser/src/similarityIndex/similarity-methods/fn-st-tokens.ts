@@ -7,7 +7,7 @@ import {
   isFunctionSignatures,
 } from '../../extractStructure'
 import { FractionToIndexValue } from '../fraction'
-import { indexValue, jaccardLike, libPortion, weightedMapIndex } from '../set'
+import { indexValue, jaccardLike, jaccardLikeStrings, libPortion, weightedMapIndex } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
 import {
   DefiniteMap,
@@ -402,7 +402,7 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
       const { matched, el: { fnStatementTokens: unknownToks } } = unkwn[unknownIndex]
       if (!matched) {
         const start = process.hrtime()
-        const prob = jaccardLike(unknownToks, libToks)
+        const prob = jaccardLikeStrings(unknownToks, libToks)
         const end = process.hrtime(start)
 
         jlTime += end[0] * 1e9 + end[1]
