@@ -389,7 +389,8 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
     const { fnStatementTokens: libToks } = lib[libIndex]
 
     const sll = new SortedLimitedList<probIndex>({ limit: 1, predicate: (o) => -o.prob.val })
-    for (let { i, el: { fnStatementTokens: unknownToks } } of unkwn) {
+    for (let unknownIndex = 0, uLen = unkwn.length; unknownIndex < uLen; unknownIndex++) {
+      const { i, el: { fnStatementTokens: unknownToks } } = unkwn[unknownIndex]
       const start = process.hrtime()
       const prob = jaccardLike(unknownToks, libToks)
       const end = process.hrtime(start)
