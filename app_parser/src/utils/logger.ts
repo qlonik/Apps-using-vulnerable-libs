@@ -43,13 +43,6 @@ export const stdoutLog = (namespace: string): debug.IDebugger => {
   return log
 }
 
-export const onelineUtilInspect = (v: any): string => {
-  return inspect(v, { colors: true })
-    .split('\n')
-    .map((s) => s.trim())
-    .join(' ')
-}
-
 /*
  * Persistent Pino Logger setup
  */
