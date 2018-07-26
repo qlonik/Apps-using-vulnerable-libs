@@ -381,11 +381,13 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
 
   const mapArr = [] as [number, number, indexValue][]
   const unkwn = [] as { matched: boolean; el: FunctionSignature }[]
+  const uPos = [] as number[]
   let jlTime = 0
   let jlCount = 0
 
   for (let i = 0, len = unknown.length; i < len; i++) {
     unkwn[i] = { matched: false, el: unknown[i] }
+    uPos[i] = -1
   }
 
   const compStart = process.hrtime()
@@ -411,6 +413,7 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
     if (topMatch && topMatch.prob.val === 1) {
       mapArr.push([topMatch.index, libIndex, topMatch.prob])
       unkwn[topMatch.index].matched = true
+      uPos[topMatch.index] = libIndex
     }
   }
   const compEnd = process.hrtime(compStart)
@@ -423,9 +426,8 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
     >)
 
   const libFnIndexes = lib.map((_, i) => i)
-  const possibleUnknownFnIndexes = unknown.map((_, i) => (map.has(i) ? map.get(i).index : -1))
 
-  const sim = libPortion(possibleUnknownFnIndexes, libFnIndexes)
+  const sim = libPortion(uPos, libFnIndexes)
 
   const fnEnd = process.hrtime(fnStart)
   const fnTime = fnEnd[0] * 1e9 + fnEnd[1]
