@@ -37,7 +37,7 @@ const tests: [string, MatchFn][] = [
 test.serial(
   'matching fn perf',
   check(
-    { tests: 2, rngState: '010123456789abcdef' },
+    { tests: 1, size: 500, rngState: '010123456789abcdef' },
     arbSignatureWithCommentsPair,
     async (t, [a, b]) => {
       /* eslint-disable no-console */
@@ -45,7 +45,7 @@ test.serial(
       console.log = t.log
 
       await suite('matching fn perf', s => {
-        s.set('maxTime', 1)
+        s.set('maxTime', 2)
         s.set('minSamples', 10)
 
         let val: ReturnType<MatchFn> | null = null
@@ -86,7 +86,7 @@ const fnStToksTests: [string, fnStToksMatchFn][] = [
 test.serial(
   'fn-st-toks perf',
   check(
-    { tests: 2, rngState: '010123456789abcdef' },
+    { tests: 1, size: 500, rngState: '010123456789abcdef' },
     arbFunctionSignatureArrPair,
     async (t, [a, b]) => {
       /* eslint-disable no-console */
@@ -94,7 +94,7 @@ test.serial(
       console.log = t.log
 
       await suite('fn-st-toks perf', s => {
-        s.set('maxTime', 1)
+        s.set('maxTime', 2)
         s.set('minSamples', 10)
 
         let val: ReturnType<fnStToksMatchFn> | null = null
