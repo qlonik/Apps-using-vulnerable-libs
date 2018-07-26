@@ -26,3 +26,24 @@ for (let [name, a, b, comp] of tests) {
     }),
   )
 }
+
+test(`Numbers bin search for smallest el`, t => {
+  const arr = [3, 3, 4, 4, 5, 5]
+  const el = 2
+  t.is(-1, binarySearch(arr, el, numComp, true))
+  t.is(-1, binarySearch(arr, el, numComp, false))
+})
+
+test(`Numbers bin search for largest el`, t => {
+  const arr = [3, 3, 4, 4, 5, 5]
+  const el = 6
+  t.is(-1, binarySearch(arr, el, numComp, true))
+  t.is(-1, binarySearch(arr, el, numComp, false))
+})
+
+test('Numbers bin search for middle el', t => {
+  const arr = [2, 2, 4, 4, 5, 5]
+  const el = 3
+  t.is(-1, binarySearch(arr, el, numComp, true))
+  t.is(-1, binarySearch(arr, el, numComp, false))
+})
