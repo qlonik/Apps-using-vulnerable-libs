@@ -3,7 +3,7 @@ import { memoize } from 'lodash/fp'
 import { join, relative } from 'path'
 import shell from 'shelljs'
 import { worker } from 'workerpool'
-import { extractStructure } from '../extractStructure'
+import { extractStructure, signatureWithComments } from '../extractStructure'
 import { EXTRACTOR_VERSION } from '../extractStructure/options'
 import {
   analyseCordovaApp,
@@ -22,6 +22,9 @@ import {
   updateUnionLiteralSignature,
 } from '../parseLibraries'
 import { isInBlacklist } from '../pkgBlacklist'
+import { bundle_similarity_fn, candidateLib } from '../similarityIndex'
+import { librarySimilarityByFunctionStatementTokens_v6 } from '../similarityIndex/similarity-methods'
+import { assertNever } from '../utils'
 import { fileOp, saveFiles } from '../utils/files'
 import logger from '../utils/logger'
 import { allMessages as messages, CouchDumpFormat, DONE } from './_all.types'
@@ -32,10 +35,33 @@ const makeLog = (fn: string) => logger.child({ name: `${logFileName} >> ${fn}` }
 const ellog = makeLog('extract-lib-from-dump')
 const rllog = makeLog('reanalyse-lib')
 const aalog = makeLog('analyse-app')
+const siLog = makeLog('bundle_similarity_fn')
 
 const memoReadJSON = memoize((p: string): Promise<any> => readJSON(p))
 
 worker<messages>({
+  bundle_similarity_fn: async ({
+    libsPath,
+    signaturePath,
+    candidatesPath,
+    log: logData,
+    fn: fnName,
+  }) => {
+    const candidates = (await readJSON(candidatesPath)) as candidateLib[]
+    if (candidates.length === 0) {
+      return true
+    }
+
+    const signature = (await readJSON(signaturePath)) as signatureWithComments
+    const log = siLog.child(logData)
+    const fn =
+      fnName === undefined
+        ? undefined
+        : fnName === 'v6' ? librarySimilarityByFunctionStatementTokens_v6 : assertNever(fnName)
+
+    return bundle_similarity_fn({ libsPath, signature, candidates, log, fn })
+  },
+
   'reanalyse-lib': async ({ libsPath, lib }) => {
     rllog.debug({ lib }, 'reanalysing lib')
 

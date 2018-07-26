@@ -1,5 +1,5 @@
 import { Logger } from 'pino'
-import { APP_TYPES, appDesc } from '../parseApps'
+import { APP_TYPES, appDesc, BundSim } from '../parseApps'
 import { libNameVersion } from '../parseLibraries'
 
 export type MainFn = (log: Logger) => Promise<any>
@@ -54,6 +54,6 @@ export type allMessages = {
 
   'preprocess-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
   'analyse-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
-}
+} & BundSim
 
 export const WORKER_FILENAME = '_all.worker'
