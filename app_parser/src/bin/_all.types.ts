@@ -1,6 +1,4 @@
 import { Logger } from 'pino'
-import { The } from 'typical-mini'
-import { MessagesMap } from 'workerpool'
 import { APP_TYPES, appDesc } from '../parseApps'
 import { libNameVersion } from '../parseLibraries'
 
@@ -24,41 +22,38 @@ export enum DONE {
   exclBL, // excluded because of black list
 }
 
-export type allMessages = The<
-  MessagesMap,
-  {
-    'extract-lib-from-dump': [
-      [
-        {
-          libsPath: string
-          dumpPath: string
-          filename: string
-          VERSIONS_PATH: string
-          DATE: string
-        }
-      ],
-      DONE
-    ]
-    'create-lib-literal-sig': [[{ libsPath: string; name: string }], boolean]
-    'reanalyse-lib': [[{ libsPath: string; lib: libNameVersion }], any]
+export type allMessages = {
+  'extract-lib-from-dump': [
+    [
+      {
+        libsPath: string
+        dumpPath: string
+        filename: string
+        VERSIONS_PATH: string
+        DATE: string
+      }
+    ],
+    DONE
+  ]
+  'create-lib-literal-sig': [[{ libsPath: string; name: string }], boolean]
+  'reanalyse-lib': [[{ libsPath: string; lib: libNameVersion }], any]
 
-    'extract-app': [
-      [{ inputPath: string; outputPath: string; section: string; app: string }],
-      boolean
-    ]
-    're-extract-app': [[{ inputPath: string; outputPath: string; app: appDesc }], boolean]
-    'move-decomp-app': [
-      [{ inputPath: string; outputPath: string; section: string; app: string }],
-      APP_TYPES | 'removed'
-    ]
-    'copy-apk': [
-      [{ inputPath: string; outputPath: string; type: APP_TYPES; section: string; app: string }],
-      boolean
-    ]
+  'extract-app': [
+    [{ inputPath: string; outputPath: string; section: string; app: string }],
+    boolean
+  ]
+  're-extract-app': [[{ inputPath: string; outputPath: string; app: appDesc }], boolean]
+  'move-decomp-app': [
+    [{ inputPath: string; outputPath: string; section: string; app: string }],
+    APP_TYPES | 'removed'
+  ]
+  'copy-apk': [
+    [{ inputPath: string; outputPath: string; type: APP_TYPES; section: string; app: string }],
+    boolean
+  ]
 
-    'preprocess-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
-    'analyse-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
-  }
->
+  'preprocess-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
+  'analyse-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
+}
 
 export const WORKER_FILENAME = '_all.worker'
