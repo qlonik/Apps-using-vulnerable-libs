@@ -114,7 +114,7 @@ export const bundle_similarity_fn = async ({
   const rank: rankType[] = []
   const secondary: rankType[] = []
   const later: typeof preparedCandidates = []
-  const remaining: FunctionSignature[] = [...unknownSig.functionSignature]
+  let remaining: FunctionSignature[] = [...unknownSig.functionSignature]
 
   log.debug(
     {
@@ -140,19 +140,7 @@ export const bundle_similarity_fn = async ({
 
     if (top && top.similarity.val === 1) {
       rank.push({ ...candidate, matches })
-
-      // filter out elements from remaining array which are in the top mapping
-      // original filter implementation comes from lodash's _arrayFilter.js file
-      let index = -1
-      let resIndex = 0
-      const length = remaining.length
-      while (++index < length) {
-        const value = remaining[index]
-        if (!top.mapping.has(value.index)) {
-          remaining[resIndex++] = value
-        }
-      }
-      remaining.length = resIndex
+      remaining = remaining.filter((v) => !top.mapping.has(v.index))
     } else {
       later.push(candidate)
     }
@@ -188,17 +176,7 @@ export const bundle_similarity_fn = async ({
     // compared to lib starting with 'z'.
     if (top) {
       secondary.push({ ...candidate, matches })
-
-      let index = -1
-      let resIndex = 0
-      const length = remaining.length
-      while (++index < length) {
-        const value = remaining[index]
-        if (!top.mapping.has(value.index)) {
-          remaining[resIndex++] = value
-        }
-      }
-      remaining.length = resIndex
+      remaining = remaining.filter((v) => !top.mapping.has(v.index))
     }
   }
   done_ = process.hrtime(time_)
