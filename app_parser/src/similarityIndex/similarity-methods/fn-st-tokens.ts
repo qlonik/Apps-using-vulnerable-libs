@@ -411,7 +411,7 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
         sll.push({ index: unknownIndex, prob })
       }
     }
-    const topMatch = sll.value().shift()
+    const topMatch = sll.value()[0]
 
     if (topMatch && topMatch.prob.val === 1) {
       map.set(topMatch.index, { index: libIndex, prob: topMatch.prob })
