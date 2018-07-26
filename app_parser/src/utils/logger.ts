@@ -1,7 +1,7 @@
 import cloneable from 'cloneable-readable'
 import debug from 'debug'
 import { createWriteStream } from 'fs'
-import pino, { Level } from 'pino'
+import pino from 'pino'
 import pump from 'pump'
 import stream from 'stream'
 import { inspect } from 'util'
