@@ -380,9 +380,13 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
   }
 
   const mapArr = [] as [number, number, indexValue][]
-  const unkwn = unknown.map((el, i) => ({ el, i }))
+  const unkwn = [] as { matched: boolean; el: FunctionSignature }[]
   let jlTime = 0
   let jlCount = 0
+
+  for (let i = 0, len = unknown.length; i < len; i++) {
+    unkwn[i] = { matched: false, el: unknown[i] }
+  }
 
   const compStart = process.hrtime()
   for (let libIndex = 0, len = lib.length; libIndex < len; libIndex++) {
@@ -390,32 +394,23 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
 
     const sll = new SortedLimitedList<probIndex>({ limit: 1, predicate: (o) => -o.prob.val })
     for (let unknownIndex = 0, uLen = unkwn.length; unknownIndex < uLen; unknownIndex++) {
-      const { i, el: { fnStatementTokens: unknownToks } } = unkwn[unknownIndex]
-      const start = process.hrtime()
-      const prob = jaccardLike(unknownToks, libToks)
-      const end = process.hrtime(start)
+      const { matched, el: { fnStatementTokens: unknownToks } } = unkwn[unknownIndex]
+      if (!matched) {
+        const start = process.hrtime()
+        const prob = jaccardLike(unknownToks, libToks)
+        const end = process.hrtime(start)
 
-      jlTime += end[0] * 1e9 + end[1]
-      jlCount += 1
+        jlTime += end[0] * 1e9 + end[1]
+        jlCount += 1
 
-      sll.push({ index: i, prob })
+        sll.push({ index: unknownIndex, prob })
+      }
     }
     const topMatch = sll.value().shift()
 
     if (topMatch && topMatch.prob.val === 1) {
       mapArr.push([topMatch.index, libIndex, topMatch.prob])
-
-      // filter unkwn
-      let index = -1
-      let resIndex = 0
-      const length = unkwn.length
-      while (++index < length) {
-        const value = unkwn[index]
-        if (value.i !== topMatch.index) {
-          unkwn[resIndex++] = value
-        }
-      }
-      unkwn.length = resIndex
+      unkwn[topMatch.index].matched = true
     }
   }
   const compEnd = process.hrtime(compStart)
