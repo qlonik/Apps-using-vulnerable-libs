@@ -398,7 +398,7 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
   }
 
   const compStart = process.hrtime()
-  for (let libIndex = 0, len = lib.length; libIndex < len; libIndex++) {
+  for (let libIndex = 0, lLen = lib.length; libIndex < lLen; libIndex++) {
     lPos[libIndex] = libIndex
 
     const { fnStatementTokens: libToks } = lib[libIndex]
