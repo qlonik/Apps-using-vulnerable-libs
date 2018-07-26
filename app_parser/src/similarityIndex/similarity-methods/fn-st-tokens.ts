@@ -379,7 +379,7 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
     throw new TypeError(typeErrorMsg)
   }
 
-  const mapArr = [] as [number, number, indexValue][]
+  const map = new Map() as DefiniteMap<number, probIndex>
   const unkwn = [] as { matched: boolean; el: FunctionSignature }[]
   const uPos = [] as number[]
   const lPos = [] as number[]
@@ -414,19 +414,12 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
     const topMatch = sll.value().shift()
 
     if (topMatch && topMatch.prob.val === 1) {
-      mapArr.push([topMatch.index, libIndex, topMatch.prob])
+      map.set(topMatch.index, { index: libIndex, prob: topMatch.prob })
       unkwn[topMatch.index].matched = true
       uPos[topMatch.index] = libIndex
     }
   }
   const compEnd = process.hrtime(compStart)
-
-  const map = mapArr
-    .sort((a, b) => a[0] - b[0])
-    .reduce((acc, [i, index, prob]) => acc.set(i, { index, prob }), new Map() as DefiniteMap<
-      number,
-      probIndex
-    >)
 
   const sim = libPortion(uPos, lPos)
 
