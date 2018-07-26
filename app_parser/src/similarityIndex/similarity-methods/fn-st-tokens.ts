@@ -427,16 +427,20 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
   }
   const compEnd = process.hrtime(compStart)
 
+  const portionStart = process.hrtime()
   const sim = libPortionIndexes(uPos, lPos)
+  const portionEnd = process.hrtime(portionStart)
 
   const fnEnd = process.hrtime(fnStart)
   const fnTime = fnEnd[0] * 1e9 + fnEnd[1]
   const tComp = compEnd[0] * 1e9 + compEnd[1]
+  const tLibPortion = portionEnd[0] * 1e9 + portionEnd[1]
   v6log.debug(
     {
       fnTime,
       tComp,
       tCompProp: tComp / fnTime,
+      tLibPortion,
       jlTime,
       jlCount,
       libLen: lib.length,
