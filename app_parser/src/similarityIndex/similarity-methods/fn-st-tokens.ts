@@ -382,6 +382,7 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
   const mapArr = [] as [number, number, indexValue][]
   const unkwn = [] as { matched: boolean; el: FunctionSignature }[]
   const uPos = [] as number[]
+  const lPos = [] as number[]
   let jlTime = 0
   let jlCount = 0
 
@@ -392,6 +393,8 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
 
   const compStart = process.hrtime()
   for (let libIndex = 0, len = lib.length; libIndex < len; libIndex++) {
+    lPos[libIndex] = libIndex
+
     const { fnStatementTokens: libToks } = lib[libIndex]
 
     const sll = new SortedLimitedList<probIndex>({ limit: 1, predicate: (o) => -o.prob.val })
@@ -425,9 +428,7 @@ export function v6<T extends FunctionSignature[] | FunctionSignatures>(
       probIndex
     >)
 
-  const libFnIndexes = lib.map((_, i) => i)
-
-  const sim = libPortion(uPos, libFnIndexes)
+  const sim = libPortion(uPos, lPos)
 
   const fnEnd = process.hrtime(fnStart)
   const fnTime = fnEnd[0] * 1e9 + fnEnd[1]
