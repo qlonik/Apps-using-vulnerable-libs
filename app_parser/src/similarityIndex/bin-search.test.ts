@@ -18,4 +18,11 @@ for (let [name, a, b, comp] of tests) {
       t.is(arr.lastIndexOf(el), binarySearch(arr, el, comp, false))
     }),
   )
+
+  test(
+    `${name} bin search does not find in empty array`,
+    check(b, (t, el) => {
+      t.is(-1, binarySearch([], el, comp))
+    }),
+  )
 }
