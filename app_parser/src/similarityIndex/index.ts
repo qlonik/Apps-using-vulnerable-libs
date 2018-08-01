@@ -86,18 +86,19 @@ const matchesToLibFactory = (
 
   for (let { name, version, file, signature: { functionSignature } } of libNVS) {
     await nextTick()
-    const verLog = log.child({ 'candidate-info': { version, file } })
+    const verLog = log.child({ lib: { name, version, file } })
 
-    verLog.debug(
-      { functionCount: functionSignature.length },
-      '>----> start candidate version comparison',
-    )
     const start = process.hrtime()
     const res = fn(verLog, remaining, functionSignature)
     const end = process.hrtime(start)
     verLog.debug(
-      { 'time-taken': end, similarity: res.similarity },
-      '>----> finish candidate version comparison',
+      {
+        'app-fn-count': remaining.length,
+        'lib-fn-count': functionSignature.length,
+        'time-taken': end,
+        similarity: res.similarity,
+      },
+      '>----> finish one version of candidate',
     )
 
     sll.push({ name, version, file, ...res })
@@ -169,11 +170,13 @@ export const bundle_similarity_fn = async ({
     const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
     const shLibNVS = shuffleVersions(libNVS)
 
-    candLog.debug({ versionCount: shLibNVS.length }, '>---> starting analysis against all versions')
     const start = process.hrtime()
     const matches = await mRemainingToLib(candLog, remaining, shLibNVS, true)
     const end = process.hrtime(start)
-    candLog.debug({ 'candidate-time-taken': end }, '>---> finished analysis of all versions')
+    candLog.debug(
+      { 'candidate-version-count': shLibNVS.length, 'candidate-time-taken': end },
+      '>---> finish all versions of candidate',
+    )
 
     const top = matches.length > 0 ? matches[0] : null
 
@@ -202,11 +205,13 @@ export const bundle_similarity_fn = async ({
     const libNVS = await getLibNameVersionSigContents(libsPath, candidate.name)
     const shLibNVS = shuffleVersions(libNVS)
 
-    candLog.debug({ versionCount: shLibNVS.length }, '>---> starting analysis against all versions')
     const start = process.hrtime()
     const matches = await mRemainingToLib(candLog, remaining, shLibNVS)
     const end = process.hrtime(start)
-    candLog.debug({ 'candidate-time-taken': end }, '>---> finished analysis of all versions')
+    candLog.debug(
+      { 'candidate-version-count': shLibNVS.length, 'candidate-time-taken': end },
+      '>---> finish all versions of candidate',
+    )
 
     const top = matches.length > 0 ? matches[0] : null
 
