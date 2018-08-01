@@ -1,6 +1,7 @@
 import { SourceLocation } from 'babel-types'
-import { sortBy } from 'lodash/fp'
+import { map, sortBy } from 'lodash/fp'
 import { Logger } from 'pino'
+import { Omit } from 'typical-mini'
 import { promisify } from 'util'
 import { FunctionSignature, LiteralSignatures, signatureWithComments } from '../extractStructure'
 import {
@@ -60,9 +61,15 @@ export type BundleSimFnArgSerializable = {
   log: { [x: string]: serializableObject }
   fn?: 'v6'
 }
+export type SerializableRankType = Omit<rankType, 'matches'> & {
+  matches: (Omit<matchedLib, 'mapping'> & {
+    mapping: [number, probIndex][]
+  })[]
+}
+
 export type BundleSimFnReturn = {
-  rank: rankType[]
-  secondary: rankType[]
+  rank: SerializableRankType[]
+  secondary: SerializableRankType[]
   remaining: FunctionSignature[]
 }
 
@@ -111,6 +118,14 @@ const matchesToLibFactory = (
       ) as typeof v.mapping,
     }))
 }
+
+const mapToArrayPairs = map((r: rankType) => ({
+  ...r,
+  matches: r.matches.map((m) => ({
+    ...m,
+    mapping: [...m.mapping.entries()] as [number, probIndex][],
+  })),
+}))
 
 export const bundle_similarity_fn = async ({
   libsPath,
@@ -214,7 +229,7 @@ export const bundle_similarity_fn = async ({
     '>--> fin both candidate runs',
   )
 
-  return { rank, secondary, remaining }
+  return { rank: mapToArrayPairs(rank), secondary: mapToArrayPairs(secondary), remaining }
 }
 
 export const getCandidateLibs = async ({
