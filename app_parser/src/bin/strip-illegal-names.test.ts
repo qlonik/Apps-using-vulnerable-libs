@@ -31,6 +31,12 @@ test('strips extensions properly', t => {
   t.deepEqual(expected, stripIllegalNames(input))
 })
 
+test('does not strip extensions when they are missing', t => {
+  const input = ['ats', 'ajs', 'atsx', 'ajsx', 'a.ts', 'b.js', 'c.tsx', 'd.jsx']
+  const expected = ['ats', 'ajs', 'atsx', 'ajsx', 'a', 'b', 'c', 'd']
+  t.deepEqual(expected, stripIllegalNames(input))
+})
+
 test('does not strip directories when in test mode', t => {
   const input = ['fixtures/one.ts', 'dir/two.ts', 'three.ts']
   const expected = ['fixtures/one', 'dir/two', 'three']

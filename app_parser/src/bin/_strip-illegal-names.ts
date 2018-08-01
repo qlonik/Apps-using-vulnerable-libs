@@ -7,6 +7,6 @@ export function stripIllegalNames(scripts: string[]) {
         !name.endsWith('.d.ts') &&
         !name.endsWith('.js.map'),
     )
-    .map((name) => name.replace(/.(t|j)sx?$/, ''))
+    .map((name) => name.replace(/\.(t|j)sx?$/, ''))
     .filter((name) => name !== 'index' && !name.endsWith('.worker') && !name.endsWith('.test'))
 }
