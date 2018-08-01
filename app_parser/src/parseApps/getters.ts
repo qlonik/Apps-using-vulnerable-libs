@@ -13,6 +13,7 @@ import {
   REACT_NATIVE_SIG_FILE,
   REACT_NATIVE_SIM_FILE,
 } from './constants'
+import { BundleSimFnReturn } from '../similarityIndex'
 
 export enum APP_TYPES {
   cordova = 'cordova',
@@ -134,7 +135,7 @@ export type analysedDataFile<T> = {
   file: T
   signature: signatureWithComments | null
   candidates: { name: string; index: indexValue }[] | null
-  similarity: any[] | null
+  similarity: BundleSimFnReturn | null
 }
 /* eslint-disable import/export,typescript/no-use-before-define */
 export async function getAnalysedData<T extends analysisFile>(
