@@ -309,10 +309,12 @@ export const analyseCordovaApp = async <T extends BundSim>({
   )
 
   candidateLibsMissing.forEach(({ location, id, noCandidatesFound }) => {
-    localReport.noCandidates += noCandidatesFound ? 1 : 0
-    localReport.noCandidatesPerLocation[location] = (
-      localReport.noCandidatesPerLocation[location] || []
-    ).concat(id)
+    if (noCandidatesFound) {
+      localReport.noCandidates += 1
+      localReport.noCandidatesPerLocation[location] = (
+        localReport.noCandidatesPerLocation[location] || []
+      ).concat(id)
+    }
   })
 
   await saveFiles({
