@@ -1,7 +1,6 @@
 import { mkdirp, pathExists, readFile, readJSON } from 'fs-extra'
 import { JSDOM } from 'jsdom'
 import { groupBy } from 'lodash'
-import { map } from 'lodash/fp'
 import { join, sep } from 'path'
 import { URL } from 'url'
 import { Pool } from 'workerpool'
@@ -12,10 +11,8 @@ import {
   BundleSimFnReturn,
   candidateLib,
   getCandidateLibs,
-  rankType,
   Similarity,
 } from '../similarityIndex'
-import { probIndex } from '../similarityIndex/similarity-methods/types'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { CordovaAppDataError } from '../utils/errors'
 import { fileDescOp, fileOp, saveFiles } from '../utils/files'
@@ -227,14 +224,6 @@ export const preprocessCordovaApp = async (
   await resolveAllOrInParallel(parseScriptTags)
 }
 
-const changeMapToArrayPairs = map((r: rankType) => ({
-  ...r,
-  matches: r.matches.map((m) => ({
-    ...m,
-    mapping: [...m.mapping.entries()] as [number, probIndex][],
-  })),
-}))
-
 export type BundSim = {
   bundle_similarity_fn: [[BundleSimFnArgSerializable], true | BundleSimFnReturn]
 }
@@ -312,11 +301,7 @@ export const analyseCordovaApp = async <T extends BundSim>({
         dst: CORDOVA_SIM_FILE,
         conservative: false,
         type: fileOp.json,
-        json: {
-          rank: changeMapToArrayPairs(sim.rank),
-          secondary: changeMapToArrayPairs(sim.secondary),
-          remaining: sim.remaining,
-        },
+        json: sim,
       })
 
       return { location, id, noCandidatesFound: false }
