@@ -10,7 +10,7 @@ export const report: CordovaManualAnalysisReport = {
   },
   files: {
     'body/0000': {
-      location: 'head',
+      location: 'body',
       id: '0000',
       type: 'single-lib',
       match: {
@@ -20,7 +20,7 @@ export const report: CordovaManualAnalysisReport = {
       },
     },
     'body/0001': {
-      location: 'head',
+      location: 'body',
       id: '0001',
       type: 'business-logic',
     },
