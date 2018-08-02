@@ -9,8 +9,6 @@ export const report: CordovaManualAnalysisReport = {
     app: 'com.zousan.santahelp-78-2016_12_13.apk',
   },
   files: {
-    'body/0000': { location: 'body', id: '0000', type: 'http-script' },
-    'body/0001': { location: 'body', id: '0001', type: 'http-script' },
     'body/0002': { location: 'body', id: '0002', type: 'http-script' },
     'body/0003': { location: 'body', id: '0003', type: 'http-script' },
     'body/0004': { location: 'body', id: '0004', type: 'http-script' },
@@ -134,6 +132,8 @@ export const report: CordovaManualAnalysisReport = {
     'body/0122': { location: 'body', id: '0122', type: 'http-script' },
     'body/0123': { location: 'body', id: '0123', type: 'http-script' },
     'body/0124': { location: 'body', id: '0124', type: 'http-script' },
+    'body/0125': { location: 'body', id: '0125', type: 'http-script' },
+    'body/0126': { location: 'body', id: '0126', type: 'http-script' },
     'head/0000': {
       location: 'head',
       id: '0000',

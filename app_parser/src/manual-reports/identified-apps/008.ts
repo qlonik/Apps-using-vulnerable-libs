@@ -9,8 +9,8 @@ export const report: CordovaManualAnalysisReport = {
     app: 'net.jp.apps.noboruhirohara.yakei-102008-2016_05_02.apk',
   },
   files: {
-    'body/0000': { location: 'body', id: '0000', type: 'business-logic' },
-    'body/0001': { location: 'body', id: '0001', type: 'http-script' },
+    'body/0007': { location: 'body', id: '0007', type: 'business-logic' },
+    'body/0008': { location: 'body', id: '0008', type: 'http-script' },
     'head/0000': {
       location: 'head',
       id: '0000',

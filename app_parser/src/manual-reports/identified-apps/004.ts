@@ -11,9 +11,9 @@ export const report: CordovaManualAnalysisReport = {
     app: 'com.tiny.m91392d54e89b48a6b2ecf1306f88ebbb-300000016-2017_02_17.apk',
   },
   files: {
-    'body/0000': {
+    'body/0005': {
       location: 'body',
-      id: '0000',
+      id: '0005',
       type: 'bundle',
       match: [
         { name: 'angular', version: '1.4.3', isGuess: false },
@@ -329,9 +329,9 @@ export const report: CordovaManualAnalysisReport = {
         ],
       },
     },
-    'body/0001': {
+    'body/0006': {
       location: 'body',
-      id: '0001',
+      id: '0006',
       type: 'single-lib',
       match: {
         name: 'cordova',
@@ -339,14 +339,14 @@ export const report: CordovaManualAnalysisReport = {
         comments: 'version is unknown, but PLATFORM_VERSION_BUILD_LABEL = 5.1.1',
       },
     },
-    'body/0002': {
+    'body/0007': {
       location: 'body',
-      id: '0002',
+      id: '0007',
       type: 'business-logic', // maybe
     },
-    'body/0003': {
+    'body/0008': {
       location: 'body',
-      id: '0003',
+      id: '0008',
       type: 'business-logic', // maybe
       comments: 'minified',
     },

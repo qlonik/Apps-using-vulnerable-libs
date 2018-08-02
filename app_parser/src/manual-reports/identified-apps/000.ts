@@ -9,9 +9,9 @@ export const report: CordovaManualAnalysisReport = {
     app: 'apps.yclients88759-10300-2017_04_13.apk',
   },
   files: {
-    'body/0000': {
+    'body/0001': {
       location: 'body',
-      id: '0000',
+      id: '0001',
       type: 'bundle',
       match: [
         { name: 'angular', version: '1.5.7', file: '0001.json', isGuess: true },
@@ -30,14 +30,14 @@ export const report: CordovaManualAnalysisReport = {
         ],
       },
     },
-    'body/0001': {
-      location: 'body',
-      id: '0001',
-      type: 'business-logic',
-    },
     'body/0002': {
       location: 'body',
       id: '0002',
+      type: 'business-logic',
+    },
+    'body/0003': {
+      location: 'body',
+      id: '0003',
       type: 'business-logic',
     },
     'head/0000': {

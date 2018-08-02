@@ -9,7 +9,7 @@ export const report: CordovaManualAnalysisReport = {
     app: 'io.shirkan.RavKav-1800000-2017_01_29.apk',
   },
   files: {
-    'body/0000': { location: 'body', id: '0000', type: 'business-logic' },
+    'body/0009': { location: 'body', id: '0009', type: 'business-logic' },
     'head/0000': {
       location: 'head',
       id: '0000',
