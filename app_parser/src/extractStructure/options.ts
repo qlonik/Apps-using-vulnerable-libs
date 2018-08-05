@@ -19,7 +19,7 @@ export type opts = {
 }
 
 export const getDefaultOpts = ({
-  'extractor-version': v = EXTRACTOR_VERSION.v1,
+  'extractor-version': v = EXTRACTOR_VERSION.v3,
 }: Partial<opts> = {}): opts => ({
   'extractor-version': v,
 })
