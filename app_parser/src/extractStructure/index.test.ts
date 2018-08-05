@@ -2,6 +2,7 @@ import { test } from 'ava'
 import { oneLineTrim, stripIndent } from 'common-tags'
 import { fnNamesConcat } from './fn-names-concat'
 import { extractReactNativeStructure, extractStructure } from './index'
+import { EXTRACTOR_VERSION } from './options'
 import { DECLARATION, EXPRESSION, LITERAL, PARAM, STATEMENT } from './tags'
 import { rnSignatureNew } from './types'
 
@@ -42,7 +43,10 @@ test('library: extracted correct signature', async t => {
     (function () {})()
     (() => {})()
   `
-  const signature = (await extractStructure({ content }))!
+  const signature = (await extractStructure({
+    content,
+    options: { 'extractor-version': EXTRACTOR_VERSION.v1 },
+  }))!
   t.true(signature !== null)
 
   const { functionSignature, literalSignature } = signature
@@ -111,7 +115,10 @@ test('react-native: extracted correct signature', async t => {
       return 456;
     }, 3, [])
   `
-  const structure = (await extractReactNativeStructure({ content }))!
+  const structure = (await extractReactNativeStructure({
+    content,
+    options: { 'extractor-version': EXTRACTOR_VERSION.v1 },
+  }))!
   t.true(structure !== null)
 
   const expected: rnSignatureNew[] = [

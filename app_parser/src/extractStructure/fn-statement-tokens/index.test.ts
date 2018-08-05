@@ -22,6 +22,7 @@ test(
     }
   `,
   [`${PARAM}:Identifier[par1]`, `${PARAM}:Identifier[par2]`],
+  { 'extractor-version': EXTRACTOR_VERSION.v1 },
 )
 
 test(
