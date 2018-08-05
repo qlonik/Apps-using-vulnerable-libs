@@ -209,10 +209,10 @@ async function analyseOneLibFile(
 
 export async function analyseLibFiles(
   files: fileDesc | fileDesc[],
-  { chunkLimit, chunkSize, conservative = true }: opts = {},
+  { chunkLimit, chunkSize, conservative = true, extractorOpts }: opts = {},
 ): Promise<fileDescOp[]> {
   if (!Array.isArray(files)) {
-    return [await analyseOneLibFile({ file: files, i: 0 }, { conservative })]
+    return [await analyseOneLibFile({ file: files, i: 0 }, { conservative, extractorOpts })]
   }
 
   if (files.length === 0) {
@@ -220,7 +220,7 @@ export async function analyseLibFiles(
   }
 
   let lazySaved = files.map((file, i) => {
-    return async () => analyseOneLibFile({ file, i }, { conservative })
+    return async () => analyseOneLibFile({ file, i }, { conservative, extractorOpts })
   })
   return await resolveAllOrInParallel(lazySaved, { chunkLimit, chunkSize })
 }
