@@ -1,7 +1,8 @@
-import { test, ExecutionContext } from 'ava'
+import { ExecutionContext, test } from 'ava'
 import suite from 'chuhai'
 import arb from 'jsverify'
 import { sortedIndexOf } from 'lodash/fp'
+import { largeNeArr } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import { binarySearch, numComp, strComp } from './bin-search'
 
@@ -11,7 +12,7 @@ const arrAndEl = <T extends string | number>(
 ): [typeof comp, arb.Arbitrary<T>, arb.Arbitrary<T[]>] => [
   comp,
   el,
-  arb.nearray(el).smap(ar => ar.sort(comp), ar => ar),
+  largeNeArr(el).smap(ar => ar.sort(comp), ar => ar),
 ]
 
 const tests = [
@@ -23,7 +24,7 @@ for (let [name, comp, someArb, someArbArr] of tests) {
   test.serial(
     `${name}: binSearch vs sortedIndexOf vs findIndex`,
     check(
-      { tests: 1 },
+      { tests: 1, size: 500 },
       someArb,
       someArbArr,
       async (t: ExecutionContext, el: number | string, arr: (typeof el)[]) => {
