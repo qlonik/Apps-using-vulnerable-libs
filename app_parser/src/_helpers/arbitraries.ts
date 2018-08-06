@@ -151,3 +151,28 @@ const minArrSizeGeneratorFn = (min: number) =>
   }
 export const repeatingArr = minArrSizeGeneratorFn(0)
 export const repeatingNeArr = minArrSizeGeneratorFn(1)
+
+const minSizeLargeArrayGeneratorFn = (min: number) =>
+  /**
+   * Returns array of arbitraries passed as parameter. The length of this array
+   * directly corresponds to the size property passed
+   * @param a
+   */
+  function largeArrayGenerator<T>(a: arb.Arbitrary<T>): arb.Arbitrary<T[]> {
+    if (!a.shrink) {
+      throw new Error('no shrink on arbitrary')
+    }
+    return arb.bless({
+      generator: arb.generator.bless(function(size: number) {
+        const arrsize = arb.random(min, size)
+        const arr = []
+        for (let i = 0; i < arrsize; i++) {
+          arr.push(a.generator(size))
+        }
+        return arr
+      }),
+      shrink: arb.shrink.array(a.shrink),
+    })
+  }
+export const largeArr = minSizeLargeArrayGeneratorFn(0)
+export const largeNeArr = minSizeLargeArrayGeneratorFn(1)
