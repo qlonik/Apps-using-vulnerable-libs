@@ -52,14 +52,16 @@ export const jaccardIndex = <T>(a: Set<T>, b: Set<T>): indexValue => {
   const setInter = intersection(a, b)
   const num = setInter.size
   const den = a.size + b.size - num
-  return { val: num / den, num, den }
+  const val = divByZeroIsOne(num, den)
+  return { val, num, den }
 }
 
 export const similarityIndexToLib = <T>(lib: Set<T>, unknown: Set<T>): indexValue => {
   const setIntersection = intersection(lib, unknown)
   const num = setIntersection.size
   const den = lib.size
-  return { val: num / den, num, den }
+  const val = unknown.size === 0 ? divByZeroIsOne(num, den) : divByZeroIsZero(num, den)
+  return { val, num, den }
 }
 
 export const jaccardLikeWithMapping = <T>(
