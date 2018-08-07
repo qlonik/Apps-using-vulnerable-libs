@@ -45,6 +45,9 @@ export function difference<T>(a: Set<T>, b: Set<T>): Set<T> {
 
 export type indexValue = { val: number; num: number; den: number }
 
+export const divByZeroIsOne = (num: number, den: number) => (den === 0 ? 1 : num / den)
+export const divByZeroIsZero = (num: number, den: number) => (den === 0 ? 0 : num / den)
+
 export const jaccardIndex = <T>(a: Set<T>, b: Set<T>): indexValue => {
   const setInter = intersection(a, b)
   const num = setInter.size
@@ -58,9 +61,6 @@ export const similarityIndexToLib = <T>(lib: Set<T>, unknown: Set<T>): indexValu
   const den = lib.size
   return { val: num / den, num, den }
 }
-
-export const divByZeroIsOne = (num: number, den: number) => (den === 0 ? 1 : num / den)
-export const divByZeroIsZero = (num: number, den: number) => (den === 0 ? 0 : num / den)
 
 export const jaccardLikeWithMapping = <T>(
   a: T[] | Iterable<T>,
