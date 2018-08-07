@@ -9,7 +9,11 @@ export {
 
 export { librarySimilarityByFunctionStatementTypes } from './fn-st-types'
 
-export { librarySimilarityByFunctionNames } from './fn-names'
+export {
+  librarySimilarityByFunctionNames,
+  librarySimilarityByFunctionNames_ourIndex,
+  librarySimilarityByFunctionNames_jaccardIndex,
+} from './fn-names'
 
 export { librarySimilarityByFunctionNamesAndStatementTokens } from './fn-names-st-tokens'
 
