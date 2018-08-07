@@ -24,6 +24,20 @@ const uniqFnNamesWithMapping = (arr: FunctionSignature[]) =>
     },
   )
 
+/**
+ * This function returns similarity metric by function names. This function computes the metric
+ * using {@link libPortionWithMapping} fn.
+ *
+ * In detail, the algorithm does the following:
+ * 1. Create a list of unique function names and mapping from 'unknown' signature array
+ * 2. Create a list of unique function names and mapping from 'lib' signature array
+ * 3. Compare sets using {@link libPortionWithMapping | libPortionWithMapping()}
+ * 4. Restore mapping when incoming lists were not sets
+ *
+ * @param log
+ * @param unknownS
+ * @param libS
+ */
 export function librarySimilarityByFunctionNames_ourIndex<
   T extends FunctionSignature[] | FunctionSignatures
 >(log: Logger = logger, unknownS: T, libS: T): SimMapWithConfidence {
@@ -56,6 +70,20 @@ export function librarySimilarityByFunctionNames_ourIndex<
   return { similarity: ourIndex, mapping }
 }
 
+/**
+ * This function returns similarity metric by function names. This function computes the metric
+ * using {@link jaccardLikeWithMapping} fn.
+ *
+ * In detail, the algorithm does the following:
+ * 1. Create a list of unique function names and mapping from 'unknown' signature array
+ * 2. Create a list of unique function names and mapping from 'lib' signature array
+ * 3. Compare sets using {@link jaccardLikeWithMapping | jaccardLikeWithMapping()}
+ * 4. Restore mapping when incoming lists were not sets
+ *
+ * @param log
+ * @param unknownS
+ * @param libS
+ */
 export function librarySimilarityByFunctionNames_jaccardIndex<
   T extends FunctionSignature[] | FunctionSignatures
 >(log: Logger = logger, unknownS: T, libS: T): SimMapWithConfidence {
