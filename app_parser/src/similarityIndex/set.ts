@@ -231,6 +231,40 @@ export const libPortion = <T>(unknown: T[] | Iterable<T>, lib: T[] | Iterable<T>
   return { val, num, den }
 }
 
+export const libPortionWithMapping = <T>(
+  unknown: T[] | Iterable<T>,
+  lib: T[] | Iterable<T>,
+): similarityIndexValueAndSimilarityMap => {
+  const unkwnArr = [...unknown]
+  const unkwnRest = []
+  const intersection = []
+  let libRest = [...lib].map((val) => ({ __mapped: false, val }))
+  const mapping = new Map<number, number>() as DefiniteMap<number, number>
+
+  for (let [i, el] of unkwnArr.entries()) {
+    const j = findIndex((o) => !o.__mapped && isEqual(o.val, el), libRest)
+    if (j === -1) {
+      unkwnRest.push(el)
+    } else {
+      intersection.push(el)
+      libRest[j].__mapped = true
+      mapping.set(i, j)
+    }
+  }
+
+  libRest = libRest.filter(({ __mapped }) => !__mapped)
+
+  if (intersection.length !== mapping.size) {
+    throw new Error('unexpected error')
+  }
+
+  const num = intersection.length
+  const den = intersection.length + libRest.length
+  const val = unkwnArr.length === 0 ? divByZeroIsOne(num, den) : divByZeroIsZero(num, den)
+
+  return { similarity: { val, num, den }, mapping }
+}
+
 /**
  * This function is a special version of {@link libPortion}. It assumes that unknown and
  * lib are special number arrays. Specifically, it treats these arrays as arrays of indexes.

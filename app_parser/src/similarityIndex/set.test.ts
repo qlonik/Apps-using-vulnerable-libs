@@ -21,6 +21,7 @@ import {
   jaccardLikeWithMapping,
   libPortion,
   libPortionIndexes,
+  libPortionWithMapping,
   similarityIndexToLib,
   union,
   weightedMapIndex,
@@ -290,6 +291,13 @@ test(
   ),
 )
 
+test(
+  'libPortion() same as libPortionWithMapping()',
+  check(arraysPair(arb.string), (t, [a, b]) => {
+    t.deepEqual(libPortion(a, b), libPortionWithMapping(a, b).similarity)
+  }),
+)
+
 const setDataMutationTests: [string, arb.Arbitrary<any>, (a: Set<any>, b: Set<any>) => any][] = [
   ['jaccardIndex', arb.number, jaccardIndex],
 
@@ -318,6 +326,7 @@ const dataMutationTests: [string, arb.Arbitrary<any>, (a: any, b: any) => any][]
   ['jaccardLikeNumbers', arb.number, jaccardLikeNumbers],
   ['libPortion', arb.number, libPortion],
   ['libPortionIndexes', arb.number, libPortionIndexes],
+  ['libPortionWithMapping', arb.number, libPortionWithMapping],
 ]
 
 for (let [name, arbEl, fn] of dataMutationTests) {
