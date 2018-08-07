@@ -47,7 +47,7 @@ test.serial(
       const origConsoleLog = console.log
       console.log = t.log
 
-      await suite('matching fn perf', s => {
+      await suite(t.title, s => {
         s.set('maxTime', 2)
         s.set('minSamples', 10)
 
