@@ -1,5 +1,7 @@
+import { Logger } from 'pino'
 // eslint-disable-next-line no-unused-vars
 import { FunctionSignature, FunctionSignatures, isFunctionSignatures } from '../../extractStructure'
+import logger from '../../utils/logger'
 import { indexValue, jaccardIndex, similarityIndexToLib } from '../set'
 import { typeErrorMsg } from './types'
 
@@ -15,13 +17,14 @@ import { typeErrorMsg } from './types'
  *
  * Note, set here is a list of unique items.
  *
+ * @param [log]
  * @param unknownS
  * @param libS
  * @returns
  */
 export function librarySimilarityByFunctionNames<
   T extends FunctionSignature[] | FunctionSignatures
->(unknownS: T, libS: T): { ourIndex: indexValue; jaccardIndex: indexValue } {
+>(log: Logger = logger, unknownS: T, libS: T): { ourIndex: indexValue; jaccardIndex: indexValue } {
   let unknown: FunctionSignature[]
   let lib: FunctionSignature[]
   if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {

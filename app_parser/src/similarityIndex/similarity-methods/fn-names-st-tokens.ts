@@ -1,17 +1,19 @@
 import { clone, head, last, partition, pullAt } from 'lodash'
+import { Logger } from 'pino'
 import {
   fnNamesSplit,
   FunctionSignature,
   FunctionSignatures, // eslint-disable-line no-unused-vars
   isFunctionSignatures,
 } from '../../extractStructure'
+import logger from '../../utils/logger'
 import { indexValue, jaccardLike } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
 import { nameProbIndex, typeErrorMsg } from './types'
 
 export function librarySimilarityByFunctionNamesAndStatementTokens<
   T extends FunctionSignature[] | FunctionSignatures
->(unknownS: T, libS: T): indexValue {
+>(log: Logger = logger, unknownS: T, libS: T): indexValue {
   let unknown: FunctionSignature[]
   let lib: FunctionSignature[]
   if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {

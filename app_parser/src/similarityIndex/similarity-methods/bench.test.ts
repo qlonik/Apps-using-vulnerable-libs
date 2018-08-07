@@ -1,5 +1,6 @@
 import { test } from 'ava'
 import suite from 'chuhai'
+import { Logger } from 'pino'
 import {
   arbFunctionSignatureArrPair,
   arbSignatureWithCommentsPair,
@@ -26,8 +27,8 @@ import {
 import { SimMapWithConfidence } from './types'
 
 type MatchFn =
-  | (<T extends FunctionSignature[] | FunctionSignatures>(a: T, b: T) => any)
-  | (<T extends LiteralSignature[] | LiteralSignatures>(a: T, b: T) => any)
+  | (<T extends FunctionSignature[] | FunctionSignatures>(l: Logger | undefined, a: T, b: T) => any)
+  | (<T extends LiteralSignature[] | LiteralSignatures>(l: Logger | undefined, a: T, b: T) => any)
 const tests: [string, MatchFn][] = [
   ['FnStTypes', librarySimilarityByFunctionStatementTypes],
   ['FnNames', librarySimilarityByFunctionNames],
@@ -59,7 +60,7 @@ test.serial(
 
         for (let [name, fn] of tests) {
           s.bench(name, () => {
-            val = fn(a, b)
+            val = fn(undefined, a, b)
           })
         }
       })
@@ -71,6 +72,7 @@ test.serial(
 )
 
 type fnStToksMatchFn = <T extends FunctionSignature[] | FunctionSignatures>(
+  l: Logger | undefined,
   a: T,
   b: T,
 ) => SimMapWithConfidence
@@ -80,7 +82,7 @@ const fnStToksTests: [string, fnStToksMatchFn][] = [
   ['FnStTokens_v3', librarySimilarityByFunctionStatementTokens_v3],
   ['FnStTokens_v4', librarySimilarityByFunctionStatementTokens_v4],
   ['FnStTokens_v5', librarySimilarityByFunctionStatementTokens_v5],
-  ['FnStTokens_v6', (a, b) => librarySimilarityByFunctionStatementTokens_v6(undefined, a, b)],
+  ['FnStTokens_v6', librarySimilarityByFunctionStatementTokens_v6],
 ]
 
 test.serial(
@@ -108,7 +110,7 @@ test.serial(
 
         for (let [name, fn] of fnStToksTests) {
           s.bench(name, () => {
-            val = fn(a, b)
+            val = fn(undefined, a, b)
           })
         }
       })

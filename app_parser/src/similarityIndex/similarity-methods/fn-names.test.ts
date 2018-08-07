@@ -13,7 +13,11 @@ test('librarySimilarityByFunctionNames', t => {
     ourIndex: similarityIndexToLib(libNameSet, unknownNameSet),
     jaccardIndex: jaccardIndexFn(libNameSet, unknownNameSet),
   }
-  const result = librarySimilarityByFunctionNames(cloneDeep(UNKNOWN_SIG), cloneDeep(LIB_SIG))
+  const result = librarySimilarityByFunctionNames(
+    undefined,
+    cloneDeep(UNKNOWN_SIG),
+    cloneDeep(LIB_SIG),
+  )
   t.deepEqual(expected, result)
 })
 
@@ -21,8 +25,12 @@ test(
   'calling with array === calling with object',
   check(arbFunctionSignatureArrPair, (t, [u, l]) => {
     t.deepEqual(
-      librarySimilarityByFunctionNames(u, l),
-      librarySimilarityByFunctionNames({ functionSignature: u }, { functionSignature: l }),
+      librarySimilarityByFunctionNames(undefined, u, l),
+      librarySimilarityByFunctionNames(
+        undefined,
+        { functionSignature: u },
+        { functionSignature: l },
+      ),
     )
   }),
 )
@@ -31,8 +39,8 @@ test(
   'commutative jaccardIndex',
   check(arbFunctionSignatureArrPair, (t, [u, l]) => {
     t.deepEqual(
-      librarySimilarityByFunctionNames(u, l).jaccardIndex,
-      librarySimilarityByFunctionNames(l, u).jaccardIndex,
+      librarySimilarityByFunctionNames(undefined, u, l).jaccardIndex,
+      librarySimilarityByFunctionNames(undefined, l, u).jaccardIndex,
     )
   }),
 )
@@ -40,7 +48,7 @@ test(
 test(
   'produces 100% match when comparing same signatures',
   check(arbFunctionSignatureArr, (t, u) => {
-    const { ourIndex, jaccardIndex } = librarySimilarityByFunctionNames(u, u)
+    const { ourIndex, jaccardIndex } = librarySimilarityByFunctionNames(undefined, u, u)
 
     t.is(1, ourIndex.val)
     t.is(ourIndex.num, ourIndex.den)

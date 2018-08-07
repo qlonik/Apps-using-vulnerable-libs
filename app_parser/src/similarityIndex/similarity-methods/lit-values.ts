@@ -1,9 +1,12 @@
+import { Logger } from 'pino'
 // eslint-disable-next-line no-unused-vars
 import { isLiteralSignatures, LiteralSignature, LiteralSignatures } from '../../extractStructure'
+import logger from '../../utils/logger'
 import { jaccardLikeWithMapping } from '../set'
 import { DefiniteMap, probIndex, SimMapWithConfidence, typeErrorMsg } from './types'
 
 export function librarySimilarityByLiteralValues<T extends LiteralSignature[] | LiteralSignatures>(
+  log: Logger = logger,
   unknown: T,
   lib: T,
 ): SimMapWithConfidence {

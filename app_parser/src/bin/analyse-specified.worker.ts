@@ -2,6 +2,7 @@ import { codeBlock } from 'common-tags'
 import { mkdirp, pathExists, readdir, readJSON, writeFile } from 'fs-extra'
 import { padEnd, round, sortBy } from 'lodash'
 import { basename, extname, join } from 'path'
+import { Logger } from 'pino'
 import { worker, WorkerFunctionsMap } from 'workerpool'
 import { signatureNew } from '../extractStructure'
 import {
@@ -33,7 +34,7 @@ import {
 
 type wFnMap = WorkerFunctionsMap<messages>
 type fnName<K extends METHODS_TYPE = METHODS_TYPE> = {
-  fn: <T extends signatureNew>(unknown: T, lib: T) => SimMapWithConfidence
+  fn: <T extends signatureNew>(l: Logger | undefined, unknown: T, lib: T) => SimMapWithConfidence
   name: K
 }
 
@@ -58,7 +59,7 @@ const compareAndTransformSim = (method: fnName['fn']) => (unknown: signatureNew)
   lib: signatureNew,
 ): Promise<retType> => {
   const start = process.hrtime()
-  const { similarity, mapping } = method(unknown, lib)
+  const { similarity, mapping } = method(undefined, unknown, lib)
   const diff = process.hrtime(start)
 
   type intermediate = { s: string; order: number[] }
@@ -242,7 +243,7 @@ const methods: fnName[] = [
   { name: 'fn-st-toks-v5', fn: librarySimilarityByFunctionStatementTokens_v5 },
   {
     name: 'fn-st-toks-v6',
-    fn: (a, b) => librarySimilarityByFunctionStatementTokens_v6(undefined, a, b),
+    fn: librarySimilarityByFunctionStatementTokens_v6,
   },
   // { name: 'fn-st-types', fn: librarySimilarityByFunctionStatementTypes },
   // { name: 'fn-names', fn: librarySimilarityByFunctionNames },

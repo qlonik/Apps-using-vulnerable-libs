@@ -56,11 +56,13 @@ import logger from '../../utils/logger'
  * 6. Return this index from step 5 as the similarity index between unknown signature and known
  *    library signature.
  *
+ * @param log - logger instance
  * @param unknownS
  * @param libS
  * @returns
  */
 export function v1<T extends FunctionSignature[] | FunctionSignatures>(
+  log: Logger = logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
@@ -121,11 +123,13 @@ export function v1<T extends FunctionSignature[] | FunctionSignatures>(
  * because this function takes every function from library and tries to match it to all functions
  * in the unknown signature.
  *
+ * @param log - logger instance
  * @param unknownS - signature of the unknown js file from the app
  * @param libS - signature of the library
  * @returns
  */
 export function v2<T extends FunctionSignature[] | FunctionSignatures>(
+  log: Logger = logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
@@ -182,6 +186,7 @@ export function v2<T extends FunctionSignature[] | FunctionSignatures>(
 }
 
 export function v3<T extends FunctionSignature[] | FunctionSignatures>(
+  log: Logger = logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
@@ -243,6 +248,7 @@ export function v3<T extends FunctionSignature[] | FunctionSignatures>(
  * account the value of each similarity index between functions that got matched.
  */
 export function v4<T extends FunctionSignature[] | FunctionSignatures>(
+  log: Logger = logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
@@ -305,6 +311,7 @@ export function v4<T extends FunctionSignature[] | FunctionSignatures>(
  * However, it only uses functions which got matched to other functions with jaccard index =1.
  */
 export function v5<T extends FunctionSignature[] | FunctionSignatures>(
+  log: Logger = logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {

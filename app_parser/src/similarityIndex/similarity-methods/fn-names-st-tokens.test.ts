@@ -7,6 +7,7 @@ import { librarySimilarityByFunctionNamesAndStatementTokens } from './fn-names-s
 
 test('librarySimilarityByFunctionNamesAndStatementTokens', t => {
   const result = librarySimilarityByFunctionNamesAndStatementTokens(
+    undefined,
     cloneDeep(UNKNOWN_SIG),
     cloneDeep(LIB_SIG),
   )
@@ -17,8 +18,9 @@ test(
   'calling with array === calling with object',
   check(arbFunctionSignatureArrPair, (t, [u, l]) => {
     t.deepEqual(
-      librarySimilarityByFunctionNamesAndStatementTokens(u, l),
+      librarySimilarityByFunctionNamesAndStatementTokens(undefined, u, l),
       librarySimilarityByFunctionNamesAndStatementTokens(
+        undefined,
         { functionSignature: u },
         { functionSignature: l },
       ),
@@ -30,8 +32,8 @@ test(
   'commutative',
   check(arbFunctionSignatureArrPair, (t, [u, l]) => {
     t.deepEqual(
-      librarySimilarityByFunctionNamesAndStatementTokens(u, l),
-      librarySimilarityByFunctionNamesAndStatementTokens(l, u),
+      librarySimilarityByFunctionNamesAndStatementTokens(undefined, u, l),
+      librarySimilarityByFunctionNamesAndStatementTokens(undefined, l, u),
     )
   }),
 )
@@ -39,7 +41,7 @@ test(
 test(
   'produces 0% match when comparing with empty signature',
   check(arbFunctionSignatureArr, (t, a) => {
-    const similarity = librarySimilarityByFunctionNamesAndStatementTokens(a, [])
+    const similarity = librarySimilarityByFunctionNamesAndStatementTokens(undefined, a, [])
 
     t.is(0, similarity.val)
     t.is(0, similarity.num)
@@ -50,14 +52,14 @@ test(
 test('produces 100% match when comparing empty signatures', t => {
   t.deepEqual(
     { val: 1, num: 0, den: 0 },
-    librarySimilarityByFunctionNamesAndStatementTokens([], []),
+    librarySimilarityByFunctionNamesAndStatementTokens(undefined, [], []),
   )
 })
 
 test(
   'produces 100% match when comparing same signatures',
   check(arbFunctionSignatureArr, (t, a) => {
-    const { val, num, den } = librarySimilarityByFunctionNamesAndStatementTokens(a, a)
+    const { val, num, den } = librarySimilarityByFunctionNamesAndStatementTokens(undefined, a, a)
 
     t.is(1, val)
     t.is(num, den)

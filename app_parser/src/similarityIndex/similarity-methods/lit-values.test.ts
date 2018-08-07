@@ -9,8 +9,8 @@ test(
   'calling with array === calling with object',
   check(arbLiteralSignatureArrPair, (t, [u, l]) => {
     t.deepEqual(
-      librarySimilarityByLiteralValues(u, l),
-      librarySimilarityByLiteralValues({ literalSignature: u }, { literalSignature: l }),
+      librarySimilarityByLiteralValues(undefined, u, l),
+      librarySimilarityByLiteralValues(undefined, { literalSignature: u }, { literalSignature: l }),
     )
   }),
 )
@@ -18,7 +18,11 @@ test(
 test(
   'produces expected value',
   check({ size: 150 }, arbLiteralSignatureArrPair, (t, [unknown, lib]) => {
-    const { similarity, mapping: origMap } = librarySimilarityByLiteralValues(unknown, lib)
+    const { similarity, mapping: origMap } = librarySimilarityByLiteralValues(
+      undefined,
+      unknown,
+      lib,
+    )
 
     // remove prob from librarySimilarityByLiteralValues mapping
     // to compare with jaccardLikeWithMapping
@@ -32,8 +36,16 @@ test(
 test(
   'commutative',
   check({ size: 150 }, arbLiteralSignatureArrPair, (t, [a, b]) => {
-    const { similarity: simAB, mapping: mappingAB } = librarySimilarityByLiteralValues(a, b)
-    const { similarity: simBA, mapping: mappingBA } = librarySimilarityByLiteralValues(b, a)
+    const { similarity: simAB, mapping: mappingAB } = librarySimilarityByLiteralValues(
+      undefined,
+      a,
+      b,
+    )
+    const { similarity: simBA, mapping: mappingBA } = librarySimilarityByLiteralValues(
+      undefined,
+      b,
+      a,
+    )
 
     t.deepEqual(simAB, simBA)
     t.deepEqual(mappingAB, invertMapWithConfidence(mappingBA))
@@ -43,7 +55,7 @@ test(
 test(
   'produces 0% match when comparing with empty signature',
   check(arbLiteralSignatureArr, (t, unknown) => {
-    const { similarity, mapping } = librarySimilarityByLiteralValues(unknown, [])
+    const { similarity, mapping } = librarySimilarityByLiteralValues(undefined, unknown, [])
 
     t.is(0, similarity.val)
     t.is(0, similarity.num)
@@ -55,14 +67,18 @@ test(
 test('produces 100% match when comparing empty signatures', t => {
   t.deepEqual(
     { similarity: { val: 1, num: 0, den: 0 }, mapping: new Map() },
-    librarySimilarityByLiteralValues([], []),
+    librarySimilarityByLiteralValues(undefined, [], []),
   )
 })
 
 test(
   'produces 100% match when comparing same signatures',
   check(arbLiteralSignatureArr, (t, a) => {
-    const { similarity: { val, num, den }, mapping } = librarySimilarityByLiteralValues(a, a)
+    const { similarity: { val, num, den }, mapping } = librarySimilarityByLiteralValues(
+      undefined,
+      a,
+      a,
+    )
 
     t.is(1, val)
     t.is(num, den)
