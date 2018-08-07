@@ -6,7 +6,7 @@ import {
   isFunctionSignatures,
 } from '../../extractStructure'
 import logger from '../../utils/logger'
-import { jaccardLike } from '../set'
+import { jaccardLikeStrings } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
 import {
   DefiniteMap,
@@ -43,7 +43,7 @@ export function librarySimilarityByFunctionStatementTypes<
             ? indexes
             : // remark: threshold can go here
               // remark: third for loop (inside jaccardLike())
-              indexes.push({ name, index: libIndex, prob: jaccardLike(types, libTypes) })
+              indexes.push({ name, index: libIndex, prob: jaccardLikeStrings(types, libTypes) })
         }, new SortedLimitedList({ predicate: (o: nameProbIndex) => -o.prob.val }))
         .value()
 
@@ -54,13 +54,13 @@ export function librarySimilarityByFunctionStatementTypes<
       }
 
       const { name, index, prob } = topMatch
-      libCopy = libCopy.map((el, i) => (i !== index ? el : { ...el, __matched: true }))
+      libCopy[index] = { ...libCopy[index], __matched: true }
       return acc.concat({ name, prob, index })
     },
     [] as nameProbIndex[],
   )
 
-  const similarity = jaccardLike(possibleFnNames.map((v) => v.name), lib.map((v) => v.name))
+  const similarity = jaccardLikeStrings(possibleFnNames.map((v) => v.name), lib.map((v) => v.name))
   const mapping = possibleFnNames.reduce(
     (acc, { index, prob }, unknownIndex) => {
       return index === -1 ? acc : acc.set(unknownIndex, { index, prob })
