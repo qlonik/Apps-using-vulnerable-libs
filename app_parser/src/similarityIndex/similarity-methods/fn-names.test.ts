@@ -17,6 +17,7 @@ import {
 import { SimMapWithConfidence } from './types'
 
 /* eslint-disable no-unused-vars */
+declare const __w: Logger
 declare const __x: SimMapWithConfidence
 declare const __y: FunctionSignature
 declare const __z: FunctionSignatures
