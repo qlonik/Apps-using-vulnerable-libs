@@ -10,7 +10,6 @@ import {
   LiteralSignatures,
 } from '../../extractStructure'
 import {
-  librarySimilarityByFunctionNames,
   librarySimilarityByFunctionNames_jaccardIndex,
   librarySimilarityByFunctionNames_ourIndex,
   librarySimilarityByFunctionNamesAndStatementTokens,
@@ -29,7 +28,6 @@ type MatchFn =
   | (<T extends LiteralSignature[] | LiteralSignatures>(l: Logger | undefined, a: T, b: T) => any)
 const tests: [string, MatchFn][] = [
   ['FnStTypes', librarySimilarityByFunctionStatementTypes],
-  ['FnNames', librarySimilarityByFunctionNames],
   ['FnNames_ourIndex', librarySimilarityByFunctionNames_ourIndex],
   ['FnNames_jaccardIndex', librarySimilarityByFunctionNames_jaccardIndex],
   ['FnNamesAndStTokens', librarySimilarityByFunctionNamesAndStatementTokens],

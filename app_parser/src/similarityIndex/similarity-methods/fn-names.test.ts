@@ -1,5 +1,5 @@
 import { test } from 'ava'
-import { cloneDeep, uniq } from 'lodash'
+import { uniq } from 'lodash'
 import { Logger } from 'pino'
 import { arbFunctionSignatureArr, arbFunctionSignatureArrPair } from '../../_helpers/arbitraries'
 import { check } from '../../_helpers/property-test'
@@ -11,7 +11,6 @@ import {
 } from '../set'
 import { EXPECTED_MAPPING_BY_NAMES, LIB_SIG, UNKNOWN_SIG } from './_test-data'
 import {
-  librarySimilarityByFunctionNames,
   librarySimilarityByFunctionNames_jaccardIndex as libSim_jaccard,
   librarySimilarityByFunctionNames_ourIndex as libSim_our,
 } from './fn-names'
@@ -22,21 +21,6 @@ declare const __x: SimMapWithConfidence
 declare const __y: FunctionSignature
 declare const __z: FunctionSignatures
 /* eslint-enable */
-
-test('librarySimilarityByFunctionNames', t => {
-  const unknownNameSet = new Set(UNKNOWN_SIG.map(s => s.name))
-  const libNameSet = new Set(LIB_SIG.map(s => s.name))
-  const expected = {
-    ourIndex: similarityIndexToLib(libNameSet, unknownNameSet),
-    jaccardIndex: jaccardIndexFn(libNameSet, unknownNameSet),
-  }
-  const result = librarySimilarityByFunctionNames(
-    undefined,
-    cloneDeep(UNKNOWN_SIG),
-    cloneDeep(LIB_SIG),
-  )
-  t.deepEqual(expected, result)
-})
 
 test('librarySimilarityByFunctionNames_ourIndex', t => {
   const unknownNameSet = new Set(UNKNOWN_SIG.map(s => s.name))
@@ -61,30 +45,6 @@ test('librarySimilarityByFunctionNames_jaccardIndex', t => {
 })
 
 test(
-  'calling with array === calling with object',
-  check(arbFunctionSignatureArrPair, (t, [u, l]) => {
-    t.deepEqual(
-      librarySimilarityByFunctionNames(undefined, u, l),
-      librarySimilarityByFunctionNames(
-        undefined,
-        { functionSignature: u },
-        { functionSignature: l },
-      ),
-    )
-  }),
-)
-
-test(
-  'commutative jaccardIndex',
-  check(arbFunctionSignatureArrPair, (t, [u, l]) => {
-    t.deepEqual(
-      librarySimilarityByFunctionNames(undefined, u, l).jaccardIndex,
-      librarySimilarityByFunctionNames(undefined, l, u).jaccardIndex,
-    )
-  }),
-)
-
-test(
   'libSim_jaccard: commutative',
   check(arbFunctionSignatureArrPair, (t, [u, l]) => {
     const { similarity: sim_ul, mapping: map_ul } = libSim_jaccard(undefined, u, l)
@@ -92,18 +52,6 @@ test(
 
     t.deepEqual(sim_ul, sim_lu)
     t.deepEqual(map_ul, invertMapWithConfidence(map_lu))
-  }),
-)
-
-test(
-  'produces 100% match when comparing same signatures',
-  check(arbFunctionSignatureArr, (t, u) => {
-    const { ourIndex, jaccardIndex } = librarySimilarityByFunctionNames(undefined, u, u)
-
-    t.is(1, ourIndex.val)
-    t.is(ourIndex.num, ourIndex.den)
-    t.is(1, jaccardIndex.val)
-    t.is(jaccardIndex.num, jaccardIndex.den)
   }),
 )
 

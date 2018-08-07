@@ -5,7 +5,6 @@ import { arbSignatureWithCommentsPair } from '../../_helpers/arbitraries'
 import { check } from '../../_helpers/property-test'
 import { signatureWithComments } from '../../extractStructure'
 import {
-  librarySimilarityByFunctionNames,
   librarySimilarityByFunctionNames_jaccardIndex,
   librarySimilarityByFunctionNames_ourIndex,
   librarySimilarityByFunctionNamesAndStatementTokens,
@@ -35,7 +34,6 @@ const tests: [
   ['FnStTokens_v5', librarySimilarityByFunctionStatementTokens_v5],
   ['FnStTokens_v6', librarySimilarityByFunctionStatementTokens_v6],
   ['FnStTypes', librarySimilarityByFunctionStatementTypes],
-  ['FnNames', librarySimilarityByFunctionNames],
   ['FnNames_our', librarySimilarityByFunctionNames_ourIndex],
   ['FnNames_jaccard', librarySimilarityByFunctionNames_jaccardIndex],
   ['FnNamesAndStTokens', librarySimilarityByFunctionNamesAndStatementTokens],
