@@ -2,7 +2,7 @@ import { test } from 'ava'
 import { Fraction } from 'fraction.js'
 import arb from 'jsverify'
 import { cloneDeep, intersection as LIntersection } from 'lodash'
-import { identity, isEqual } from 'lodash/fp'
+import { identity, isEqual, uniq } from 'lodash/fp'
 import { arbMapWithConfidence, arraysPair } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import { IndexValueToFraction } from './fraction'
@@ -346,4 +346,24 @@ test(
 
     t.deepEqual(expected, weightedMapIndex(m))
   }),
+)
+
+test(
+  'jaccardIndex() works like jaccardLike() for uniq elements',
+  check(
+    arraysPair(arb.string).smap(([a, b]): [string[], string[]] => [uniq(a), uniq(b)], identity),
+    (t, [a, b]) => {
+      t.deepEqual(jaccardIndex(new Set(a), new Set(b)), jaccardLike(a, b))
+    },
+  ),
+)
+
+test(
+  'ourIndex() works like libPortion() for uniq elements',
+  check(
+    arraysPair(arb.string).smap(([a, b]): [string[], string[]] => [uniq(a), uniq(b)], identity),
+    (t, [a, b]) => {
+      t.deepEqual(similarityIndexToLib(new Set(b), new Set(a)), libPortion(a, b))
+    },
+  ),
 )
