@@ -11,6 +11,8 @@ import {
 } from '../../extractStructure'
 import {
   librarySimilarityByFunctionNames,
+  librarySimilarityByFunctionNames_jaccardIndex,
+  librarySimilarityByFunctionNames_ourIndex,
   librarySimilarityByFunctionNamesAndStatementTokens,
   librarySimilarityByFunctionStatementTokens as librarySimilarityByFunctionStatementTokens_v1,
   librarySimilarityByFunctionStatementTokens_v2,
@@ -28,6 +30,8 @@ type MatchFn =
 const tests: [string, MatchFn][] = [
   ['FnStTypes', librarySimilarityByFunctionStatementTypes],
   ['FnNames', librarySimilarityByFunctionNames],
+  ['FnNames_ourIndex', librarySimilarityByFunctionNames_ourIndex],
+  ['FnNames_jaccardIndex', librarySimilarityByFunctionNames_jaccardIndex],
   ['FnNamesAndStTokens', librarySimilarityByFunctionNamesAndStatementTokens],
   ['LitVals', librarySimilarityByLiteralValues],
   ['FnStTokens_v1', librarySimilarityByFunctionStatementTokens_v1],

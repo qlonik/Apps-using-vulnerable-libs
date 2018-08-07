@@ -6,6 +6,8 @@ import { check } from '../../_helpers/property-test'
 import { signatureWithComments } from '../../extractStructure'
 import {
   librarySimilarityByFunctionNames,
+  librarySimilarityByFunctionNames_jaccardIndex,
+  librarySimilarityByFunctionNames_ourIndex,
   librarySimilarityByFunctionNamesAndStatementTokens,
   librarySimilarityByFunctionStatementTokens as librarySimilarityByFunctionStatementTokens_v1,
   librarySimilarityByFunctionStatementTokens_v2,
@@ -34,6 +36,8 @@ const tests: [
   ['FnStTokens_v6', librarySimilarityByFunctionStatementTokens_v6],
   ['FnStTypes', librarySimilarityByFunctionStatementTypes],
   ['FnNames', librarySimilarityByFunctionNames],
+  ['FnNames_our', librarySimilarityByFunctionNames_ourIndex],
+  ['FnNames_jaccard', librarySimilarityByFunctionNames_jaccardIndex],
   ['FnNamesAndStTokens', librarySimilarityByFunctionNamesAndStatementTokens],
   ['LitVals', librarySimilarityByLiteralValues],
 ]
