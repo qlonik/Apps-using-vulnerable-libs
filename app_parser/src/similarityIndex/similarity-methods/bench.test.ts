@@ -3,12 +3,7 @@ import suite from 'chuhai'
 import { Logger } from 'pino'
 import { arbSignatureWithCommentsPair } from '../../_helpers/arbitraries'
 import { check } from '../../_helpers/property-test'
-import {
-  FunctionSignature,
-  FunctionSignatures,
-  LiteralSignature,
-  LiteralSignatures,
-} from '../../extractStructure'
+import { signatureWithComments } from '../../extractStructure'
 import {
   librarySimilarityByFunctionNames_jaccardIndex,
   librarySimilarityByFunctionNames_ourIndex,
@@ -22,22 +17,33 @@ import {
   librarySimilarityByFunctionStatementTypes,
   librarySimilarityByLiteralValues,
 } from './index'
+import { SimMapWithConfidence } from './types'
 
-type MatchFn =
-  | (<T extends FunctionSignature[] | FunctionSignatures>(l: Logger | undefined, a: T, b: T) => any)
-  | (<T extends LiteralSignature[] | LiteralSignatures>(l: Logger | undefined, a: T, b: T) => any)
-const tests: [string, MatchFn][] = [
-  ['FnStTypes', librarySimilarityByFunctionStatementTypes],
-  ['FnNames_ourIndex', librarySimilarityByFunctionNames_ourIndex],
-  ['FnNames_jaccardIndex', librarySimilarityByFunctionNames_jaccardIndex],
-  ['FnNamesAndStTokens', librarySimilarityByFunctionNamesAndStatementTokens],
-  ['LitVals', librarySimilarityByLiteralValues],
+/* eslint-disable no-unused-vars */
+declare const __x: Logger
+declare const __y: signatureWithComments
+declare const __z: SimMapWithConfidence
+/* eslint-enable */
+
+const tests: [
+  string,
+  (
+    l: Logger | undefined,
+    a: signatureWithComments,
+    b: signatureWithComments,
+  ) => SimMapWithConfidence
+][] = [
   ['FnStTokens_v1', librarySimilarityByFunctionStatementTokens_v1],
   ['FnStTokens_v2', librarySimilarityByFunctionStatementTokens_v2],
   ['FnStTokens_v3', librarySimilarityByFunctionStatementTokens_v3],
   ['FnStTokens_v4', librarySimilarityByFunctionStatementTokens_v4],
   ['FnStTokens_v5', librarySimilarityByFunctionStatementTokens_v5],
   ['FnStTokens_v6', librarySimilarityByFunctionStatementTokens_v6],
+  ['FnStTypes', librarySimilarityByFunctionStatementTypes],
+  ['FnNames_our', librarySimilarityByFunctionNames_ourIndex],
+  ['FnNames_jaccard', librarySimilarityByFunctionNames_jaccardIndex],
+  ['FnNamesAndStTokens', librarySimilarityByFunctionNamesAndStatementTokens],
+  ['LitVals', librarySimilarityByLiteralValues],
 ]
 test.serial(
   'matching fn perf',
@@ -53,7 +59,7 @@ test.serial(
         s.set('maxTime', 2)
         s.set('minSamples', 10)
 
-        let val: ReturnType<MatchFn> | null = null
+        let val: SimMapWithConfidence | null = null
 
         s.cycle(() => {
           t.not(null, val)
