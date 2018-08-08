@@ -112,11 +112,11 @@ export const POSSIBLE_NAMES_BY_FN_ST_TOKENS = [
   /* UNKNOWN_SIG[4] */ { name: 'fff:>>:[anonymous]', prob: { val: 2 / 7, num: 2, den: 7 } },
   /* UNKNOWN_SIG[5] */ { name: 'eee:>>:[anonymous]', prob: { val: 4 / 9, num: 4, den: 9 } },
 ]
-export const EXPECTED_SIMILARITY = jaccardLike(
+export const SIMILARITY = jaccardLike(
   POSSIBLE_NAMES_BY_FN_ST_TOKENS.map((s) => s.name),
   LIB_SIG.map((s) => s.name),
 )
-export const EXPECTED_MAPPING = new Map([
+export const MAPPING = new Map([
   [0, { index: 0, prob: { val: 4 / 4, num: 4, den: 4 } }],
   [1, { index: 1, prob: { val: 3 / 5, num: 3, den: 5 } }],
   [2, { index: 2, prob: { val: 4 / 5, num: 4, den: 5 } }],
@@ -125,14 +125,14 @@ export const EXPECTED_MAPPING = new Map([
   [5, { index: 4, prob: { val: 4 / 9, num: 4, den: 9 } }],
 ]) as DefiniteMap<number, probIndex>
 
-export const EXPECTED_MAPPING_BY_NAMES = new Map([
+export const MAPPING_BY_NAMES = new Map([
   [0, { index: 0, prob: { val: 1, num: -1, den: -1 } }],
   [1, { index: 1, prob: { val: 1, num: -1, den: -1 } }],
   [2, { index: 2, prob: { val: 1, num: -1, den: -1 } }],
   [3, { index: 3, prob: { val: 1, num: -1, den: -1 } }],
 ]) as DefiniteMap<number, probIndex>
 
-export const EXPECTED_MAPPING_BY_NAMES_TOKENS = new Map([
+export const MAPPING_BY_NAMES_TOKENS = new Map([
   [0, { index: 0, prob: { val: 1, num: -1, den: -1 } }],
   [1, { index: 1, prob: { val: 1, num: -1, den: -1 } }],
   [2, { index: 2, prob: { val: 1, num: -1, den: -1 } }],
@@ -141,31 +141,25 @@ export const EXPECTED_MAPPING_BY_NAMES_TOKENS = new Map([
   [5, { index: 4, prob: { val: 4 / 9, num: 4, den: 9 } }],
 ]) as DefiniteMap<number, probIndex>
 
-export const EXPECTED_SIMILARITY_WITH_MAP_QUALITY = FractionToIndexValue(
-  [...EXPECTED_MAPPING.values()]
+export const SIMILARITY_WITH_MAP_QUALITY = FractionToIndexValue(
+  [...MAPPING.values()]
     .reduce((acc, { prob: { num, den } }) => acc.add(num, den), new Fraction(0))
-    .div(EXPECTED_MAPPING.size)
-    .mul(EXPECTED_SIMILARITY.num, EXPECTED_SIMILARITY.den),
+    .div(MAPPING.size)
+    .mul(SIMILARITY.num, SIMILARITY.den),
 )
 
-export const EXPECTED_MAPPING_FOR_EXACT_MATCHES = [...EXPECTED_MAPPING]
+export const MAPPING_FOR_EXACT_MATCHES = [...MAPPING]
   .filter(([, { prob: { val } }]) => val === 1)
   .reduce((acc, [k, v]) => acc.set(k, v), new Map() as DefiniteMap<number, probIndex>)
-export const EXPECTED_SIMILARITY_FOR_EXACT_MATCHES = jaccardLike(
+export const SIMILARITY_FOR_EXACT_MATCHES = jaccardLike(
   UNKNOWN_SIG.map(
-    (_, i) =>
-      EXPECTED_MAPPING_FOR_EXACT_MATCHES.has(i)
-        ? EXPECTED_MAPPING_FOR_EXACT_MATCHES.get(i).index
-        : -1,
+    (_, i) => (MAPPING_FOR_EXACT_MATCHES.has(i) ? MAPPING_FOR_EXACT_MATCHES.get(i).index : -1),
   ),
   LIB_SIG.map((_, i) => i),
 )
-export const EXPECTED_SIMILARITY_FOR_EXACT_MATCHES_AS_LIB_PORTION = libPortion(
+export const SIMILARITY_FOR_EXACT_MATCHES_AS_LIB_PORTION = libPortion(
   UNKNOWN_SIG.map(
-    (_, i) =>
-      EXPECTED_MAPPING_FOR_EXACT_MATCHES.has(i)
-        ? EXPECTED_MAPPING_FOR_EXACT_MATCHES.get(i).index
-        : -1,
+    (_, i) => (MAPPING_FOR_EXACT_MATCHES.has(i) ? MAPPING_FOR_EXACT_MATCHES.get(i).index : -1),
   ),
   LIB_SIG.map((_, i) => i),
 )

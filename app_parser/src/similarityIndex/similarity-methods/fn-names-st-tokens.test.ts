@@ -2,17 +2,12 @@ import { test } from 'ava'
 import { cloneDeep } from 'lodash'
 import { arbFunctionSignatureArr, arbFunctionSignatureArrPair } from '../../_helpers/arbitraries'
 import { check } from '../../_helpers/property-test'
-import {
-  EXPECTED_MAPPING_BY_NAMES_TOKENS,
-  EXPECTED_SIMILARITY,
-  LIB_SIG,
-  UNKNOWN_SIG,
-} from './_test-data'
+import { MAPPING_BY_NAMES_TOKENS, SIMILARITY, LIB_SIG, UNKNOWN_SIG } from './_test-data'
 import { librarySimilarityByFunctionNamesAndStatementTokens as fnNamesAndStToks } from './fn-names-st-tokens'
 
 test('librarySimilarityByFunctionNamesAndStatementTokens', t => {
   t.deepEqual(
-    { similarity: EXPECTED_SIMILARITY, mapping: EXPECTED_MAPPING_BY_NAMES_TOKENS },
+    { similarity: SIMILARITY, mapping: MAPPING_BY_NAMES_TOKENS },
     fnNamesAndStToks(undefined, cloneDeep(UNKNOWN_SIG), cloneDeep(LIB_SIG)),
   )
 })

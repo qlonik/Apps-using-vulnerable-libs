@@ -9,7 +9,7 @@ import {
   jaccardIndex as jaccardIndexFn,
   similarityIndexToLib,
 } from '../set'
-import { EXPECTED_MAPPING_BY_NAMES, LIB_SIG, UNKNOWN_SIG } from './_test-data'
+import { MAPPING_BY_NAMES, LIB_SIG, UNKNOWN_SIG } from './_test-data'
 import {
   librarySimilarityByFunctionNames_jaccardIndex as libSim_jaccard,
   librarySimilarityByFunctionNames_ourIndex as libSim_our,
@@ -31,7 +31,7 @@ test('librarySimilarityByFunctionNames_ourIndex', t => {
   const { similarity, mapping } = libSim_our(undefined, UNKNOWN_SIG, LIB_SIG)
 
   t.deepEqual(expectedSimilarity, similarity)
-  t.deepEqual(EXPECTED_MAPPING_BY_NAMES, mapping)
+  t.deepEqual(MAPPING_BY_NAMES, mapping)
 })
 
 test('librarySimilarityByFunctionNames_jaccardIndex', t => {
@@ -42,7 +42,7 @@ test('librarySimilarityByFunctionNames_jaccardIndex', t => {
   const { similarity, mapping } = libSim_jaccard(undefined, UNKNOWN_SIG, LIB_SIG)
 
   t.deepEqual(expectedSimilarity, similarity)
-  t.deepEqual(EXPECTED_MAPPING_BY_NAMES, mapping)
+  t.deepEqual(MAPPING_BY_NAMES, mapping)
 })
 
 test(

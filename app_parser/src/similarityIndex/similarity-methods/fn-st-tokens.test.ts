@@ -6,14 +6,14 @@ import { check } from '../../_helpers/property-test'
 import { FunctionSignature, FunctionSignatures } from '../../extractStructure'
 import { invertMapWithConfidence } from '../set'
 import {
-  EXPECTED_MAPPING,
-  EXPECTED_SIMILARITY,
+  MAPPING,
+  SIMILARITY,
   LIB_SIG,
   UNKNOWN_SIG,
-  EXPECTED_SIMILARITY_WITH_MAP_QUALITY,
-  EXPECTED_MAPPING_FOR_EXACT_MATCHES,
-  EXPECTED_SIMILARITY_FOR_EXACT_MATCHES,
-  EXPECTED_SIMILARITY_FOR_EXACT_MATCHES_AS_LIB_PORTION,
+  SIMILARITY_WITH_MAP_QUALITY,
+  MAPPING_FOR_EXACT_MATCHES,
+  SIMILARITY_FOR_EXACT_MATCHES,
+  SIMILARITY_FOR_EXACT_MATCHES_AS_LIB_PORTION,
 } from './_test-data'
 import { v1, v2, v3, v4, v5, v6 } from './fn-st-tokens'
 import { SimMapWithConfidence } from './types'
@@ -33,47 +33,14 @@ const tests: [
   ) => SimMapWithConfidence,
   SimMapWithConfidence
 ][] = [
-  [
-    v1,
-    {
-      similarity: EXPECTED_SIMILARITY,
-      mapping: EXPECTED_MAPPING,
-    },
-  ],
-  [
-    v2,
-    {
-      similarity: EXPECTED_SIMILARITY,
-      mapping: EXPECTED_MAPPING,
-    },
-  ],
-  [
-    v3,
-    {
-      similarity: EXPECTED_SIMILARITY,
-      mapping: EXPECTED_MAPPING,
-    },
-  ],
-  [
-    v4,
-    {
-      similarity: EXPECTED_SIMILARITY_WITH_MAP_QUALITY,
-      mapping: EXPECTED_MAPPING,
-    },
-  ],
-  [
-    v5,
-    {
-      similarity: EXPECTED_SIMILARITY_FOR_EXACT_MATCHES,
-      mapping: EXPECTED_MAPPING_FOR_EXACT_MATCHES,
-    },
-  ],
+  [v1, { similarity: SIMILARITY, mapping: MAPPING }],
+  [v2, { similarity: SIMILARITY, mapping: MAPPING }],
+  [v3, { similarity: SIMILARITY, mapping: MAPPING }],
+  [v4, { similarity: SIMILARITY_WITH_MAP_QUALITY, mapping: MAPPING }],
+  [v5, { similarity: SIMILARITY_FOR_EXACT_MATCHES, mapping: MAPPING_FOR_EXACT_MATCHES }],
   [
     v6,
-    {
-      similarity: EXPECTED_SIMILARITY_FOR_EXACT_MATCHES_AS_LIB_PORTION,
-      mapping: EXPECTED_MAPPING_FOR_EXACT_MATCHES,
-    },
+    { similarity: SIMILARITY_FOR_EXACT_MATCHES_AS_LIB_PORTION, mapping: MAPPING_FOR_EXACT_MATCHES },
   ],
 ]
 

@@ -2,7 +2,7 @@ import { test } from 'ava'
 import { cloneDeep } from 'lodash'
 import { arbFunctionSignatureArr, arbFunctionSignatureArrPair } from '../../_helpers/arbitraries'
 import { check } from '../../_helpers/property-test'
-import { EXPECTED_MAPPING, EXPECTED_SIMILARITY, LIB_SIG, UNKNOWN_SIG } from './_test-data'
+import { MAPPING, SIMILARITY, LIB_SIG, UNKNOWN_SIG } from './_test-data'
 import { librarySimilarityByFunctionStatementTypes } from './fn-st-types'
 
 test('librarySimilarityByFunctionStatementTypes', t => {
@@ -11,7 +11,7 @@ test('librarySimilarityByFunctionStatementTypes', t => {
     cloneDeep(UNKNOWN_SIG),
     cloneDeep(LIB_SIG),
   )
-  t.deepEqual({ similarity: EXPECTED_SIMILARITY, mapping: EXPECTED_MAPPING }, result)
+  t.deepEqual({ similarity: SIMILARITY, mapping: MAPPING }, result)
 })
 
 test(
