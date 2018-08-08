@@ -4,12 +4,14 @@ import { Logger } from 'pino'
 import { arbFunctionSignatureArr, arbFunctionSignatureArrPair } from '../../_helpers/arbitraries'
 import { check } from '../../_helpers/property-test'
 import { FunctionSignature, FunctionSignatures } from '../../extractStructure'
+import { invertMapWithConfidence } from '../set'
 import {
-  invertMapWithConfidence,
-  jaccardIndex as jaccardIndexFn,
-  similarityIndexToLib,
-} from '../set'
-import { MAPPING_BY_UNIQUE_NAMES, LIB_SIG, UNKNOWN_SIG } from './_test-data'
+  LIB_SIG,
+  MAPPING_BY_UNIQUE_NAMES,
+  SIMILARITY_BY_UNIQUE_NAMES_JACCARD,
+  SIMILARITY_BY_UNIQUE_NAMES_OUR,
+  UNKNOWN_SIG,
+} from './_test-data'
 import {
   librarySimilarityByFunctionNames_jaccardIndex as libSim_jaccard,
   librarySimilarityByFunctionNames_ourIndex as libSim_our,
@@ -24,24 +26,16 @@ declare const __z: FunctionSignatures
 /* eslint-enable */
 
 test('librarySimilarityByFunctionNames_ourIndex', t => {
-  const unknownNameSet = new Set(UNKNOWN_SIG.map(s => s.name))
-  const libNameSet = new Set(LIB_SIG.map(s => s.name))
-  const expectedSimilarity = similarityIndexToLib(libNameSet, unknownNameSet)
-
   const { similarity, mapping } = libSim_our(undefined, UNKNOWN_SIG, LIB_SIG)
 
-  t.deepEqual(expectedSimilarity, similarity)
+  t.deepEqual(SIMILARITY_BY_UNIQUE_NAMES_OUR, similarity)
   t.deepEqual(MAPPING_BY_UNIQUE_NAMES, mapping)
 })
 
 test('librarySimilarityByFunctionNames_jaccardIndex', t => {
-  const unknownNameSet = new Set(UNKNOWN_SIG.map(s => s.name))
-  const libNameSet = new Set(LIB_SIG.map(s => s.name))
-  const expectedSimilarity = jaccardIndexFn(unknownNameSet, libNameSet)
-
   const { similarity, mapping } = libSim_jaccard(undefined, UNKNOWN_SIG, LIB_SIG)
 
-  t.deepEqual(expectedSimilarity, similarity)
+  t.deepEqual(SIMILARITY_BY_UNIQUE_NAMES_JACCARD, similarity)
   t.deepEqual(MAPPING_BY_UNIQUE_NAMES, mapping)
 })
 

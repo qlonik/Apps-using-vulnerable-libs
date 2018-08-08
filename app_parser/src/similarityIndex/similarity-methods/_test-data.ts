@@ -1,7 +1,12 @@
 import { Fraction } from 'fraction.js'
 import { FunctionSignature } from '../../extractStructure'
 import { FractionToIndexValue } from '../fraction'
-import { jaccardLike, libPortion } from '../set'
+import {
+  jaccardIndex as jaccardIndexFn,
+  jaccardLike,
+  libPortion,
+  similarityIndexToLib,
+} from '../set'
 import { DefiniteMap, probIndex } from './types'
 
 export const UNKNOWN_SIG: FunctionSignature[] = [
@@ -125,6 +130,14 @@ export const MAPPING = new Map([
   [5, { index: 4, prob: { val: 4 / 9, num: 4, den: 9 } }],
 ]) as DefiniteMap<number, probIndex>
 
+export const SIMILARITY_BY_UNIQUE_NAMES_JACCARD = jaccardIndexFn(
+  new Set(UNKNOWN_SIG.map((s) => s.name)),
+  new Set(LIB_SIG.map((s) => s.name)),
+)
+export const SIMILARITY_BY_UNIQUE_NAMES_OUR = similarityIndexToLib(
+  new Set(LIB_SIG.map((s) => s.name)),
+  new Set(UNKNOWN_SIG.map((s) => s.name)),
+)
 export const MAPPING_BY_UNIQUE_NAMES = new Map([
   [0, { index: 0, prob: { val: 1, num: -1, den: -1 } }],
   [1, { index: 1, prob: { val: 1, num: -1, den: -1 } }],
