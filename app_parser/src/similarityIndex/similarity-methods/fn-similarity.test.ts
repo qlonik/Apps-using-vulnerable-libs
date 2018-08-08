@@ -1,5 +1,5 @@
 import { test } from 'ava'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, uniq } from 'lodash'
 import { Logger } from 'pino'
 import { arbFunctionSignatureArr, arbFunctionSignatureArrPair } from '../../_helpers/arbitraries'
 import { check } from '../../_helpers/property-test'
@@ -20,15 +20,15 @@ import {
   UNKNOWN_SIG,
 } from './_test-data'
 import {
-  librarySimilarityByFunctionNames_jaccardIndex as fnNames_jaccard,
-  librarySimilarityByFunctionNames_ourIndex as fnNames_our,
+  librarySimilarityByFunctionNames_jaccardIndex,
+  librarySimilarityByFunctionNames_ourIndex,
   librarySimilarityByFunctionNamesAndStatementTokens,
-  librarySimilarityByFunctionStatementTokens as v1,
-  librarySimilarityByFunctionStatementTokens_v2 as v2,
-  librarySimilarityByFunctionStatementTokens_v3 as v3,
-  librarySimilarityByFunctionStatementTokens_v4 as v4,
-  librarySimilarityByFunctionStatementTokens_v5 as v5,
-  librarySimilarityByFunctionStatementTokens_v6 as v6,
+  librarySimilarityByFunctionStatementTokens as librarySimilarityByFunctionStatementTokens_v1,
+  librarySimilarityByFunctionStatementTokens_v2,
+  librarySimilarityByFunctionStatementTokens_v3,
+  librarySimilarityByFunctionStatementTokens_v4,
+  librarySimilarityByFunctionStatementTokens_v5,
+  librarySimilarityByFunctionStatementTokens_v6,
   librarySimilarityByFunctionStatementTypes,
 } from './index'
 import { SimMapWithConfidence } from './types'
@@ -51,7 +51,7 @@ const tests: [
 ][] = [
   [
     'FnStTokens_v1',
-    v1,
+    librarySimilarityByFunctionStatementTokens_v1,
     {
       similarity: SIMILARITY,
       mapping: MAPPING,
@@ -59,7 +59,7 @@ const tests: [
   ],
   [
     'FnStTokens_v2',
-    v2,
+    librarySimilarityByFunctionStatementTokens_v2,
     {
       similarity: SIMILARITY,
       mapping: MAPPING,
@@ -67,7 +67,7 @@ const tests: [
   ],
   [
     'FnStTokens_v3',
-    v3,
+    librarySimilarityByFunctionStatementTokens_v3,
     {
       similarity: SIMILARITY,
       mapping: MAPPING,
@@ -75,7 +75,7 @@ const tests: [
   ],
   [
     'FnStTokens_v4',
-    v4,
+    librarySimilarityByFunctionStatementTokens_v4,
     {
       similarity: SIMILARITY_WITH_MAP_QUALITY,
       mapping: MAPPING,
@@ -83,7 +83,7 @@ const tests: [
   ],
   [
     'FnStTokens_v5',
-    v5,
+    librarySimilarityByFunctionStatementTokens_v5,
     {
       similarity: SIMILARITY_FOR_EXACT_MATCHES,
       mapping: MAPPING_FOR_EXACT_MATCHES,
@@ -91,7 +91,7 @@ const tests: [
   ],
   [
     'FnStTokens_v6',
-    v6,
+    librarySimilarityByFunctionStatementTokens_v6,
     {
       similarity: SIMILARITY_FOR_EXACT_MATCHES_AS_LIB_PORTION,
       mapping: MAPPING_FOR_EXACT_MATCHES,
@@ -107,7 +107,7 @@ const tests: [
   ],
   [
     'FnNames_our',
-    fnNames_our,
+    librarySimilarityByFunctionNames_ourIndex,
     {
       similarity: SIMILARITY_BY_UNIQUE_NAMES_OUR,
       mapping: MAPPING_BY_UNIQUE_NAMES,
@@ -115,7 +115,7 @@ const tests: [
   ],
   [
     'FnNames_jaccard',
-    fnNames_jaccard,
+    librarySimilarityByFunctionNames_jaccardIndex,
     {
       similarity: SIMILARITY_BY_UNIQUE_NAMES_JACCARD,
       mapping: MAPPING_BY_UNIQUE_NAMES,
@@ -165,7 +165,7 @@ for (let [name, fn, exp] of tests) {
 
       t.is(0, similarity.val)
       t.is(0, similarity.num)
-      if (name === 'FnStTokens_v6') {
+      if (name === 'FnStTokens_v6' || name === 'FnNames_our') {
         t.is(0, similarity.den)
       } else {
         t.not(0, similarity.den)
@@ -188,7 +188,12 @@ for (let [name, fn, exp] of tests) {
 
       t.is(1, val)
       t.is(num, den)
-      t.is(a.length, mapping.size)
+      if (name === 'FnNames_our' || name === 'FnNames_jaccard') {
+        const uniqNames = uniq(a.map(({ name }) => name))
+        t.is(uniqNames.length, mapping.size)
+      } else {
+        t.is(a.length, mapping.size)
+      }
       for (let [from, { index: to, prob: { val, num, den } }] of mapping) {
         t.is(from, to)
         t.is(1, val)
@@ -196,34 +201,16 @@ for (let [name, fn, exp] of tests) {
       }
     }),
   )
+
+  if (name === 'FnStTokens_v3' || name === 'FnStTokens_v5' || name === 'FnNames_jaccard') {
+    test(
+      `${name}: commutative`,
+      check({ size: 1_000_000 }, arbFunctionSignatureArrPair, (t, [x, y]) => {
+        const { similarity: sim_xy, mapping: map_xy } = fn(undefined, x, y)
+        const { similarity: sim_yx, mapping: map_yx } = fn(undefined, y, x)
+        t.deepEqual(sim_xy, sim_yx)
+        t.deepEqual(map_xy, invertMapWithConfidence(map_yx))
+      }),
+    )
+  }
 }
-
-test(
-  'v3 is commutative',
-  check({ size: 1_000_000 }, arbFunctionSignatureArrPair, (t, [x, y]) => {
-    const { similarity: sim_xy, mapping: map_xy } = v3(undefined, x, y)
-    const { similarity: sim_yx, mapping: map_yx } = v3(undefined, y, x)
-    t.deepEqual(sim_xy, sim_yx)
-    t.deepEqual(map_xy, invertMapWithConfidence(map_yx))
-  }),
-)
-
-test(
-  'v5 is commutative',
-  check({ size: 1_000_000 }, arbFunctionSignatureArrPair, (t, [x, y]) => {
-    const { similarity: sim_xy, mapping: map_xy } = v5(undefined, x, y)
-    const { similarity: sim_yx, mapping: map_yx } = v5(undefined, y, x)
-    t.deepEqual(sim_xy, sim_yx)
-    t.deepEqual(map_xy, invertMapWithConfidence(map_yx))
-  }),
-)
-
-test(
-  'fnNames_jaccard: commutative',
-  check({ size: 1_000_000 }, arbFunctionSignatureArrPair, (t, [x, y]) => {
-    const { similarity: sim_xy, mapping: map_xy } = fnNames_jaccard(undefined, x, y)
-    const { similarity: sim_yx, mapping: map_yx } = fnNames_jaccard(undefined, y, x)
-    t.deepEqual(sim_xy, sim_yx)
-    t.deepEqual(map_xy, invertMapWithConfidence(map_yx))
-  }),
-)
