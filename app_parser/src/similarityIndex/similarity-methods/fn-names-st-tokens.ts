@@ -1,19 +1,40 @@
-import { clone, head, last, partition, pullAt } from 'lodash'
+import { head, last } from 'lodash'
 import { Logger } from 'pino'
 import {
   fnNamesSplit,
   FunctionSignature,
-  FunctionSignatures, // eslint-disable-line no-unused-vars
+  FunctionSignatures,
   isFunctionSignatures,
 } from '../../extractStructure'
 import logger from '../../utils/logger'
-import { indexValue, jaccardLike } from '../set'
+import { jaccardLike, jaccardLikeWithMapping } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
-import { nameProbIndex, typeErrorMsg } from './types'
+import {
+  DefiniteMap,
+  FunctionSignatureMatched,
+  nameProbIndex,
+  probIndex,
+  SimMapWithConfidence,
+  typeErrorMsg,
+} from './types'
+
+const anonPartitionWithMap = (arr: FunctionSignature[]) =>
+  arr.reduce(
+    ({ anon, anonMap, named, namedMap }, fnSig, i) =>
+      last(fnNamesSplit(fnSig.name)) === '[anonymous]'
+        ? { anon: anon.concat(fnSig), anonMap: anonMap.set(anon.length, i), named, namedMap }
+        : { anon, anonMap, named: named.concat(fnSig), namedMap: namedMap.set(named.length, i) },
+    {
+      anon: [] as FunctionSignature[],
+      anonMap: new Map() as DefiniteMap<number, number>,
+      named: [] as FunctionSignature[],
+      namedMap: new Map() as DefiniteMap<number, number>,
+    },
+  )
 
 export function librarySimilarityByFunctionNamesAndStatementTokens<
   T extends FunctionSignature[] | FunctionSignatures
->(log: Logger = logger, unknownS: T, libS: T): indexValue {
+>(log: Logger = logger, unknownS: T, libS: T): SimMapWithConfidence {
   let unknown: FunctionSignature[]
   let lib: FunctionSignature[]
   if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
@@ -26,23 +47,22 @@ export function librarySimilarityByFunctionNamesAndStatementTokens<
     throw new TypeError(typeErrorMsg)
   }
 
-  const anonFnPartitioner = (s: FunctionSignature) => last(fnNamesSplit(s.name)) === '[anonymous]'
-  const [unknownAnonFnSigs, unknownNamedFnSigs] = partition(unknown, anonFnPartitioner)
-  const [libAnonFnSigs, libNamedFnSigs] = partition(lib, anonFnPartitioner)
+  const unknownPart = anonPartitionWithMap(unknown)
+  const libPart = anonPartitionWithMap(lib)
 
-  type nameProbIndexOrigI = nameProbIndex & { origIndex: number }
-
-  const libAnonFnSigsCopy = clone(libAnonFnSigs).map((s: FunctionSignature, i) => ({ s, i }))
+  const libAnonFns = libPart.anon as FunctionSignatureMatched[]
   // remark: first for loop
-  const possibleMatches = unknownAnonFnSigs.reduce(
+  const possibleMatches = unknownPart.anon.reduce(
     (acc, { fnStatementTokens: toks }) => {
       // remark: second for loop
-      const topMatches = libAnonFnSigsCopy
-        .reduce((sll, { i: origIndex, s: { name, fnStatementTokens: libToks } }, index) => {
-          // remark: threshold can go here
-          // remark: third for loop (inside jaccardLike())
-          return sll.push({ name, index, origIndex, prob: jaccardLike(toks, libToks) })
-        }, new SortedLimitedList({ predicate: (o: nameProbIndexOrigI) => -o.prob.val }))
+      const topMatches = libAnonFns
+        .reduce((sll, { name, __matched = false, fnStatementTokens: libToks }, index) => {
+          return __matched
+            ? sll
+            : // remark: threshold can go here
+              // remark: third for loop (inside jaccardLike())
+              sll.push({ name, index, prob: jaccardLike(toks, libToks) })
+        }, new SortedLimitedList({ predicate: (o: nameProbIndex) => -o.prob.val }))
         .value()
 
       const topMatch = head(topMatches)
@@ -51,19 +71,49 @@ export function librarySimilarityByFunctionNamesAndStatementTokens<
         return acc.concat(unmatched)
       }
 
-      const { name, index, origIndex, prob } = topMatch
-      pullAt(libAnonFnSigsCopy, index)
-      return acc.concat({ name, prob, index: origIndex })
+      libAnonFns[topMatch.index] = { ...libAnonFns[topMatch.index], __matched: true }
+      return acc.concat(topMatch)
     },
     [] as nameProbIndex[],
   )
 
-  const unknownNames = ([] as (string | number)[])
-    .concat(unknownNamedFnSigs.map((v) => v.name))
-    .concat(possibleMatches.map((v) => v.index))
-  const libNames = ([] as (string | number)[])
-    .concat(libNamedFnSigs.map((v) => v.name))
-    .concat(libAnonFnSigs.map((_, i) => i))
+  const sizeOfUnknownNamed = unknownPart.named.length
+  const sizeOfLibNamed = libPart.named.length
 
-  return jaccardLike(unknownNames, libNames)
+  const unknownFns = ([] as (string | number)[])
+    .concat(unknownPart.named.map((v) => v.name))
+    .concat(possibleMatches.map((v) => v.index))
+  const libFns = ([] as (string | number)[])
+    .concat(libPart.named.map((v) => v.name))
+    .concat(libPart.anon.map((_, i) => i))
+
+  const { similarity, mapping: nonFormatMap } = jaccardLikeWithMapping(unknownFns, libFns)
+
+  const mapping = new Map(
+    [...nonFormatMap]
+      .map(([unkwnI, libI]): [number, probIndex] => {
+        let unknownIndex
+        let index
+        let prob = { val: 1, num: -1, den: -1 }
+
+        if (unkwnI < sizeOfUnknownNamed) {
+          unknownIndex = unknownPart.namedMap.get(unkwnI)
+        } else {
+          const i = unkwnI - sizeOfUnknownNamed
+          unknownIndex = unknownPart.anonMap.get(i)
+          prob = possibleMatches[i].prob
+        }
+
+        if (libI < sizeOfLibNamed) {
+          index = libPart.namedMap.get(libI)
+        } else {
+          index = libPart.anonMap.get(libI - sizeOfLibNamed)
+        }
+
+        return [unknownIndex, { index, prob }]
+      })
+      .sort((a, b) => a[0] - b[0]),
+  ) as DefiniteMap<number, probIndex>
+
+  return { similarity, mapping }
 }
