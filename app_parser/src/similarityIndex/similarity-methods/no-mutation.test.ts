@@ -17,15 +17,21 @@ import {
   librarySimilarityByFunctionStatementTypes,
   librarySimilarityByLiteralValues,
 } from './index'
+import { SimMapWithConfidence } from './types'
 
 /* eslint-disable no-unused-vars */
 declare const __x: Logger
 declare const __y: signatureWithComments
+declare const __z: SimMapWithConfidence
 /* eslint-enable */
 
 const tests: [
   string,
-  (l: Logger | undefined, a: signatureWithComments, b: signatureWithComments) => any
+  (
+    l: Logger | undefined,
+    a: signatureWithComments,
+    b: signatureWithComments,
+  ) => SimMapWithConfidence
 ][] = [
   ['FnStTokens_v1', librarySimilarityByFunctionStatementTokens_v1],
   ['FnStTokens_v2', librarySimilarityByFunctionStatementTokens_v2],
