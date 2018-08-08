@@ -3,10 +3,7 @@ import { cloneDeep } from 'lodash'
 import { Logger } from 'pino'
 import { arbFunctionSignatureArr, arbFunctionSignatureArrPair } from '../../_helpers/arbitraries'
 import { check } from '../../_helpers/property-test'
-import {
-  FunctionSignature, // eslint-disable-line no-unused-vars
-  FunctionSignatures, // eslint-disable-line no-unused-vars
-} from '../../extractStructure'
+import { FunctionSignature, FunctionSignatures } from '../../extractStructure'
 import { invertMapWithConfidence } from '../set'
 import {
   EXPECTED_MAPPING,
@@ -19,9 +16,14 @@ import {
   EXPECTED_SIMILARITY_FOR_EXACT_MATCHES_AS_LIB_PORTION,
 } from './_test-data'
 import { v1, v2, v3, v4, v5, v6 } from './fn-st-tokens'
-import {
-  SimMapWithConfidence, // eslint-disable-line no-unused-vars
-} from './types'
+import { SimMapWithConfidence } from './types'
+
+/* eslint-disable no-unused-vars */
+declare const __w: Logger
+declare const __x: FunctionSignature
+declare const __y: FunctionSignatures
+declare const __z: SimMapWithConfidence
+/* eslint-enable */
 
 const tests: [
   <T extends FunctionSignature[] | FunctionSignatures>(
