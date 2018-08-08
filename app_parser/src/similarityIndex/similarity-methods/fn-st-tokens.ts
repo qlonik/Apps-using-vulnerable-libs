@@ -10,6 +10,7 @@ import { FractionToIndexValue } from '../fraction'
 import {
   indexValue,
   jaccardLike,
+  jaccardLikeNumbers,
   jaccardLikeStrings,
   libPortionIndexes,
   weightedMapIndex,
@@ -208,7 +209,7 @@ export function v3<T extends FunctionSignature[] | FunctionSignatures>(
   for (let [unknownIndex, { fnStatementTokens: unknownToks }] of unknown.entries()) {
     for (let [libIndex, { fnStatementTokens: libToks }] of lib.entries()) {
       // remark: threshold can go here
-      const prob = jaccardLike(unknownToks, libToks)
+      const prob = jaccardLikeStrings(unknownToks, libToks)
       if (prob.val !== 0) {
         sll.push({ unknownIndex, libIndex, prob })
       }
@@ -226,21 +227,17 @@ export function v3<T extends FunctionSignature[] | FunctionSignatures>(
     }
   }
 
-  const selectedMatches = sortBy(selectedMatchesUnsorted, ([key]) => key).reduce(
-    (map, [unknownIndex, libIndex, prob]) => {
-      return map.set(unknownIndex, { index: libIndex, prob })
-    },
-    new Map() as DefiniteMap<number, probIndex>,
-  )
+  const mapping = new Map(
+    selectedMatchesUnsorted
+      .sort((a, b) => a[0] - b[0])
+      .map(([i, index, prob]): [number, probIndex] => [i, { index, prob }]),
+  ) as DefiniteMap<number, probIndex>
 
-  const possibleFnIndexes = unknown.map((u, i) => {
-    return selectedMatches.has(i) ? selectedMatches.get(i).index : -1
-  })
+  const possibleFnIndexes = unknown.map((u, i) => (mapping.has(i) ? mapping.get(i).index : -1))
+  const libFnIndexes = lib.map((_, i) => i)
+  const similarity = jaccardLikeNumbers(possibleFnIndexes, libFnIndexes)
 
-  return {
-    similarity: jaccardLike(possibleFnIndexes, lib.keys()),
-    mapping: selectedMatches,
-  }
+  return { similarity, mapping }
 }
 
 /**
