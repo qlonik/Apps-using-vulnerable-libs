@@ -125,7 +125,7 @@ export const MAPPING = new Map([
   [5, { index: 4, prob: { val: 4 / 9, num: 4, den: 9 } }],
 ]) as DefiniteMap<number, probIndex>
 
-export const MAPPING_BY_NAMES = new Map([
+export const MAPPING_BY_UNIQUE_NAMES = new Map([
   [0, { index: 0, prob: { val: 1, num: -1, den: -1 } }],
   [1, { index: 1, prob: { val: 1, num: -1, den: -1 } }],
   [2, { index: 2, prob: { val: 1, num: -1, den: -1 } }],
