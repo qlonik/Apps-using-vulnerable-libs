@@ -5,7 +5,6 @@ import shell from 'shelljs'
 import { worker } from 'workerpool'
 import { extractStructure, signatureWithComments } from '../extractStructure'
 import {
-  analyseCordovaApp,
   APP_TYPES,
   isCordovaApp,
   isReactNativeApp,
@@ -33,7 +32,6 @@ const makeLog = (fn: string) => logger.child({ name: `${logFileName} >> ${fn}` }
 
 const ellog = makeLog('extract-lib-from-dump')
 const rllog = makeLog('reanalyse-lib')
-const aalog = makeLog('analyse-app')
 const siLog = makeLog('bundle_similarity_fn')
 
 const memoReadJSON = memoize((p: string): Promise<any> => readJSON(p))
@@ -94,26 +92,6 @@ worker<messages>({
         await preprocessCordovaApp({ allAppsPath, allLibsPath, app })
         return true
       } catch {
-        return false
-      }
-    }
-
-    return false
-  },
-
-  'analyse-app': async ({ allAppsPath, allLibsPath, app }) => {
-    if (app.type === APP_TYPES.reactNative) {
-      return false
-    }
-
-    if (app.type === APP_TYPES.cordova) {
-      try {
-        aalog.debug({ app }, 'started analysis')
-        await analyseCordovaApp({ allAppsPath, libsPath: allLibsPath, app })
-        aalog.debug({ app }, 'finished analysis')
-        return true
-      } catch (err) {
-        aalog.error({ err, app }, 'error while analysing cordova app')
         return false
       }
     }

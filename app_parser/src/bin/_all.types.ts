@@ -53,7 +53,6 @@ export type allMessages = {
   ]
 
   'preprocess-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
-  'analyse-app': [[{ allAppsPath: string; allLibsPath: string; app: appDesc }], boolean]
 } & BundSim
 
 export const WORKER_FILENAME = '_all.worker'
