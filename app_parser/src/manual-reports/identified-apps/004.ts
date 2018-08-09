@@ -66,6 +66,51 @@ export const report: CordovaManualAnalysisReport = {
         },
       ],
       comments: 'non-minified\n' + 'possibly included pdfjs twice',
+    },
+    'body/0006': {
+      location: 'body',
+      id: '0006',
+      type: 'single-lib',
+      match: {
+        name: 'cordova',
+        isGuess: true,
+        comments: 'version is unknown, but PLATFORM_VERSION_BUILD_LABEL = 5.1.1',
+      },
+    },
+    'body/0007': {
+      location: 'body',
+      id: '0007',
+      type: 'business-logic', // maybe
+    },
+    'body/0008': {
+      location: 'body',
+      id: '0008',
+      type: 'business-logic', // maybe
+      comments: 'minified',
+    },
+
+    'head/0000': { location: 'head', id: '0000', type: 'business-logic' },
+    'head/0001': { location: 'head', id: '0001', type: 'http-script' },
+    'head/0002': { location: 'head', id: '0002', type: 'business-logic', comments: 'minified' },
+    'head/0003': { location: 'head', id: '0003', type: 'business-logic', comments: 'minified' },
+    'head/0004': {
+      location: 'head',
+      id: '0004',
+      type: 'single-lib',
+      match: {
+        name: 'jstz',
+        version: '1.0.4',
+        isGuess: false,
+        comments: 'minified',
+      },
+    },
+  },
+}
+
+// eslint-disable-next-line no-unused-vars
+const additionalData = {
+  files: {
+    'body/0005': {
       algReport: {
         comments: [
           'angular is top candidate, then jquery, then mocha. ' +
@@ -74,7 +119,6 @@ export const report: CordovaManualAnalysisReport = {
           'next: jquery@1.12.0 == jquery@1.12.1 - 5.63% (same % val - 579/10288)',
         ],
       },
-
       lookingManually: {
         method: 'fn-st-toks-v2',
         comparingAgainst: {
@@ -329,42 +373,7 @@ export const report: CordovaManualAnalysisReport = {
         ],
       },
     },
-    'body/0006': {
-      location: 'body',
-      id: '0006',
-      type: 'single-lib',
-      match: {
-        name: 'cordova',
-        isGuess: true,
-        comments: 'version is unknown, but PLATFORM_VERSION_BUILD_LABEL = 5.1.1',
-      },
-    },
-    'body/0007': {
-      location: 'body',
-      id: '0007',
-      type: 'business-logic', // maybe
-    },
-    'body/0008': {
-      location: 'body',
-      id: '0008',
-      type: 'business-logic', // maybe
-      comments: 'minified',
-    },
-
-    'head/0000': { location: 'head', id: '0000', type: 'business-logic' },
-    'head/0001': { location: 'head', id: '0001', type: 'http-script' },
-    'head/0002': { location: 'head', id: '0002', type: 'business-logic', comments: 'minified' },
-    'head/0003': { location: 'head', id: '0003', type: 'business-logic', comments: 'minified' },
     'head/0004': {
-      location: 'head',
-      id: '0004',
-      type: 'single-lib',
-      match: {
-        name: 'jstz',
-        version: '1.0.4',
-        isGuess: false,
-        comments: 'minified',
-      },
       algReport: {
         comments: ['library is missing in dataset', 'missing in top1000'],
       },

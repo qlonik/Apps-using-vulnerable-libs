@@ -28,9 +28,6 @@ export const report: CordovaManualAnalysisReport = {
         isGuess: true,
         comments: 'exact name is unknown. name is a guess. cordova admob plugin',
       },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
-      },
     },
     'head/0002': {
       location: 'head',
@@ -40,9 +37,6 @@ export const report: CordovaManualAnalysisReport = {
         name: 'nl.x-services.plugins.socialsharing.SocialSharing',
         isGuess: true,
         comments: 'name is a guess. social sharing cordova plugin',
-      },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
       },
     },
     'head/0003': {
@@ -56,14 +50,6 @@ export const report: CordovaManualAnalysisReport = {
         isGuess: false,
         comments: 'minified',
       },
-      algReport: {
-        comments: [
-          'jquery is only candidate, matched as subset',
-          'jquery@1.11.2 - 100%',
-          'jquery@1.11.1 - 98.01%',
-          'jquery@1.11.1-rc2 - 97.68%',
-        ],
-      },
     },
     'head/0004': {
       location: 'head',
@@ -74,13 +60,6 @@ export const report: CordovaManualAnalysisReport = {
         version: '3.3.2',
         isGuess: false,
         comments: 'non-minified',
-      },
-      algReport: {
-        comments: [
-          'bootstrap is only candidate, matched as subset',
-          'bootstrap@3.3.1 == bootstrap@3.3.2 - 100% (same % val - 189/189)',
-          'bootstrap@3.3.0 - 97.35%',
-        ],
       },
     },
     'head/0005': {
@@ -101,9 +80,6 @@ export const report: CordovaManualAnalysisReport = {
           comments: 'name is a guess\n' + 'minified',
         },
       ],
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
-      },
     },
     'head/0006': {
       location: 'head',
@@ -115,14 +91,56 @@ export const report: CordovaManualAnalysisReport = {
         isGuess: true,
         comments: 'name is a guess\n' + 'minified',
       },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
-      },
     },
     'head/0007': {
       location: 'head',
       id: '0007',
       type: 'business-logic',
+    },
+  },
+}
+
+// eslint-disable-next-line no-unused-vars
+const additionalData = {
+  files: {
+    'head/0001': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'head/0002': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'head/0003': {
+      algReport: {
+        comments: [
+          'jquery is only candidate, matched as subset',
+          'jquery@1.11.2 - 100%',
+          'jquery@1.11.1 - 98.01%',
+          'jquery@1.11.1-rc2 - 97.68%',
+        ],
+      },
+    },
+    'head/0004': {
+      algReport: {
+        comments: [
+          'bootstrap is only candidate, matched as subset',
+          'bootstrap@3.3.1 == bootstrap@3.3.2 - 100% (same % val - 189/189)',
+          'bootstrap@3.3.0 - 97.35%',
+        ],
+      },
+    },
+    'head/0005': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'head/0006': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
     },
   },
 }

@@ -30,8 +30,6 @@ export type CordovaManualAnalysisReport = {
       location: string
       id: string
       comments?: string
-      algReport?: { comments: string[] }
-      lookingManually?: any
     }) &
       matchReport
   }
@@ -42,11 +40,9 @@ export type ReactNativeManualAnalysisReport = {
     [id: string]: ({ idType: 's'; id: string } | { idType: 'n'; id: number }) &
       ({
         comments?: string
-        algReport?: { comments: string[] }
       }) &
       matchReport
   }
-  algReport?: { comments: string[] }
 }
 export interface ManuallyAnalysedApps {
   [name: string]: CordovaManualAnalysisReport | ReactNativeManualAnalysisReport

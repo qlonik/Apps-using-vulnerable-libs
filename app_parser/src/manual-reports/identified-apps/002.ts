@@ -34,14 +34,6 @@ export const report: CordovaManualAnalysisReport = {
         file: '0001.json',
         isGuess: false,
       },
-      algReport: {
-        comments: [
-          'jquery is a single candidate (matched as subset)',
-          'jquery@1.11.1 - 100% match',
-          'jquery@1.11.1-rc2 - 99.6661%',
-          'jquery@1.11.2 - 98.00995%',
-        ],
-      },
     },
     'body/0003': {
       location: 'body',
@@ -53,9 +45,6 @@ export const report: CordovaManualAnalysisReport = {
         isGuess: false,
         comments: 'non-minified',
       },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
-      },
     },
     'body/0004': {
       location: 'body',
@@ -66,9 +55,6 @@ export const report: CordovaManualAnalysisReport = {
         version: '1.4.4',
         isGuess: true,
         comments: 'minified',
-      },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
       },
     },
     'body/0005': {
@@ -101,9 +87,6 @@ export const report: CordovaManualAnalysisReport = {
           'DirectionalRotationPlugin"\n' +
           'references "http://www.greensock.com"',
       },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
-      },
     },
     'body/0009': {
       location: 'body',
@@ -115,6 +98,39 @@ export const report: CordovaManualAnalysisReport = {
         isGuess: true,
         comments: 'references http://www.greensock.com',
       },
+    },
+  },
+}
+
+// eslint-disable-next-line no-unused-vars
+const additionalData = {
+  files: {
+    'body/0002': {
+      algReport: {
+        comments: [
+          'jquery is a single candidate (matched as subset)',
+          'jquery@1.11.1 - 100% match',
+          'jquery@1.11.1-rc2 - 99.6661%',
+          'jquery@1.11.2 - 98.00995%',
+        ],
+      },
+    },
+    'body/0003': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'body/0004': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'body/0008': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'body/0009': {
       algReport: {
         comments: ['library is missing in dataset', 'missing in top1000'],
       },

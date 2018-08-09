@@ -20,15 +20,6 @@ export const report: CordovaManualAnalysisReport = {
         { name: 'lodash', version: '4.14.1', isGuess: true },
         // there is more
       ],
-      algReport: {
-        comments: [
-          'angular (27%), jquery (17%), moment (11%), zone.js (10%) are top candidates',
-          'angular (@1.5.9 - 14.21%, @1.5.7 - 14.12%, @1.5.8 - 14.1%, @1.5.6 - 14.08%) ' +
-            'are top matches',
-          'jquery@1.9.1 - 11.82% is also among ranking',
-          'core-js@2.5.0 - 11.8% in similarity rank',
-        ],
-      },
     },
     'body/0002': {
       location: 'body',
@@ -48,6 +39,23 @@ export const report: CordovaManualAnalysisReport = {
         name: 'cordova',
         isGuess: true,
         comments: 'version is unknown, but PLATFORM_VERSION_BUILD_LABEL = 6.1.2',
+      },
+    },
+  },
+}
+
+// eslint-disable-next-line no-unused-vars
+const additionalData = {
+  files: {
+    'body/0001': {
+      algReport: {
+        comments: [
+          'angular (27%), jquery (17%), moment (11%), zone.js (10%) are top candidates',
+          'angular (@1.5.9 - 14.21%, @1.5.7 - 14.12%, @1.5.8 - 14.1%, @1.5.6 - 14.08%) ' +
+            'are top matches',
+          'jquery@1.9.1 - 11.82% is also among ranking',
+          'core-js@2.5.0 - 11.8% in similarity rank',
+        ],
       },
     },
   },

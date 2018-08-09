@@ -18,9 +18,6 @@ export const report: CordovaManualAnalysisReport = {
         isGuess: true,
         comments: 'version is unknown, but PLATFORM_VERSION_BUILD_LABEL = 4.1.1',
       },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
-      },
     },
     'head/0001': {
       location: 'head',
@@ -34,15 +31,6 @@ export const report: CordovaManualAnalysisReport = {
         { name: 'angular-ui-router', version: '0.2.13', isGuess: false },
         { name: 'ionic-angular', version: '1.2.4-nightly-1917', isGuess: false },
       ],
-      algReport: {
-        comments: [
-          'angular is a top candidate - 30.98%',
-          'angular@1.4.2 == angular@1.4.3 - 38.53% (exactly the same % value - 1349/3501)',
-          'angular@1.4.4 - 38.2453%',
-          'angular-animate, angular-sanitize, angular-ui-router all appear in top 1000',
-          'ionic, ionic-angular do not appear in top 1000 (maybe not distributed by themselves)',
-        ],
-      },
     },
     'head/0002': {
       location: 'head',
@@ -54,22 +42,12 @@ export const report: CordovaManualAnalysisReport = {
         isGuess: true,
         comments: 'file with bunch of cordova plugins',
       },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
-      },
     },
     'head/0003': {
       location: 'head',
       id: '0003',
       type: 'single-lib',
       match: { name: 'jquery', version: '2.1.4', file: '0001.json', isGuess: false },
-      algReport: {
-        comments: [
-          'jquery is a single candidate, matched as subset',
-          'jquery@2.1.4 - 100%',
-          'jquery@2.1.2 == jquery@2.1.3 - 80.90% (exactly the same % value - 500/618)',
-        ],
-      },
     },
     'head/0004': {
       location: 'head',
@@ -81,27 +59,18 @@ export const report: CordovaManualAnalysisReport = {
         isGuess: false,
         comments: 'minified',
       },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
-      },
     },
     'head/0005': {
       location: 'head',
       id: '0005',
       type: 'unknown',
       match: { name: 'angular-validation', isGuess: true },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
-      },
     },
     'head/0006': {
       location: 'head',
       id: '0006',
       type: 'unknown',
       match: { name: 'angular-validation', isGuess: true },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
-      },
     },
     'head/0007': {
       location: 'head',
@@ -113,14 +82,6 @@ export const report: CordovaManualAnalysisReport = {
         file: '0000.json',
         isGuess: false,
         comments: 'minified',
-      },
-      algReport: {
-        comments: [
-          'moment is a top candidate - 40.45%',
-          'moment@2.9.0 - 46.47%',
-          'moment@2.8.4 - 43.95%',
-          'moment@2.8.1 - 43.75%',
-        ],
       },
     },
     'head/0008': {
@@ -134,9 +95,6 @@ export const report: CordovaManualAnalysisReport = {
       id: '0009',
       type: 'single-lib',
       match: { name: 'angular-timer', version: '1.3.4', isGuess: false, comments: 'minified' },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
-      },
     },
     'head/0010': {
       location: 'head',
@@ -147,9 +105,6 @@ export const report: CordovaManualAnalysisReport = {
         version: '3.0.4',
         isGuess: false,
         comments: 'non-minified',
-        algReport: {
-          comments: ['library is missing in dataset', 'missing in top1000'],
-        },
       },
     },
     'head/0011': {
@@ -161,9 +116,6 @@ export const report: CordovaManualAnalysisReport = {
         version: '2.13.0',
         isGuess: false,
         comments: 'minified',
-      },
-      algReport: {
-        comments: ['library is missing in dataset', 'missing in top1000'],
       },
     },
 
@@ -201,5 +153,81 @@ export const report: CordovaManualAnalysisReport = {
     'head/0043': { location: 'head', id: '0043', type: 'business-logic' },
     'head/0044': { location: 'head', id: '0044', type: 'business-logic' },
     'head/0045': { location: 'head', id: '0045', type: 'business-logic' },
+  },
+}
+
+// eslint-disable-next-line no-unused-vars
+const additionalData = {
+  files: {
+    'head/0000': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'head/0001': {
+      algReport: {
+        comments: [
+          'angular is a top candidate - 30.98%',
+          'angular@1.4.2 == angular@1.4.3 - 38.53% (exactly the same % value - 1349/3501)',
+          'angular@1.4.4 - 38.2453%',
+          'angular-animate, angular-sanitize, angular-ui-router all appear in top 1000',
+          'ionic, ionic-angular do not appear in top 1000 (maybe not distributed by themselves)',
+        ],
+      },
+    },
+    'head/0002': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'head/0003': {
+      algReport: {
+        comments: [
+          'jquery is a single candidate, matched as subset',
+          'jquery@2.1.4 - 100%',
+          'jquery@2.1.2 == jquery@2.1.3 - 80.90% (exactly the same % value - 500/618)',
+        ],
+      },
+    },
+    'head/0004': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'head/0005': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'head/0006': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'head/0007': {
+      algReport: {
+        comments: [
+          'moment is a top candidate - 40.45%',
+          'moment@2.9.0 - 46.47%',
+          'moment@2.8.4 - 43.95%',
+          'moment@2.8.1 - 43.75%',
+        ],
+      },
+    },
+    'head/0009': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'head/0010': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
+    'head/0011': {
+      algReport: {
+        comments: ['library is missing in dataset', 'missing in top1000'],
+      },
+    },
   },
 }
