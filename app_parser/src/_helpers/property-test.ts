@@ -50,8 +50,20 @@ export const check: CheckFn = function check(...args: any[]): Implementation {
       this.title += prettyPrintResult(result)
       return propertyFn.call(this, test, ...result.counterexample)
     } else if (result === true) {
-      for (let log of allLogs[jsc.random(0, allLogs.length - 1)]) {
-        this.addLog(log)
+      if ('tests' in opts && opts.tests && opts.tests <= 3) {
+        // print all logs if number of tests is specified to be small
+        allLogs.forEach((log, i) => {
+          this.addLog(`Run #${i + 1}`)
+          for (let logLine of log) {
+            this.addLog(logLine)
+          }
+          this.addLog('')
+        })
+      } else {
+        // print randomly selected log
+        for (let log of allLogs[jsc.random(0, allLogs.length - 1)]) {
+          this.addLog(log)
+        }
       }
       test.pass()
     } else {
