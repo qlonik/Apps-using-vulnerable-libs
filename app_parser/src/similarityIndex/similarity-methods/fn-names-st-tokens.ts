@@ -1,12 +1,12 @@
 import { head, last } from 'lodash'
-import { Logger } from 'pino'
-import { fnNamesSplit, FunctionSignature, FunctionSignatures } from '../../extractStructure'
+import { fnNamesSplit, FunctionSignature } from '../../extractStructure'
 import { jaccardLike, jaccardLikeWithMapping } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
 import { getFnSig } from './internal'
 import {
   DefiniteMap,
   FunctionSignatureMatched,
+  MatchingFn,
   nameProbIndex,
   probIndex,
   SimMapWithConfidence,
@@ -26,9 +26,11 @@ const anonPartitionWithMap = (arr: FunctionSignature[]) =>
     },
   )
 
-export function librarySimilarityByFunctionNamesAndStatementTokens<
-  T extends FunctionSignature[] | FunctionSignatures
->(logS: Logger, unknownS: T, libS: T): SimMapWithConfidence {
+export const librarySimilarityByFunctionNamesAndStatementTokens: MatchingFn = function FnNamesAndStToks(
+  logS,
+  unknownS,
+  libS,
+): SimMapWithConfidence {
   const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const unknownPart = anonPartitionWithMap(unknown)

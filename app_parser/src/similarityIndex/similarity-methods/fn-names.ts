@@ -3,7 +3,7 @@ import { Logger } from 'pino'
 import { FunctionSignature, FunctionSignatures } from '../../extractStructure'
 import { jaccardLikeWithMapping, libPortionWithMapping } from '../set'
 import { getFnSig } from './internal'
-import { DefiniteMap, probIndex, SimMapWithConfidence } from './types'
+import { DefiniteMap, MatchingFn, probIndex, SimMapWithConfidence } from './types'
 
 const uniqFnNamesWithMapping = (arr: FunctionSignature[]) =>
   arr.reduce(
@@ -32,9 +32,11 @@ const uniqFnNamesWithMapping = (arr: FunctionSignature[]) =>
  * @param unknownS
  * @param libS
  */
-export function librarySimilarityByFunctionNames_ourIndex<
-  T extends FunctionSignature[] | FunctionSignatures
->(logS: Logger, unknownS: T, libS: T): SimMapWithConfidence {
+export const librarySimilarityByFunctionNames_ourIndex: MatchingFn = function FnNames_our(
+  logS,
+  unknownS,
+  libS,
+): SimMapWithConfidence {
   const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const { set: unknownNamesSet, mapping: unknownNamesMapping } = uniqFnNamesWithMapping(unknown)
@@ -68,9 +70,11 @@ export function librarySimilarityByFunctionNames_ourIndex<
  * @param unknownS
  * @param libS
  */
-export function librarySimilarityByFunctionNames_jaccardIndex<
-  T extends FunctionSignature[] | FunctionSignatures
->(logS: Logger, unknownS: T, libS: T): SimMapWithConfidence {
+export const librarySimilarityByFunctionNames_jaccardIndex: MatchingFn = function FnNames_jaccard(
+  logS,
+  unknownS,
+  libS,
+): SimMapWithConfidence {
   const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const { set: unknownNamesSet, mapping: unknownNamesMapping } = uniqFnNamesWithMapping(unknown)

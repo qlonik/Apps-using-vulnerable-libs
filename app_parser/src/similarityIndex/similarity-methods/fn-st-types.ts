@@ -1,23 +1,21 @@
 import { clone, head } from 'lodash'
-import { Logger } from 'pino'
-import {
-  FunctionSignature, // eslint-disable-line no-unused-vars
-  FunctionSignatures, // eslint-disable-line no-unused-vars
-} from '../../extractStructure'
 import { jaccardLikeStrings } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
 import { getFnSig } from './internal'
 import {
   DefiniteMap,
   FunctionSignatureMatched,
+  MatchingFn,
   nameProbIndex,
   probIndex,
   SimMapWithConfidence,
 } from './types'
 
-export function librarySimilarityByFunctionStatementTypes<
-  T extends FunctionSignature[] | FunctionSignatures
->(logS: Logger, unknownS: T, libS: T): SimMapWithConfidence {
+export const librarySimilarityByFunctionStatementTypes: MatchingFn = function FnStTypes(
+  logS,
+  unknownS,
+  libS,
+): SimMapWithConfidence {
   const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const libCopy = clone(lib) as FunctionSignatureMatched[]

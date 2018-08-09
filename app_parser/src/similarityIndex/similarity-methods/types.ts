@@ -1,4 +1,5 @@
-import { FunctionSignature } from '../../extractStructure'
+import { Logger } from 'pino'
+import { FunctionSignature, FunctionSignatures } from '../../extractStructure'
 import { indexValue } from '../set'
 
 export interface Name {
@@ -31,5 +32,11 @@ export interface SimMapWithConfidence {
 export type FunctionSignatureMatched = FunctionSignature & {
   __matched?: boolean | probIndex
 }
+
+export type MatchingFn = <T extends FunctionSignature[] | FunctionSignatures>(
+  l: Logger | undefined,
+  unknown: T,
+  lib: T,
+) => SimMapWithConfidence
 
 export const typeErrorMsg = 'wrong parameters'

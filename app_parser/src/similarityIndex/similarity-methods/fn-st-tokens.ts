@@ -1,10 +1,6 @@
 import { Fraction } from 'fraction.js'
 import { clone, head, sortBy } from 'lodash'
-import { Logger } from 'pino'
-import {
-  FunctionSignature,
-  FunctionSignatures, // eslint-disable-line no-unused-vars
-} from '../../extractStructure'
+import { FunctionSignature } from '../../extractStructure'
 import { FractionToIndexValue } from '../fraction'
 import {
   indexValue,
@@ -19,6 +15,7 @@ import { getFnSig } from './internal'
 import {
   DefiniteMap,
   FunctionSignatureMatched,
+  MatchingFn,
   nameProbIndex,
   Prob,
   probIndex,
@@ -60,11 +57,7 @@ import {
  * @param libS
  * @returns
  */
-export function v1<T extends FunctionSignature[] | FunctionSignatures>(
-  logS: Logger,
-  unknownS: T,
-  libS: T,
-): SimMapWithConfidence {
+export const v1: MatchingFn = function v1(logS, unknownS, libS): SimMapWithConfidence {
   const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   let libCopy = clone(lib) as FunctionSignatureMatched[]
@@ -117,11 +110,7 @@ export function v1<T extends FunctionSignature[] | FunctionSignatures>(
  * @param libS - signature of the library
  * @returns
  */
-export function v2<T extends FunctionSignature[] | FunctionSignatures>(
-  logS: Logger,
-  unknownS: T,
-  libS: T,
-): SimMapWithConfidence {
+export const v2: MatchingFn = function v2(logS, unknownS, libS): SimMapWithConfidence {
   const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const mappedUnknownSig = lib.reduce(
@@ -164,11 +153,7 @@ export function v2<T extends FunctionSignature[] | FunctionSignatures>(
   }
 }
 
-export function v3<T extends FunctionSignature[] | FunctionSignatures>(
-  logS: Logger,
-  unknownS: T,
-  libS: T,
-): SimMapWithConfidence {
+export const v3: MatchingFn = function v3(logS, unknownS, libS): SimMapWithConfidence {
   const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   type indexesProb = { unknownIndex: number; libIndex: number } & Prob
@@ -212,11 +197,7 @@ export function v3<T extends FunctionSignature[] | FunctionSignatures>(
  * This function calculates similarity index in the same way as {@link v2}. However, it takes into
  * account the value of each similarity index between functions that got matched.
  */
-export function v4<T extends FunctionSignature[] | FunctionSignatures>(
-  logS: Logger,
-  unknownS: T,
-  libS: T,
-): SimMapWithConfidence {
+export const v4: MatchingFn = function v4(logS, unknownS, libS): SimMapWithConfidence {
   const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const { map: mapArr } = lib.reduce(
@@ -265,11 +246,7 @@ export function v4<T extends FunctionSignature[] | FunctionSignatures>(
  * This function calculates similarity index in the same way as {@link v2}.
  * However, it only uses functions which got matched to other functions with jaccard index =1.
  */
-export function v5<T extends FunctionSignature[] | FunctionSignatures>(
-  logS: Logger,
-  unknownS: T,
-  libS: T,
-): SimMapWithConfidence {
+export const v5: MatchingFn = function v5(logS, unknownS, libS): SimMapWithConfidence {
   const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const { map: mapArr } = lib.reduce(
@@ -317,11 +294,7 @@ export function v5<T extends FunctionSignature[] | FunctionSignatures>(
  * @param unknownS
  * @param libS
  */
-export function v6<T extends FunctionSignature[] | FunctionSignatures>(
-  logS: Logger,
-  unknownS: T,
-  libS: T,
-): SimMapWithConfidence {
+export const v6: MatchingFn = function v6(logS, unknownS, libS): SimMapWithConfidence {
   const fnStart = process.hrtime()
 
   const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
