@@ -14,7 +14,7 @@ import {
 } from '../parseLibraries'
 import { indexValue, isSubset, jaccardIndex } from './set'
 import { v6 } from './similarity-methods/fn-st-tokens'
-import { probIndex, SimMapWithConfidence } from './similarity-methods/types'
+import { probIndex, SimMapWithConfidence, MatchingFn } from './similarity-methods/types'
 import { SortedLimitedList } from './SortedLimitedList'
 
 const nextTick = promisify(setImmediate)
@@ -52,7 +52,7 @@ export type BundleSimFnArg = {
   signature: signatureWithComments
   candidates: candidateLib[]
   log: Logger
-  fn?: (log: Logger, a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence
+  fn?: MatchingFn
 }
 export type BundleSimFnArgSerializable = {
   libsPath: string
@@ -73,10 +73,7 @@ export type BundleSimFnReturn = {
   remaining: FunctionSignature[]
 }
 
-const matchesToLibFactory = (
-  libsPath: string,
-  fn: (log: Logger, a: FunctionSignature[], b: FunctionSignature[]) => SimMapWithConfidence,
-) => async (
+const matchesToLibFactory = (libsPath: string, fn: MatchingFn) => async (
   log: Logger,
   remaining: FunctionSignature[],
   libNVS: libNameVersionSigContent[],
