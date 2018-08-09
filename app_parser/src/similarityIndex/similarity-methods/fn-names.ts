@@ -1,9 +1,9 @@
 import { Logger } from 'pino'
 // eslint-disable-next-line no-unused-vars
-import { FunctionSignature, FunctionSignatures, isFunctionSignatures } from '../../extractStructure'
-import logger from '../../utils/logger'
+import { FunctionSignature, FunctionSignatures } from '../../extractStructure'
 import { jaccardLikeWithMapping, libPortionWithMapping } from '../set'
-import { DefiniteMap, probIndex, SimMapWithConfidence, typeErrorMsg } from './types'
+import { getFnSig } from './internal'
+import { DefiniteMap, probIndex, SimMapWithConfidence } from './types'
 
 const uniqFnNamesWithMapping = (arr: FunctionSignature[]) =>
   arr.reduce(
@@ -28,24 +28,14 @@ const uniqFnNamesWithMapping = (arr: FunctionSignature[]) =>
  * 3. Compare sets using {@link libPortionWithMapping | libPortionWithMapping()}
  * 4. Restore mapping when incoming lists were not sets
  *
- * @param log
+ * @param logS
  * @param unknownS
  * @param libS
  */
 export function librarySimilarityByFunctionNames_ourIndex<
   T extends FunctionSignature[] | FunctionSignatures
->(log: Logger = logger, unknownS: T, libS: T): SimMapWithConfidence {
-  let unknown: FunctionSignature[]
-  let lib: FunctionSignature[]
-  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
-    unknown = unknownS.functionSignature
-    lib = libS.functionSignature
-  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
-    unknown = unknownS
-    lib = libS
-  } else {
-    throw new TypeError(typeErrorMsg)
-  }
+>(logS: Logger, unknownS: T, libS: T): SimMapWithConfidence {
+  const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const { set: unknownNamesSet, mapping: unknownNamesMapping } = uniqFnNamesWithMapping(unknown)
   const { set: libNamesSet, mapping: libNamesMapping } = uniqFnNamesWithMapping(lib)
@@ -74,24 +64,14 @@ export function librarySimilarityByFunctionNames_ourIndex<
  * 3. Compare sets using {@link jaccardLikeWithMapping | jaccardLikeWithMapping()}
  * 4. Restore mapping when incoming lists were not sets
  *
- * @param log
+ * @param logS
  * @param unknownS
  * @param libS
  */
 export function librarySimilarityByFunctionNames_jaccardIndex<
   T extends FunctionSignature[] | FunctionSignatures
->(log: Logger = logger, unknownS: T, libS: T): SimMapWithConfidence {
-  let unknown: FunctionSignature[]
-  let lib: FunctionSignature[]
-  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
-    unknown = unknownS.functionSignature
-    lib = libS.functionSignature
-  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
-    unknown = unknownS
-    lib = libS
-  } else {
-    throw new TypeError(typeErrorMsg)
-  }
+>(logS: Logger, unknownS: T, libS: T): SimMapWithConfidence {
+  const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const { set: unknownNamesSet, mapping: unknownNamesMapping } = uniqFnNamesWithMapping(unknown)
   const { set: libNamesSet, mapping: libNamesMapping } = uniqFnNamesWithMapping(lib)

@@ -4,7 +4,6 @@ import { Logger } from 'pino'
 import {
   FunctionSignature,
   FunctionSignatures, // eslint-disable-line no-unused-vars
-  isFunctionSignatures,
 } from '../../extractStructure'
 import { FractionToIndexValue } from '../fraction'
 import {
@@ -16,6 +15,7 @@ import {
   weightedMapIndex,
 } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
+import { getFnSig } from './internal'
 import {
   DefiniteMap,
   FunctionSignatureMatched,
@@ -23,9 +23,7 @@ import {
   Prob,
   probIndex,
   SimMapWithConfidence,
-  typeErrorMsg,
 } from './types'
-import logger from '../../utils/logger'
 
 /**
  * This function produces similarity index between two signature based on the function statement
@@ -57,27 +55,17 @@ import logger from '../../utils/logger'
  * 6. Return this index from step 5 as the similarity index between unknown signature and known
  *    library signature.
  *
- * @param log - logger instance
+ * @param logS - logger instance
  * @param unknownS
  * @param libS
  * @returns
  */
 export function v1<T extends FunctionSignature[] | FunctionSignatures>(
-  log: Logger = logger,
+  logS: Logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
-  let unknown: FunctionSignature[]
-  let lib: FunctionSignature[]
-  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
-    unknown = unknownS.functionSignature
-    lib = libS.functionSignature
-  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
-    unknown = unknownS
-    lib = libS
-  } else {
-    throw new TypeError(typeErrorMsg)
-  }
+  const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   let libCopy = clone(lib) as FunctionSignatureMatched[]
   // remark: first for loop
@@ -124,27 +112,17 @@ export function v1<T extends FunctionSignature[] | FunctionSignatures>(
  * because this function takes every function from library and tries to match it to all functions
  * in the unknown signature.
  *
- * @param log - logger instance
+ * @param logS - logger instance
  * @param unknownS - signature of the unknown js file from the app
  * @param libS - signature of the library
  * @returns
  */
 export function v2<T extends FunctionSignature[] | FunctionSignatures>(
-  log: Logger = logger,
+  logS: Logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
-  let unknown: FunctionSignature[]
-  let lib: FunctionSignature[]
-  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
-    unknown = unknownS.functionSignature
-    lib = libS.functionSignature
-  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
-    unknown = unknownS
-    lib = libS
-  } else {
-    throw new TypeError(typeErrorMsg)
-  }
+  const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const mappedUnknownSig = lib.reduce(
     (mappedUnknownSigAcc, { fnStatementTokens: libToks }, libIndex) => {
@@ -187,21 +165,11 @@ export function v2<T extends FunctionSignature[] | FunctionSignatures>(
 }
 
 export function v3<T extends FunctionSignature[] | FunctionSignatures>(
-  log: Logger = logger,
+  logS: Logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
-  let unknown: FunctionSignature[]
-  let lib: FunctionSignature[]
-  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
-    unknown = unknownS.functionSignature
-    lib = libS.functionSignature
-  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
-    unknown = unknownS
-    lib = libS
-  } else {
-    throw new TypeError(typeErrorMsg)
-  }
+  const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   type indexesProb = { unknownIndex: number; libIndex: number } & Prob
   const sll = new SortedLimitedList({ limit: Infinity, predicate: (o: indexesProb) => -o.prob.val })
@@ -245,21 +213,11 @@ export function v3<T extends FunctionSignature[] | FunctionSignatures>(
  * account the value of each similarity index between functions that got matched.
  */
 export function v4<T extends FunctionSignature[] | FunctionSignatures>(
-  log: Logger = logger,
+  logS: Logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
-  let unknown: FunctionSignature[]
-  let lib: FunctionSignature[]
-  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
-    unknown = unknownS.functionSignature
-    lib = libS.functionSignature
-  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
-    unknown = unknownS
-    lib = libS
-  } else {
-    throw new TypeError(typeErrorMsg)
-  }
+  const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const { map: mapArr } = lib.reduce(
     ({ map, unkwn }, { fnStatementTokens: libToks }, libIndex) => {
@@ -308,21 +266,11 @@ export function v4<T extends FunctionSignature[] | FunctionSignatures>(
  * However, it only uses functions which got matched to other functions with jaccard index =1.
  */
 export function v5<T extends FunctionSignature[] | FunctionSignatures>(
-  log: Logger = logger,
+  logS: Logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
-  let unknown: FunctionSignature[]
-  let lib: FunctionSignature[]
-  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
-    unknown = unknownS.functionSignature
-    lib = libS.functionSignature
-  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
-    unknown = unknownS
-    lib = libS
-  } else {
-    throw new TypeError(typeErrorMsg)
-  }
+  const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const { map: mapArr } = lib.reduce(
     ({ map, unkwn }, { fnStatementTokens: libToks }, libIndex) => {
@@ -365,29 +313,19 @@ export function v5<T extends FunctionSignature[] | FunctionSignatures>(
 /**
  * This function calculates mapping between unknown signature and known lib signature in the same
  * way as {@link v5} does. However, this function uses {@link libPortion}
- * @param log
+ * @param logS
  * @param unknownS
  * @param libS
  */
 export function v6<T extends FunctionSignature[] | FunctionSignatures>(
-  log: Logger = logger,
+  logS: Logger,
   unknownS: T,
   libS: T,
 ): SimMapWithConfidence {
-  const v6log = log.child({ name: 'fn-st-toks-v6' })
   const fnStart = process.hrtime()
 
-  let unknown: FunctionSignature[]
-  let lib: FunctionSignature[]
-  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
-    unknown = unknownS.functionSignature
-    lib = libS.functionSignature
-  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
-    unknown = unknownS
-    lib = libS
-  } else {
-    throw new TypeError(typeErrorMsg)
-  }
+  const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
+  const v6log = log.child({ name: 'fn-st-toks-v6' })
 
   const map = new Map() as DefiniteMap<number, probIndex>
   const unkwn = [] as { matched: boolean; el: FunctionSignature }[]

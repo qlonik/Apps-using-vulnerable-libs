@@ -1,21 +1,15 @@
 import { head, last } from 'lodash'
 import { Logger } from 'pino'
-import {
-  fnNamesSplit,
-  FunctionSignature,
-  FunctionSignatures,
-  isFunctionSignatures,
-} from '../../extractStructure'
-import logger from '../../utils/logger'
+import { fnNamesSplit, FunctionSignature, FunctionSignatures } from '../../extractStructure'
 import { jaccardLike, jaccardLikeWithMapping } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
+import { getFnSig } from './internal'
 import {
   DefiniteMap,
   FunctionSignatureMatched,
   nameProbIndex,
   probIndex,
   SimMapWithConfidence,
-  typeErrorMsg,
 } from './types'
 
 const anonPartitionWithMap = (arr: FunctionSignature[]) =>
@@ -34,18 +28,8 @@ const anonPartitionWithMap = (arr: FunctionSignature[]) =>
 
 export function librarySimilarityByFunctionNamesAndStatementTokens<
   T extends FunctionSignature[] | FunctionSignatures
->(log: Logger = logger, unknownS: T, libS: T): SimMapWithConfidence {
-  let unknown: FunctionSignature[]
-  let lib: FunctionSignature[]
-  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
-    unknown = unknownS.functionSignature
-    lib = libS.functionSignature
-  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
-    unknown = unknownS
-    lib = libS
-  } else {
-    throw new TypeError(typeErrorMsg)
-  }
+>(logS: Logger, unknownS: T, libS: T): SimMapWithConfidence {
+  const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const unknownPart = anonPartitionWithMap(unknown)
   const libPart = anonPartitionWithMap(lib)

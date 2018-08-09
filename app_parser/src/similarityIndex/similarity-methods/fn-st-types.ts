@@ -1,36 +1,24 @@
 import { clone, head } from 'lodash'
 import { Logger } from 'pino'
 import {
-  FunctionSignature,
+  FunctionSignature, // eslint-disable-line no-unused-vars
   FunctionSignatures, // eslint-disable-line no-unused-vars
-  isFunctionSignatures,
 } from '../../extractStructure'
-import logger from '../../utils/logger'
 import { jaccardLikeStrings } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
+import { getFnSig } from './internal'
 import {
   DefiniteMap,
   FunctionSignatureMatched,
   nameProbIndex,
   probIndex,
   SimMapWithConfidence,
-  typeErrorMsg,
 } from './types'
 
 export function librarySimilarityByFunctionStatementTypes<
   T extends FunctionSignature[] | FunctionSignatures
->(log: Logger = logger, unknownS: T, libS: T): SimMapWithConfidence {
-  let unknown: FunctionSignature[]
-  let lib: FunctionSignature[]
-  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
-    unknown = unknownS.functionSignature
-    lib = libS.functionSignature
-  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
-    unknown = unknownS
-    lib = libS
-  } else {
-    throw new TypeError(typeErrorMsg)
-  }
+>(logS: Logger, unknownS: T, libS: T): SimMapWithConfidence {
+  const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
 
   const libCopy = clone(lib) as FunctionSignatureMatched[]
   // remark: first for loop
