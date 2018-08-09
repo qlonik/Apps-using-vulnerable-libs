@@ -1,4 +1,13 @@
 export {
+  LIT_MATCHING_METHODS,
+  LIT_MATCHING_METHODS_TYPE,
+  returnLiteralMatchingFn,
+  FN_MATCHING_METHODS,
+  FN_MATCHING_METHODS_TYPE,
+  returnFunctionMatchingFn,
+} from './internal'
+
+export {
   v1 as librarySimilarityByFunctionStatementTokens,
   v2 as librarySimilarityByFunctionStatementTokens_v2,
   v3 as librarySimilarityByFunctionStatementTokens_v3,
