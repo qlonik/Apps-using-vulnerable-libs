@@ -3,11 +3,13 @@ import { differenceWith, isEqual, once, partition, shuffle, take } from 'lodash/
 import { join } from 'path'
 import { analyseCordovaApp, APP_TYPES, appDesc } from '../parseApps'
 import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
+import { FN_MATCHING_METHODS_TYPE } from '../similarityIndex/similarity-methods'
 import { assertNever, resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { poolFactory } from '../utils/worker'
 import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
+const ANALYSE_WITH_FN: undefined | FN_MATCHING_METHODS_TYPE = undefined
 const APPS_TO_ANALYSE_LIMIT = 1000
 const ALL_APPS_PATH = '../data/sample_apps'
 const FIN_PRE_APPS_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
@@ -51,7 +53,13 @@ export const main: MainFn = async function main(log) {
       return { done: false, ...app }
     } else if (app.type === APP_TYPES.cordova) {
       try {
-        await analyseCordovaApp({ allAppsPath: ALL_APPS_PATH, libsPath: ALL_LIBS_PATH, app, pool })
+        await analyseCordovaApp({
+          allAppsPath: ALL_APPS_PATH,
+          libsPath: ALL_LIBS_PATH,
+          app,
+          pool,
+          fn: ANALYSE_WITH_FN,
+        })
         return { done: true, ...app }
       } catch (err) {
         log.error({ err, app }, 'analyseCordovaApp() threw an error')
