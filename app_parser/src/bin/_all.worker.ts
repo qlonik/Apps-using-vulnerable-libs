@@ -21,8 +21,6 @@ import {
 } from '../parseLibraries'
 import { isInBlacklist } from '../pkgBlacklist'
 import { bundle_similarity_fn, candidateLib } from '../similarityIndex'
-import { librarySimilarityByFunctionStatementTokens_v6 } from '../similarityIndex/similarity-methods'
-import { assertNever } from '../utils'
 import { fileOp, saveFiles } from '../utils/files'
 import logger from '../utils/logger'
 import { allMessages as messages, CouchDumpFormat, DONE } from './_all.types'
@@ -37,13 +35,7 @@ const siLog = makeLog('bundle_similarity_fn')
 const memoReadJSON = memoize((p: string): Promise<any> => readJSON(p))
 
 worker<messages>({
-  bundle_similarity_fn: async ({
-    libsPath,
-    signaturePath,
-    candidatesPath,
-    log: logData,
-    fn: fnName,
-  }) => {
+  bundle_similarity_fn: async ({ libsPath, signaturePath, candidatesPath, log: logData, fn }) => {
     const candidates = (await readJSON(candidatesPath)) as candidateLib[]
     if (candidates.length === 0) {
       return true
@@ -51,10 +43,6 @@ worker<messages>({
 
     const signature = (await readJSON(signaturePath)) as signatureWithComments
     const log = siLog.child(logData)
-    const fn =
-      fnName === undefined
-        ? undefined
-        : fnName === 'v6' ? librarySimilarityByFunctionStatementTokens_v6 : assertNever(fnName)
 
     return bundle_similarity_fn({ libsPath, signature, candidates, log, fn })
   },

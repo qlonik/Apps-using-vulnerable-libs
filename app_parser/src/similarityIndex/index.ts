@@ -13,7 +13,7 @@ import {
   shuffleVersions,
 } from '../parseLibraries'
 import { indexValue, isSubset, jaccardIndex } from './set'
-import { v6 } from './similarity-methods/fn-st-tokens'
+import { FN_MATCHING_METHODS_TYPE, returnFunctionMatchingFn } from './similarity-methods'
 import { probIndex, SimMapWithConfidence, MatchingFn } from './similarity-methods/types'
 import { SortedLimitedList } from './SortedLimitedList'
 
@@ -52,14 +52,14 @@ export type BundleSimFnArg = {
   signature: signatureWithComments
   candidates: candidateLib[]
   log: Logger
-  fn?: MatchingFn
+  fn?: FN_MATCHING_METHODS_TYPE
 }
 export type BundleSimFnArgSerializable = {
   libsPath: string
   signaturePath: string
   candidatesPath: string
   log: { [x: string]: serializableObject }
-  fn?: 'v6'
+  fn?: FN_MATCHING_METHODS_TYPE
 }
 export type SerializableRankType = Omit<rankType, 'matches'> & {
   matches: (Omit<matchedLib, 'mapping'> & {
@@ -130,7 +130,7 @@ export const bundle_similarity_fn = async ({
   signature: unknownSig,
   candidates,
   log,
-  fn = v6,
+  fn: fnName,
 }: BundleSimFnArg): Promise<BundleSimFnReturn> => {
   // sort candidates by most likely one
   // for each candidate:
@@ -139,6 +139,7 @@ export const bundle_similarity_fn = async ({
   //   update top5's mapping to map to real indexes from unknownSig
   //   from copy of unknownSig, remove mapped functions of top1 candidate
   //   run from beginning of for-loop with remaining unmapped functions
+  const fn = returnFunctionMatchingFn(fnName)
   const mRemainingToLib = matchesToLibFactory(libsPath, fn)
   const preparedCandidates = sortBy((o) => -o.index.val, candidates).map(({ name, index }, i) => ({
     name,

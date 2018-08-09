@@ -13,6 +13,7 @@ import {
   getCandidateLibs,
   Similarity,
 } from '../similarityIndex'
+import { FN_MATCHING_METHODS_TYPE } from '../similarityIndex/similarity-methods'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
 import { CordovaAppDataError } from '../utils/errors'
 import { fileDescOp, fileOp, saveFiles } from '../utils/files'
@@ -232,11 +233,13 @@ export const analyseCordovaApp = async <T extends BundSim>({
   libsPath,
   app: { type, section, app },
   pool,
+  fn,
 }: {
   allAppsPath: string
   libsPath: string
   app: appDesc
   pool?: Pool<T>
+  fn?: FN_MATCHING_METHODS_TYPE
   report?: AppAnalysisReport | null
 }): Promise<CordovaAnalysisReport> => {
   const appPath = appPathFn(allAppsPath, type, section, app)
@@ -271,7 +274,7 @@ export const analyseCordovaApp = async <T extends BundSim>({
       if (pool) {
         log.debug('>-> started bundle_similarity_fn on worker')
         const res = await pool.exec('bundle_similarity_fn', [
-          { libsPath, signaturePath: sigPath, candidatesPath: candPath, log: logDescrObj },
+          { libsPath, signaturePath: sigPath, candidatesPath: candPath, log: logDescrObj, fn },
         ])
         log.debug('>-> finished bundle_similarity_fn on worker')
 
@@ -292,7 +295,7 @@ export const analyseCordovaApp = async <T extends BundSim>({
         const signature = (await readJSON(sigPath)) as signatureWithComments
 
         log.debug('>-> started bundle_similarity_fn')
-        sim = await bundle_similarity_fn({ libsPath, signature, candidates, log })
+        sim = await bundle_similarity_fn({ libsPath, signature, candidates, log, fn })
         log.debug('>-> finished bundle_similarity_fn')
       }
 
