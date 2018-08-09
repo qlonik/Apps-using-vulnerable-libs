@@ -1,5 +1,10 @@
 import { Logger } from 'pino'
-import { FunctionSignature, FunctionSignatures } from '../../extractStructure'
+import {
+  FunctionSignature,
+  FunctionSignatures,
+  LiteralSignature,
+  LiteralSignatures,
+} from '../../extractStructure'
 import { indexValue } from '../set'
 
 export interface Name {
@@ -34,6 +39,12 @@ export type FunctionSignatureMatched = FunctionSignature & {
 }
 
 export type MatchingFn = <T extends FunctionSignature[] | FunctionSignatures>(
+  l: Logger | undefined,
+  unknown: T,
+  lib: T,
+) => SimMapWithConfidence
+
+export type LiteralMatchingFn = <T extends LiteralSignature[] | LiteralSignatures>(
   l: Logger | undefined,
   unknown: T,
   lib: T,
