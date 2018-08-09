@@ -1,5 +1,5 @@
-import { Signature } from './nodeFilters/allFnsAndNames'
-import { SignatureLiteral } from './nodeFilters/literalValues'
+import { Signature } from './node-filters/all-fns-and-names'
+import { SignatureLiteral } from './node-filters/literal-values'
 
 // todo: refactor existing types rather than alias them
 export type FunctionSignature = Signature

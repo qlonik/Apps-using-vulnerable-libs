@@ -1,7 +1,7 @@
 import { Node as BabelNode } from 'babel-types'
 import { parse } from 'babylon'
 import { collapseFnNamesTree, fnOnlyTreeCreator, literalValues, rnDeclareFns } from './internal'
-import { collapseLiteralValsTree } from './nodeFilters/literalValues'
+import { collapseLiteralValsTree } from './node-filters/literal-values'
 import { getDefaultOpts, opts as StrictOptions } from './options'
 import { rnSignatureNew, signatureNew, signatureWithComments } from './types'
 
