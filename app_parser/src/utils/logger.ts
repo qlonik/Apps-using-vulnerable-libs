@@ -10,6 +10,7 @@ import { inspect } from 'util'
  * Config for Pino
  */
 const PINO_OPTIONS: pino.LoggerOptions = {
+  level: process.env.NODE_ENV === 'test' ? 'info' : 'debug',
   serializers: {
     err: pino.stdSerializers.err,
   },
