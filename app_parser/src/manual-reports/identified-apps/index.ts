@@ -14,7 +14,15 @@ export type match = {
   name: string
   version?: string
   file?: string
+  /**
+   * true if it is a guess from variable names, or string value, or other side-channel info
+   * false if it is detected by comment
+   */
   isGuess: boolean
+  /**
+   * reports if the part of the file which corresponds to this library is minified or not
+   */
+  minified: boolean
   comments?: string
 }
 export type matchReport =

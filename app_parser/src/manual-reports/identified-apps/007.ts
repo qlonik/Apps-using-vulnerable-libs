@@ -17,11 +17,10 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'jquery',
         version: '2.1.1',
-        file: '0000',
         isGuess: false,
-        comments: 'non-minified, file is guessed',
+        minified: false,
+        comments: 'includes sizzle.js',
       },
-      comments: 'includes sizzle.js',
     },
     'head/0001': {
       location: 'head',
@@ -31,6 +30,7 @@ export const report: CordovaManualAnalysisReport = {
         name: 'floating',
         version: '1.12',
         isGuess: true,
+        minified: false,
         comments: 'guessed name',
       },
     },
@@ -41,8 +41,8 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'jquery-mobile',
         version: '1.4.4',
-        isGuess: true,
-        comments: 'minified',
+        isGuess: false,
+        minified: true,
       },
     },
     'head/0003': {
@@ -52,7 +52,8 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'jquery-ui',
         version: '1.11.1',
-        isGuess: true,
+        isGuess: false,
+        minified: true,
         comments:
           'name is guessed.\n' +
           'Includes: core.js, widget.js, mouse.js, position.js, draggable.js, droppable.js, ' +
@@ -70,8 +71,8 @@ export const report: CordovaManualAnalysisReport = {
       type: 'single-lib',
       match: {
         name: 'cordova',
-        version: '6.1.2',
         isGuess: true,
+        minified: false,
         comments: 'version is unknown, but PLATFORM_VERSION_BUILD_LABEL = 6.1.2',
       },
     },
@@ -82,6 +83,7 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'Utilities js by Liran Cohen',
         isGuess: true,
+        minified: false,
         comments: 'name is wrong, it was a title in a comment',
       },
     },
@@ -92,6 +94,7 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'Phonegap utilities js by Liran Cohen',
         isGuess: true,
+        minified: false,
         comments: 'name is wrong, it was a title in a comment',
       },
     },
@@ -102,6 +105,7 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'Admob utilities js by Liran Cohen',
         isGuess: true,
+        minified: false,
         comments: 'name is wrong, it was a title in a comment',
       },
     },
@@ -109,7 +113,7 @@ export const report: CordovaManualAnalysisReport = {
       location: 'head',
       id: '0008',
       type: 'business-logic',
-      comments: 'probably business-logic',
+      comments: 'initializing google-analytics',
     },
   },
 }

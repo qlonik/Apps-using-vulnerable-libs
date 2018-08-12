@@ -16,9 +16,9 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'bluebird',
         version: '3.4.6',
-        file: undefined,
         isGuess: false,
-        comments: 'minified. also possibly custom build.',
+        minified: true,
+        comments: 'possibly custom build',
       },
     },
     'head/0001': {
@@ -26,12 +26,12 @@ export const report: CordovaManualAnalysisReport = {
       id: '0001',
       type: 'bundle',
       match: [
-        { name: 'ionic', version: '1.3.1', isGuess: false },
-        { name: 'angular', version: '1.5.3', isGuess: false },
-        { name: 'angular-animate', version: '1.5.3', isGuess: false },
-        { name: 'angular-sanitize', version: '1.5.3', isGuess: false },
-        { name: 'angular-ui-router', version: '0.2.13', isGuess: false },
-        { name: 'ionic-angular', version: '1.3.1', isGuess: false },
+        { name: 'ionic', version: '1.3.1', isGuess: false, minified: false },
+        { name: 'angular', version: '1.5.3', isGuess: false, minified: false },
+        { name: 'angular-animate', version: '1.5.3', isGuess: false, minified: false },
+        { name: 'angular-sanitize', version: '1.5.3', isGuess: false, minified: false },
+        { name: 'angular-ui-router', version: '0.2.13', isGuess: false, minified: false },
+        { name: 'ionic-angular', version: '1.3.1', isGuess: false, minified: false },
       ],
     },
     'head/0002': {
@@ -42,6 +42,7 @@ export const report: CordovaManualAnalysisReport = {
         name: 'ngCordova',
         version: '0.1.27-alpha',
         isGuess: true,
+        minified: false,
         comments: 'file with bunch of cordova plugins',
       },
     },
@@ -53,7 +54,7 @@ export const report: CordovaManualAnalysisReport = {
         name: 'moment',
         version: '2.17.1',
         isGuess: false,
-        comments: 'minified',
+        minified: true,
       },
     },
     'head/0004': {
@@ -63,7 +64,7 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'angular-moment',
         isGuess: true,
-        comments: 'minified',
+        minified: true,
       },
     },
     'head/0005': {
@@ -73,6 +74,7 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'moment-locale',
         isGuess: true,
+        minified: false,
         comments: 'pt-br locale file for moment.js',
       },
     },
@@ -83,6 +85,7 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'cordova',
         isGuess: true,
+        minified: false,
         comments: 'version is unknown, but PLATFORM_VERSION_BUILD_LABEL = 6.0.0',
       },
     },

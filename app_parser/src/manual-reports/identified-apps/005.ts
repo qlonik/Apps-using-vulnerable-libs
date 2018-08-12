@@ -16,6 +16,7 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'cordova',
         isGuess: true,
+        minified: false,
         comments: 'version is unknown, but PLATFORM_VERSION_BUILD_LABEL = 3.6.4',
       },
     },
@@ -26,6 +27,7 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'com.admob.AdmobPlugin.AdmobAd',
         isGuess: true,
+        minified: false,
         comments: 'exact name is unknown. name is a guess. cordova admob plugin',
       },
     },
@@ -36,6 +38,7 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'nl.x-services.plugins.socialsharing.SocialSharing',
         isGuess: true,
+        minified: false,
         comments: 'name is a guess. social sharing cordova plugin',
       },
     },
@@ -48,7 +51,7 @@ export const report: CordovaManualAnalysisReport = {
         version: '1.11.2',
         file: '0001',
         isGuess: false,
-        comments: 'minified',
+        minified: true,
       },
     },
     'head/0004': {
@@ -59,7 +62,7 @@ export const report: CordovaManualAnalysisReport = {
         name: 'bootstrap',
         version: '3.3.2',
         isGuess: false,
-        comments: 'non-minified',
+        minified: false,
       },
     },
     'head/0005': {
@@ -71,13 +74,15 @@ export const report: CordovaManualAnalysisReport = {
           name: 'velocity',
           version: '1.2.2',
           isGuess: true,
-          comments: 'name is a guess\n' + 'minified',
+          minified: true,
+          comments: 'name is a guess',
         },
         {
           name: 'velocity-jquery-shim',
           version: '1.0.1',
           isGuess: true,
-          comments: 'name is a guess\n' + 'minified',
+          minified: true,
+          comments: 'name is a guess',
         },
       ],
     },
@@ -89,7 +94,8 @@ export const report: CordovaManualAnalysisReport = {
         name: 'velocity ui pack',
         version: '5.0.4',
         isGuess: true,
-        comments: 'name is a guess\n' + 'minified',
+        minified: true,
+        comments: 'name is a guess',
       },
     },
     'head/0007': {

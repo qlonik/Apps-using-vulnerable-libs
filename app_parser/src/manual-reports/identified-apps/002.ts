@@ -16,14 +16,11 @@ export const report: CordovaManualAnalysisReport = {
       match: {
         name: 'cordova',
         isGuess: true,
+        minified: false,
         comments: 'version is unknown, but PLATFORM_VERSION_BUILD_LABEL = 3.5.1',
       },
     },
-    'body/0001': {
-      location: 'body',
-      id: '0001',
-      type: 'business-logic',
-    },
+    'body/0001': { location: 'body', id: '0001', type: 'business-logic' },
     'body/0002': {
       location: 'body',
       id: '0002',
@@ -33,17 +30,18 @@ export const report: CordovaManualAnalysisReport = {
         version: '1.11.1',
         file: '0001.json',
         isGuess: false,
+        minified: true,
       },
     },
     'body/0003': {
       location: 'body',
       id: '0003',
-      type: 'unknown',
+      type: 'single-lib',
       match: {
         name: 'jquery-mobile',
         version: '1.4.4',
         isGuess: false,
-        comments: 'non-minified',
+        minified: false,
       },
     },
     'body/0004': {
@@ -54,24 +52,12 @@ export const report: CordovaManualAnalysisReport = {
         name: 'jQuery-Mobile-DateBox',
         version: '1.4.4',
         isGuess: true,
-        comments: 'minified',
+        minified: true,
       },
     },
-    'body/0005': {
-      location: 'body',
-      id: '0005',
-      type: 'business-logic',
-    },
-    'body/0006': {
-      location: 'body',
-      id: '0006',
-      type: 'business-logic',
-    },
-    'body/0007': {
-      location: 'body',
-      id: '0007',
-      type: 'unknown',
-    },
+    'body/0005': { location: 'body', id: '0005', type: 'business-logic' },
+    'body/0006': { location: 'body', id: '0006', type: 'business-logic' },
+    'body/0007': { location: 'body', id: '0007', type: 'business-logic' },
     'body/0008': {
       location: 'body',
       id: '0008',
@@ -80,6 +66,7 @@ export const report: CordovaManualAnalysisReport = {
         name: 'tweenmax',
         version: '1.15.0',
         isGuess: true,
+        minified: true,
         comments:
           'contains comment: ' +
           '"Includes all of the following: TweenLite, TweenMax, TimelineLite, TimelineMax, ' +
@@ -96,6 +83,7 @@ export const report: CordovaManualAnalysisReport = {
         name: 'timelinemax',
         version: '1.15.0',
         isGuess: true,
+        minified: true,
         comments: 'references http://www.greensock.com',
       },
     },
