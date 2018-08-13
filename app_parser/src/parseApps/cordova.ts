@@ -58,10 +58,12 @@ export const isCordovaApp: IsAppTypeFn = async function({ appPath }): Promise<bo
 export const preprocessCordovaApp = async (
   {
     allAppsPath,
+    appsAnalysisPath = allAppsPath,
     allLibsPath,
     app: { type, section, app },
   }: {
     allAppsPath: string
+    appsAnalysisPath?: string
     allLibsPath: string
     app: appDesc
   },
@@ -77,7 +79,7 @@ export const preprocessCordovaApp = async (
     [] as { location: string; script: HTMLScriptElement }[],
   )
   const parseScriptTags = scriptTags.map(({ location, script }, i) => async () => {
-    const cwd = join(allAppsPath, type, section, app, ANALYSIS_FOLDER, location, leftPad(i))
+    const cwd = join(appsAnalysisPath, type, section, app, ANALYSIS_FOLDER, location, leftPad(i))
     const fileOps: fileDescOp[] = []
     const log = fileLog.child({
       app: { type, section, app },
