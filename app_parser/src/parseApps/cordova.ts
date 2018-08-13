@@ -1,4 +1,4 @@
-import { mkdirp, pathExists, readFile, readJSON } from 'fs-extra'
+import { pathExists, readFile, readJSON } from 'fs-extra'
 import { JSDOM } from 'jsdom'
 import { groupBy } from 'lodash'
 import { join, sep } from 'path'
@@ -67,10 +67,7 @@ export const preprocessCordovaApp = async (
   },
   { conservative = false, extractorOpts }: opts = {},
 ) => {
-  const appPath = join(allAppsPath, type, section, app)
-  const indexHtmlPath = join(appPath, JS_DATA_FOLDER, CORDOVA_MAIN_FILE)
-  const jsAnalysisPath = join(appPath, ANALYSIS_FOLDER)
-  await mkdirp(jsAnalysisPath)
+  const indexHtmlPath = join(allAppsPath, type, section, app, JS_DATA_FOLDER, CORDOVA_MAIN_FILE)
   const { window: { document } } = await JSDOM.fromFile(indexHtmlPath)
   const scriptTags = ['head', 'body'].reduce(
     (acc, location) => {
@@ -80,7 +77,7 @@ export const preprocessCordovaApp = async (
     [] as { location: string; script: HTMLScriptElement }[],
   )
   const parseScriptTags = scriptTags.map(({ location, script }, i) => async () => {
-    const cwd = join(jsAnalysisPath, location, leftPad(i))
+    const cwd = join(allAppsPath, type, section, app, ANALYSIS_FOLDER, location, leftPad(i))
     const fileOps: fileDescOp[] = []
     const log = fileLog.child({
       app: { type, section, app },
