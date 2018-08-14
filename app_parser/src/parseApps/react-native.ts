@@ -23,25 +23,25 @@ export const isReactNativeApp: IsAppTypeFn = async function({ appPath }): Promis
 export const preprocessReactNativeApp = async (
   {
     allAppsPath,
+    appsAnalysisPath = allAppsPath,
     allLibsPath,
     app: { type, section, app },
   }: {
     allAppsPath: string
+    appsAnalysisPath?: string
     allLibsPath?: string
     app: appDesc
   },
   { conservative = false, extractorOpts }: opts = {},
 ) => {
-  const appPath = join(allAppsPath, type, section, app)
-
-  const bundlePath = join(appPath, REACT_NATIVE_MAIN_FILE)
+  const bundlePath = join(allAppsPath, type, section, app, REACT_NATIVE_MAIN_FILE)
   const bundleContent = await readFile(bundlePath, 'utf-8')
   const parsedBundle = await extractReactNativeStructure({
     content: bundleContent,
     options: extractorOpts,
   })
 
-  const jsAnalysisPath = join(appPath, ANALYSIS_FOLDER)
+  const jsAnalysisPath = join(appsAnalysisPath, type, section, app, ANALYSIS_FOLDER)
   await mkdirp(jsAnalysisPath)
 
   const lazy = parsedBundle.map(({ id, functionSignature, literalSignature }) => async () => {
