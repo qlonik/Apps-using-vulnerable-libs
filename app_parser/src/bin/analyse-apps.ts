@@ -3,8 +3,9 @@ import { differenceWith, isEqual, once, partition, shuffle, take } from 'lodash/
 import { join } from 'path'
 import { analyseCordovaApp, APP_TYPES, appDesc } from '../parseApps'
 import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
+import { strComp } from '../similarityIndex/bin-search'
 import { FN_MATCHING_METHODS_TYPE } from '../similarityIndex/similarity-methods'
-import { assertNever, resolveAllOrInParallel } from '../utils'
+import { assertNever } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { poolFactory } from '../utils/worker'
 import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
@@ -43,8 +44,7 @@ export const main: MainFn = async function main(log) {
 
   const pool = poolFactory<allMessages>(join(__dirname, WORKER_FILENAME), { minWorkers: 0 })
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
-
-  const appsPromises = subset.map((app) => async () => {
+  const appsPromises = subset.map(async (app) => {
     if (terminating) {
       return { done: false, ...app }
     }
@@ -71,23 +71,7 @@ export const main: MainFn = async function main(log) {
   })
 
   log.info('started analysis')
-  const results = await resolveAllOrInParallel(appsPromises, {
-    chunkLimit: pool.maxWorkers + 1,
-    chunkSize: Math.floor(1.5 * pool.maxWorkers),
-    chunkTapFn: async (apps) => {
-      const finished = apps
-        .filter(({ done }) => done)
-        .map(({ type, section, app }) => ({ type, section, app }))
-
-      if (finished.length > 0) {
-        FIN_AN_APPS = FIN_AN_APPS.concat(finished)
-        FIN_AN_APPS.sort((a, b) => {
-          return `${a.type}/${a.section}/${a.app}`.localeCompare(`${b.type}/${b.section}/${b.app}`)
-        })
-        await myWriteJSON({ content: FIN_AN_APPS, file: FIN_AN_APPS_PATH })
-      }
-    },
-  })
+  const results = await Promise.all(appsPromises)
   if (terminating) {
     log.info('terminated analysis')
   } else {
@@ -105,10 +89,15 @@ export const main: MainFn = async function main(log) {
     doneLength + notDoneLength,
   )
 
-  FIN_AN_APPS.sort((a, b) => {
-    return `${a.type}/${a.section}/${a.app}`.localeCompare(`${b.type}/${b.section}/${b.app}`)
+  await myWriteJSON({
+    content: done
+      .map(({ type, section, app }) => ({ type, section, app }))
+      .concat(FIN_AN_APPS)
+      .sort((a, b) =>
+        strComp(`${a.type}/${a.section}/${a.app}`, `${b.type}/${b.section}/${b.app}`),
+      ),
+    file: FIN_AN_APPS_PATH,
   })
-  await myWriteJSON({ content: FIN_AN_APPS, file: FIN_AN_APPS_PATH })
   log.info('updated FIN_AN_APPS')
 
   await pool.terminate()
