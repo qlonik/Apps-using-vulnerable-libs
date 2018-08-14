@@ -65,10 +65,10 @@ worker<messages>({
     rllog.debug({ lib, main, analysis }, 'finished lib')
   },
 
-  'preprocess-app': async ({ allAppsPath, allLibsPath, app }) => {
+  'preprocess-app': async ({ allAppsPath, appsAnalysisPath, allLibsPath, app }) => {
     if (app.type === APP_TYPES.reactNative) {
       try {
-        await preprocessReactNativeApp({ allAppsPath, allLibsPath, app })
+        await preprocessReactNativeApp({ allAppsPath, appsAnalysisPath, allLibsPath, app })
         return true
       } catch {
         return false
@@ -77,7 +77,7 @@ worker<messages>({
 
     if (app.type === APP_TYPES.cordova) {
       try {
-        await preprocessCordovaApp({ allAppsPath, allLibsPath, app })
+        await preprocessCordovaApp({ allAppsPath, appsAnalysisPath, allLibsPath, app })
         return true
       } catch {
         return false
