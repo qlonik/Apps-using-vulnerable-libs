@@ -141,5 +141,7 @@ export function assertNever(x: never): never {
   throw new Error('Unexpected object: ' + x)
 }
 
-export const objectHasKey = <T extends { [x: string]: any }>(o: T, k: string): k is keyof T =>
-  k in o
+export const objectHasKey = <T extends { [x: string]: any }>(
+  o: T,
+  k: string | number | symbol,
+): k is keyof T => k in o

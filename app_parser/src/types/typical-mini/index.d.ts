@@ -8,7 +8,10 @@ declare module 'typical-mini' {
 
   type The<T, V extends T> = V
 
-  type UnionHasKey<Union extends string, K extends string> = ({ [S in Union]: '1' } & Obj<'0'>)[K]
+  type UnionHasKey<Union extends string | number | symbol, K extends string> = ({
+    [S in Union]: '1'
+  } &
+    Obj<'0'>)[K]
 
   type ObjectHasKey<O extends {}, K extends string> = UnionHasKey<keyof O, K>
 

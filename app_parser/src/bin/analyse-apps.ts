@@ -32,7 +32,7 @@ export const main: MainFn = async function main(log) {
     log.info('loaded FIN_AN_APPS')
   }
 
-  const filtered = differenceWith(isEqual, apps, FIN_AN_APPS)
+  const filtered = differenceWith<appDesc, appDesc>(isEqual, apps, FIN_AN_APPS)
   const subset = take(APPS_TO_ANALYSE_LIMIT, shuffle(filtered))
   log.info(
     'apps: (all=%o)-(fin_an=%o)=(todo=%o/%o)',
