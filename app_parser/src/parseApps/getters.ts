@@ -131,6 +131,18 @@ export const getReactNativeAnalysisFiles = memoize(async function _getReactNativ
 },
 (appsPath: string, { type, section, app }: appDesc) => `${appsPath}/${type}/${section}/${app}`)
 
+export const getAnalysisFiles = memoize(async function _getAnalysisFiles(
+  appsPath: string,
+  app: appDesc,
+): Promise<analysisFile[]> {
+  return app.type === APP_TYPES.cordova
+    ? await getCordovaAnalysisFiles(appsPath, app)
+    : app.type === APP_TYPES.reactNative
+      ? await getReactNativeAnalysisFiles(appsPath, app)
+      : assertNever(app.type)
+},
+(appsPath: string, { type, section, app }: appDesc) => `${appsPath}/${type}/${section}/${app}`)
+
 export type analysedDataFile<T> = {
   file: T
   signature: signatureWithComments | null
