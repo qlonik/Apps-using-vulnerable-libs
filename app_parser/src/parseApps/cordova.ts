@@ -275,7 +275,7 @@ export const analyseCordovaApp = async <T extends BundSim>({
       let sim: BundleSimFnReturn
 
       if (pool) {
-        const res = await pool.exec('bundle_similarity_fn', [
+        const res: BundSim['bundle_similarity_fn'][1] = await pool.exec('bundle_similarity_fn', [
           { libsPath, signaturePath: sigPath, candidatesPath: candPath, log: logDescrObj, fn },
         ])
 
@@ -283,7 +283,7 @@ export const analyseCordovaApp = async <T extends BundSim>({
           log.warn('no candidates')
           return { location, id, noCandidatesFound: true }
         } else {
-          sim = res as BundleSimFnReturn
+          sim = res
         }
       } else {
         const candidates = (await readJSON(candPath)) as candidateLib[]
