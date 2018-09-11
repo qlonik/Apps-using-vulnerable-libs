@@ -1,5 +1,5 @@
 import { readdir, remove } from 'fs-extra'
-import { partition, shuffle, filter, once } from 'lodash/fp'
+import { partition, shuffle, filter, once, isEqual, prop } from 'lodash/fp'
 import { join } from 'path'
 import { getLibNames } from '../parseLibraries'
 import { poolFactory } from '../utils/worker'
@@ -33,11 +33,13 @@ export const main: MainFn = async function main(log) {
     }),
   )
 
-  const [s, x] = partition(({ done }) => done === DONE.ok, results)
-  const [eT, y] = partition(({ done }) => done === DONE.exclTime, x)
-  const [eB, z] = partition(({ done }) => done === DONE.exclBL, y)
-  const [eS, w] = partition(({ done }) => done == DONE.emptySig, z)
-  const [fPN, f] = partition(({ done }) => done == DONE.failParseName, w)
+  const partBy: (x: DONE) => (y: { done: DONE; filename: string }) => boolean = (x) => (y) =>
+    isEqual(x, prop('done', y))
+  const [s, x] = partition(partBy(DONE.ok), results)
+  const [eT, y] = partition(partBy(DONE.exclTime), x)
+  const [eB, z] = partition(partBy(DONE.exclBL), y)
+  const [eS, w] = partition(partBy(DONE.emptySig), z)
+  const [fPN, f] = partition(partBy(DONE.failParseName), w)
 
   log.info({
     success: s.length,
