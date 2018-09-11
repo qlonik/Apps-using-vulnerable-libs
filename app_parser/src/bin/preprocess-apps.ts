@@ -11,7 +11,8 @@ import { WORKER_FILENAME, allMessages, MainFn, TerminateFn } from './_all.types'
 
 // const APP_PATH = '/home/nvolodin/Auvl/data/done/js'
 const APP_PATH = '../data/sample_apps'
-const FIN_APPS_PATH = join(APP_PATH, FINISHED_PREPROCESSING_FILE)
+const PREPROCESS_INTO_PATH = ''
+const FIN_APPS_PATH = join(PREPROCESS_INTO_PATH, FINISHED_PREPROCESSING_FILE)
 const LIB_PATH = '../data/sample_libs'
 
 let pool: Pool<allMessages>
@@ -50,7 +51,7 @@ export const main: MainFn = async function main(log) {
       return { done: false, ...app }
     }
     const done = await pool.exec('preprocess-app', [
-      { app, allAppsPath: APP_PATH, allLibsPath: LIB_PATH },
+      { app, allAppsPath: APP_PATH, appsAnalysisPath: PREPROCESS_INTO_PATH, allLibsPath: LIB_PATH },
     ])
     return { done, ...app }
   })
