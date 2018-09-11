@@ -267,6 +267,10 @@ export const analyseCordovaApp = async <T extends BundSim>({
     localReport.totalFilesPerLocation[location] = locationGroups[location].length
   }
 
+  let fileAnTime = 0
+  let fileAnCount = 0
+  const appAnStart = process.hrtime()
+
   const candidateLibsMissing = await resolveAllOrInParallel(
     locationId.map(({ location, id }) => async () => {
       const logDescrObj = { app: { type, section, app }, file: { location, id } }
@@ -287,6 +291,8 @@ export const analyseCordovaApp = async <T extends BundSim>({
           return { location, id, noCandidatesFound: true }
         } else {
           sim = res.sim
+          fileAnTime += res.time[0] * 1e9 + res.time[1]
+          fileAnCount += 1
         }
       } else {
         const candidates = (await readJSON(candPath)) as candidateLib[]
@@ -303,6 +309,9 @@ export const analyseCordovaApp = async <T extends BundSim>({
         sim = await bundle_similarity_fn({ libsPath, signature, candidates, log, fn })
         const end = process.hrtime(start)
         log.debug({ 'file-time-taken': end }, '>-> finished bundle_similarity_fn')
+
+        fileAnTime += end[0] * 1e9 + end[1]
+        fileAnCount += 1
       }
 
       await saveFiles({
@@ -315,6 +324,17 @@ export const analyseCordovaApp = async <T extends BundSim>({
 
       return { location, id, noCandidatesFound: false }
     }),
+  )
+  const appAnEnd = process.hrtime(appAnStart)
+
+  fileLog.debug(
+    {
+      app: { type, section, app },
+      fnTime: appAnEnd[0] * 1e9 + appAnEnd[1],
+      fileAnTime,
+      fileAnCount,
+    },
+    'analyseCordovaApp timings',
   )
 
   candidateLibsMissing.forEach(({ location, id, noCandidatesFound }) => {
