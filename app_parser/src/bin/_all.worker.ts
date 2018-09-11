@@ -50,7 +50,7 @@ worker<messages>({
     const end = process.hrtime(start)
     log.debug({ 'file-time-taken': end }, '>-> finished bundle_similarity_fn on worker')
 
-    return res
+    return { time: end, sim: res }
   },
 
   'reanalyse-lib': async ({ libsPath, lib }) => {

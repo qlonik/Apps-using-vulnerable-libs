@@ -229,7 +229,10 @@ export const preprocessCordovaApp = async (
 }
 
 export type BundSim = {
-  bundle_similarity_fn: [[BundleSimFnArgSerializable], true | BundleSimFnReturn]
+  bundle_similarity_fn: [
+    [BundleSimFnArgSerializable],
+    true | { time: [number, number]; sim: BundleSimFnReturn }
+  ]
 }
 export const analyseCordovaApp = async <T extends BundSim>({
   allAppsPath,
@@ -283,7 +286,7 @@ export const analyseCordovaApp = async <T extends BundSim>({
           log.warn('no candidates')
           return { location, id, noCandidatesFound: true }
         } else {
-          sim = res
+          sim = res.sim
         }
       } else {
         const candidates = (await readJSON(candPath)) as candidateLib[]
