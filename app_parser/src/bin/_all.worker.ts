@@ -45,8 +45,10 @@ worker<messages>({
     const log = siLog.child(logData)
 
     log.debug('>-> started bundle_similarity_fn on worker')
+    const start = process.hrtime()
     const res = await bundle_similarity_fn({ libsPath, signature, candidates, log, fn })
-    log.debug('>-> finished bundle_similarity_fn on worker')
+    const end = process.hrtime(start)
+    log.debug({ 'file-time-taken': end }, '>-> finished bundle_similarity_fn on worker')
 
     return res
   },

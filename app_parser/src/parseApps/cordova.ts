@@ -296,8 +296,10 @@ export const analyseCordovaApp = async <T extends BundSim>({
         const signature = (await readJSON(sigPath)) as signatureWithComments
 
         log.debug('>-> started bundle_similarity_fn')
+        const start = process.hrtime()
         sim = await bundle_similarity_fn({ libsPath, signature, candidates, log, fn })
-        log.debug('>-> finished bundle_similarity_fn')
+        const end = process.hrtime(start)
+        log.debug({ 'file-time-taken': end }, '>-> finished bundle_similarity_fn')
       }
 
       await saveFiles({
