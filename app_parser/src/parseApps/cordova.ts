@@ -275,11 +275,9 @@ export const analyseCordovaApp = async <T extends BundSim>({
       let sim: BundleSimFnReturn
 
       if (pool) {
-        log.debug('>-> started bundle_similarity_fn on worker')
         const res = await pool.exec('bundle_similarity_fn', [
           { libsPath, signaturePath: sigPath, candidatesPath: candPath, log: logDescrObj, fn },
         ])
-        log.debug('>-> finished bundle_similarity_fn on worker')
 
         if (res === true) {
           log.warn('no candidates')

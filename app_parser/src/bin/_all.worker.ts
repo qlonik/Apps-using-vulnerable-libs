@@ -44,7 +44,11 @@ worker<messages>({
     const signature = (await readJSON(signaturePath)) as signatureWithComments
     const log = siLog.child(logData)
 
-    return bundle_similarity_fn({ libsPath, signature, candidates, log, fn })
+    log.debug('>-> started bundle_similarity_fn on worker')
+    const res = await bundle_similarity_fn({ libsPath, signature, candidates, log, fn })
+    log.debug('>-> finished bundle_similarity_fn on worker')
+
+    return res
   },
 
   'reanalyse-lib': async ({ libsPath, lib }) => {
