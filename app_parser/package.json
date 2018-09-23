@@ -13,7 +13,7 @@
     "clean": "rm -rf lib",
     "clean:build": "npm run clean && npm run build",
     "test": "npm run build && npm run test:coverage && npm run test:lint",
-    "test:ava": "export OUT=../data/logs-test && mkdir -p $OUT && exec {fout}>$OUT/everything.log && export FD=${fout} && npx -n \"$NODE_DEBUG_OPTION\" ava",
+    "test:ava": "./bin/unit-test-runner.sh",
     "test:watch": "npm run test:ava -- --watch",
     "test:coverage": "nyc npm run test:ava",
     "test:lint": "eslint --ext .ts src/",
