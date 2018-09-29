@@ -33,7 +33,6 @@
       <option name="KEEP_BLANK_LINES" value="true" />
     </Properties>
     <TypeScriptCodeStyleSettings>
-      <option name="JSDOC_INCLUDE_TYPES" value="false" />
       <option name="USE_SEMICOLON_AFTER_STATEMENT" value="false" />
       <option name="FORCE_SEMICOLON_STYLE" value="true" />
       <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false" />
