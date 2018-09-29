@@ -34,6 +34,22 @@
           <option name="port" value="22" />
         </fileTransfer>
       </webServer>
+      <webServer id="cabbcd7b-ff9c-4bb0-979d-fb7dfe97a6f2" name="tick4" url="http://tick4">
+        <fileTransfer host="tick4" port="22" rootFolder="/home/nvolodin/Auvl" accessType="SFTP" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+      <webServer id="75049725-ab3b-4352-83a2-bf5dfc109d37" name="tick5" url="http://tick5">
+        <fileTransfer host="tick5" port="22" rootFolder="/home/nvolodin/Auvl" accessType="SFTP" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
     </option>
   </component>
 </project>

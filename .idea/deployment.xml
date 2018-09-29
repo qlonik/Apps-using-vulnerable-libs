@@ -19,7 +19,7 @@
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/heapsnapshots" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.tmp" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.vscode" />
-            <excludedPath path="/data" />
+            <excludedPath local="true" path="$PROJECT_DIR$/data/apps_apks" />
           </excludedPaths>
         </serverdata>
       </paths>
@@ -61,7 +61,46 @@
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/heapsnapshots" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.tmp" />
             <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.vscode" />
-            <excludedPath path="/data" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="tick4">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/app_parser" local="$PROJECT_DIR$/app_parser" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/src.ignored" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/node_modules" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/coverage" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/lib" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/test/fixtures/apps/random" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/test/fixtures/libs/jquery" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.nyc_output" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/heapsnapshots" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.tmp" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.vscode" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="tick5">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/app_parser" local="$PROJECT_DIR$/app_parser" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/src.ignored" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/node_modules" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/coverage" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/lib" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/test/fixtures/apps/random" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/test/fixtures/libs/jquery" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.nyc_output" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/heapsnapshots" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.tmp" />
+            <excludedPath local="true" path="$PROJECT_DIR$/app_parser/.vscode" />
           </excludedPaths>
         </serverdata>
       </paths>
