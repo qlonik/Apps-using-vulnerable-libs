@@ -162,6 +162,24 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
     return collapseIR(getLiteralIR(lit))
   }
 
+  /**
+   * Function returning parsed information from the given LVal
+   *
+   * According to the page ([orig], [archive]), Lval is:
+   *
+   * > ... an operand of type lval. lvalue is a historical term that
+   * > means “an expression that can legally appear on the left side of
+   * > an assignment expression.” In JavaScript, variables, properties of
+   * > objects, and elements of arrays are lvalues. The ECMAScript
+   * > specification allows built-in functions to return lvalues but
+   * > does not define any functions that behave that way.
+   *
+   * [orig]: https://www.safaribooksonline.com/library/view/javascript-the-definitive/9781449393854/ch04s07.html
+   * [archive]: https://web.archive.org/web/20180429042209/https://www.safaribooksonline.com/library/view/javascript-the-definitive/9781449393854/ch04s07.html
+   *
+   * @param lVal - LVal object
+   * @returns internal representation of LVal
+   */
   const getLValIR = (lVal: LVal | null): EIR => {
     const descr: EIR = {
       title: PARAM,
