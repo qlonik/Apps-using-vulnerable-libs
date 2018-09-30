@@ -23,5 +23,6 @@
     "src/**/*"
   ],
   "exclude": [
+    "src/manual-reports/identified-apps/f-droid/"
   ]
 }
