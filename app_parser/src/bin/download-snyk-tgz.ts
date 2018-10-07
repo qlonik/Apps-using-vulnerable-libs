@@ -15,7 +15,7 @@ const SNYK_JSON_PATH = './src/manual-reports/snyk/npm-full-v2.json'
 const DOWNLOADED_PATH = '../data/snyk/tgz'
 const DOWNLOADED_LIBS_FILE = join(DOWNLOADED_PATH, '_file.json')
 
-interface SnykVuln {
+export interface SnykVuln {
   title: string
   credit: string[]
   moduleName: string
@@ -50,7 +50,7 @@ interface SnykVuln {
   id: string
   alternativeIds: string[]
 }
-interface SnykDB {
+export interface SnykDB {
   npm: {
     [libName: string]: SnykVuln[]
   }
