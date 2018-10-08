@@ -8,7 +8,7 @@ const FIXTURES = 'fixtures'
 const EXPORT_MAIN_FN = `${FIXTURES}/export-main-fn`
 const NO_EXPORT_MAIN_FN = `${FIXTURES}/no-export-main-fn`
 
-test('lists bin scripts correctly', async t => {
+test.skip('lists bin scripts correctly', async t => {
   const currentDirContent = await readdir(__dirname)
   const expected = stripIllegalNames(currentDirContent)
 
@@ -25,7 +25,7 @@ test('lists bin scripts correctly', async t => {
   t.deepEqual(expected, scripts)
 })
 
-test('bin scripts in dirs fail', async t => {
+test.skip('bin scripts in dirs fail', async t => {
   const { FD, OUT } = process.env
   const error = await t.throws(
     execa('node', ['--no-warnings', CLI_SCRIPT, EXPORT_MAIN_FN], {
@@ -36,7 +36,7 @@ test('bin scripts in dirs fail', async t => {
   t.true(error.message.includes('illegal bin script'))
 })
 
-test("bin scripts in dirs don't fail when in test mode", async t => {
+test.skip("bin scripts in dirs don't fail when in test mode", async t => {
   const { FD, OUT, NODE_ENV } = process.env
   const noError = await execa('node', ['--no-warnings', CLI_SCRIPT, EXPORT_MAIN_FN], {
     extendEnv: false,
@@ -46,7 +46,7 @@ test("bin scripts in dirs don't fail when in test mode", async t => {
   t.falsy(noError.stderr)
 })
 
-test('runs script which exports main function', async t => {
+test.skip('runs script which exports main function', async t => {
   const result = await execa('node', ['--no-warnings', CLI_SCRIPT, EXPORT_MAIN_FN])
 
   t.is(
@@ -59,7 +59,7 @@ test('runs script which exports main function', async t => {
   )
 })
 
-test('does not run script which does not export main function', async t => {
+test.skip('does not run script which does not export main function', async t => {
   const error = await t.throws(execa('node', ['--no-warnings', CLI_SCRIPT, NO_EXPORT_MAIN_FN]))
   t.true(error.message.includes('no main exported'))
   t.true(error.message.includes('TypeError'))
