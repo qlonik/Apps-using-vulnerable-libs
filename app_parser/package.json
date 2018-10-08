@@ -132,6 +132,7 @@
     "exclude": [
       "**/*.d.ts",
       "**/*.test.ts",
+      "src/_helpers/",
       "src/manual-reports/identified-apps/f-droid/",
       "src/manual-reports/analysis-of-fn-st-toks-v5/",
       "src/manual-reports/comment-search/"
