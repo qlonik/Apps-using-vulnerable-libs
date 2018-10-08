@@ -102,11 +102,18 @@
   },
   "ava": {
     "files": [
-      "lib/**/*.test.js"
+      "src/**/*.test.ts"
     ],
     "sources": [
-      "lib/**/*.js"
+      "src/**/*.ts"
     ],
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "compileEnhancements": false,
     "snapshotDir": "test/snapshots",
     "verbose": true
   },
