@@ -314,21 +314,10 @@ export const invertMap = (a: Map<number, number>): Map<number, number> => {
     throw new TypeError('values cannot be set to undefined')
   }
 
-  const intermediate = new Map<number, number>()
-  for (let key of a.keys()) {
-    const val = a.get(key)
-    if (val !== undefined) {
-      intermediate.set(val, key)
-    }
-  }
-  const sorted = new Map<number, number>()
-  for (let key of [...intermediate.keys()].sort((a, b) => a - b)) {
-    const val = intermediate.get(key)
-    if (val !== undefined) {
-      sorted.set(key, val)
-    }
-  }
-  return sorted
+  const entries = [...a.entries()]
+    .map(([a, b]) => [b, a] as [number, number])
+    .sort((a, b) => a[0] - b[0])
+  return new Map(entries)
 }
 
 export const invertMapWithConfidence = (
