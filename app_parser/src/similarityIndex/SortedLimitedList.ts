@@ -1,4 +1,4 @@
-import { Many, sortedLastIndex, sortedLastIndexBy, ValueIteratee } from 'lodash'
+import { sortedLastIndex, sortedLastIndexBy, ValueIteratee } from 'lodash'
 
 const LIMIT = 100
 
@@ -23,7 +23,7 @@ export class SortedLimitedList<T> {
     this._limit = limit
   }
 
-  public push(el: Many<T>) {
+  public push(el: T | T[]) {
     if (this._finished) {
       throw new Error('Cannot push into finished SortedLimitedList')
     }

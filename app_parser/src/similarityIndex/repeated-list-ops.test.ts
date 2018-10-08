@@ -9,6 +9,7 @@ import {
   repeatedDifferenceFp,
   repeatedIntersection,
   repeatedIntersectionFp,
+  ComparatorFn,
 } from './repeated-list-ops'
 import { arraysPair, repeatingArr, repeatingNeArr } from '../_helpers/arbitraries'
 
@@ -16,8 +17,8 @@ const AB = arraysPair(arb.integer, repeatingArr)
 const sort = sortBy(identity)
 
 const fn = [
-  { name: 'for-loops', fn: repeatedOps(isEqual) },
-  { name: 'reduce', fn: repeatedOpsFp(isEqual) },
+  { name: 'for-loops', fn: repeatedOps(isEqual as ComparatorFn<any>) },
+  { name: 'reduce', fn: repeatedOpsFp(isEqual as ComparatorFn<any>) },
 ]
 const data: { a: any[]; b: any[]; i: any[]; d: any[]; rd: any[] }[] = [
   {

@@ -4,7 +4,7 @@ import arb from 'jsverify'
 import { isEqual } from 'lodash/fp'
 import { arraysPair, repeatingArr } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
-import { Ops, repeatedOps, repeatedOpsFp } from './repeated-list-ops'
+import { ComparatorFn, Ops, repeatedOps, repeatedOpsFp } from './repeated-list-ops'
 
 const AB = arraysPair(arb.integer, repeatingArr)
 
@@ -18,8 +18,8 @@ test.serial(
     await suite('repeatedOps vs repeatedOpsFp', s => {
       let bench: Ops<number> | null = null
 
-      const repOps = repeatedOps(isEqual)
-      const repOpsFp = repeatedOpsFp(isEqual)
+      const repOps = repeatedOps<number>(isEqual as ComparatorFn<any>)
+      const repOpsFp = repeatedOpsFp<number>(isEqual as ComparatorFn<any>)
 
       s.cycle(() => {
         t.not(null, bench)
