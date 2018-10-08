@@ -27,7 +27,7 @@ test.skip('lists bin scripts correctly', async t => {
 
 test.skip('bin scripts in dirs fail', async t => {
   const { FD, OUT } = process.env
-  const error = await t.throws(
+  const error = await t.throwsAsync(
     execa('node', ['--no-warnings', CLI_SCRIPT, EXPORT_MAIN_FN], {
       extendEnv: false,
       env: { OUT, FD },
@@ -60,7 +60,7 @@ test.skip('runs script which exports main function', async t => {
 })
 
 test.skip('does not run script which does not export main function', async t => {
-  const error = await t.throws(execa('node', ['--no-warnings', CLI_SCRIPT, NO_EXPORT_MAIN_FN]))
+  const error = await t.throwsAsync(execa('node', ['--no-warnings', CLI_SCRIPT, NO_EXPORT_MAIN_FN]))
   t.true(error.message.includes('no main exported'))
   t.true(error.message.includes('TypeError'))
 })
