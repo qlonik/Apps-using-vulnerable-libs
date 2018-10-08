@@ -52,8 +52,8 @@ test(
   'liftFn() lifts addMissing()',
   check(arb.array(arb.tuple([uniqueInts, uniqueInts])), (t, x) => {
     const ex = [
-      x.map((x_) => x_[0]).reduce(addMissing, []),
-      x.map((x_) => x_[1]).reduce(addMissing, []),
+      x.map(x_ => x_[0]).reduce(addMissing, []),
+      x.map(x_ => x_[1]).reduce(addMissing, []),
     ]
 
     const tAddMissing = addMissing as (x: number[], y: number[]) => number[]
@@ -63,7 +63,7 @@ test(
   }),
 )
 
-test('matrixToCSV()', (t) => {
+test('matrixToCSV()', t => {
   const m = /* prettier-ignore */ [
     ['a', 'b', ',c', 'd'],
     ['e', ',f', 'g', 'h'],
@@ -81,8 +81,8 @@ test('matrixToCSV()', (t) => {
 
 const arbMatrix = arb
   .nearray(arb.nearray(arb.asciinestring))
-  .smap<string[][]>((x) => {
-    const minL = R.apply(Math.min, R.map((arr) => arr.length, x))
+  .smap<string[][]>(x => {
+    const minL = R.apply(Math.min, R.map(arr => arr.length, x))
     return R.map(R.take(minL), x)
   }, R.identity)
   .smap<string[][]>(R.map(R.map(R.replace(/,/g, '_'))), R.identity)
@@ -94,4 +94,3 @@ test(
     t.deepEqual(m, dec(matrixToCSV(m)))
   }),
 )
-
