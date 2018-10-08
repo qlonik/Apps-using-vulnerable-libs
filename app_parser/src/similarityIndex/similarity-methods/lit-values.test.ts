@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import { arbLiteralSignatureArr, arbLiteralSignatureArrPair } from '../../_helpers/arbitraries'
 import { check } from '../../_helpers/property-test'
 import { invertMapWithConfidence, jaccardLikeWithMapping } from '../set'

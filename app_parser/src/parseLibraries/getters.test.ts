@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import { cloneDeep } from 'lodash/fp'
 import { shuffleVersions } from './getters'
 

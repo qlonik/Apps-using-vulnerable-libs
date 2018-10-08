@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import { isFunction, SourceLocation } from 'babel-types'
 import { parse } from 'babylon'
 import { oneLineTrim, source, stripIndent } from 'common-tags'

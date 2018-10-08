@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import { stripIndent } from 'common-tags'
 import { EXPRESSION } from '../tags'
 import { checkTokensMacro } from './_macros'

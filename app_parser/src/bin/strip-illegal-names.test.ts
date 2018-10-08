@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import { stripIllegalNames } from './_strip-illegal-names'
 
 test('strips private files', t => {

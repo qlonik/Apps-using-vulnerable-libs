@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import arb from 'jsverify'
 import { isEqual, sortBy, identity } from 'lodash/fp'
 import { check } from '../_helpers/property-test'

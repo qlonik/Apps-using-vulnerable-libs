@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import arb from 'jsverify'
 import { identity } from 'lodash/fp'
 import { repeatingNeArr } from '../_helpers/arbitraries'

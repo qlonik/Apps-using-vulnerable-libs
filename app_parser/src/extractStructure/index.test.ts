@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import { oneLineTrim, stripIndent } from 'common-tags'
 import { fnNamesConcat } from './fn-names-concat'
 import { extractReactNativeStructure, extractStructure } from './index'

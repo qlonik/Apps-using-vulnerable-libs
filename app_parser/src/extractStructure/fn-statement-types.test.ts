@@ -1,4 +1,4 @@
-import { test, Macro } from 'ava'
+import test, { Macro } from 'ava'
 import { stripIndent } from 'common-tags'
 import { isPlainObject } from 'lodash'
 import { extractStructure } from './index'

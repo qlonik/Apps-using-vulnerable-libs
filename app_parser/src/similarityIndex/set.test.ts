@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import { Fraction } from 'fraction.js'
 import arb from 'jsverify'
 import { cloneDeep, intersection as LIntersection } from 'lodash'

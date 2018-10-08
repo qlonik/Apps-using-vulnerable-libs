@@ -1,4 +1,4 @@
-import { ExecutionContext, test } from 'ava'
+import test, { ExecutionContext } from 'ava'
 import suite from 'chuhai'
 import arb from 'jsverify'
 import { sortedIndexOf } from 'lodash/fp'

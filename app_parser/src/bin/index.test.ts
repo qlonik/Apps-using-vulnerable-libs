@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import execa from 'execa'
 import { readdir } from 'fs-extra'
 import { stripIllegalNames } from './_strip-illegal-names'

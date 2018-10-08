@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import { cloneDeep } from 'lodash'
 import { arbMapWithConfidence, arbMap } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'

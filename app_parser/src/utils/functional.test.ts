@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import { stripIndent } from 'common-tags'
 import arb from 'jsverify'
 import R from 'ramda'

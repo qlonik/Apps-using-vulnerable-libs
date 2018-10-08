@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import { cloneDeep } from 'lodash'
 import { Logger } from 'pino'
 import { arbSignatureWithCommentsPair } from '../../_helpers/arbitraries'

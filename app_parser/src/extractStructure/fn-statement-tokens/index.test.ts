@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import { stripIndent } from 'common-tags'
 import { EXTRACTOR_VERSION } from '../options'
 import { DIRECTIVE, PARAM } from '../tags'

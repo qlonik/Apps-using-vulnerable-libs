@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import suite from 'chuhai'
 import arb from 'jsverify'
 import { isEqual } from 'lodash/fp'

@@ -1,4 +1,4 @@
-import { test } from 'ava'
+import test from 'ava'
 import { difference } from 'lodash'
 import { isSubset } from '../similarityIndex/set'
 import { appIds as appIds10 } from './random-10'
