@@ -70,7 +70,7 @@
     "semver": "^5.5.1",
     "shelljs": "^0.8.2",
     "tar": "^4.4.6",
-    "typescript": "^3.0.3",
+    "typescript": "~3.0.3",
     "typical-ts": "^0.2.1",
     "workerpool": "^2.3.3",
     "yargs": "^11.1.0"
@@ -78,7 +78,7 @@
   "devDependencies": {
     "@types/execa": "^0.9.0",
     "@types/sinon": "^4.3.3",
-    "ava": "^1.0.0-beta.3",
+    "ava": "1.0.0-beta.3",
     "chuhai": "^1.2.0",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.10.0",
@@ -95,7 +95,7 @@
     "execa": "^0.10.0",
     "jsverify": "github:jsverify/jsverify#0d392dd58008d0a7df2c36f3a0ff44e23e3f11e8",
     "nyc": "^11.9.0",
-    "prettier": "^1.11.1",
+    "prettier": "~1.11.1",
     "sinon": "^4.5.0",
     "typescript-eslint-parser": "^18.0.0"
   },
