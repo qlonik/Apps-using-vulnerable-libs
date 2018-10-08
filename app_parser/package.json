@@ -166,6 +166,7 @@
       "no-dupe-class-members": "off",
       "no-undef": "off",
       "ava/use-test": "off",
+      "ava/no-skip-test": "off",
       "import/order": [
         "error",
         {
