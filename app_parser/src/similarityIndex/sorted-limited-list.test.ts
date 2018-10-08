@@ -123,3 +123,10 @@ test('does not return on second value()', t => {
   t.deepEqual([1, 2, 3, 4], val)
   t.throws(() => sll.value(), Error)
 })
+
+test('filter on insert is honoured', t => {
+  const sll = new SortedLimitedList({ filter: (x: number): x is number => x % 2 === 0 })
+  const val = sll.push([1, 2, 3, 4, 5, 6]).value()
+
+  t.deepEqual([2, 4, 6], val)
+})
