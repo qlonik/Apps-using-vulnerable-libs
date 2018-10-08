@@ -87,10 +87,6 @@ export const jaccardLikeWithMapping = <T>(
 
   bRest = bRest.filter(({ __mapped }) => !__mapped)
 
-  if (intersection.length !== mapping.size) {
-    throw new Error('unexpected error')
-  }
-
   const num = intersection.length
   const den = aRest.length + intersection.length + bRest.length
 
@@ -253,10 +249,6 @@ export const libPortionWithMapping = <T>(
   }
 
   libRest = libRest.filter(({ __mapped }) => !__mapped)
-
-  if (intersection.length !== mapping.size) {
-    throw new Error('unexpected error')
-  }
 
   const num = intersection.length
   const den = intersection.length + libRest.length
