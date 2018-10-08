@@ -122,6 +122,9 @@
     "reporter": [
       "html",
       "text-summary"
+    ],
+    "extension": [
+      ".ts"
     ]
   },
   "prettier": {
