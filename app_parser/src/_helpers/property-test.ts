@@ -1,6 +1,7 @@
 /* eslint-disable ava/use-test, no-unused-vars */
 
 import { ExecutionContext, Implementation, ImplementationResult, Macro } from 'ava'
+import { stripIndent } from 'common-tags'
 import jsc, { Arbitrary, ArbitraryLike, Options, Result } from 'jsverify'
 import { inspect } from 'util'
 
@@ -14,6 +15,8 @@ const cloneInstance = <T>(o: T): T => {
 
 const prettyPrintResult = (r: Result<any>): string => {
   const rngState = inspect(r.rngState, { colors: true })
+  const tests = inspect(r.tests, { colors: true })
+  const shrinks = inspect(r.shrinks, { colors: true })
   const inspectedCounterEx = inspect(r.counterexample, { depth: null, colors: true })
   const counterEx = inspectedCounterEx.includes('\n')
     ? '\n  ' +
@@ -25,7 +28,12 @@ const prettyPrintResult = (r: Result<any>): string => {
       '\n    '
     : inspectedCounterEx
 
-  return ` (${counterEx}) rngState: ${rngState}`
+  return stripIndent`
+    { rngState: ${rngState} },
+    Tests: ${tests}
+    Shrinks: ${shrinks}
+    Fails with: ${counterEx}
+  `
 }
 
 export const check: CheckFn = function check(...args: any[]): Implementation {
