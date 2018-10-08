@@ -30,39 +30,45 @@ const prettyPrintResult = (r: Result<any>): string => {
 
 export const check: CheckFn = function check(...args: any[]): Implementation {
   const defaultOpts = { quiet: true }
-  const firstArg = !isArbitraryLike(args[0]) ? args.shift() : {}
-  const opts = Object.assign(defaultOpts, firstArg) as Options
-  const propertyFn = args.pop() as Macro
+  const passedOpts = !isArbitraryLike(args[0]) ? args.shift() : {}
+  const opts = Object.assign(defaultOpts, passedOpts) as Options
+  const propertyFn = args.pop() as Exclude<Macro, 'title'>
   const arbitraries = args as Arbitrary<any>[]
 
-  return async function jsc$test(this: any, test) {
-    const allLogs = [] as string[][]
+  return async function jsc$test(test) {
+    const logsMap = new Map<string, string[]>()
     const prop = jsc.forall(...arbitraries, async (...args: any[]) => {
-      const clonedThis = cloneInstance(this)
-      allLogs.push((clonedThis.logs = []))
-      clonedThis.fn = (t: ExecutionContext) => propertyFn.call(clonedThis, t, ...args)
-      const result = await clonedThis.run()
-      return result.passed || result.error
+      const attempt = await test.try(propertyFn, ...args)
+      if (!attempt) {
+        return false
+      } else {
+        attempt.discard()
+        logsMap.set(attempt.title, attempt.logs)
+        return attempt.passed || attempt.error
+      }
     })
     const result = await jsc.check(prop, opts)
 
     if (typeof result === 'object') {
-      this.title += prettyPrintResult(result)
-      return propertyFn.call(this, test, ...result.counterexample)
+      test.log(prettyPrintResult(result))
+      const attempt = await test.try(propertyFn, ...result.counterexample)
+      return !attempt ? test.fail('All attempts were discarded') : attempt.commit()
     } else if (result === true) {
       if ('tests' in opts && opts.tests && opts.tests <= 3) {
         // print all logs if number of tests is specified to be small
-        allLogs.forEach((log, i) => {
-          this.addLog(`Run #${i + 1}`)
-          for (let logLine of log) {
-            this.addLog(logLine)
+        for (let [title, logs] of logsMap) {
+          test.log(`Attempt title: ${title}`)
+          for (let logLine of logs) {
+            test.log(logLine)
           }
-          this.addLog('')
-        })
+          test.log('')
+        }
       } else {
         // print randomly selected log
-        for (let log of allLogs[jsc.random(0, allLogs.length - 1)]) {
-          this.addLog(log)
+        const logs = [...logsMap.values()]
+        const rnd = jsc.random(0, logs.length - 1)
+        for (let logLine of logs[rnd]) {
+          test.log(logLine)
         }
       }
       test.pass()
