@@ -1,22 +1,6 @@
-import { SourceLocation } from 'babel-types'
-import {
-  FunctionSignature,
-  FunctionSignatures,
-  isFunctionSignatures,
-  isLiteralSignatures,
-  LiteralSignature,
-  LiteralSignatures,
-} from '../../extractStructure'
+import { isFunctionSignatures, isLiteralSignatures } from '../../extractStructure'
 import logger from '../../utils/logger'
 import { LiteralMatchingFnWrapper, MatchingFnWrapper, typeErrorMsg } from './types'
-
-/* eslint-disable no-unused-vars */
-declare const __v: LiteralSignature
-declare const __w: LiteralSignatures
-declare const __x: FunctionSignature
-declare const __y: FunctionSignatures
-declare const __z: SourceLocation
-/* eslint-enable no-unused-vars */
 
 export const provideFnSig: MatchingFnWrapper = (fn) => (log = logger, unknownS, libS) => {
   if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
