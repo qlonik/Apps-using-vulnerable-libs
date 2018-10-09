@@ -114,8 +114,7 @@
       "ts-node/register"
     ],
     "compileEnhancements": false,
-    "snapshotDir": "test/snapshots",
-    "verbose": true
+    "snapshotDir": "test/snapshots"
   },
   "nyc": {
     "all": true,
