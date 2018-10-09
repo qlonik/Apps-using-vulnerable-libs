@@ -42,6 +42,22 @@ export const getFnSig = <T extends FunctionSignature[] | FunctionSignatures>(
   }
 }
 
+export const provideFnSig = (
+  fn: (
+    log: Logger,
+    unknown: FunctionSignature[],
+    lib: FunctionSignature[],
+  ) => ReturnType<MatchingFn>,
+): MatchingFn => (log = logger, unknownS, libS) => {
+  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
+    return fn(log, unknownS.functionSignature, libS.functionSignature)
+  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
+    return fn(log, unknownS, libS)
+  } else {
+    throw new TypeError(typeErrorMsg)
+  }
+}
+
 export const getLitSig = <T extends LiteralSignature[] | LiteralSignatures>(
   log: Logger | undefined = logger,
   unknownS: T,
@@ -51,6 +67,22 @@ export const getLitSig = <T extends LiteralSignature[] | LiteralSignatures>(
     return [log, unknownS.literalSignature, libS.literalSignature]
   } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
     return [log, unknownS, libS]
+  } else {
+    throw new TypeError(typeErrorMsg)
+  }
+}
+
+export const provideLitSig = (
+  fn: (
+    log: Logger,
+    unknown: LiteralSignature[],
+    lib: LiteralSignature[],
+  ) => ReturnType<LiteralMatchingFn>,
+): LiteralMatchingFn => (log = logger, unknownS, libS) => {
+  if (isLiteralSignatures(unknownS) && isLiteralSignatures(libS)) {
+    return fn(log, unknownS.literalSignature, libS.literalSignature)
+  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
+    return fn(log, unknownS, libS)
   } else {
     throw new TypeError(typeErrorMsg)
   }
