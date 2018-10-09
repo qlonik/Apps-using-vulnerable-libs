@@ -1,20 +1,25 @@
 import test from 'ava'
+import { spy } from 'sinon'
 import {
   FN_MATCHING_METHODS,
-  getFnSig,
-  getLitSig,
   LIT_MATCHING_METHODS,
+  provideFnSig,
+  provideLitSig,
   returnFunctionMatchingFn,
   returnLiteralMatchingFn,
 } from './internal'
 import { typeErrorMsg } from './types'
 
 test('parameter parsing fns throw TypeError on wrong params', t => {
-  const fnSigErr = t.throws(() => getFnSig(undefined, {} as any, {} as any))
+  const method1 = spy()
+  const fnSigErr = t.throws(() => provideFnSig(method1)(undefined, {} as any, {} as any))
+  t.false(method1.called)
   t.is(fnSigErr.message, typeErrorMsg)
   t.is(fnSigErr.name, 'TypeError')
 
-  const litSigErr = t.throws(() => getLitSig(undefined, {} as any, {} as any))
+  const method2 = spy()
+  const litSigErr = t.throws(() => provideLitSig(method2)(undefined, {} as any, {} as any))
+  t.false(method2.called)
   t.is(litSigErr.message, typeErrorMsg)
   t.is(litSigErr.name, 'TypeError')
 })
