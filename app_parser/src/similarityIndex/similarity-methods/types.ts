@@ -43,11 +43,17 @@ export type MatchingFn = <T extends FunctionSignature[] | FunctionSignatures>(
   unknown: T,
   lib: T,
 ) => SimMapWithConfidence
+export type MatchingFnWrapper = (
+  fn: (log: Logger, u: FunctionSignature[], l: FunctionSignature[]) => ReturnType<MatchingFn>,
+) => MatchingFn
 
 export type LiteralMatchingFn = <T extends LiteralSignature[] | LiteralSignatures>(
   l: Logger | undefined,
   unknown: T,
   lib: T,
 ) => SimMapWithConfidence
+export type LiteralMatchingFnWrapper = (
+  fn: (log: Logger, u: LiteralSignature[], l: LiteralSignature[]) => ReturnType<LiteralMatchingFn>,
+) => LiteralMatchingFn
 
 export const typeErrorMsg = 'wrong parameters'

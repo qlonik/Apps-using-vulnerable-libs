@@ -1,5 +1,4 @@
 import { SourceLocation } from 'babel-types'
-import { Logger } from 'pino'
 import {
   FunctionSignature,
   FunctionSignatures,
@@ -18,7 +17,13 @@ import { librarySimilarityByFunctionNamesAndStatementTokens } from './fn-names-s
 import { v1, v2, v3, v4, v5, v6 } from './fn-st-tokens'
 import { librarySimilarityByFunctionStatementTypes } from './fn-st-types'
 import { librarySimilarityByLiteralValues } from './lit-values'
-import { LiteralMatchingFn, MatchingFn, typeErrorMsg } from './types'
+import {
+  LiteralMatchingFn,
+  LiteralMatchingFnWrapper,
+  MatchingFn,
+  MatchingFnWrapper,
+  typeErrorMsg,
+} from './types'
 
 /* eslint-disable no-unused-vars */
 declare const __v: LiteralSignature
@@ -28,13 +33,7 @@ declare const __y: FunctionSignatures
 declare const __z: SourceLocation
 /* eslint-enable no-unused-vars */
 
-export const provideFnSig = (
-  fn: (
-    log: Logger,
-    unknown: FunctionSignature[],
-    lib: FunctionSignature[],
-  ) => ReturnType<MatchingFn>,
-): MatchingFn => (log = logger, unknownS, libS) => {
+export const provideFnSig: MatchingFnWrapper = (fn) => (log = logger, unknownS, libS) => {
   if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
     return fn(log, unknownS.functionSignature, libS.functionSignature)
   } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
@@ -44,13 +43,7 @@ export const provideFnSig = (
   }
 }
 
-export const provideLitSig = (
-  fn: (
-    log: Logger,
-    unknown: LiteralSignature[],
-    lib: LiteralSignature[],
-  ) => ReturnType<LiteralMatchingFn>,
-): LiteralMatchingFn => (log = logger, unknownS, libS) => {
+export const provideLitSig: LiteralMatchingFnWrapper = (fn) => (log = logger, unknownS, libS) => {
   if (isLiteralSignatures(unknownS) && isLiteralSignatures(libS)) {
     return fn(log, unknownS.literalSignature, libS.literalSignature)
   } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
