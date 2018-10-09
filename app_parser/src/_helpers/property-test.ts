@@ -9,10 +9,6 @@ const isArbitraryLike = (o: any): o is ArbitraryLike<any> => {
   return 'generator' in o
 }
 
-const cloneInstance = <T>(o: T): T => {
-  return Object.assign(Object.create(Object.getPrototypeOf(o)), o)
-}
-
 const prettyPrintResult = (r: Result<any>): string => {
   const rngState = inspect(r.rngState, { colors: true })
   const tests = inspect(r.tests, { colors: true })
