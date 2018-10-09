@@ -28,20 +28,6 @@ declare const __y: FunctionSignatures
 declare const __z: SourceLocation
 /* eslint-enable no-unused-vars */
 
-export const getFnSig = <T extends FunctionSignature[] | FunctionSignatures>(
-  log: Logger | undefined = logger,
-  unknownS: T,
-  libS: T,
-): [Logger, FunctionSignature[], FunctionSignature[]] => {
-  if (isFunctionSignatures(unknownS) && isFunctionSignatures(libS)) {
-    return [log, unknownS.functionSignature, libS.functionSignature]
-  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
-    return [log, unknownS, libS]
-  } else {
-    throw new TypeError(typeErrorMsg)
-  }
-}
-
 export const provideFnSig = (
   fn: (
     log: Logger,
@@ -53,20 +39,6 @@ export const provideFnSig = (
     return fn(log, unknownS.functionSignature, libS.functionSignature)
   } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
     return fn(log, unknownS, libS)
-  } else {
-    throw new TypeError(typeErrorMsg)
-  }
-}
-
-export const getLitSig = <T extends LiteralSignature[] | LiteralSignatures>(
-  log: Logger | undefined = logger,
-  unknownS: T,
-  libS: T,
-): [Logger, LiteralSignature[], LiteralSignature[]] => {
-  if (isLiteralSignatures(unknownS) && isLiteralSignatures(libS)) {
-    return [log, unknownS.literalSignature, libS.literalSignature]
-  } else if (Array.isArray(unknownS) && Array.isArray(libS)) {
-    return [log, unknownS, libS]
   } else {
     throw new TypeError(typeErrorMsg)
   }
