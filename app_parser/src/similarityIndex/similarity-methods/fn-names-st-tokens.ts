@@ -2,15 +2,8 @@ import { head, last } from 'lodash'
 import { fnNamesSplit, FunctionSignature } from '../../extractStructure'
 import { jaccardLike, jaccardLikeWithMapping } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
-import { getFnSig } from './internal'
-import {
-  DefiniteMap,
-  FunctionSignatureMatched,
-  MatchingFn,
-  nameProbIndex,
-  probIndex,
-  SimMapWithConfidence,
-} from './types'
+import { provideFnSig } from './internal'
+import { DefiniteMap, FunctionSignatureMatched, nameProbIndex, probIndex } from './types'
 
 const anonPartitionWithMap = (arr: FunctionSignature[]) =>
   arr.reduce(
@@ -26,80 +19,76 @@ const anonPartitionWithMap = (arr: FunctionSignature[]) =>
     },
   )
 
-export const librarySimilarityByFunctionNamesAndStatementTokens: MatchingFn = function FnNamesAndStToks(
-  logS,
-  unknownS,
-  libS,
-): SimMapWithConfidence {
-  const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
+export const librarySimilarityByFunctionNamesAndStatementTokens = provideFnSig(
+  function FnNamesAndStToks(log, unknown, lib) {
+    const unknownPart = anonPartitionWithMap(unknown)
+    const libPart = anonPartitionWithMap(lib)
 
-  const unknownPart = anonPartitionWithMap(unknown)
-  const libPart = anonPartitionWithMap(lib)
+    const libAnonFns = libPart.anon as FunctionSignatureMatched[]
+    // remark: first for loop
+    const possibleMatches = unknownPart.anon.reduce(
+      (acc, { fnStatementTokens: toks }) => {
+        // remark: second for loop
+        const topMatches = libAnonFns
+          .reduce((sll, { name, __matched = false, fnStatementTokens: libToks }, index) => {
+            return __matched
+              ? sll
+              : // remark: threshold can go here
+                // remark: third for loop (inside jaccardLike())
+                sll.push({ name, index, prob: jaccardLike(toks, libToks) })
+          }, new SortedLimitedList({ predicate: (o: nameProbIndex) => -o.prob.val }))
+          .value()
 
-  const libAnonFns = libPart.anon as FunctionSignatureMatched[]
-  // remark: first for loop
-  const possibleMatches = unknownPart.anon.reduce(
-    (acc, { fnStatementTokens: toks }) => {
-      // remark: second for loop
-      const topMatches = libAnonFns
-        .reduce((sll, { name, __matched = false, fnStatementTokens: libToks }, index) => {
-          return __matched
-            ? sll
-            : // remark: threshold can go here
-              // remark: third for loop (inside jaccardLike())
-              sll.push({ name, index, prob: jaccardLike(toks, libToks) })
-        }, new SortedLimitedList({ predicate: (o: nameProbIndex) => -o.prob.val }))
-        .value()
-
-      const topMatch = head(topMatches)
-      if (!topMatch || topMatch.prob.val === 0) {
-        const unmatched = { name: '__unmatched__', index: -1, prob: { val: 1, num: -1, den: -1 } }
-        return acc.concat(unmatched)
-      }
-
-      libAnonFns[topMatch.index] = { ...libAnonFns[topMatch.index], __matched: true }
-      return acc.concat(topMatch)
-    },
-    [] as nameProbIndex[],
-  )
-
-  const sizeOfUnknownNamed = unknownPart.named.length
-  const sizeOfLibNamed = libPart.named.length
-
-  const unknownFns = ([] as (string | number)[])
-    .concat(unknownPart.named.map((v) => v.name))
-    .concat(possibleMatches.map((v) => v.index))
-  const libFns = ([] as (string | number)[])
-    .concat(libPart.named.map((v) => v.name))
-    .concat(libPart.anon.map((_, i) => i))
-
-  const { similarity, mapping: nonFormatMap } = jaccardLikeWithMapping(unknownFns, libFns)
-
-  const mapping = new Map(
-    [...nonFormatMap]
-      .map(([unkwnI, libI]): [number, probIndex] => {
-        let unknownIndex
-        let index
-        let prob = { val: 1, num: -1, den: -1 }
-
-        if (unkwnI < sizeOfUnknownNamed) {
-          unknownIndex = unknownPart.namedMap.get(unkwnI)
-        } else {
-          const i = unkwnI - sizeOfUnknownNamed
-          unknownIndex = unknownPart.anonMap.get(i)
-          prob = possibleMatches[i].prob
+        const topMatch = head(topMatches)
+        if (!topMatch || topMatch.prob.val === 0) {
+          const unmatched = { name: '__unmatched__', index: -1, prob: { val: 1, num: -1, den: -1 } }
+          return acc.concat(unmatched)
         }
 
-        if (libI < sizeOfLibNamed) {
-          index = libPart.namedMap.get(libI)
-        } else {
-          index = libPart.anonMap.get(libI - sizeOfLibNamed)
-        }
+        libAnonFns[topMatch.index] = { ...libAnonFns[topMatch.index], __matched: true }
+        return acc.concat(topMatch)
+      },
+      [] as nameProbIndex[],
+    )
 
-        return [unknownIndex, { index, prob }]
-      })
-      .sort((a, b) => a[0] - b[0]),
-  ) as DefiniteMap<number, probIndex>
+    const sizeOfUnknownNamed = unknownPart.named.length
+    const sizeOfLibNamed = libPart.named.length
 
-  return { similarity, mapping }
-}
+    const unknownFns = ([] as (string | number)[])
+      .concat(unknownPart.named.map((v) => v.name))
+      .concat(possibleMatches.map((v) => v.index))
+    const libFns = ([] as (string | number)[])
+      .concat(libPart.named.map((v) => v.name))
+      .concat(libPart.anon.map((_, i) => i))
+
+    const { similarity, mapping: nonFormatMap } = jaccardLikeWithMapping(unknownFns, libFns)
+
+    const mapping = new Map(
+      [...nonFormatMap]
+        .map(([unkwnI, libI]): [number, probIndex] => {
+          let unknownIndex
+          let index
+          let prob = { val: 1, num: -1, den: -1 }
+
+          if (unkwnI < sizeOfUnknownNamed) {
+            unknownIndex = unknownPart.namedMap.get(unkwnI)
+          } else {
+            const i = unkwnI - sizeOfUnknownNamed
+            unknownIndex = unknownPart.anonMap.get(i)
+            prob = possibleMatches[i].prob
+          }
+
+          if (libI < sizeOfLibNamed) {
+            index = libPart.namedMap.get(libI)
+          } else {
+            index = libPart.anonMap.get(libI - sizeOfLibNamed)
+          }
+
+          return [unknownIndex, { index, prob }]
+        })
+        .sort((a, b) => a[0] - b[0]),
+    ) as DefiniteMap<number, probIndex>
+
+    return { similarity, mapping }
+  },
+)

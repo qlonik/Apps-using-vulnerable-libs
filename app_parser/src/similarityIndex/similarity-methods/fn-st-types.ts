@@ -1,23 +1,20 @@
 import { clone, head } from 'lodash'
 import { jaccardLikeStrings } from '../set'
 import { SortedLimitedList } from '../SortedLimitedList'
-import { getFnSig } from './internal'
+import { provideFnSig } from './internal'
 import {
   DefiniteMap,
   FunctionSignatureMatched,
-  MatchingFn,
   nameProbIndex,
   probIndex,
   SimMapWithConfidence,
 } from './types'
 
-export const librarySimilarityByFunctionStatementTypes: MatchingFn = function FnStTypes(
-  logS,
-  unknownS,
-  libS,
+export const librarySimilarityByFunctionStatementTypes = provideFnSig(function FnStTypes(
+  log,
+  unknown,
+  lib,
 ): SimMapWithConfidence {
-  const [log, unknown, lib] = getFnSig(logS, unknownS, libS)
-
   const libCopy = clone(lib) as FunctionSignatureMatched[]
   // remark: first for loop
   const possibleFnNames = unknown.reduce(
@@ -55,4 +52,4 @@ export const librarySimilarityByFunctionStatementTypes: MatchingFn = function Fn
   )
 
   return { similarity, mapping }
-}
+})
