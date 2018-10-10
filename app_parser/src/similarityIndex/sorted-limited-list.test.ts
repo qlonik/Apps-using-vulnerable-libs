@@ -1,8 +1,7 @@
 import test from 'ava'
 import arb from 'jsverify'
-import { filter as _filter, sortBy, take } from 'lodash'
+import { sortBy, take } from 'lodash'
 import { check } from '../_helpers/property-test'
-import { assertNever } from '../utils'
 import { SortedLimitedList } from './SortedLimitedList'
 
 test('adds and sorts for simple types', t => {
