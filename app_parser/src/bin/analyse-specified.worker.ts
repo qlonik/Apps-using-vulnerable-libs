@@ -16,21 +16,18 @@ import { getLibNameVersionSigContents, libNameVersionSigFile } from '../parseLib
 import { Similarity } from '../similarityIndex'
 import { indexValue } from '../similarityIndex/set'
 import {
-  librarySimilarityByFunctionStatementTokens,
-  librarySimilarityByFunctionStatementTokens_v2,
-  librarySimilarityByFunctionStatementTokens_v4,
-  librarySimilarityByFunctionStatementTokens_v5,
-  librarySimilarityByFunctionStatementTokens_v6,
-  librarySimilarityByLiteralValues,
+  FN_MATCHING_METHODS,
+  FN_MATCHING_METHODS_TYPE,
+  LIT_MATCHING_METHODS,
+  LIT_MATCHING_METHODS_TYPE,
+  returnFunctionMatchingFn,
+  returnLiteralMatchingFn,
 } from '../similarityIndex/similarity-methods'
 import { SimMapWithConfidence } from '../similarityIndex/similarity-methods/types'
 import { SortedLimitedList } from '../similarityIndex/SortedLimitedList'
 import { myWriteJSON } from '../utils/files'
 import logger from '../utils/logger'
-import {
-  messages,
-  METHODS_TYPE, // eslint-disable-line no-unused-vars
-} from './analyse-specified'
+import { messages, METHODS_TYPE } from './analyse-specified'
 
 type wFnMap = WorkerFunctionsMap<messages>
 type fnName<K extends METHODS_TYPE = METHODS_TYPE> = {
@@ -138,8 +135,6 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
   }
 }
 
-const noop = () => false
-
 const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames }) => {
   const wDir = join(save, transformAppPath(app), transformFilePath(file))
   const predicate = (s: Similarity) => -s.similarity.val
@@ -220,38 +215,16 @@ const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames }) => 
   return true
 }
 
-const workerMap: wFnMap = {
+worker<messages>({
   aggregate,
-  // will be replaced with actual functions.
-  'lit-vals': noop,
-  'fn-st-toks-v1': noop,
-  'fn-st-toks-v2': noop,
-  'fn-st-toks-v3': noop,
-  'fn-st-toks-v4': noop,
-  'fn-st-toks-v5': noop,
-  'fn-st-toks-v6': noop,
-  'fn-st-types': noop,
-  'fn-names': noop,
-  'fn-names-st-toks': noop,
-}
-const methods: fnName[] = [
-  { name: 'lit-vals', fn: librarySimilarityByLiteralValues },
-  { name: 'fn-st-toks-v1', fn: librarySimilarityByFunctionStatementTokens },
-  { name: 'fn-st-toks-v2', fn: librarySimilarityByFunctionStatementTokens_v2 },
-  // { name: 'fn-st-toks-v3', fn: librarySimilarityByFunctionStatementTokens_v3 },
-  { name: 'fn-st-toks-v4', fn: librarySimilarityByFunctionStatementTokens_v4 },
-  { name: 'fn-st-toks-v5', fn: librarySimilarityByFunctionStatementTokens_v5 },
-  {
-    name: 'fn-st-toks-v6',
-    fn: librarySimilarityByFunctionStatementTokens_v6,
-  },
-  // { name: 'fn-st-types', fn: librarySimilarityByFunctionStatementTypes },
-  // { name: 'fn-names', fn: librarySimilarityByFunctionNames },
-  // { name: 'fn-names-st-toks', fn: librarySimilarityByFunctionNamesAndStatementTokens },
-]
-
-worker(
-  methods.reduce((acc, { fn, name }) => ({ ...acc, [name]: analyse({ fn, name }) }), workerMap),
-)
+  ...LIT_MATCHING_METHODS.reduce(
+    (acc, name) => ({ ...acc, [name]: analyse({ fn: returnLiteralMatchingFn(name), name }) }),
+    {} as Pick<wFnMap, LIT_MATCHING_METHODS_TYPE>,
+  ),
+  ...FN_MATCHING_METHODS.reduce(
+    (acc, name) => ({ ...acc, [name]: analyse({ fn: returnFunctionMatchingFn(name), name }) }),
+    {} as Pick<wFnMap, FN_MATCHING_METHODS_TYPE>,
+  ),
+})
 
 process.on('SIGINT', () => {})

@@ -12,25 +12,19 @@ import {
   libNameVersion,
   libNameVersionSigFile,
 } from '../parseLibraries'
+import {
+  FN_MATCHING_METHODS,
+  FN_MATCHING_METHODS_TYPE,
+  LIT_MATCHING_METHODS,
+  LIT_MATCHING_METHODS_TYPE,
+} from '../similarityIndex/similarity-methods'
 import { assertNever, resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { getWorkerPath, poolFactory } from '../utils/worker'
 import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
-export enum METHODS_ENUM {
-  'lit-vals',
-  'fn-st-toks-v1',
-  'fn-st-toks-v2',
-  'fn-st-toks-v3',
-  'fn-st-toks-v4',
-  'fn-st-toks-v5',
-  'fn-st-toks-v6',
-  'fn-st-types',
-  'fn-names',
-  'fn-names-st-toks',
-}
-export type METHODS_TYPE = keyof typeof METHODS_ENUM
-const METHODS = Object.values(METHODS_ENUM).filter((n) => typeof n === 'string') as METHODS_TYPE[]
+export type METHODS_TYPE = LIT_MATCHING_METHODS_TYPE | FN_MATCHING_METHODS_TYPE
+const METHODS = ([] as METHODS_TYPE[]).concat(LIT_MATCHING_METHODS).concat(FN_MATCHING_METHODS)
 
 export type locations = {
   apps: string
