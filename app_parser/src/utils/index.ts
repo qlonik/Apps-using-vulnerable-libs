@@ -5,27 +5,6 @@ import { extract } from 'tar'
 import { opts as extractorOpts } from '../extractStructure'
 import { stdoutLog } from './logger'
 
-const pendingPromise = function<T>(): Promise<T> {
-  let outResolve = (v?: T) => {}
-  let outReject = (e?: Error) => {}
-  const prom: any = new Promise((resolve, reject) => {
-    outResolve = (value) => {
-      outResolve = () => {}
-      outReject = () => {}
-
-      resolve(value)
-    }
-    outReject = (err) => {
-      outResolve = () => {}
-      outReject = () => {}
-
-      reject(err)
-    }
-  })
-  prom.resolve = outResolve
-  prom.reject = outReject
-  return prom
-}
 export const leftPad = (s: string | number, l: number = 4): string => {
   return leftPadOrig(s, l, '0')
 }
