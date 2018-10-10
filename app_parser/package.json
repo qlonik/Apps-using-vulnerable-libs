@@ -113,11 +113,13 @@
     "require": [
       "ts-node/register"
     ],
+    "cache": true,
     "compileEnhancements": false,
     "snapshotDir": "test/snapshots"
   },
   "nyc": {
     "all": true,
+    "cache": true,
     "reporter": [
       "html",
       "text-summary"
