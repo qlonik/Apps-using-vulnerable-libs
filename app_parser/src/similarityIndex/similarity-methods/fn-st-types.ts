@@ -1,6 +1,6 @@
 import { clone, head } from 'lodash'
 import { jaccardLikeStrings } from '../set'
-import { SortedLimitedList } from '../SortedLimitedList'
+import { SortedLimitedList } from '../sorted-limited-list'
 import { provideFnSig } from './internal'
 import {
   DefiniteMap,

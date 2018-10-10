@@ -15,7 +15,7 @@ import {
 import { indexValue, isSubset, jaccardIndex } from './set'
 import { FN_MATCHING_METHODS_TYPE, returnFunctionMatchingFn } from './similarity-methods'
 import { probIndex, SimMapWithConfidence, MatchingFn } from './similarity-methods/types'
-import { SortedLimitedList } from './SortedLimitedList'
+import { SortedLimitedList } from './sorted-limited-list'
 
 const nextTick = promisify(setImmediate)
 

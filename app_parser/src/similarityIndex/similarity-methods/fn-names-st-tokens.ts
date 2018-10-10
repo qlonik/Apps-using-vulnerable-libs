@@ -1,7 +1,7 @@
 import { head, last } from 'lodash'
 import { fnNamesSplit, FunctionSignature } from '../../extractStructure'
 import { jaccardLike, jaccardLikeWithMapping } from '../set'
-import { SortedLimitedList } from '../SortedLimitedList'
+import { SortedLimitedList } from '../sorted-limited-list'
 import { provideFnSig } from './internal'
 import { DefiniteMap, FunctionSignatureMatched, nameProbIndex, probIndex } from './types'
 

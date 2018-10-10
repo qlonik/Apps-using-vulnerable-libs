@@ -2,7 +2,7 @@ import test from 'ava'
 import arb from 'jsverify'
 import { sortBy, take } from 'lodash'
 import { check } from '../_helpers/property-test'
-import { SortedLimitedList } from './SortedLimitedList'
+import { SortedLimitedList } from './sorted-limited-list'
 
 test('adds and sorts for simple types', t => {
   const sllAsc = new SortedLimitedList<number>()

@@ -24,7 +24,7 @@ import {
   returnLiteralMatchingFn,
 } from '../similarityIndex/similarity-methods'
 import { SimMapWithConfidence } from '../similarityIndex/similarity-methods/types'
-import { SortedLimitedList } from '../similarityIndex/SortedLimitedList'
+import { SortedLimitedList } from '../similarityIndex/sorted-limited-list'
 import { myWriteJSON } from '../utils/files'
 import logger from '../utils/logger'
 import { messages, METHODS_TYPE } from './analyse-specified'

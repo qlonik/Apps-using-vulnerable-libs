@@ -10,7 +10,7 @@ import {
   libPortionIndexes,
   weightedMapIndex,
 } from '../set'
-import { SortedLimitedList } from '../SortedLimitedList'
+import { SortedLimitedList } from '../sorted-limited-list'
 import { provideFnSig } from './internal'
 import { DefiniteMap, FunctionSignatureMatched, nameProbIndex, Prob, probIndex } from './types'
 
