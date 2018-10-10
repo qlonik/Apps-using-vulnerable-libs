@@ -1,3 +1,4 @@
+// eslint-disable-next-line ava/use-test
 import { ExecutionContext, Macro } from 'ava'
 import { isFunction } from 'babel-types'
 import { parse } from 'babylon'

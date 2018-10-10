@@ -1,9 +1,9 @@
-import * as ava from 'ava'
+import test, { TestInterface } from 'ava'
 
 export function contextualize<T>(getContext: () => T | Promise<T>) {
-  ava.default.beforeEach(async (t) => {
+  test.beforeEach(async (t) => {
     Object.assign(t.context, await getContext())
   })
 
-  return ava.default as ava.TestInterface<T>
+  return test as TestInterface<T>
 }

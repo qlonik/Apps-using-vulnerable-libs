@@ -5,11 +5,7 @@ import {
   isTemplateLiteral,
   Node as BabelNode,
 } from 'babel-types'
-import { stdoutLog } from '../../utils/logger'
 import { Signal, TreePath } from '../visit-nodes'
-
-const NAMESPACE = 'nodeFilters:literalValue'
-const log = stdoutLog(NAMESPACE)
 
 export type SignatureLiteral = string | number
 

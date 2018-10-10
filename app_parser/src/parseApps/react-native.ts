@@ -12,7 +12,7 @@ import {
   REACT_NATIVE_MAIN_FILE,
   REACT_NATIVE_SIG_FILE,
 } from './constants'
-import { APP_TYPES, appDesc } from './getters'
+import { appDesc } from './getters'
 import { IsAppTypeFn } from './index'
 
 export const isReactNativeApp: IsAppTypeFn = async function({ appPath }): Promise<boolean> {

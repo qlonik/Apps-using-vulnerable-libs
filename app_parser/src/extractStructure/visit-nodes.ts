@@ -83,6 +83,7 @@ export const visitNodes = <K>({
           }
         }
       } else if (signal === Signals.preventRecursion) {
+        // do nothing
       } else {
         /* istanbul ignore next */
         assertNever(signal)

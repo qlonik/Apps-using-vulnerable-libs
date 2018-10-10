@@ -1,9 +1,5 @@
 import { find, map, sortBy } from 'lodash'
 import { libNameVersion } from './parseLibraries'
-import { stdoutLog } from './utils/logger'
-
-const NAMESPACE = 'pkg.blacklist'
-const log = stdoutLog(NAMESPACE)
 
 export enum COMMENTS {
   oldArch = 'old archive format',

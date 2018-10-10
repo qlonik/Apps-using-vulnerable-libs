@@ -88,7 +88,7 @@ const extractNodeLocation = (loc: SourceLocation): SourceLocation => {
 }
 
 export const fnNodeFilter = (path: string, node: BabelNode, opts: opts): Signal<Signature> => {
-  if (node && (<any>node).__skip) {
+  if (node && (node as any).__skip) {
     return Signal.continue<Signature>(null)
   }
 

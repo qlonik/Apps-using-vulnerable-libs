@@ -1,6 +1,6 @@
 import { readdir, stat } from 'fs-extra'
 import { kebabCase } from 'lodash'
-import * as yargs from 'yargs'
+import * as yargs from 'yargs' // eslint-disable-line import/no-namespace
 import { EnvironmentError } from '../utils/errors'
 import logger from '../utils/logger'
 import { MainFn } from './_all.types'
