@@ -19,7 +19,7 @@ import {
   extractSingleLibraryFromDump,
   updateUnionLiteralSignature,
 } from '../parseLibraries'
-import { isInBlacklist } from '../pkgBlacklist'
+import { isInBlacklist } from '../pkg-blacklist'
 import { bundle_similarity_fn, candidateLib } from '../similarityIndex'
 import { fileOp, saveFiles } from '../utils/files'
 import logger from '../utils/logger'
