@@ -145,43 +145,56 @@ export const v2 = provideFnSig(
   },
 )
 
-export const v3 = provideFnSig(function v3(log, unknown, lib) {
-  type indexesProb = { unknownIndex: number; libIndex: number } & Prob
-  const sll = new SortedLimitedList({ limit: Infinity, predicate: (o: indexesProb) => -o.prob.val })
+export const v3 = provideFnSig(
+  /**
+   * This function constructs similarities between all pairs of unknown and known signatures.
+   * It then ranks those, and picks top matches until it runs out of matched pairs.
+   *
+   * @param log - logger instance
+   * @param unknown - signature of the unknown js file from the app
+   * @param lib - signature of the library
+   */
+  function v3(log, unknown, lib) {
+    type indexesProb = { unknownIndex: number; libIndex: number } & Prob
+    const sll = new SortedLimitedList({
+      limit: Infinity,
+      predicate: (o: indexesProb) => -o.prob.val,
+    })
 
-  for (let [unknownIndex, { fnStatementTokens: unknownToks }] of unknown.entries()) {
-    for (let [libIndex, { fnStatementTokens: libToks }] of lib.entries()) {
-      // remark: threshold can go here
-      const prob = jaccardLikeStrings(unknownToks, libToks)
-      if (prob.val !== 0) {
-        sll.push({ unknownIndex, libIndex, prob })
+    for (let [unknownIndex, { fnStatementTokens: unknownToks }] of unknown.entries()) {
+      for (let [libIndex, { fnStatementTokens: libToks }] of lib.entries()) {
+        // remark: threshold can go here
+        const prob = jaccardLikeStrings(unknownToks, libToks)
+        if (prob.val !== 0) {
+          sll.push({ unknownIndex, libIndex, prob })
+        }
       }
     }
-  }
 
-  const selectedMatchesUnsorted = [] as [number, number, indexValue][]
-  const usedUnknownI = new Set<number>()
-  const usedLibI = new Set<number>()
-  for (let { unknownIndex, libIndex, prob } of sll.value()) {
-    if (!usedUnknownI.has(unknownIndex) && !usedLibI.has(libIndex)) {
-      usedUnknownI.add(unknownIndex)
-      usedLibI.add(libIndex)
-      selectedMatchesUnsorted.push([unknownIndex, libIndex, prob])
+    const selectedMatchesUnsorted = [] as [number, number, indexValue][]
+    const usedUnknownI = new Set<number>()
+    const usedLibI = new Set<number>()
+    for (let { unknownIndex, libIndex, prob } of sll.value()) {
+      if (!usedUnknownI.has(unknownIndex) && !usedLibI.has(libIndex)) {
+        usedUnknownI.add(unknownIndex)
+        usedLibI.add(libIndex)
+        selectedMatchesUnsorted.push([unknownIndex, libIndex, prob])
+      }
     }
-  }
 
-  const mapping = new Map(
-    selectedMatchesUnsorted
-      .sort((a, b) => a[0] - b[0])
-      .map(([i, index, prob]): [number, probIndex] => [i, { index, prob }]),
-  ) as DefiniteMap<number, probIndex>
+    const mapping = new Map(
+      selectedMatchesUnsorted
+        .sort((a, b) => a[0] - b[0])
+        .map(([i, index, prob]): [number, probIndex] => [i, { index, prob }]),
+    ) as DefiniteMap<number, probIndex>
 
-  const possibleFnIndexes = unknown.map((u, i) => (mapping.has(i) ? mapping.get(i).index : -1))
-  const libFnIndexes = lib.map((_, i) => i)
-  const similarity = jaccardLikeNumbers(possibleFnIndexes, libFnIndexes)
+    const possibleFnIndexes = unknown.map((u, i) => (mapping.has(i) ? mapping.get(i).index : -1))
+    const libFnIndexes = lib.map((_, i) => i)
+    const similarity = jaccardLikeNumbers(possibleFnIndexes, libFnIndexes)
 
-  return { similarity, mapping }
-})
+    return { similarity, mapping }
+  },
+)
 
 export const v4 = provideFnSig(
   /**
