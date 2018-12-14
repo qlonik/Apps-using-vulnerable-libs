@@ -14,7 +14,6 @@ vulnerable libraries.
   and `data/sample_apps/` contains apps to analyse.
 * `npm_rank` - rank of npm packages. Clone of
   https://gist.github.com/anvaka/8e8fa57c7ee1350e3491.
-* `secrets/` - folder with secrets - passwords/keys.
 
 ### File structure of /data
 
