@@ -12,8 +12,6 @@ vulnerable libraries.
 * `data` - folder containing data. By default, `.tgz` of libs are dumped
   into `data/lib_dump/`, `data/sample_libs/` contains parsed libraries,
   and `data/sample_apps/` contains apps to analyse.
-* `npm_rank` - rank of npm packages. Clone of
-  https://gist.github.com/anvaka/8e8fa57c7ee1350e3491.
 
 ### File structure of /data
 
