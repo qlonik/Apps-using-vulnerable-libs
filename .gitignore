@@ -55,6 +55,11 @@ fabric.properties
 # ---  end jetbrains section  ---
 
 *~
+/.vscode
+/node_modules*
+/.nyc_output
+/coverage
+/lib
 
 /data
 
