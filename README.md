@@ -1,31 +1,60 @@
 # Apps using vulnerable libs
 
-Project dedicated to the search of android applications which are using
-vulnerable libraries.
+Project dedicated to the search of android applications which are using vulnerable libraries.
+This repo contains the main tool as well as some configuration and data folders.
 
 ## File structure
 
-* `.idea` - files specific for IDE
-* `app_parser` - main component which extracts JavaScript from Android
-  applications and matches against known libraries. Check out it's own
-  [README](./app_parser/README.md).
-* `data` - folder containing data. By default, `.tgz` of libs are dumped
-  into `data/lib_dump/`, `data/sample_libs/` contains parsed libraries,
-  and `data/sample_apps/` contains apps to analyse.
+* `.idea` - files specific for IntelliJ IDEA
+* `data` - data folder containing files related to apps (apks, extracted and fingerprinted  js files),
+  to libs (tgzs, extracted and fingerprinted js files), and log files created while running the tool.
+  Check out its own [README](./data/README.md) for more details.
+* `bin`, `src`, `package.json`, `package-lock.json`, `tsconfig.json` - source code for the tool
+  * Shell scripts in `bin` are used to setup output folders and file descriptor for the main tool.
+    Scripts here setup file descriptor using `exec {fd}>output.txt` way, which requires rather new bash. 
 
-### File structure of /data
+## Setup crunch machine
 
-* `dbs/` - npm databases dumped from couchdb
-  * `scoped.json.tar.xz` - db from `https://replicate.npmjs.com/registry`.
-    One file packed with xz.
-  * `scoped.json` - unpacked `scoped.json.tar.xz`.
-  * `skimdb.json.tar.xz` - db from `https://skimdb.npmjs.com/registry`. One file packed with xz.
-  * `skimdb.json` - unpacked `skimdb.json.tar.xz`.
+a. Add following lines into `~/.profile` or `~/.bashrc` or equivalent
+  ```bash
+# ~/.profile
+TERM=xterm
 
-* `apk_dump/` - folder where `.apk` files are dumped. Need to be in the format:
-  `cordova/section/name.apk`.
-* `lib_dump/` - folder where libs' `.tgz` files are dumped.
+export HOMEBREW_NO_ANALYTICS=1
 
-* `apps_apks` - folder where `.apk` files are placed after the app is parsed.
-* `sample_apps` - folder where parsed apps files are placed.
-* `sample_libs` - folder where parsed libraries are placed.
+PATH="$HOME/.linuxbrew/bin:$HOME/.linuxbrew/sbin:$PATH"
+export MANPATH="$(brew --prefix)/share/man:$MANPATH"
+export INFOPATH="$(brew --prefix)/share/info:$INFOPATH"
+
+export NVM_DIR="$HOME/.nvm"
+source "$(brew --prefix)/opt/nvm/nvm.sh"
+source "$(brew --prefix)/etc/bash_completion.d/nvm"
+  ```
+
+b. Log-out, log-in
+
+c. Install linuxbrew (http://linuxbrew.sh/) with command from their website
+  ```bash
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
+  ```
+
+d. Install all required dependencies
+  ```bash
+  brew install gcc ack atool bash ncdu nvm tmux jq
+  ```
+
+e. If apks need to be unpacked, also install
+  ```bash
+  brew install jdk apktool
+  ```
+
+f. Link sh to latest version of bash
+  ```bash
+  ln -s ~/.linuxbrew/bin/bash ~/.linuxbrew/bin/sh
+  ```
+
+g. Install latest node
+  ```bash
+  nvm install node
+  ```
+
