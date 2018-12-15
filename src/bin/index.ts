@@ -1,9 +1,10 @@
 import { readdir, stat } from 'fs-extra'
 import { kebabCase } from 'lodash'
 import * as yargs from 'yargs' // eslint-disable-line import/no-namespace
+import { Logger } from 'pino'
 import { EnvironmentError } from '../utils/errors'
-import logger from '../utils/logger'
-import { MainFn } from './_all.types'
+import { log as logger, assert } from '../utils/logger'
+import { EnvironmentSpecifier, EnvironmentValues, MainFn } from './_all.types'
 import { stripIllegalNames } from './_strip-illegal-names'
 
 /**
@@ -27,6 +28,17 @@ const checkEnvironment = async () => {
   if (Number.isNaN(parseInt(FD, 10))) {
     throw new EnvironmentError('$FD is not a number')
   }
+}
+
+const verifyBinEnvironment = <E extends EnvironmentSpecifier>(
+  log: Logger,
+  orig: EnvironmentValues<E>,
+  e: E,
+): EnvironmentValues<E> => {
+  return [...Object.entries(e)].reduce((acc, [key]) => {
+    const value = assert(process.env[key], log, `$${key} is not set`, 'fatal')
+    return Object.assign(acc, { [key]: value })
+  }, orig)
 }
 
 yargs
@@ -69,10 +81,22 @@ yargs
         process.on('SIGINT', module.terminate(log))
       }
 
-      log.info('master process')
+      const envSpec: EnvironmentSpecifier = module.environment
+      let env: EnvironmentValues<EnvironmentSpecifier> = {
+        OUT: process.env.OUT!,
+      }
+      if (envSpec) {
+        try {
+          env = verifyBinEnvironment(log, env, envSpec)
+        } catch {
+          throw null
+        }
+      }
+
+      log.info({ env }, 'master process')
       const start = process.hrtime()
       try {
-        await main(log)
+        await main(log, env)
         const time = process.hrtime(start)
         log.info({ 'run-time': time }, 'total time')
       } catch (err) {

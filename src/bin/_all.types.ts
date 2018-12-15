@@ -2,7 +2,17 @@ import { Logger } from 'pino'
 import { APP_TYPES, appDesc, BundSim } from '../parseApps'
 import { libNameVersion } from '../parseLibraries'
 
-export type MainFn = (log: Logger) => Promise<any>
+export type EnvironmentSpecifier = { [key: string]: {} }
+export type EnvironmentDefault = {
+  OUT: string
+}
+export type EnvironmentValues<E extends EnvironmentSpecifier> = EnvironmentDefault &
+  Record<keyof E, string>
+
+export type MainFn<E extends EnvironmentSpecifier = {}> = (
+  log: Logger,
+  env: EnvironmentValues<E>,
+) => Promise<any>
 export type TerminateFn = (log: Logger) => (signal: 'SIGINT') => void
 
 export interface CouchDumpFormat {
