@@ -1,10 +1,7 @@
 - &defaults
-#  workingDirectory: "${PROJECT_DIR}/app_parser"
-#  workingDirectory: "./app_parser"
   files: ["**/__tests__/**/*", "**/*.spec.*", "**/*.test.*", "!**/node_modules/**/*"]
   beforeRun: typescript
-  nodeArgs: ["-e", "process.chdir('./app_parser'); process.argv[1]=process.argv[1].slice(process.argv[1].indexOf('./node_modules')); require('module').runMain()"]
-  script: "app_parser/./node_modules/.bin/ava"
+  script: "./node_modules/.bin/ava"
   scriptArgs: ["src/**/${fileNameWithoutExt}.*"]
   rcName: "${fileNameWithoutExt}"
 
