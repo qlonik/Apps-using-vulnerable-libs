@@ -24,7 +24,7 @@ export type messages = The<
   }
 >
 
-const APPS_PATH = '../data/sample_apps'
+const APPS_PATH = './data/sample_apps'
 const FOUND_LIBS = join(APPS_PATH, FOUND_LIBS_REGEX_FILE)
 
 let terminating = false

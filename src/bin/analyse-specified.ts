@@ -48,8 +48,8 @@ export type messages = The<
   }
 >
 
-const APP_PATH = '../data/sample_apps'
-const LIB_PATH = '../data/sample_libs'
+const APP_PATH = './data/sample_apps'
+const LIB_PATH = './data/sample_libs'
 const ANALYSIS_PATH = join(process.env.OUT!, 'rnd-10')
 const RESULTS_FILE = join(ANALYSIS_PATH, '_results.json')
 const TO_ANALYSE_FILE = join(process.env.OUT!, '_to_analyse.json')

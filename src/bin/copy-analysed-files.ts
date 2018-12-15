@@ -6,8 +6,8 @@ import { ANALYSIS_FOLDER } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
 import { MainFn, TerminateFn } from './_all.types'
 
-const INIT_PATH = '../data/sample_apps'
-const DEST_PATH = '../data/sample_apps.old_candidates_method'
+const INIT_PATH = './data/sample_apps'
+const DEST_PATH = './data/sample_apps.old_candidates_method'
 
 export const main: MainFn = async () => {
   const apps = await getApps(INIT_PATH)

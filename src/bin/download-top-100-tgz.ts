@@ -10,11 +10,11 @@ import { myWriteJSON } from '../utils/files'
 import { MainFn } from './_all.types'
 
 const NPM_DB_DUMP_PATH =
-  '../data/logs/__local.npm-db-dump/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
-const TGZ_DUMP = '../data/top-100/tgz'
+  './data/logs/__local.npm-db-dump/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
+const TGZ_DUMP = './data/top-100/tgz'
 const VERSIONS_FILE = join(TGZ_DUMP, '_file.json')
 const LIMIT = 100
-const TOP_LIST_FILE = '../npm_rank/01.most-dependent-upon.md'
+const TOP_LIST_FILE = './npm_rank/01.most-dependent-upon.md'
 const REGEX = /\d+\.\s\[(.*)]\(.*\).*/
 
 interface NpmDBEntry {

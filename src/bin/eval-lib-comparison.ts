@@ -18,8 +18,8 @@ import { assertNever } from '../utils'
 import { assert } from '../utils/logger'
 import { MainFn, TerminateFn } from './_all.types'
 
-const APPS_PATH = '../data/sample_apps'
-const LIBS_PATH = '../data/sample_libs'
+const APPS_PATH = './data/sample_apps'
+const LIBS_PATH = './data/sample_libs'
 
 type appSpec = { app: appDesc; file: analysisFile }
 const loadAppSig = async (_log: Logger, spec: appSpec): Promise<signatureWithComments> => {

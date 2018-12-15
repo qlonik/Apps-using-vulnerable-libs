@@ -12,10 +12,10 @@ import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
 const ANALYSE_WITH_FN: undefined | FN_MATCHING_METHODS_TYPE = undefined
 const APPS_TO_ANALYSE_LIMIT = 1000
-const ALL_APPS_PATH = '../data/sample_apps'
+const ALL_APPS_PATH = './data/sample_apps'
 const FIN_PRE_APPS_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
 const FIN_AN_APPS_PATH = join(ALL_APPS_PATH, FINISHED_ANALYSIS_FILE)
-const ALL_LIBS_PATH = '../data/sample_libs'
+const ALL_LIBS_PATH = './data/sample_libs'
 
 let terminating = false
 

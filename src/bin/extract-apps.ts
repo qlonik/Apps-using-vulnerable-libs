@@ -11,9 +11,9 @@ import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
 // can be '/gi-pool/appdata-ro' or '/home/nvolodin/20180315/crawl-fdroid/crawl-fdroid/apks'
 const INPUT_FOLDER = ''
-const TMP_FOLDER = '../data/tmp'
-const APPS_PATH = '../data/sample_apps'
-const APPS_APKS = '../data/apps_apks'
+const TMP_FOLDER = './data/tmp'
+const APPS_PATH = './data/sample_apps'
+const APPS_APKS = './data/apps_apks'
 
 let terminating = false
 

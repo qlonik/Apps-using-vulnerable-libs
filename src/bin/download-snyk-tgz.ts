@@ -10,9 +10,9 @@ import { myWriteJSON } from '../utils/files'
 import { MainFn } from './_all.types'
 
 const NPM_DB_DUMP_PATH =
-  '../data/logs/__local.npm-db-dump/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
+  './data/logs/__local.npm-db-dump/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
 const SNYK_JSON_PATH = './src/manual-reports/snyk/npm-full-v2.json'
-const DOWNLOADED_PATH = '../data/snyk/tgz'
+const DOWNLOADED_PATH = './data/snyk/tgz'
 const DOWNLOADED_LIBS_FILE = join(DOWNLOADED_PATH, '_file.json')
 
 export interface SnykVuln {

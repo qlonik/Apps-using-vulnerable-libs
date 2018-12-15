@@ -5,9 +5,9 @@ import { resolveAllOrInParallel } from '../utils'
 import { poolFactory } from '../utils/worker'
 import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
-const FINISHED_APK = '../data/apps_apks'
-const EXTRACTED_JS = '../data/sample_apps.again'
-const TMP_FOLDER = '../data/tmp'
+const FINISHED_APK = './data/apps_apks'
+const EXTRACTED_JS = './data/sample_apps.again'
+const TMP_FOLDER = './data/tmp'
 
 let terminating = false
 

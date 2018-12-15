@@ -5,8 +5,8 @@ import { getLibNames } from '../parseLibraries'
 import { poolFactory } from '../utils/worker'
 import { allMessages, DONE, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
-const DUMP_PATH = '../data/snyk/dump'
-const LIBS_PATH = '../data/snyk/sample_libs'
+const DUMP_PATH = './data/snyk/dump'
+const LIBS_PATH = './data/snyk/sample_libs'
 const DATE = ''
 const VERSIONS_PATH = ''
 

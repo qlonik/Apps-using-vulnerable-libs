@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-_out=../data/logs-test
+_out=./data/logs-test
 
 mkdir -p ${_out}
 exec {fout}>${_out}/everything.log

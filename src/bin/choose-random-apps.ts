@@ -6,7 +6,7 @@ import { FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { myWriteJSON } from '../utils/files'
 import { MainFn } from './_all.types'
 
-const ALL_APPS_PATH = '../data/sample_apps'
+const ALL_APPS_PATH = './data/sample_apps'
 const FIN_PREP_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
 const RANDOM_100_PATH = join(ALL_APPS_PATH, '../random_100.json')
 const RANDOM_10_PATH = join(ALL_APPS_PATH, '../random_10.json')

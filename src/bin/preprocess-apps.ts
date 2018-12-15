@@ -10,10 +10,10 @@ import { poolFactory } from '../utils/worker'
 import { WORKER_FILENAME, allMessages, MainFn, TerminateFn } from './_all.types'
 
 // const APP_PATH = '/home/nvolodin/Auvl/data/done/js'
-const APP_PATH = '../data/sample_apps'
+const APP_PATH = './data/sample_apps'
 const PREPROCESS_INTO_PATH = ''
 const FIN_APPS_PATH = join(PREPROCESS_INTO_PATH, FINISHED_PREPROCESSING_FILE)
-const LIB_PATH = '../data/sample_libs'
+const LIB_PATH = './data/sample_libs'
 
 let pool: Pool<allMessages>
 let terminating = false
