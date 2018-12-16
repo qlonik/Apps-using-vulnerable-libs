@@ -58,7 +58,8 @@ yargs
         throw null
       }
 
-      const [script] = transformAndCleanScriptNames([args.script])
+      const allowedDirs = ['one-time']
+      const [script] = transformAndCleanScriptNames([args.script], allowedDirs)
       if (!script) {
         logger.error({ script: args.script, err: new Error('illegal bin script') })
         throw null
