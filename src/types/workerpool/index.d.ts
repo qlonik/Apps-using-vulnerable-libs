@@ -1,6 +1,4 @@
 declare module 'workerpool' {
-  import { Fn } from 'typical-mini'
-
   class PromiseLike<T> {
     public static CancellationError: ErrorConstructor
     public static TimetoutError: ErrorConstructor
@@ -45,7 +43,7 @@ declare module 'workerpool' {
     private constructor(script: string, options?: PoolOptions)
     private constructor(options?: PoolOptions)
 
-    public exec<P extends any[], R>(fn: Fn<P, R>, p: P): Promise<R>
+    public exec<P extends any[], R>(fn: (...args: P) => R, p: P): Promise<R>
     public exec<M extends keyof T>(m: M, p: T[M][0]): Promise<T[M][1]>
 
     public proxy(): Promise<ProxiedWorkerFunctionsMap<T>>
@@ -60,11 +58,11 @@ declare module 'workerpool' {
   }
 
   type WorkerFunctionsMap<T extends MessagesMap> = {
-    [S in keyof T]: Fn<T[S][0], T[S][1] | Promise<T[S][1]>>
+    [S in keyof T]: (...args: T[S][0]) => T[S][1] | Promise<T[S][1]>
   }
 
   type ProxiedWorkerFunctionsMap<T extends MessagesMap> = {
-    [S in keyof T]: Fn<T[S][0], Promise<T[S][1]>>
+    [S in keyof T]: (...args: T[S][0]) => Promise<T[S][1]>
   }
 
   interface PoolOptions {
