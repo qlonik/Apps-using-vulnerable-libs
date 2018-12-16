@@ -5,7 +5,7 @@ import { Logger } from 'pino'
 import { EnvironmentError } from '../utils/errors'
 import { log as logger, assert } from '../utils/logger'
 import { EnvironmentSpecifier, EnvironmentValues, MainFn } from './_all.types'
-import { stripIllegalNames } from './_strip-illegal-names'
+import { transformAndCleanScriptNames } from './_strip-illegal-names'
 
 /**
  * Check that environment is properly setup, required environment variables are present:
@@ -59,7 +59,7 @@ yargs
         throw null
       }
 
-      const [script] = stripIllegalNames([args.script])
+      const [script] = transformAndCleanScriptNames([args.script])
       if (!script) {
         logger.error({ script: args.script, err: new Error('illegal bin script') })
         throw null
@@ -114,7 +114,7 @@ yargs
     },
     async () => {
       const scripts = await readdir(__dirname)
-      const names = stripIllegalNames(scripts)
+      const names = transformAndCleanScriptNames(scripts)
 
       logger.info({ names }, 'available commands')
     },

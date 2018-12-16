@@ -1,7 +1,7 @@
 import test from 'ava'
 import execa from 'execa'
 import { readdir } from 'fs-extra'
-import { stripIllegalNames } from './_strip-illegal-names'
+import { transformAndCleanScriptNames } from './_strip-illegal-names'
 
 const CLI_SCRIPT = __dirname
 const FIXTURES = 'fixtures'
@@ -10,7 +10,7 @@ const NO_EXPORT_MAIN_FN = `${FIXTURES}/no-export-main-fn`
 
 test.skip('lists bin scripts correctly', async t => {
   const currentDirContent = await readdir(__dirname)
-  const expected = stripIllegalNames(currentDirContent)
+  const expected = transformAndCleanScriptNames(currentDirContent)
 
   const result = await execa('node', ['--no-warnings', CLI_SCRIPT, 'list'])
   const scripts = JSON.parse(
