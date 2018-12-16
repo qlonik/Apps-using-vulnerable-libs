@@ -3,6 +3,7 @@ import { readJSON } from 'fs-extra'
 import { includes } from 'lodash'
 import { worker } from 'workerpool'
 import { APP_TYPES, getAnalysedData, getCordovaAnalysisFiles } from '../parseApps'
+import { CouchDumpFormat } from './_all.types'
 import {
   foundNpmMentionsMap,
   foundRegexMentionsMap,
@@ -73,9 +74,11 @@ worker<messages>({
     return false
   },
   findNpmMentions: async ({ APPS_PATH, app, section, SECTIONS }) => {
-    const npmNVArr = (await readJSON(NPM_LIBS_PATH)) as { name: string; versions: string[] }[]
-    const range = getSectionRange(npmNVArr.length, section, SECTIONS)
-    const npmNameReg = npmNVArr.filter((_, i) => range[0] <= i && i < range[1]).map(({ name }) => ({
+    const npmNVArr = (await readJSON(NPM_LIBS_PATH)) as CouchDumpFormat
+
+    const namesArr = Object.keys(npmNVArr)
+    const range = getSectionRange(namesArr.length, section, SECTIONS)
+    const npmNameReg = namesArr.filter((_, i) => range[0] <= i && i < range[1]).map((name) => ({
       name,
       reg: new RegExp(`[\\W_]${escapeStringRegexp(name)}[\\W_]`, 'g'),
     }))
