@@ -47,7 +47,15 @@ export type messages = The<
   {
     findRegexMentions: [[{ APPS_PATH: string; app: appDesc }], foundRegexMentionsMap | false]
     findNpmMentions: [
-      [{ APPS_PATH: string; app: appDesc; section: number; SECTIONS: number }],
+      [
+        {
+          APPS_PATH: string
+          app: appDesc
+          section: number
+          SECTIONS: number
+          NPM_LIBS_PATH: string
+        }
+      ],
       foundNpmMentionsMap | false
     ]
   }
@@ -70,9 +78,21 @@ const addFinishedApps = (apps: appDesc[], els: searchEl[]): appDesc[] => {
 
 export const environment = {
   APPS_PATH: {},
+  /**
+   * File contatining names and versions of libraries
+   *
+   * @example ```js
+   *   // note this file has improper format and code will fail
+   *   const NPM_LIBS_PATH = './data/logs/RIPPLE/npm-db-dump/click0/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
+   * ```
+   */
+  NPM_LIBS_PATH: {},
 }
 
-export const main: MainFn<typeof environment> = async function main(log, { OUT, APPS_PATH }) {
+export const main: MainFn<typeof environment> = async function main(
+  log,
+  { OUT, APPS_PATH, NPM_LIBS_PATH },
+) {
   const FIN_SEARCH_APPS_PATH = join(APPS_PATH, FINISHED_SEARCH_FILE)
   const pool = poolFactory<messages>(await getWorkerPath(__filename))
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
@@ -100,7 +120,7 @@ export const main: MainFn<typeof environment> = async function main(log, { OUT, 
 
     const findRegexPromise = pool.exec('findRegexMentions', [{ app, APPS_PATH }])
     const findNpmPromises = range(0, SECTIONS).map((s) =>
-      pool.exec('findNpmMentions', [{ app, APPS_PATH, section: s, SECTIONS }]),
+      pool.exec('findNpmMentions', [{ app, APPS_PATH, section: s, SECTIONS, NPM_LIBS_PATH }]),
     )
 
     const promises = ([] as Promise<any>[]).concat(findRegexPromise).concat(findNpmPromises)

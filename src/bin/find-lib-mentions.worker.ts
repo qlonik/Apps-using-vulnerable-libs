@@ -3,7 +3,6 @@ import { readJSON } from 'fs-extra'
 import { includes } from 'lodash'
 import { worker } from 'workerpool'
 import { APP_TYPES, getAnalysedData, getCordovaAnalysisFiles } from '../parseApps'
-import { assert } from '../utils/logger'
 import { CouchDumpFormat } from './_all.types'
 import {
   foundNpmMentionsMap,
@@ -14,15 +13,6 @@ import {
 } from './find-lib-mentions'
 
 const NV_REG = /([\w-]+)\s+(?:@?version\s+)?(v?\d+\.\d+\.\d+)/g
-/**
- * File contatining names and versions of libraries
- *
- * @example ```js
- *   // note this file has improper format and code will fail
- *   const NPM_LIBS_PATH = './data/logs/RIPPLE/npm-db-dump/click0/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
- * ```
- */
-const NPM_LIBS_PATH = assert(process.env.NPM_LIBS_PATH, undefined, '$NPM_LIBS_PATH is not set')
 
 const getSectionRange = (total: number, section: number, sections: number) => {
   const sectionSize = Math.ceil(total / sections)
@@ -81,7 +71,7 @@ worker<messages>({
 
     return false
   },
-  findNpmMentions: async ({ APPS_PATH, app, section, SECTIONS }) => {
+  findNpmMentions: async ({ APPS_PATH, app, section, SECTIONS, NPM_LIBS_PATH }) => {
     const npmNVArr = (await readJSON(NPM_LIBS_PATH)) as CouchDumpFormat
 
     const namesArr = Object.keys(npmNVArr)
