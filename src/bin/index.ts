@@ -1,5 +1,4 @@
-import { readdir, stat } from 'fs-extra'
-import { kebabCase } from 'lodash'
+import { readdir, stat, constants, access } from 'fs-extra'
 import * as yargs from 'yargs' // eslint-disable-line import/no-namespace
 import { Logger } from 'pino'
 import { EnvironmentError } from '../utils/errors'
@@ -64,14 +63,23 @@ yargs
         logger.error({ script: args.script, err: new Error('illegal bin script') })
         throw null
       }
-      const kebabedScriptName = script
-        .split('/')
-        .map(kebabCase)
-        .join('/')
-      const scriptName = `./${kebabedScriptName}`
-      const log = logger.child({ name: kebabedScriptName })
 
-      const module = await import(scriptName)
+      const scriptPath = require.resolve(`./${script}`)
+      try {
+        await access(scriptPath, constants.F_OK)
+      } catch (err) {
+        logger.error({ 'original-script-name': args.script, script, err }, 'file is not present')
+        throw null
+      }
+      try {
+        await access(scriptPath, constants.R_OK)
+      } catch (err) {
+        logger.error({ 'original-script-name': args.script, script, err }, 'file is not readable')
+        throw null
+      }
+
+      const log = logger.child({ name: script })
+      const module = await import(scriptPath)
       const main: MainFn = module.main
       if (typeof main !== 'function') {
         log.error({ err: new TypeError('no main exported') })
