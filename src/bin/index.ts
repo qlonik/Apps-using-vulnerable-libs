@@ -70,15 +70,13 @@ yargs
       }
 
       log.info('master process')
-      let start
-      let time
+      const start = process.hrtime()
       try {
-        start = process.hrtime()
         await main(log)
-        time = process.hrtime(start)
+        const time = process.hrtime(start)
         log.info({ 'run-time': time }, 'total time')
       } catch (err) {
-        time = process.hrtime(start)
+        const time = process.hrtime(start)
         log.error({ 'run-time': time, err }, 'global error from main()')
         throw null
       }
