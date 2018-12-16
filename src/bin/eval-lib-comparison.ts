@@ -22,7 +22,11 @@ const APPS_PATH = './data/sample_apps'
 const LIBS_PATH = './data/sample_libs'
 
 type appSpec = { app: appDesc; file: analysisFile }
-const loadAppSig = async (_log: Logger, spec: appSpec): Promise<signatureWithComments> => {
+const loadAppSig = async (
+  _log: Logger,
+  APPS_PATH: string,
+  spec: appSpec,
+): Promise<signatureWithComments> => {
   const fn =
     spec.app.type === APP_TYPES.cordova
       ? getCordovaAnalysisFiles
@@ -40,7 +44,11 @@ const loadAppSig = async (_log: Logger, spec: appSpec): Promise<signatureWithCom
   const data = await getAnalysedData(APPS_PATH, spec.app, neededFile)
   return assert(data.signature, _log, 'this app has no signature for this file')
 }
-const loadLibSig = async (_log: Logger, spec: libNameVersionSigFile): Promise<signatureNew> => {
+const loadLibSig = async (
+  _log: Logger,
+  LIBS_PATH: string,
+  spec: libNameVersionSigFile,
+): Promise<signatureNew> => {
   const contents = await getLibNameVersionSigContents(LIBS_PATH, spec.name, spec.version, spec.file)
   assert(
     contents.length === 1,
@@ -81,8 +89,8 @@ export const main: MainFn = async function main(log) {
       })
 
       const [appSig, libSig] = await Promise.all([
-        loadAppSig(_log, spec),
-        loadLibSig(_log, spec.target),
+        loadAppSig(_log, APPS_PATH, spec),
+        loadLibSig(_log, LIBS_PATH, spec.target),
       ])
 
       const { similarity } = librarySimilarityByFunctionStatementTokens_v6(_log, appSig, libSig)
