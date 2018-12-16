@@ -33,10 +33,15 @@ type appSpec = {
 /**
  * @throws when app does not pass common checks and when loaded signature is
  *   not expected
+ * @param APPS_PATH locations of all apps
  * @param spec app signature specifier
  * @param _log logger instance
  */
-const checkAppFnSig = async (spec: appSpec, _log: Logger): Promise<FunctionSignature> => {
+const checkAppFnSig = async (
+  APPS_PATH: string,
+  spec: appSpec,
+  _log: Logger,
+): Promise<FunctionSignature> => {
   const fn =
     spec.app.type === APP_TYPES.cordova
       ? getCordovaAnalysisFiles
@@ -70,9 +75,14 @@ const loadLibSig = curry(
   /**
    * @throws when loaded 0 or more than 1 signature.
    * @param _log
+   * @param LIBS_PATH
    * @param spec
    */
-  async (_log: Logger, spec: libNameVersionSigFile): Promise<FunctionSignature[]> => {
+  async (
+    _log: Logger,
+    LIBS_PATH: string,
+    spec: libNameVersionSigFile,
+  ): Promise<FunctionSignature[]> => {
     const contents = await getLibNameVersionSigContents(
       LIBS_PATH,
       spec.name,
@@ -96,11 +106,12 @@ const loadLibFnSig = curry(
    * @throws when signature at given index does not exist, and when signature
    *   at given index does not have expected index.
    * @param log logger instance
+   * @param LIBS_PATH path to all libraries
    * @param spec function signature specifier
    */
-  async (log: Logger, spec: libSpec): Promise<FunctionSignature> => {
+  async (log: Logger, LIBS_PATH: string, spec: libSpec): Promise<FunctionSignature> => {
     const _log = log.child({ 'lib-spec': spec })
-    const libFnSig = await loadLibSig(_log, spec)
+    const libFnSig = await loadLibSig(_log, LIBS_PATH, spec)
     const fnSig = assert(libFnSig[spec.index], _log, 'fn sig at specified index does not exist')
     assert(
       fnSig.index === spec.index,
@@ -111,7 +122,7 @@ const loadLibFnSig = curry(
   },
 )
 
-const noopMap = () => async (x: any): Promise<typeof x> => x
+const noopMap = () => () => async (x: any): Promise<typeof x> => x
 const jl = (t: FunctionSignature) => (sig: FunctionSignature) =>
   jaccardLike(t.fnStatementTokens, sig.fnStatementTokens)
 
@@ -119,15 +130,18 @@ const targetSigCheckerFactory =
   /**
    * Function computing indexValues between target function and array of passed
    * functions
+   * @param LIBS_PATH location of all libs
    * @param t target function signature
    * @param _log logger instance
    */
-  (t: FunctionSignature, _log: Logger) =>
+  (LIBS_PATH: string, t: FunctionSignature, _log: Logger) =>
     /**
      *
      * @param fn mapping function
      */
-    <T = libSpec>(fn: (log: Logger) => (x: T) => Promise<FunctionSignature>) =>
+    <T = libSpec>(
+      fn: (log: Logger) => (libs_path: string) => (x: T) => Promise<FunctionSignature>,
+    ) =>
       /**
        * Function returns pair of numbered index value arrays. First array have
        * all index values equal to 1, and second array contains all other.
@@ -135,7 +149,7 @@ const targetSigCheckerFactory =
        */
       async (c: T[]) => {
         const indValPs = c
-          .map(fn(_log))
+          .map(fn(_log)(LIBS_PATH))
           .map(loAsync(jl(t)))
           .map(async (x, _i) => ({ ...(await x), _i }))
         return partition((x) => x.val === 1, await Promise.all(indValPs))
@@ -152,8 +166,8 @@ export const main: MainFn = async function main(log) {
         },
       })
 
-      const targetSig = await checkAppFnSig(fn, _log)
-      const tSigCh = targetSigCheckerFactory(targetSig, _log)
+      const targetSig = await checkAppFnSig(APPS_PATH, fn, _log)
+      const tSigCh = targetSigCheckerFactory(LIBS_PATH, targetSig, _log)
       const tSigChFromLibSpec = tSigCh(loadLibFnSig)
       const tSigChFromLib = tSigCh(noopMap)
 
@@ -175,7 +189,9 @@ export const main: MainFn = async function main(log) {
         Promise.all(
           noFn.map(async (libSigSpec) => {
             const libLog = _log.child({ 'lib-spec': libSigSpec })
-            const [nfOnes, nfOther] = await tSigChFromLib(await loadLibSig(libLog, libSigSpec))
+            const [nfOnes, nfOther] = await tSigChFromLib(
+              await loadLibSig(libLog, LIBS_PATH, libSigSpec),
+            )
             if (nfOnes.length !== 0) {
               libLog.error(
                 { 'ones-i': nfOnes.map((o) => o._i) },
