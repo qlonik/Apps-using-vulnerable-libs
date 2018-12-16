@@ -18,6 +18,8 @@ import { myWriteJSON } from '../utils/files'
 import { getWorkerPath, poolFactory } from '../utils/worker'
 import { MainFn, TerminateFn } from './_all.types'
 
+// remark: see 5db51e7 for code calculating totals
+
 const APPS_TO_SEARCH_LIMIT = 100
 const SECTIONS = 50
 
