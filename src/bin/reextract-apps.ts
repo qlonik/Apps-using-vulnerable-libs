@@ -5,13 +5,42 @@ import { resolveAllOrInParallel } from '../utils'
 import { poolFactory } from '../utils/worker'
 import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
-const FINISHED_APK = './data/apps_apks'
-const EXTRACTED_JS = './data/sample_apps.again'
-const TMP_FOLDER = './data/tmp'
-
 let terminating = false
 
-export const main: MainFn = async function main(log) {
+export const environment = {
+  /**
+   * Location of selected apks
+   *
+   * @example ```js
+   *   './data/apps-all/apks'
+   *   './data/apps-small-set/apks'
+   * ```
+   */
+  APKS: {},
+  /**
+   * Location of extracted files
+   *
+   * @example ```js
+   *   './data/apps-all/extracted'
+   *   './data/apps-all/extracted.again'
+   *   './data/apps-small-set/extracted'
+   * ```
+   */
+  EXTRACTED: {},
+  /**
+   * Location of tmp folder
+   *
+   * @example ```js
+   *   './data/apps-all/tmp'
+   * ```
+   */
+  TMP_DIR: {},
+}
+
+export const main: MainFn<typeof environment> = async function main(
+  log,
+  { APKS: FINISHED_APK, EXTRACTED: EXTRACTED_JS, TMP_DIR: TMP_FOLDER },
+) {
   const pool = poolFactory<allMessages>(join(__dirname, WORKER_FILENAME))
 
   const appsPromises = (await getApps(FINISHED_APK)).map((app) => async () => {

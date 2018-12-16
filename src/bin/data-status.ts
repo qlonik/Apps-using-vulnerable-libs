@@ -6,13 +6,26 @@ import { FINISHED_ANALYSIS_FILE, FINISHED_PREPROCESSING_FILE } from '../parseApp
 import { getLibNames, getLibNameVersions } from '../parseLibraries'
 import { MainFn } from './_all.types'
 
-const LIB_FOLDER = './data/sample_libs'
-const APP_FOLDER = './data/sample_apps'
-const FIN_PRE_APPS_PATH = join(APP_FOLDER, FINISHED_PREPROCESSING_FILE)
-const FIN_AN_APPS_PATH = join(APP_FOLDER, FINISHED_ANALYSIS_FILE)
-const APP_POOL_FOLDER = '/gi-pool/appdata-ro'
+export const environment = {
+  /**
+   * Location of all apk files
+   *
+   * @example
+   *   './data/apps-all/dump'
+   *   '/gi-pool/appdata-ro'
+   */
+  APP_POOL_FOLDER: {},
+  APPS_PATH: {},
+  LIBS_PATH: {},
+}
 
-export const main: MainFn = async function main(log) {
+export const main: MainFn<typeof environment> = async function main(
+  log,
+  { APP_POOL_FOLDER, APPS_PATH: APP_FOLDER, LIBS_PATH: LIB_FOLDER },
+) {
+  const FIN_PRE_APPS_PATH = join(APP_FOLDER, FINISHED_PREPROCESSING_FILE)
+  const FIN_AN_APPS_PATH = join(APP_FOLDER, FINISHED_ANALYSIS_FILE)
+
   const report = {} as { [title: string]: number }
 
   if (await pathExists(LIB_FOLDER)) {

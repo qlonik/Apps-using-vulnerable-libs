@@ -5,13 +5,11 @@ import { join } from 'path'
 import { pipe } from 'rxjs'
 import { map, partition } from 'rxjs/operators'
 import { valid } from 'semver'
-import { assert } from '../utils/logger'
 import { streamToRx } from '../utils/observable'
 import { MainFn, TerminateFn } from './_all.types'
 
-const DB = ''
-const outFilePath = join(process.env.OUT!, 'liblibNamesVersions.json')
-const invalidDocsFilePath = join(process.env.OUT!, 'invalid-liblibNamesVersions.json')
+export const OUT_FILE_NAME = 'liblibNamesVersions.json'
+export const INVALID_FILE_NAME = 'invalid-liblibNamesVersions.json'
 
 type docType = {
   id?: string
@@ -36,8 +34,20 @@ const writeIntoFile = (w: WriteStream) => {
 }
 
 let terminateCall: () => void
-export const main: MainFn = async function main(log) {
-  const db = assert(DB, log, 'DB is not specified')
+
+export const environment = {
+  /**
+   * Url to CouchDB
+   *
+   * @example
+   *   'http://localhost:5984/scoped'
+   */
+  COUCH_DB: {},
+}
+
+export const main: MainFn<typeof environment> = async function main(log, { OUT, COUCH_DB: db }) {
+  const outFilePath = join(OUT, OUT_FILE_NAME)
+  const invalidDocsFilePath = join(OUT, INVALID_FILE_NAME)
 
   const writeFile = createWriteStream(outFilePath, {
     encoding: 'utf-8',

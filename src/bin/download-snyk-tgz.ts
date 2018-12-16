@@ -9,11 +9,8 @@ import { loAsync, resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { MainFn } from './_all.types'
 
-const NPM_DB_DUMP_PATH =
-  './data/logs/__local.npm-db-dump/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
+// todo
 const SNYK_JSON_PATH = './src/manual-reports/snyk/npm-full-v2.json'
-const DOWNLOADED_PATH = './data/snyk/tgz'
-const DOWNLOADED_LIBS_FILE = join(DOWNLOADED_PATH, '_file.json')
 
 export interface SnykVuln {
   title: string
@@ -83,7 +80,35 @@ const mapNVToLazyNV = (dump: string) =>
     }
   })
 
-export const main: MainFn = async (log) => {
+export const environment = {
+  /**
+   * Location of CouchDB dump file, formatted with "couch-dump-format" script.
+   *
+   * @example
+   *   // note that the following file is formatted, but it has filename
+   *   // corresponding to the not formatted file.
+   *   './data/logs/LOCAL/npm-db-dump/moone/2018-05-17T01:51:56.034Z/liblibNamesVersions.json'
+   *
+   *   // following file has different format
+   *   // it cannot be used
+   *   './data/logs/RIPPLE/npm-db-dump/click0/2018-07-10T07:18:54.941Z/formatted-liblibNamesVersions.json'
+   */
+  NPM_DB_DUMP_PATH: {},
+  /**
+   * Location where tgz are dumped
+   *
+   * @example
+   *   './data/libs/snyk/dump'
+   */
+  DOWNLOAD_PATH: {},
+}
+
+export const main: MainFn<typeof environment> = async (
+  log,
+  { NPM_DB_DUMP_PATH, DOWNLOAD_PATH: DOWNLOADED_PATH },
+) => {
+  const DOWNLOADED_LIBS_FILE = join(DOWNLOADED_PATH, '_file.json')
+
   const vulnVersionRanges = buildLibVersionList((await readJSON(SNYK_JSON_PATH)) as SnykDB)
   log.info('snyk db is loaded')
   for (let [name, range] of Object.entries(vulnVersionRanges)) {

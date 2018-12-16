@@ -6,13 +6,11 @@ import { FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
 import { myWriteJSON } from '../utils/files'
 import { MainFn } from './_all.types'
 
-const ALL_APPS_PATH = './data/sample_apps'
-const FIN_PREP_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
-const RANDOM_100_PATH = join(ALL_APPS_PATH, '../random_100.json')
-const RANDOM_10_PATH = join(ALL_APPS_PATH, '../random_10.json')
-
 export type appDescMap = { [id: string]: appDesc }
 export type pickedApps = { picked: appDesc[]; ids: string[]; map: appDescMap }
+
+const RANDOM_100_FILENAME = 'random_100.json'
+const RANDOM_10_FILENAME = 'random_10.json'
 
 const chooseRandom = (arr: appDesc[], n: number): pickedApps => {
   const arrCopy = arr.slice()
@@ -39,7 +37,18 @@ const chooseRandom = (arr: appDesc[], n: number): pickedApps => {
   return { ids: Object.keys(map), map, picked }
 }
 
-export const main: MainFn = async function main() {
+export const environment = {
+  APPS_PATH: {},
+}
+
+export const main: MainFn<typeof environment> = async function main(
+  _,
+  { OUT, APPS_PATH: ALL_APPS_PATH },
+) {
+  const FIN_PREP_PATH = join(ALL_APPS_PATH, FINISHED_PREPROCESSING_FILE)
+  const RANDOM_100_PATH = join(OUT, RANDOM_100_FILENAME)
+  const RANDOM_10_PATH = join(OUT, RANDOM_10_FILENAME)
+
   const appCandidates = (await readJSON(FIN_PREP_PATH)) as appDesc[]
   const res100 = chooseRandom(appCandidates, 100)
   const res10 = chooseRandom(res100.picked, 10)

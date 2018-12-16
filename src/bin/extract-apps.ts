@@ -5,22 +5,40 @@ import { join } from 'path'
 import { APP_TYPES, getApps } from '../parseApps'
 import { APK_FILE } from '../parseApps/constants'
 import { resolveAllOrInParallel } from '../utils'
-import { assert } from '../utils/logger'
 import { poolFactory } from '../utils/worker'
 import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
 
-// can be '/gi-pool/appdata-ro' or '/home/nvolodin/20180315/crawl-fdroid/crawl-fdroid/apks'
-const INPUT_FOLDER = ''
-const TMP_FOLDER = './data/tmp'
-const APPS_PATH = './data/sample_apps'
-const APPS_APKS = './data/apps_apks'
+const DUMP_DIR = 'dump'
+const TMP_DIR = 'tmp'
+const APKS_DIR = 'apks'
+const EXTRACTED_DIR = 'extracted'
 
 let terminating = false
 
 const filterPrivate = (strings: string[]): string[] => strings.filter((s) => !s.startsWith('_'))
 
-export const main: MainFn = async function main(log) {
-  assert(INPUT_FOLDER, log, 'INPUT_FOLDER is not set', 'fatal')
+export const environment = {
+  /**
+   * Working folder for app extraction.
+   *
+   * Should contain 'dump' folder. If 'dump' cannot be copied/moved into here, it can be a symbolic
+   * link to the real location. The 'dump' folder can be linked to '/gi-pool/appdata-ro' or
+   * '/home/nvolodin/20180315/crawl-fdroid/crawl-fdroid/apks'
+   *
+   * Should have write access. Folders 'tmp', 'apks', and 'extracted' will be created.
+   *
+   * @example
+   *   './data/apps-all'
+   */
+  WORK_FOLDER: {},
+}
+
+export const main: MainFn<typeof environment> = async function main(log, { WORK_FOLDER: workDir }) {
+  const INPUT_FOLDER = join(workDir, DUMP_DIR)
+  const TMP_FOLDER = join(workDir, TMP_DIR)
+  const APPS_PATH = join(workDir, EXTRACTED_DIR)
+  const APPS_APKS = join(workDir, APKS_DIR)
+
   const pool = poolFactory<allMessages>(join(__dirname, WORKER_FILENAME), { minWorkers: 1 })
 
   const loadedSections = filterPrivate(await readdir(INPUT_FOLDER))

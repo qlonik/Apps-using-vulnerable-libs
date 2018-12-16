@@ -18,11 +18,8 @@ import { myWriteJSON } from '../utils/files'
 import { getWorkerPath, poolFactory } from '../utils/worker'
 import { MainFn, TerminateFn } from './_all.types'
 
-const OUT = process.env.OUT!
-const APPS_PATH = './data/sample_apps'
 const APPS_TO_SEARCH_LIMIT = 100
 const SECTIONS = 50
-const FIN_SEARCH_APPS_PATH = join(APPS_PATH, FINISHED_SEARCH_FILE)
 
 export type regexLibs = [string, { count: number; versions: string[] }]
 export type npmLibs = [string, { count: number }]
@@ -71,7 +68,12 @@ const addFinishedApps = (apps: appDesc[], els: searchEl[]): appDesc[] => {
     })
 }
 
-export const main: MainFn = async function main(log) {
+export const environment = {
+  APPS_PATH: {},
+}
+
+export const main: MainFn<typeof environment> = async function main(log, { OUT, APPS_PATH }) {
+  const FIN_SEARCH_APPS_PATH = join(APPS_PATH, FINISHED_SEARCH_FILE)
   const pool = poolFactory<messages>(await getWorkerPath(__filename))
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 

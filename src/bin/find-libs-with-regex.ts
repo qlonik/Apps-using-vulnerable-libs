@@ -24,12 +24,14 @@ export type messages = The<
   }
 >
 
-const APPS_PATH = './data/sample_apps'
-const FOUND_LIBS = join(APPS_PATH, FOUND_LIBS_REGEX_FILE)
-
 let terminating = false
 
-export const main: MainFn = async () => {
+export const environment = {
+  APPS_PATH: {},
+}
+
+export const main: MainFn<typeof environment> = async (_, { OUT, APPS_PATH }) => {
+  const FOUND_LIBS = join(OUT, FOUND_LIBS_REGEX_FILE)
   const wPath = await getWorkerPath(__filename)
   const apps = await getApps(APPS_PATH)
 

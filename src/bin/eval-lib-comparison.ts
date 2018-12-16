@@ -18,9 +18,6 @@ import { assertNever } from '../utils'
 import { assert } from '../utils/logger'
 import { MainFn, TerminateFn } from './_all.types'
 
-const APPS_PATH = './data/sample_apps'
-const LIBS_PATH = './data/sample_libs'
-
 type appSpec = { app: appDesc; file: analysisFile }
 const loadAppSig = async (
   _log: Logger,
@@ -65,7 +62,13 @@ type AppFileTargetSpec = {
   file: analysisFile
   target: libNameVersionSigFile
 }
-export const main: MainFn = async function main(log) {
+
+export const environment = {
+  APPS_PATH: {},
+  LIBS_PATH: {},
+}
+
+export const main: MainFn<typeof environment> = async function main(log, { APPS_PATH, LIBS_PATH }) {
   const appFileTargetSpecs = data
     .concat(noMisMatched)
     .map(({ app, file, matchedFns }) => {

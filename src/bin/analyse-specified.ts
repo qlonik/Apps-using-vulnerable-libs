@@ -48,12 +48,10 @@ export type messages = The<
   }
 >
 
-const APP_PATH = './data/sample_apps'
-const LIB_PATH = './data/sample_libs'
-const ANALYSIS_PATH = join(process.env.OUT!, 'rnd-10')
-const RESULTS_FILE = join(ANALYSIS_PATH, '_results.json')
-const TO_ANALYSE_FILE = join(process.env.OUT!, '_to_analyse.json')
-const TO_ANALYSE_PREPARED_FILE = join(process.env.OUT!, '_to_analyse_prepared.json')
+const TO_ANALYSE_FILENAME = '_to_analyse.json'
+const TO_ANALYSE_PREPARED_FILENAME = '_to_analyse_prepared.json'
+const ANALYSIS_DIR_NAME = 'rnd-10'
+const RESULTS_FILENAME = '_results.json'
 
 type toAnalyseType = {
   methods: '*' | METHODS_TYPE | METHODS_TYPE[]
@@ -360,7 +358,20 @@ let terminating = false
 const uniqApp = uniqBy<appDesc>(({ type, section, app }) => `${type}@@@${section}@@@${app}`)
 const uniqLibNameVersion = uniqBy<libNameVersion>(({ name, version }) => `${name}@@@${version}`)
 
-export const main: MainFn = async (log) => {
+export const environment = {
+  APPS_PATH: {},
+  LIBS_PATH: {},
+}
+
+export const main: MainFn<typeof environment> = async (
+  log,
+  { OUT, APPS_PATH: APP_PATH, LIBS_PATH: LIB_PATH },
+) => {
+  const TO_ANALYSE_FILE = join(OUT, TO_ANALYSE_FILENAME)
+  const TO_ANALYSE_PREPARED_FILE = join(OUT, TO_ANALYSE_PREPARED_FILENAME)
+  const ANALYSIS_PATH = join(OUT, ANALYSIS_DIR_NAME)
+  const RESULTS_FILE = join(ANALYSIS_PATH, RESULTS_FILENAME)
+
   const pool = poolFactory<messages>(await getWorkerPath(__filename), { minWorkers: 0 })
   log.info({ stats: pool.stats() }, 'pool: min=%o, max=%o', pool.minWorkers, pool.maxWorkers)
 

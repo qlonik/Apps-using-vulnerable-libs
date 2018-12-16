@@ -3,16 +3,26 @@ import { find } from 'lodash/fp'
 import { join } from 'path'
 import { assert } from '../utils/logger'
 import { CouchDumpFormat, MainFn } from './_all.types'
+import { OUT_FILE_NAME as COUCH_DUMP_FILE } from './couch-dump'
 
-const IN_COUCH_DUMP_FOLDER = ''
-const COUCH_DUMP_FILE = 'liblibNamesVersions.json'
 const FORMATTED_PREFIX = 'formatted-'
-const OUT_COUCH_DUMP_FOLDER = process.env.OUT!
 
 type CouchDumpIn = { name: string; versions: { v: string; time: string }[] }
 
-export const main: MainFn = async function main(log) {
-  const inCouchDumpDir = assert(IN_COUCH_DUMP_FOLDER, log, 'Location of COUCH_DUMP is not set')
+export const environment = {
+  /**
+   * Location of CouchDB dump file
+   *
+   * @example
+   *   './data/logs/LOCAL/npm-db-dump/ZENBOOK/2018-07-03T18:29:49.170Z'
+   */
+  COUCH_DUMP: {},
+}
+
+export const main: MainFn<typeof environment> = async function main(
+  log,
+  { OUT: OUT_COUCH_DUMP_FOLDER, COUCH_DUMP: inCouchDumpDir },
+) {
   const inCouchDumpFile = join(inCouchDumpDir, COUCH_DUMP_FILE)
   const outCouchDumpFile = join(OUT_COUCH_DUMP_FOLDER, FORMATTED_PREFIX + COUCH_DUMP_FILE)
 
