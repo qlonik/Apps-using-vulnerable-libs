@@ -37,3 +37,11 @@ test('assert', t => {
   t.true(log.error.notCalled)
   t.true(log.fatal.calledOnce)
 })
+
+test('assert returns same truthy object', t => {
+  const value = { a: 123 }
+  t.true(value === assert(value))
+
+  t.false({ a: 123 } === assert({ a: 123 }))
+  t.deepEqual({ a: 123 }, assert({ a: 123 }))
+})
