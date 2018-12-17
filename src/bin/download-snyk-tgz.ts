@@ -8,50 +8,8 @@ import { libNameVersion } from '../parseLibraries'
 import { loAsync, resolveAllOrInParallel } from '../utils'
 import { myWriteJSON } from '../utils/files'
 import { MainFn } from './_all.types'
+import { SNYK_DB, SnykVuln, SnykDB } from '../../data/vuln-db'
 
-// todo
-const SNYK_JSON_PATH = './src/manual-reports/snyk/npm-full-v2.json'
-
-export interface SnykVuln {
-  title: string
-  credit: string[]
-  moduleName: string
-  packageName: string
-  language: 'js'
-  packageManager: 'npm'
-  description: string
-  identifiers: {
-    NSP: number
-    CWE: string[]
-    CVE: string[]
-    ALTERNATIVE: string[]
-  }
-  semver: {
-    vulnerable: string[]
-    unaffected: string[]
-  }
-  severity: 'low' | 'medium' | 'high'
-  cvssScore: number
-  CVSSv3: string
-  patches: {
-    urls: string[]
-    version: string
-    modificationTime: string
-    comments: string[]
-    id: string
-  }[]
-  creationTime: string
-  modificationTime: string
-  publicationTime: string
-  disclosureTime: string
-  id: string
-  alternativeIds: string[]
-}
-export interface SnykDB {
-  npm: {
-    [libName: string]: SnykVuln[]
-  }
-}
 interface NpmDBEntry {
   name: string
   versions: string[]
@@ -109,7 +67,7 @@ export const main: MainFn<typeof environment> = async (
 ) => {
   const DOWNLOADED_LIBS_FILE = join(DOWNLOADED_PATH, '_file.json')
 
-  const vulnVersionRanges = buildLibVersionList((await readJSON(SNYK_JSON_PATH)) as SnykDB)
+  const vulnVersionRanges = buildLibVersionList(SNYK_DB)
   log.info('snyk db is loaded')
   for (let [name, range] of Object.entries(vulnVersionRanges)) {
     if (!validRange(range)) {
