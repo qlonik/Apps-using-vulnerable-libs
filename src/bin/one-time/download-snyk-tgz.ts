@@ -4,11 +4,11 @@ import { find, findIndex, flow, isEqual, map, partition, uniq } from 'lodash/fp'
 import { join } from 'path'
 import { satisfies, valid, validRange } from 'semver'
 import { promisify } from 'util'
-import { libNameVersion } from '../parseLibraries'
-import { loAsync, resolveAllOrInParallel } from '../utils'
-import { myWriteJSON } from '../utils/files'
-import { MainFn } from './_all.types'
-import { SNYK_DB, SnykVuln, SnykDB } from '../../data/vuln-db'
+import { libNameVersion } from '../../parseLibraries'
+import { loAsync, resolveAllOrInParallel } from '../../utils'
+import { myWriteJSON } from '../../utils/files'
+import { MainFn } from '../_all.types'
+import { SNYK_DB, SnykVuln, SnykDB } from '../../../data/vuln-db'
 
 interface NpmDBEntry {
   name: string

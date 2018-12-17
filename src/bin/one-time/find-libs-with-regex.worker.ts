@@ -1,7 +1,7 @@
 import { flatten, includes } from 'lodash'
 import { worker } from 'workerpool'
-import { analysisFile, APP_TYPES, getAnalysedData, getCordovaAnalysisFiles } from '../parseApps'
-import { resolveAllOrInParallel } from '../utils'
+import { analysisFile, APP_TYPES, getAnalysedData, getCordovaAnalysisFiles } from '../../parseApps'
+import { resolveAllOrInParallel } from '../../utils'
 import { foundLibs, messages } from './find-libs-with-regex'
 
 worker<messages>({

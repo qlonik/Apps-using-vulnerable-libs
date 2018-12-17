@@ -2,8 +2,8 @@ import escapeStringRegexp from 'escape-string-regexp'
 import { readJSON } from 'fs-extra'
 import { includes } from 'lodash'
 import { worker } from 'workerpool'
-import { APP_TYPES, getAnalysedData, getCordovaAnalysisFiles } from '../parseApps'
-import { CouchDumpFormat } from './_all.types'
+import { APP_TYPES, getAnalysedData, getCordovaAnalysisFiles } from '../../parseApps'
+import { CouchDumpFormat } from '../_all.types'
 import {
   foundNpmMentionsMap,
   foundRegexMentionsMap,

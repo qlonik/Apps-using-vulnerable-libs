@@ -1,8 +1,8 @@
 import { pathExists, readJSON, writeFile } from 'fs-extra'
 import { find } from 'lodash/fp'
 import { join } from 'path'
-import { assert } from '../utils/logger'
-import { CouchDumpFormat, MainFn } from './_all.types'
+import { assert } from '../../utils/logger'
+import { CouchDumpFormat, MainFn } from '../_all.types'
 import { OUT_FILE_NAME as COUCH_DUMP_FILE } from './couch-dump'
 
 const FORMATTED_PREFIX = 'formatted-'

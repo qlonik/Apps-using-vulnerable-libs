@@ -1,9 +1,9 @@
 import { once } from 'lodash'
 import { join } from 'path'
-import { APP_TYPES, getApps } from '../parseApps'
-import { resolveAllOrInParallel } from '../utils'
-import { poolFactory } from '../utils/worker'
-import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from './_all.types'
+import { APP_TYPES, getApps } from '../../parseApps'
+import { resolveAllOrInParallel } from '../../utils'
+import { poolFactory } from '../../utils/worker'
+import { allMessages, MainFn, TerminateFn, WORKER_FILENAME } from '../_all.types'
 
 let terminating = false
 

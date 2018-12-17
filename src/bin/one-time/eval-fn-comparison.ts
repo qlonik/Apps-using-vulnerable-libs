@@ -1,13 +1,13 @@
 import { curry, head, isEqual, once, partition } from 'lodash/fp'
 import { Logger } from 'pino'
-import { FunctionSignature } from '../extractStructure'
+import { FunctionSignature } from '../../extractStructure'
 import {
   data,
   GoneMisMatchedFn,
   MisMatchedReason as r,
   ModMisMatchedFn,
   noMisMatched,
-} from '../manual-reports/rnd-fns-eval'
+} from '../../manual-reports/rnd-fns-eval'
 import {
   analysisFile,
   APP_TYPES,
@@ -15,12 +15,12 @@ import {
   getAnalysedData,
   getCordovaAnalysisFiles,
   getReactNativeAnalysisFiles,
-} from '../parseApps'
-import { getLibNameVersionSigContents, libNameVersionSigFile } from '../parseLibraries'
-import { jaccardLike } from '../similarityIndex/set'
-import { assertNever, loAsync } from '../utils'
-import { assert } from '../utils/logger'
-import { MainFn, TerminateFn } from './_all.types'
+} from '../../parseApps'
+import { getLibNameVersionSigContents, libNameVersionSigFile } from '../../parseLibraries'
+import { jaccardLike } from '../../similarityIndex/set'
+import { assertNever, loAsync } from '../../utils'
+import { assert } from '../../utils/logger'
+import { MainFn, TerminateFn } from '../_all.types'
 
 type appSpec = {
   app: appDesc

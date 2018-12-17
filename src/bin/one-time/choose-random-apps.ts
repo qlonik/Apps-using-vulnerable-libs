@@ -1,10 +1,10 @@
 import { readJSON } from 'fs-extra'
 import { random } from 'lodash'
 import { join } from 'path'
-import { appDesc } from '../parseApps'
-import { FINISHED_PREPROCESSING_FILE } from '../parseApps/constants'
-import { myWriteJSON } from '../utils/files'
-import { MainFn } from './_all.types'
+import { appDesc } from '../../parseApps'
+import { FINISHED_PREPROCESSING_FILE } from '../../parseApps/constants'
+import { myWriteJSON } from '../../utils/files'
+import { MainFn } from '../_all.types'
 
 export type appDescMap = { [id: string]: appDesc }
 export type pickedApps = { picked: appDesc[]; ids: string[]; map: appDescMap }

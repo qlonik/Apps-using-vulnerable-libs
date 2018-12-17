@@ -1,10 +1,10 @@
 import { copy, pathExists, remove } from 'fs-extra'
 import { once } from 'lodash'
 import { join } from 'path'
-import { appPath, getApps } from '../parseApps'
-import { ANALYSIS_FOLDER } from '../parseApps/constants'
-import { resolveAllOrInParallel } from '../utils'
-import { MainFn, TerminateFn } from './_all.types'
+import { appPath, getApps } from '../../parseApps'
+import { ANALYSIS_FOLDER } from '../../parseApps/constants'
+import { resolveAllOrInParallel } from '../../utils'
+import { MainFn, TerminateFn } from '../_all.types'
 
 export const environment = {
   INIT_PATH: {},

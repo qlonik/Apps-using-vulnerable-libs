@@ -1,4 +1,4 @@
-import { appDescMap } from '../bin/choose-random-apps'
+import { appDescMap } from '../bin/one-time/choose-random-apps'
 import { APP_TYPES, appDesc } from '../parseApps'
 
 const ids = [

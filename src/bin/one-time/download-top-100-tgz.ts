@@ -4,10 +4,10 @@ import { find, findIndex, flow, isEqual, map, partition, take, uniq } from 'loda
 import { join } from 'path'
 import { valid } from 'semver'
 import { promisify } from 'util'
-import { libNameVersion } from '../parseLibraries'
-import { loAsync, resolveAllOrInParallel } from '../utils'
-import { myWriteJSON } from '../utils/files'
-import { MainFn } from './_all.types'
+import { libNameVersion } from '../../parseLibraries'
+import { loAsync, resolveAllOrInParallel } from '../../utils'
+import { myWriteJSON } from '../../utils/files'
+import { MainFn } from '../_all.types'
 
 const LIMIT = 100
 const REGEX = /\d+\.\s\[(.*)]\(.*\).*/

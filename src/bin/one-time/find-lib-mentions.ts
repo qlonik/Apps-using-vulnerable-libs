@@ -11,12 +11,12 @@ import uniqBy from 'lodash/fp/uniqBy'
 import { join } from 'path'
 import { The } from 'typical-mini'
 import { MessagesMap } from 'workerpool'
-import { analysisFile, appDesc, appPath, getApps } from '../parseApps'
-import { FINISHED_SEARCH_FILE } from '../parseApps/constants'
-import { resolveAllOrInParallel } from '../utils'
-import { myWriteJSON } from '../utils/files'
-import { getWorkerPath, poolFactory } from '../utils/worker'
-import { MainFn, TerminateFn } from './_all.types'
+import { analysisFile, appDesc, appPath, getApps } from '../../parseApps'
+import { FINISHED_SEARCH_FILE } from '../../parseApps/constants'
+import { resolveAllOrInParallel } from '../../utils'
+import { myWriteJSON } from '../../utils/files'
+import { getWorkerPath, poolFactory } from '../../utils/worker'
+import { MainFn, TerminateFn } from '../_all.types'
 
 // remark: see 5db51e7 for code calculating totals
 

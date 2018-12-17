@@ -2,8 +2,8 @@ import { stripIndent } from 'common-tags'
 import { isEqual, once, uniqWith } from 'lodash/fp'
 import head from 'lodash/fp/head'
 import { Logger } from 'pino'
-import { signatureNew, signatureWithComments } from '../extractStructure'
-import { data, noMisMatched } from '../manual-reports/rnd-fns-eval'
+import { signatureNew, signatureWithComments } from '../../extractStructure'
+import { data, noMisMatched } from '../../manual-reports/rnd-fns-eval'
 import {
   analysisFile,
   APP_TYPES,
@@ -11,12 +11,12 @@ import {
   getAnalysedData,
   getCordovaAnalysisFiles,
   getReactNativeAnalysisFiles,
-} from '../parseApps'
-import { getLibNameVersionSigContents, libNameVersionSigFile } from '../parseLibraries'
-import { librarySimilarityByFunctionStatementTokens_v6 } from '../similarityIndex/similarity-methods'
-import { assertNever } from '../utils'
-import { assert } from '../utils/logger'
-import { MainFn, TerminateFn } from './_all.types'
+} from '../../parseApps'
+import { getLibNameVersionSigContents, libNameVersionSigFile } from '../../parseLibraries'
+import { librarySimilarityByFunctionStatementTokens_v6 } from '../../similarityIndex/similarity-methods'
+import { assertNever } from '../../utils'
+import { assert } from '../../utils/logger'
+import { MainFn, TerminateFn } from '../_all.types'
 
 type appSpec = { app: appDesc; file: analysisFile }
 const loadAppSig = async (
