@@ -1,4 +1,3 @@
-import { Node as BabelNode, SourceLocation } from 'babel-types'
 import { flatMap, Many } from 'lodash'
 import { negate } from 'lodash/fp'
 import { assertNever } from '../utils'
@@ -10,15 +9,6 @@ import { EXTRACTOR_VERSION, opts } from './options'
 import { EXPRESSION, STATEMENT } from './tags'
 import { FunctionSignature } from './types'
 import { TreePath, visitNodes } from './visit-nodes'
-
-/* eslint-disable no-unused-vars */
-// These empty declaration are here so that IntelliJ does not strip unused imports
-// These imports are required for TypeScript, for functions declared below
-// Without these imports, TypeScripts throws error
-// 'TS4023: Variable is using name from external module but cannot be named'
-declare const __x: SourceLocation
-declare const __y: BabelNode
-/* eslint-enable */
 
 export const fnOnlyTreeCreator = visitNodes<FunctionSignature>({ fn: fnNodeFilter })
 export const rnDeclareFns = visitNodes({ fn: rnDeclareFnFilter })

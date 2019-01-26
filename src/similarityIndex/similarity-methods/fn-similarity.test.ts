@@ -33,13 +33,6 @@ import {
 } from './index'
 import { SimMapWithConfidence } from './types'
 
-/* eslint-disable no-unused-vars */
-declare const __w: Logger
-declare const __x: FunctionSignature
-declare const __y: FunctionSignatures
-declare const __z: SimMapWithConfidence
-/* eslint-enable */
-
 const tests: [
   string,
   <T extends FunctionSignature[] | FunctionSignatures>(

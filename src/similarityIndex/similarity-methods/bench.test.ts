@@ -19,12 +19,6 @@ import {
 } from './index'
 import { SimMapWithConfidence } from './types'
 
-/* eslint-disable no-unused-vars */
-declare const __x: Logger
-declare const __y: signatureWithComments
-declare const __z: SimMapWithConfidence
-/* eslint-enable */
-
 const tests: [
   string,
   (

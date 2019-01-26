@@ -1,14 +1,10 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
 import { join } from 'path'
-import { memoize, MemoizedFunction } from 'lodash'
+import { memoize } from 'lodash'
 import { groupBy } from 'lodash/fp'
 import { LiteralSignature, signatureNew } from '../extractStructure'
 import { resolveAllOrInParallel } from '../utils'
 import { LIB_LITERAL_SIGNATURE_FILE, SIG_FOLDER } from './constants'
-
-/* eslint-disable no-unused-vars */
-declare const __x: MemoizedFunction
-/* eslint-enable */
 
 export type libName = {
   name: string

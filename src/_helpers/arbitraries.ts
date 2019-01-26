@@ -12,10 +12,6 @@ import { repeatedDifference, repeatedIntersection } from '../similarityIndex/rep
 import { divByZeroIsOne, indexValue } from '../similarityIndex/set'
 import { DefiniteMap, probIndex } from '../similarityIndex/similarity-methods/types'
 
-/* eslint-disable no-unused-vars */
-declare const __x: signatureWithComments
-/* eslint-enable */
-
 export const arbMap = arb
   .nearray(arb.pair(arb.nat, arb.nat))
   .smap((arr) => uniqBy((x) => x[0], arr), identity)

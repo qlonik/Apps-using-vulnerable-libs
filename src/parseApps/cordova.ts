@@ -11,7 +11,6 @@ import {
   BundleSimFnReturn,
   candidateLib,
   getCandidateLibs,
-  Similarity,
 } from '../similarityIndex'
 import { FN_MATCHING_METHODS_TYPE } from '../similarityIndex/similarity-methods'
 import { leftPad, opts, resolveAllOrInParallel } from '../utils'
@@ -31,13 +30,8 @@ import {
   CORDOVA_SIM_FILE,
   JS_DATA_FOLDER,
 } from './constants'
-import { APP_TYPES, appDesc, appPath as appPathFn, getCordovaAnalysisFiles } from './getters'
+import { appDesc, appPath as appPathFn, getCordovaAnalysisFiles } from './getters'
 import { AppAnalysisReport, CordovaAnalysisReport, IsAppTypeFn } from './index'
-
-/* eslint-disable no-unused-vars */
-declare const __x: APP_TYPES
-declare const __y: Similarity
-/* eslint-enable */
 
 const fileLog = logger.child({ name: 'a.cordova' })
 

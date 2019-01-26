@@ -1,4 +1,3 @@
-import { SourceLocation } from 'babel-types'
 import { map, sortBy } from 'lodash/fp'
 import { Logger } from 'pino'
 import { Omit } from 'typical-mini'
@@ -18,11 +17,6 @@ import { probIndex, SimMapWithConfidence, MatchingFn } from './similarity-method
 import { SortedLimitedList } from './sorted-limited-list'
 
 const nextTick = promisify(setImmediate)
-
-/* eslint-disable no-unused-vars */
-declare const __x: SourceLocation
-declare const __y: probIndex
-/* eslint-enable */
 
 export type primitive = string | number | null | undefined | boolean
 /* eslint-disable typescript/no-use-before-define */
