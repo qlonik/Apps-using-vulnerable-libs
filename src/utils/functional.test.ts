@@ -57,7 +57,7 @@ test(
     ]
 
     const tAddMissing = addMissing as (x: number[], y: number[]) => number[]
-    const re = R.reduce(liftFn(tAddMissing), [[], []], x)
+    const re = R.reduce(liftFn(tAddMissing), [[] as number[], [] as number[]], x)
 
     t.deepEqual(ex, re)
   }),

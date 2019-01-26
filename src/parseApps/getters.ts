@@ -89,13 +89,12 @@ export const getCordovaAnalysisFiles = memoize(async function _getCordovaAnalysi
 
   const analysisFolder = join(appPath(appsPath, app.type, app.section, app.app), ANALYSIS_FOLDER)
   const locations = (await readdir(analysisFolder)) as string[]
-  const locationId = flatten(
-    await resolveAllOrInParallel(
-      locations.filter((location) => !location.startsWith('_')).map((location) => async () => {
-        return (await readdir(join(analysisFolder, location))).map((id) => ({ location, id }))
-      }),
-    ),
+  const nonFlatLocationId = await resolveAllOrInParallel(
+    locations.filter((location) => !location.startsWith('_')).map((location) => async () => {
+      return (await readdir(join(analysisFolder, location))).map((id) => ({ location, id }))
+    }),
   )
+  const locationId = flatten(nonFlatLocationId)
   return locationId
     .filter(({ id }) => !id.startsWith('_'))
     .map(({ location, id }) => ({ path: join(location, id), location, id }))
