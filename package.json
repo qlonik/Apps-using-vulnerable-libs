@@ -286,6 +286,12 @@
       "@typescript-eslint/no-unused-vars": "error",
       "@typescript-eslint/no-use-before-define": "error",
       "@typescript-eslint/type-annotation-spacing": "error",
+      "unicorn/catch-error-name": [
+        "error",
+        {
+          "name": "err"
+        }
+      ],
       "unicorn/custom-error-definition": "warn",
       "unicorn/import-index": "off"
     },
