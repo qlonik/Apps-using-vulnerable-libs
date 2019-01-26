@@ -1,10 +1,13 @@
 import { readdir, stat, constants, access } from 'fs-extra'
+import { join } from 'path'
 import * as yargs from 'yargs' // eslint-disable-line import/no-namespace
 import { Logger } from 'pino'
 import { EnvironmentError } from '../utils/errors'
 import { log as logger, assert } from '../utils/logger'
-import { EnvironmentSpecifier, EnvironmentValues, MainFn } from './_all.types'
+import { EnvironmentSpecifier, EnvironmentValues, MainFn } from '../bin/_all.types'
 import { transformAndCleanScriptNames } from './_strip-illegal-names'
+
+const SCRIPTS_LOCATION = '../bin'
 
 /**
  * Check that environment is properly setup, required environment variables are present:
@@ -65,7 +68,7 @@ yargs
         throw null
       }
 
-      const scriptPath = require.resolve(`./${script}`)
+      const scriptPath = require.resolve(`${SCRIPTS_LOCATION}/${script}`)
       try {
         await access(scriptPath, constants.F_OK)
       } catch (err) {
@@ -122,7 +125,7 @@ yargs
       return yargs
     },
     async () => {
-      const scripts = await readdir(__dirname)
+      const scripts = await readdir(join(__dirname, SCRIPTS_LOCATION))
       const names = transformAndCleanScriptNames(scripts)
 
       logger.info({ names }, 'available commands')
