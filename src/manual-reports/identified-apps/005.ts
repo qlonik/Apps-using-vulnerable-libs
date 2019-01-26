@@ -106,7 +106,7 @@ export const report: CordovaManualAnalysisReport = {
   },
 }
 
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const additionalData = {
   files: {
     'head/0001': {

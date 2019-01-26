@@ -49,7 +49,7 @@ export class Signal<T> {
 }
 
 const pathConcat = (p: string, c: string | number): string => {
-  return p.concat(typeof c === 'number' ? `[${c}]` : p.length ? '.' + c : c)
+  return p.concat(typeof c === 'number' ? `[${c}]` : p === '' ? c : '.' + c)
 }
 
 export const visitNodes = <K>({

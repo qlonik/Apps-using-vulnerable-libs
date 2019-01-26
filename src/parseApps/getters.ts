@@ -1,5 +1,5 @@
 import { pathExists, readdir, readJSON } from 'fs-extra'
-import { flatten, memoize, MemoizedFunction } from 'lodash' // eslint-disable-line no-unused-vars
+import { flatten, memoize } from 'lodash'
 import { join } from 'path'
 import { signatureWithComments } from '../extractStructure'
 import { indexValue } from '../similarityIndex/set'

@@ -53,7 +53,7 @@ async function tryAsBowerPkg(pkgPath: string, { log }: opts = {}): Promise<strin
 
   const mainJs = main.filter((item) => extname(item) === '.js')
 
-  return mainJs.length ? mainJs : null
+  return mainJs.length > 0 ? mainJs : null
 }
 
 /**
@@ -84,7 +84,7 @@ async function tryAsComponentJsPkg(pkgPath: string, { log }: opts = {}): Promise
 
   const mainJs = main.filter((item) => extname(item) === '.js')
 
-  return mainJs.length ? mainJs : null
+  return mainJs.length > 0 ? mainJs : null
 }
 
 /**
@@ -117,7 +117,7 @@ async function tryAsNodePkg(pkgPath: string, { log }: opts = {}): Promise<string
 async function tryAsGuessedPkg(
   pkgPath: string,
   { name, version }: libNameVersion,
-  {  }: opts = {},
+  o: opts = {},
 ): Promise<string[] | null> {
   return [`dist/${name}.js`, `dist/${name}-${version}.js`, `${name}.js`, `${name}-${version}.js`]
 }
@@ -281,7 +281,7 @@ export async function extractSingleLibraryFromDump({
 
 export async function updateUnionLiteralSignature(
   { libsPath, name, version }: { libsPath: string; name: string; version?: string },
-  {  }: opts = {},
+  o: opts = {},
 ): Promise<void> {
   const sigs = await getLibNameVersionSigContents(libsPath, name, version)
   const libraryPath = libPath(libsPath, name)

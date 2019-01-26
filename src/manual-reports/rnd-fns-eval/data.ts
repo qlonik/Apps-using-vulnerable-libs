@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { APP_TYPES } from '../../parseApps'
 import { AppFunction, InAppFunction, MisMatchedReason as r, TodoAppFunction } from './index'
 
-// eslint-disable-next-line no-unused-vars
 const note = `
   Here are selected 110 functions. Out of 500 randomly selected functions.
   500 random were from 10 cordova apps - all that are not in 'f-droid' section.
