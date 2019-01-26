@@ -202,7 +202,10 @@
       "import/no-commonjs": "error",
       "import/first": "warn",
       "import/no-namespace": "warn",
-      "import/extensions": ["error", "never"],
+      "import/extensions": [
+        "error",
+        "never"
+      ],
       "import/order": [
         "warn",
         {
