@@ -7,7 +7,7 @@ import yargs from 'yargs'
 import { EnvironmentSpecifier, EnvironmentValues, MainFn } from '../bin/_all.types'
 import { EnvironmentError } from '../utils/errors'
 import { assert, log as logger } from '../utils/logger'
-import { transformAndCleanScriptNames } from './_strip-illegal-names'
+import { transformAndCleanScriptNames } from './strip-illegal-names'
 
 const SCRIPTS_LOCATION = '../bin'
 const ALLOWED_DIRS = ['one-time']

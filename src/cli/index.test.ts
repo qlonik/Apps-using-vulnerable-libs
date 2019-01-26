@@ -1,7 +1,7 @@
 import test from 'ava'
 import execa from 'execa'
 import { readdir } from 'fs-extra'
-import { transformAndCleanScriptNames } from './_strip-illegal-names'
+import { transformAndCleanScriptNames } from './strip-illegal-names'
 
 const CLI_SCRIPT = __dirname
 const FIXTURES = 'fixtures'

@@ -1,5 +1,5 @@
 import test from 'ava'
-import { transformAndCleanScriptNames } from './_strip-illegal-names'
+import { transformAndCleanScriptNames } from './strip-illegal-names'
 
 test('strips private files', t => {
   const input = ['one.ts', 'two.js', '_three.ts', '_four.js']
