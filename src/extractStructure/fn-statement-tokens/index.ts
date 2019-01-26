@@ -1,4 +1,4 @@
-/* eslint-disable no-empty, typescript/no-use-before-define */
+/* eslint-disable no-empty, @typescript-eslint/no-use-before-define */
 
 import {
   BlockStatement,
@@ -87,8 +87,9 @@ import {
   LVal,
   Statement,
 } from 'babel-types'
-import { flatMap } from 'lodash'
+import R from 'ramda'
 import { assertNever } from '../../utils'
+import { filterNullable } from '../../utils/functional'
 import logger from '../../utils/logger'
 import { EXTRACTOR_VERSION, getDefaultOpts, opts } from '../options'
 import { DECLARATION, DIRECTIVE, EXPRESSION, LITERAL, PARAM, STATEMENT, UNKNOWN } from '../tags'
@@ -108,7 +109,12 @@ const box = (smth: string | null, before = '[', after = ']'): string => {
   return smth ? `${before}${smth}${after}` : ''
 }
 
-const collapseIR = (eir: EIR | null): string | null => {
+type IntoEIR<T> = (x: T | null) => EIR
+type IntoStr<T> = (x: T | null) => string | null
+
+const wrapIRProducer: <T>(fn: IntoEIR<T>) => IntoStr<T> = (fn) => (node) => {
+  const eir = fn(node)
+
   if (eir === null || eir.origType === null) {
     return null
   }
@@ -123,7 +129,16 @@ const collapseIR = (eir: EIR | null): string | null => {
 }
 
 const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
-  const getLiteralIR = (lit: Literal | null): EIR => {
+  const getTokensFromLiteral = wrapIRProducer(getLiteralIR)
+  const getTokensFromLVal = wrapIRProducer(getLValIR)
+  const getTokensFromLVals = R.pipe(
+    (x: LVal[] | null) => x || ([] as LVal[]),
+    R.map(wrapIRProducer(getLValIR)),
+    filterNullable,
+  )
+  const getTokensFromExpression = wrapIRProducer(getEIR)
+
+  function getLiteralIR(lit: Literal | null): EIR {
     const descr: EIR = {
       title: LITERAL,
       origType: lit ? lit.type : null,
@@ -158,10 +173,6 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
     return descr
   }
 
-  const getTokensFromLiteral = (lit: Literal | null): string | null => {
-    return collapseIR(getLiteralIR(lit))
-  }
-
   /**
    * Function returning parsed information from the given LVal
    *
@@ -180,7 +191,7 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
    * @param lVal - LVal object
    * @returns internal representation of LVal
    */
-  const getLValIR = (lVal: LVal | null): EIR => {
+  function getLValIR(lVal: LVal | null): EIR {
     const descr: EIR = {
       title: PARAM,
       origType: lVal ? lVal.type : null,
@@ -213,19 +224,7 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
     return descr
   }
 
-  const getTokensFromLVal = (lVal: LVal | null): string | null => {
-    return collapseIR(getLValIR(lVal))
-  }
-
-  const getTokensFromLVals = (lVals: LVal[] | null): string[] => {
-    if (lVals === null) {
-      return []
-    }
-
-    return lVals.map((lVal) => getTokensFromLVal(lVal) || '').filter((v) => !!v)
-  }
-
-  const getEIR = (expr: Expression | null): EIR => {
+  function getEIR(expr: Expression | null): EIR {
     let descr: EIR = {
       title: EXPRESSION,
       origType: expr ? expr.type : null,
@@ -399,11 +398,7 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
     return descr
   }
 
-  const getTokensFromExpression = (expr: Expression | null): string | null => {
-    return collapseIR(getEIR(expr))
-  }
-
-  const getTokensFromStatement = (st: Statement | null): string[] => {
+  function getTokensFromStatement(st: Statement | null): string[] {
     /* istanbul ignore if */
     if (st === null) {
       return []
@@ -490,7 +485,7 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
           const test = c.test === null ? 'default' : getTokensFromExpression(c.test)
           return {
             tests: tests.concat(test),
-            statements: statements.concat(flatMap(c.consequent, getTokensFromStatement)),
+            statements: statements.concat(R.chain(getTokensFromStatement, c.consequent)),
           }
         },
         { tests: [] as (string | null)[], statements: [] as string[] },
@@ -579,12 +574,12 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
     return [`t_${STATEMENT}:${st.type}`]
   }
 
-  const getTokensFromBlockStatement = (blockStatement: BlockStatement): string[] => {
+  function getTokensFromBlockStatement(blockStatement: BlockStatement): string[] {
     const { directives = [], body: statements } = blockStatement
 
     return directives
       .map((d) => `${DIRECTIVE}:${d.value.value}`)
-      .concat(flatMap(statements, getTokensFromStatement))
+      .concat(R.chain(getTokensFromStatement, statements))
   }
 
   return (node: Function): string[] => {
