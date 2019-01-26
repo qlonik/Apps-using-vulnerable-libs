@@ -10,6 +10,7 @@ import { EnvironmentSpecifier, EnvironmentValues, MainFn } from '../bin/_all.typ
 import { transformAndCleanScriptNames } from './_strip-illegal-names'
 
 const SCRIPTS_LOCATION = '../bin'
+const ALLOWED_DIRS = ['one-time']
 
 /**
  * Check that environment is properly setup, required environment variables are present:
@@ -65,8 +66,7 @@ yargs
         throw null
       }
 
-      const allowedDirs = ['one-time']
-      const [script] = transformAndCleanScriptNames([args.script], allowedDirs)
+      const [script] = transformAndCleanScriptNames([args.script], ALLOWED_DIRS)
       if (!script) {
         logger.error({ script: args.script, err: new Error('illegal bin script') })
         throw null
