@@ -117,9 +117,27 @@ async function tryAsNodePkg(pkgPath: string, { log }: opts = {}): Promise<string
 async function tryAsGuessedPkg(
   pkgPath: string,
   { name, version }: libNameVersion,
-  o: opts = {},
 ): Promise<string[] | null> {
   return [`dist/${name}.js`, `dist/${name}-${version}.js`, `${name}.js`, `${name}-${version}.js`]
+}
+
+async function getPotentialMainFiles(pkgPath: string, nv: libNameVersion, o: opts = {}) {
+  let main = await tryAsBowerPkg(pkgPath, o)
+  let pkgType = PKG_TYPE.bower
+  if (main === null) {
+    main = await tryAsComponentJsPkg(pkgPath, o)
+    pkgType = PKG_TYPE.component
+  }
+  if (main === null) {
+    main = await tryAsNodePkg(pkgPath, o)
+    pkgType = PKG_TYPE.npm
+  }
+  if (main === null) {
+    main = await tryAsGuessedPkg(pkgPath, nv)
+    pkgType = PKG_TYPE.guessed
+  }
+
+  return main === null ? { main: [] as string[], pkgType: null } : { main, pkgType }
 }
 
 function getMinJs(path: string | null) {
@@ -152,23 +170,7 @@ export async function extractMainFiles(
     )
   }
 
-  let potentialMainFiles = await tryAsBowerPkg(libPackageP)
-  let solvedWith = PKG_TYPE.bower
-  if (potentialMainFiles === null) {
-    potentialMainFiles = await tryAsComponentJsPkg(libPackageP)
-    solvedWith = PKG_TYPE.component
-  }
-  if (potentialMainFiles === null) {
-    potentialMainFiles = await tryAsNodePkg(libPackageP)
-    solvedWith = PKG_TYPE.npm
-  }
-  if (potentialMainFiles === null) {
-    potentialMainFiles = await tryAsGuessedPkg(libPackageP, { name, version })
-    solvedWith = PKG_TYPE.guessed
-  }
-  if (potentialMainFiles === null) {
-    return []
-  }
+  const { main: potentialMainFiles } = await getPotentialMainFiles(libPackageP, { name, version })
 
   const existingMainFilesLazy = potentialMainFiles
     .map((file) => join('package', file))
