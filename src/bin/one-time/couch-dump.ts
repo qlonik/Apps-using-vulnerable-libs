@@ -2,10 +2,9 @@ import ChangesStream from 'changes-stream'
 import { createWriteStream, WriteStream } from 'fs'
 import { flow, once } from 'lodash/fp'
 import { join } from 'path'
-import { pipe } from 'rxjs'
+import { Observable, pipe } from 'rxjs'
 import { map, partition } from 'rxjs/operators'
 import { valid } from 'semver'
-import { streamToRx } from '../../utils/observable'
 import { MainFn, TerminateFn } from '../_all.types'
 
 export const OUT_FILE_NAME = 'liblibNamesVersions.json'
@@ -19,6 +18,23 @@ type docType = {
     time?: { [version: string]: string }
   }
 }
+
+const streamToRx = <T>(stream: NodeJS.ReadableStream) =>
+  new Observable<T>((subscriber) => {
+    const endHandler = () => subscriber.complete()
+    const errorHandler = (e: Error) => subscriber.error(e)
+    const dataHandler = (data: T) => subscriber.next(data)
+
+    stream.addListener('end', endHandler)
+    stream.addListener('error', errorHandler)
+    stream.addListener('data', dataHandler)
+
+    return () => {
+      stream.removeListener('end', endHandler)
+      stream.removeListener('error', errorHandler)
+      stream.removeListener('data', dataHandler)
+    }
+  })
 
 const writeIntoFile = (w: WriteStream) => {
   let first = true
