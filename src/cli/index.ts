@@ -127,10 +127,19 @@ yargs
     'list bin scripts',
     (yargs) => {
       return yargs
+        .option('all', {
+          alias: 'a',
+          type: 'boolean',
+          default: false,
+          desc: 'show hidden scripts',
+        })
+        .help()
+        .alias('help', 'h')
     },
-    async () => {
+    async (args) => {
       const scripts = await glob(`**/*.js`, { cwd: join(__dirname, SCRIPTS_LOCATION) })
-      const names = transformAndCleanScriptNames(scripts)
+      const allowDirs = args.all ? ALLOWED_DIRS : []
+      const names = transformAndCleanScriptNames(scripts, allowDirs)
 
       logger.info({ names }, 'available commands')
     },
