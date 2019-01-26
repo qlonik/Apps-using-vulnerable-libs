@@ -193,7 +193,7 @@
       "no-undef": "off",
       "ava/no-cb-test": "error",
       "ava/no-only-test": "warn",
-      "ava/no-skip-test": "warn",
+      "ava/no-skip-test": "off",
       "ava/no-todo-test": "warn",
       "ava/use-test": "error",
       "import/no-self-import": "error",
