@@ -1,7 +1,7 @@
 import { stat, constants, access } from 'fs-extra'
 import { join } from 'path'
 import globCb from 'glob'
-import * as yargs from 'yargs' // eslint-disable-line import/no-namespace
+import yargs from 'yargs'
 import { Logger } from 'pino'
 import { promisify } from 'util'
 import { EnvironmentError } from '../utils/errors'
