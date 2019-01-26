@@ -184,7 +184,10 @@ for (let [name, fn, exp] of tests) {
   test(
     `${name}: produces 100% match when comparing same signatures`,
     check({ tests: 250 }, arbFunctionSignatureArr, (t, a) => {
-      const { similarity: { val, num, den }, mapping } = fn(undefined, a, a)
+      const {
+        similarity: { val, num, den },
+        mapping,
+      } = fn(undefined, a, a)
 
       t.is(1, val)
       t.is(num, den)
@@ -194,7 +197,13 @@ for (let [name, fn, exp] of tests) {
       } else {
         t.is(a.length, mapping.size)
       }
-      for (let [from, { index: to, prob: { val, num, den } }] of mapping) {
+      for (let [
+        from,
+        {
+          index: to,
+          prob: { val, num, den },
+        },
+      ] of mapping) {
         t.is(from, to)
         t.is(1, val)
         t.is(num, den)

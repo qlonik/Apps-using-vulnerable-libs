@@ -51,7 +51,7 @@ interface FDroidApp {
 let i = 0
 
 export const main: MainFn = async function main() {
-  if (!await pathExists(APPS_PATH) || !await pathExists(FDROID_APPS)) {
+  if (!(await pathExists(APPS_PATH)) || !(await pathExists(FDROID_APPS))) {
     throw new Error('no required paths')
   }
 

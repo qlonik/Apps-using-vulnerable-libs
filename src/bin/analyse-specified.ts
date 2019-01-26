@@ -88,8 +88,12 @@ export const main: MainFn<typeof environment> = async (
     async (acc, { methods: todoMethods, app, files, libs }) => {
       const methods =
         typeof todoMethods === 'string'
-          ? todoMethods === '*' ? [...METHODS] : [todoMethods]
-          : Array.isArray(todoMethods) ? uniq(todoMethods) : assertNever(todoMethods)
+          ? todoMethods === '*'
+            ? [...METHODS]
+            : [todoMethods]
+          : Array.isArray(todoMethods)
+          ? uniq(todoMethods)
+          : assertNever(todoMethods)
 
       const aggregateLibsSet = new Set<string>()
       let libsPreprocessUniqArr = [] as libNameVersion[]

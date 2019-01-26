@@ -39,8 +39,8 @@ export const main: MainFn<typeof environment> = async function main(log, { ALL_A
         app.type === APP_TYPES.cordova
           ? await getCordovaAnalysisFiles(appsPath, app)
           : app.type === APP_TYPES.reactNative
-            ? await getReactNativeAnalysisFiles(appsPath, app)
-            : assertNever(app.type)
+          ? await getReactNativeAnalysisFiles(appsPath, app)
+          : assertNever(app.type)
 
       const results = await getAnalysedData(appsPath, app, anFiles)
       for (let { file, similarity } of results) {

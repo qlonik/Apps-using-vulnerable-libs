@@ -36,7 +36,9 @@ export const main: MainFn<typeof environment> = async function main(log, { OUT, 
     const fn: (path: string, app: appDesc) => Promise<analysisFile[]> =
       app.type === APP_TYPES.cordova
         ? getCordovaAnalysisFiles
-        : app.type === APP_TYPES.reactNative ? getReactNativeAnalysisFiles : assertNever(app.type)
+        : app.type === APP_TYPES.reactNative
+        ? getReactNativeAnalysisFiles
+        : assertNever(app.type)
 
     const sigs = await getAnalysedData(APPS_PATH, app, await fn(APPS_PATH, app))
     return awaited.concat(

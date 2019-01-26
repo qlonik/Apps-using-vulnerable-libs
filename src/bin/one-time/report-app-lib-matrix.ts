@@ -13,9 +13,8 @@ const EXACT_VULN_FILENAME = 'app-lib-vuln-exact.csv'
 const PARTIAL_VULN_FILENAME = 'app-lib-vuln-partial.csv'
 
 const serializableRankTypeMapper: (x: SerializableRankType[]) => libNameVersion[] = flow(
-  map(
-    ({ matches }) =>
-      matches.length === 0 ? null : { name: matches[0].name, version: matches[0].version },
+  map(({ matches }) =>
+    matches.length === 0 ? null : { name: matches[0].name, version: matches[0].version },
   ),
   filter(isNonNullable) as any,
 )

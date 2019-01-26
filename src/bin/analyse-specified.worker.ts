@@ -61,15 +61,17 @@ const compareAndTransformSim = (method: fnName['fn']) => (unknown: signatureNew)
 
   type intermediate = { s: string; order: number[] }
   const sortedMapping = sortBy(
-    [...mapping.keys()].map((key): intermediate => {
-      const { index, prob } = mapping.get(key)
+    [...mapping.keys()].map(
+      (key): intermediate => {
+        const { index, prob } = mapping.get(key)
 
-      const paddedMap = padEnd(`${key}->${index}`, 12)
-      const roundAndPad = (n: number) => padEnd(`${round(n, 6)},`, 9)
-      const paddedProb = `val: ${roundAndPad(prob.val)} num: ${prob.num}, den: ${prob.den}`
+        const paddedMap = padEnd(`${key}->${index}`, 12)
+        const roundAndPad = (n: number) => padEnd(`${round(n, 6)},`, 9)
+        const paddedProb = `val: ${roundAndPad(prob.val)} num: ${prob.num}, den: ${prob.den}`
 
-      return { s: `${paddedMap} ({ ${paddedProb} })`, order: [-prob.val, key] }
-    }),
+        return { s: `${paddedMap} ({ ${paddedProb} })`, order: [-prob.val, key] }
+      },
+    ),
     [(o: intermediate) => o.order[0], (o: intermediate) => o.order[1]],
   ).map(({ s }: intermediate) => ({ m: s, c: [] }))
 
@@ -126,7 +128,7 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
     await mkdirp(dirPath)
 
     const filePath = join(dirPath, `${name}.json`)
-    if (!await pathExists(filePath) || forceRedo) {
+    if (!(await pathExists(filePath)) || forceRedo) {
       const result = await compareAndTransformSim(fn)(appSig)(libSig)
       await writeFile(filePath, formatRetType(result))
     }

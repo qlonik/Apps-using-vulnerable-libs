@@ -264,7 +264,9 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
     } else if (isCallExpression(expr) || isNewExpression(expr)) {
       descr.type = isCallExpression(expr)
         ? 'Call'
-        : isNewExpression(expr) ? 'New' : /* istanbul ignore next */ assertNever(expr)
+        : isNewExpression(expr)
+        ? 'New'
+        : /* istanbul ignore next */ assertNever(expr)
 
       if (isExpression(expr.callee)) {
         const args = expr.arguments
@@ -338,8 +340,10 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
               p.kind === 'get'
                 ? '< '
                 : p.kind === 'set'
-                  ? '> '
-                  : p.kind === 'method' ? '' : /* istanbul ignore next */ assertNever(p.kind)
+                ? '> '
+                : p.kind === 'method'
+                ? ''
+                : /* istanbul ignore next */ assertNever(p.kind)
             return `${UNKNOWN}:Method[${direction}${id}]`
           } else if (isSpreadProperty(p)) {
             log.warn({ expr }, 'ObjectExpression>SpreadProperty')
@@ -427,8 +431,8 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
           isVariableDeclaration(st.left)
             ? getTokensFromStatement(st.left)
             : isLVal(st.left)
-              ? getTokensFromLVal(st.left) || []
-              : /* istanbul ignore next */ assertNever(st.left),
+            ? getTokensFromLVal(st.left) || []
+            : /* istanbul ignore next */ assertNever(st.left),
         )
         .concat(getTokensFromExpression(st.right) || [])
         .concat(getTokensFromStatement(st.body))
@@ -552,8 +556,8 @@ const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
           isVariableDeclaration(st.left)
             ? getTokensFromStatement(st.left)
             : isLVal(st.left)
-              ? getTokensFromLVal(st.left) || []
-              : /* istanbul ignore next */ assertNever(st.left),
+            ? getTokensFromLVal(st.left) || []
+            : /* istanbul ignore next */ assertNever(st.left),
         )
         .concat(getTokensFromExpression(st.right) || [])
         .concat(getTokensFromStatement(st.body))

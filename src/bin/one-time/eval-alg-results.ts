@@ -195,7 +195,7 @@ export const main: MainFn<typeof environment> = async function main(log, { APPS_
 
     const TYPE_APPS_PATH = join(APPS_PATH, type)
     const FIN_AN_APPS_PATH = join(TYPE_APPS_PATH, FINISHED_ANALYSIS_FILE)
-    if (!await pathExists(FIN_AN_APPS_PATH)) {
+    if (!(await pathExists(FIN_AN_APPS_PATH))) {
       typeLog.warn('analysis using this similarity method was not performed')
       continue
     }
@@ -222,8 +222,8 @@ export const main: MainFn<typeof environment> = async function main(log, { APPS_
           'location' in file && 'id' in file
             ? { path: `${file.location}/${file.id}`, location: file.location, id: file.id }
             : 'idType' in file && 'id' in file
-              ? { path: `${file.idType}_${file.id}`, idType: file.idType, id: file.id }
-              : assertNever(file)
+            ? { path: `${file.idType}_${file.id}`, idType: file.idType, id: file.id }
+            : assertNever(file)
         const fileLog = typeLog.child({ app, 'file-path': fileDescriptor })
 
         let matchData: ManualMatch[] = []

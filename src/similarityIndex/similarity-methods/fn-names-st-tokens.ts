@@ -65,27 +65,29 @@ export const librarySimilarityByFunctionNamesAndStatementTokens = provideFnSig(
 
     const mapping = new Map(
       [...nonFormatMap]
-        .map(([unkwnI, libI]): [number, probIndex] => {
-          let unknownIndex
-          let index
-          let prob = { val: 1, num: -1, den: -1 }
+        .map(
+          ([unkwnI, libI]): [number, probIndex] => {
+            let unknownIndex
+            let index
+            let prob = { val: 1, num: -1, den: -1 }
 
-          if (unkwnI < sizeOfUnknownNamed) {
-            unknownIndex = unknownPart.namedMap.get(unkwnI)
-          } else {
-            const i = unkwnI - sizeOfUnknownNamed
-            unknownIndex = unknownPart.anonMap.get(i)
-            prob = possibleMatches[i].prob
-          }
+            if (unkwnI < sizeOfUnknownNamed) {
+              unknownIndex = unknownPart.namedMap.get(unkwnI)
+            } else {
+              const i = unkwnI - sizeOfUnknownNamed
+              unknownIndex = unknownPart.anonMap.get(i)
+              prob = possibleMatches[i].prob
+            }
 
-          if (libI < sizeOfLibNamed) {
-            index = libPart.namedMap.get(libI)
-          } else {
-            index = libPart.anonMap.get(libI - sizeOfLibNamed)
-          }
+            if (libI < sizeOfLibNamed) {
+              index = libPart.namedMap.get(libI)
+            } else {
+              index = libPart.anonMap.get(libI - sizeOfLibNamed)
+            }
 
-          return [unknownIndex, { index, prob }]
-        })
+            return [unknownIndex, { index, prob }]
+          },
+        )
         .sort((a, b) => a[0] - b[0]),
     ) as DefiniteMap<number, probIndex>
 

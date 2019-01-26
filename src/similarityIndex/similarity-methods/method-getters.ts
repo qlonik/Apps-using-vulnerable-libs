@@ -32,26 +32,26 @@ export const returnFunctionMatchingFn = function(
   return fn === undefined
     ? /* default */ v6
     : fn === 'fn-names-jaccard'
-      ? librarySimilarityByFunctionNames_jaccardIndex
-      : fn === 'fn-names-our'
-        ? librarySimilarityByFunctionNames_ourIndex
-        : fn === 'fn-names-st-toks'
-          ? librarySimilarityByFunctionNamesAndStatementTokens
-          : fn === 'fn-st-toks-v1'
-            ? v1
-            : fn === 'fn-st-toks-v2'
-              ? v2
-              : fn === 'fn-st-toks-v3'
-                ? v3
-                : fn === 'fn-st-toks-v4'
-                  ? v4
-                  : fn === 'fn-st-toks-v5'
-                    ? v5
-                    : fn === 'fn-st-toks-v6'
-                      ? v6
-                      : fn === 'fn-st-types'
-                        ? librarySimilarityByFunctionStatementTypes
-                        : assertNever(fn)
+    ? librarySimilarityByFunctionNames_jaccardIndex
+    : fn === 'fn-names-our'
+    ? librarySimilarityByFunctionNames_ourIndex
+    : fn === 'fn-names-st-toks'
+    ? librarySimilarityByFunctionNamesAndStatementTokens
+    : fn === 'fn-st-toks-v1'
+    ? v1
+    : fn === 'fn-st-toks-v2'
+    ? v2
+    : fn === 'fn-st-toks-v3'
+    ? v3
+    : fn === 'fn-st-toks-v4'
+    ? v4
+    : fn === 'fn-st-toks-v5'
+    ? v5
+    : fn === 'fn-st-toks-v6'
+    ? v6
+    : fn === 'fn-st-types'
+    ? librarySimilarityByFunctionStatementTypes
+    : assertNever(fn)
 }
 
 export enum LIT_MATCHING_METHODS_ENUM {
@@ -67,5 +67,7 @@ export const returnLiteralMatchingFn = function(
 ): LiteralMatchingFn {
   return fn === undefined
     ? librarySimilarityByLiteralValues
-    : fn === 'lit-vals' ? librarySimilarityByLiteralValues : assertNever(fn)
+    : fn === 'lit-vals'
+    ? librarySimilarityByLiteralValues
+    : assertNever(fn)
 }

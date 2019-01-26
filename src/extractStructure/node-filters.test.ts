@@ -79,7 +79,9 @@ const getCode = ({ 'extractor-version': V }: opts) => {
   // region fnB2 data
   const fnB2_toks = (V === EV.v1
     ? [`${PARAM}:Identifier[param]`]
-    : V === EV.v2 || V === EV.v3 ? [] : assertNever(V)
+    : V === EV.v2 || V === EV.v3
+    ? []
+    : assertNever(V)
   ).concat([
     oneLineTrim`
       ${STATEMENT}:Return[
@@ -127,7 +129,9 @@ const getCode = ({ 'extractor-version': V }: opts) => {
   const fnE_toks =
     V === EV.v1
       ? [`${PARAM}:Identifier[param2]`]
-      : V === EV.v2 || V === EV.v3 ? ([] as string[]) : assertNever(V)
+      : V === EV.v2 || V === EV.v3
+      ? ([] as string[])
+      : assertNever(V)
   const fnE_types = [`t_${PARAM}:Identifier`]
   const fnE_loc = tLoc('14:8-15:1')
   // endregion
@@ -149,7 +153,9 @@ const getCode = ({ 'extractor-version': V }: opts) => {
   // region fnF data
   const fnF_toks = (V === EV.v1
     ? [`${PARAM}:Identifier[param3]`]
-    : V === EV.v2 || V === EV.v3 ? [] : assertNever(V)
+    : V === EV.v2 || V === EV.v3
+    ? []
+    : assertNever(V)
   ).concat([`${STATEMENT}:Return[${EXPRESSION}:Function[anonymous]]`])
   const fnF_types = [`t_${PARAM}:Identifier`, `t_${STATEMENT}:ReturnStatement`]
   const fnF_loc = tLoc('16:8-21:5')
@@ -281,7 +287,9 @@ const getCode = ({ 'extractor-version': V }: opts) => {
           fnStatementTypes: fnE_types.sort(),
           fnStatementTokens: fnE_toks.sort(),
         }
-      : V === EV.v3 ? null : assertNever(V),
+      : V === EV.v3
+      ? null
+      : assertNever(V),
     V === EV.v1 || V === EV.v2
       ? {
           index: 5,
@@ -291,7 +299,9 @@ const getCode = ({ 'extractor-version': V }: opts) => {
           fnStatementTypes: fnF_types.sort(),
           fnStatementTokens: fnF_toks.sort(),
         }
-      : V === EV.v3 ? null : assertNever(V),
+      : V === EV.v3
+      ? null
+      : assertNever(V),
     {
       index: 6,
       type,

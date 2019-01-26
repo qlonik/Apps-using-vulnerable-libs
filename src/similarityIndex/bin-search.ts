@@ -24,5 +24,7 @@ export const binarySearch = <T>(
   // return low when matching successful, or -1 when failed
   return retLowest && low < len && cmpFn(arr[low], el) === 0
     ? low
-    : !retLowest && 0 <= low - 1 && cmpFn(arr[low - 1], el) === 0 ? low - 1 : -1
+    : !retLowest && 0 <= low - 1 && cmpFn(arr[low - 1], el) === 0
+    ? low - 1
+    : -1
 }

@@ -28,7 +28,10 @@ test(
   check(arraysPair(uniqueInts), (t, [a, b]) => {
     const ab = R.concat(a, b)
     const ba = R.concat(b, a)
-    const reduceSort = R.pipe(R.reduce<number[], number[]>(addMissing, []), R.sort(R.subtract))
+    const reduceSort = R.pipe(
+      R.reduce<number[], number[]>(addMissing, []),
+      R.sort(R.subtract),
+    )
 
     t.deepEqual(reduceSort(ab), reduceSort(ba))
   }),
@@ -89,7 +92,10 @@ const arbMatrix = arb
 test(
   'matrixToCSV() encodes/decodes arbitrary data',
   check(arbMatrix, (t, m) => {
-    const dec: (csv: string) => string[][] = R.pipe(R.split('\n'), R.map(R.split(',')))
+    const dec: (csv: string) => string[][] = R.pipe(
+      R.split('\n'),
+      R.map(R.split(',')),
+    )
 
     t.deepEqual(m, dec(matrixToCSV(m)))
   }),

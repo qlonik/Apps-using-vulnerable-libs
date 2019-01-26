@@ -162,17 +162,17 @@ export const SIMILARITY_WITH_MAP_QUALITY = FractionToIndexValue(
 )
 
 export const MAPPING_FOR_EXACT_MATCHES = [...MAPPING]
-  .filter(([, { prob: { val } }]) => val === 1)
+  .filter(([, v]) => v.prob.val === 1)
   .reduce((acc, [k, v]) => acc.set(k, v), new Map() as DefiniteMap<number, probIndex>)
 export const SIMILARITY_FOR_EXACT_MATCHES = jaccardLike(
-  UNKNOWN_SIG.map(
-    (_, i) => (MAPPING_FOR_EXACT_MATCHES.has(i) ? MAPPING_FOR_EXACT_MATCHES.get(i).index : -1),
+  UNKNOWN_SIG.map((_, i) =>
+    MAPPING_FOR_EXACT_MATCHES.has(i) ? MAPPING_FOR_EXACT_MATCHES.get(i).index : -1,
   ),
   LIB_SIG.map((_, i) => i),
 )
 export const SIMILARITY_FOR_EXACT_MATCHES_AS_LIB_PORTION = libPortion(
-  UNKNOWN_SIG.map(
-    (_, i) => (MAPPING_FOR_EXACT_MATCHES.has(i) ? MAPPING_FOR_EXACT_MATCHES.get(i).index : -1),
+  UNKNOWN_SIG.map((_, i) =>
+    MAPPING_FOR_EXACT_MATCHES.has(i) ? MAPPING_FOR_EXACT_MATCHES.get(i).index : -1,
   ),
   LIB_SIG.map((_, i) => i),
 )

@@ -70,7 +70,9 @@ export const preprocessCordovaApp = async (
   { conservative = false, extractorOpts }: opts = {},
 ) => {
   const indexHtmlPath = join(allAppsPath, type, section, app, JS_DATA_FOLDER, CORDOVA_MAIN_FILE)
-  const { window: { document } } = await JSDOM.fromFile(indexHtmlPath)
+  const {
+    window: { document },
+  } = await JSDOM.fromFile(indexHtmlPath)
   const scriptTags = ['head', 'body'].reduce(
     (acc, location) => {
       const scripts = document.querySelectorAll<HTMLScriptElement>(`${location} script`)
@@ -250,7 +252,7 @@ export const analyseCordovaApp = async <T extends BundSim>({
 }): Promise<CordovaAnalysisReport> => {
   const appPath = appPathFn(allAppsPath, type, section, app)
   const analysisPath = join(appPath, ANALYSIS_FOLDER)
-  if (!await pathExists(analysisPath)) {
+  if (!(await pathExists(analysisPath))) {
     throw new CordovaAppDataError(`missing analysis folder (${analysisPath})`)
   }
   const locationId = await getCordovaAnalysisFiles(allAppsPath, { type, section, app })

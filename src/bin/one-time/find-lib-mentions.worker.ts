@@ -55,10 +55,12 @@ worker<messages>({
           foundMatch = null as any
         }
 
-        const regexLibs = Object.keys(regexLibsCounts).map((name): regexLibs => [
-          name,
-          { count: regexLibsCounts[name] || 0, versions: regexLibsVersions[name] || [] },
-        ])
+        const regexLibs = Object.keys(regexLibsCounts).map(
+          (name): regexLibs => [
+            name,
+            { count: regexLibsCounts[name] || 0, versions: regexLibsVersions[name] || [] },
+          ],
+        )
         found[file.path] = { file, regexLibs }
       }
 
@@ -76,10 +78,12 @@ worker<messages>({
 
     const namesArr = Object.keys(npmNVArr)
     const range = getSectionRange(namesArr.length, section, SECTIONS)
-    const npmNameReg = namesArr.filter((_, i) => range[0] <= i && i < range[1]).map((name) => ({
-      name,
-      reg: new RegExp(`[\\W_]${escapeStringRegexp(name)}[\\W_]`, 'g'),
-    }))
+    const npmNameReg = namesArr
+      .filter((_, i) => range[0] <= i && i < range[1])
+      .map((name) => ({
+        name,
+        reg: new RegExp(`[\\W_]${escapeStringRegexp(name)}[\\W_]`, 'g'),
+      }))
 
     if (app.type === APP_TYPES.cordova) {
       const analysedFiles = await getAnalysedData(
@@ -111,10 +115,9 @@ worker<messages>({
           }
         }
 
-        const npmLibs = Object.keys(npmLibsCounts).map((name): npmLibs => [
-          name,
-          { count: npmLibsCounts[name] || 0 },
-        ])
+        const npmLibs = Object.keys(npmLibsCounts).map(
+          (name): npmLibs => [name, { count: npmLibsCounts[name] || 0 }],
+        )
 
         found[file.path] = { file, npmLibs }
       }

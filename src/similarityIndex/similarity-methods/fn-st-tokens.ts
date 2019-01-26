@@ -121,15 +121,15 @@ export const v2 = provideFnSig(
         }
 
         const { index: unknownIndex, prob } = topUnknownFn
-        return mappedUnknownSigAcc.map(
-          (el, i) => (i !== unknownIndex ? el : { ...el, __matched: { index: libIndex, prob } }),
+        return mappedUnknownSigAcc.map((el, i) =>
+          i !== unknownIndex ? el : { ...el, __matched: { index: libIndex, prob } },
         )
       },
       clone(unknown) as FunctionSignatureMatched[],
     )
 
-    const possibleFnIndexes = mappedUnknownSig.map(
-      ({ __matched }) => (__matched && typeof __matched === 'object' ? __matched.index : -1),
+    const possibleFnIndexes = mappedUnknownSig.map(({ __matched }) =>
+      __matched && typeof __matched === 'object' ? __matched.index : -1,
     )
 
     return {
@@ -322,7 +322,10 @@ export const v6 = provideFnSig(
       const sll = new SortedLimitedList<probIndex>({ limit: 1, predicate: (o) => -o.prob.val })
 
       for (let unknownIndex = 0, uLen = unkwn.length; unknownIndex < uLen; unknownIndex++) {
-        const { matched, el: { fnStatementTokens: unknownToks } } = unkwn[unknownIndex]
+        const {
+          matched,
+          el: { fnStatementTokens: unknownToks },
+        } = unkwn[unknownIndex]
         if (!matched) {
           const start = process.hrtime()
           const prob = jaccardLikeStrings(unknownToks, libToks)

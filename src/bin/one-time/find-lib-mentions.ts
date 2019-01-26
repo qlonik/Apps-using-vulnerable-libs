@@ -147,8 +147,8 @@ export const main: MainFn<typeof environment> = async function main(
 
   log.info('started search')
   const results = await resolveAllOrInParallel(searchPromises, {
-    chunkLimit: Math.floor(2 * pool.maxWorkers / SECTIONS),
-    chunkSize: Math.floor(1.5 * pool.maxWorkers / SECTIONS),
+    chunkLimit: Math.floor((2 * pool.maxWorkers) / SECTIONS),
+    chunkSize: Math.floor((1.5 * pool.maxWorkers) / SECTIONS),
     chunkTapFn: async (els) => {
       finSearchApps = addFinishedApps(finSearchApps, els)
       await myWriteJSON({ file: FIN_SEARCH_APPS_PATH, content: finSearchApps })

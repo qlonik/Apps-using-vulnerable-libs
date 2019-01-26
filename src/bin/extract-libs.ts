@@ -88,13 +88,15 @@ export const main: MainFn<typeof environment> = async function main(
   })
 
   await Promise.all(
-    (await readdir(LIBS_PATH)).filter((x) => !x.startsWith('_')).map(async (name) => {
-      const libPath = join(LIBS_PATH, name)
-      const content = await readdir(libPath)
-      if (content.length === 0 || content.every((x) => x.startsWith('_'))) {
-        await remove(libPath)
-      }
-    }),
+    (await readdir(LIBS_PATH))
+      .filter((x) => !x.startsWith('_'))
+      .map(async (name) => {
+        const libPath = join(LIBS_PATH, name)
+        const content = await readdir(libPath)
+        if (content.length === 0 || content.every((x) => x.startsWith('_'))) {
+          await remove(libPath)
+        }
+      }),
   )
 
   await Promise.all(

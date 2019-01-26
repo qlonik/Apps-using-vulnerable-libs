@@ -17,7 +17,7 @@ export const main: MainFn<typeof environment> = async (_, { INIT_PATH }) => {
     const srcAnalysisPath = join(appPath(INIT_PATH, type, section, app), ANALYSIS_FOLDER)
     const destAnalysisPath = join(appPath(DEST_PATH, type, section, app), ANALYSIS_FOLDER)
 
-    if (!await pathExists(srcAnalysisPath)) {
+    if (!(await pathExists(srcAnalysisPath))) {
       return
     }
 

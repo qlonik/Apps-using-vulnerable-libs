@@ -40,10 +40,12 @@ export const librarySimilarityByFunctionNames_ourIndex = provideFnSig(
       libNamesSet,
     )
     const mapping = new Map(
-      [...setMapping.entries()].map(([unkwnSetI, libSetI]): [number, probIndex] => [
-        unknownNamesMapping.get(unkwnSetI),
-        { index: libNamesMapping.get(libSetI), prob: { val: 1, num: -1, den: -1 } },
-      ]),
+      [...setMapping.entries()].map(
+        ([unkwnSetI, libSetI]): [number, probIndex] => [
+          unknownNamesMapping.get(unkwnSetI),
+          { index: libNamesMapping.get(libSetI), prob: { val: 1, num: -1, den: -1 } },
+        ],
+      ),
     ) as DefiniteMap<number, probIndex>
 
     return { similarity: ourIndex, mapping }
@@ -75,10 +77,12 @@ export const librarySimilarityByFunctionNames_jaccardIndex = provideFnSig(
     )
     const mapping = new Map(
       [...setMapping.entries()]
-        .map(([unkwnSetI, libSetI]): [number, probIndex] => [
-          unknownNamesMapping.get(unkwnSetI),
-          { index: libNamesMapping.get(libSetI), prob: { val: 1, num: -1, den: -1 } },
-        ])
+        .map(
+          ([unkwnSetI, libSetI]): [number, probIndex] => [
+            unknownNamesMapping.get(unkwnSetI),
+            { index: libNamesMapping.get(libSetI), prob: { val: 1, num: -1, den: -1 } },
+          ],
+        )
         .sort((a, b) => a[0] - b[0]),
     ) as DefiniteMap<number, probIndex>
 

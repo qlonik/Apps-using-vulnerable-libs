@@ -51,11 +51,14 @@ export const collapseFnNamesTree = (
   opts: opts,
   fnNameSoFar: string = '',
 ): FunctionSignature[] => {
-  return flatMap(tree, (fnDesc: TreePath<FunctionSignature>): Many<FunctionSignature> => {
-    const fnName = fnNamesConcat(fnNameSoFar, fnDesc.data.name)
-    const treeElem: FunctionSignature = { ...fnDesc.data, name: fnName }
-    return !fnDesc.c ? treeElem : [treeElem].concat(collapseFnNamesTree(fnDesc.c, opts, fnName))
-  })
+  return flatMap(
+    tree,
+    (fnDesc: TreePath<FunctionSignature>): Many<FunctionSignature> => {
+      const fnName = fnNamesConcat(fnNameSoFar, fnDesc.data.name)
+      const treeElem: FunctionSignature = { ...fnDesc.data, name: fnName }
+      return !fnDesc.c ? treeElem : [treeElem].concat(collapseFnNamesTree(fnDesc.c, opts, fnName))
+    },
+  )
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((el, index) => ({ ...el, index }))
     .filter(negate(fnHasNoTokens(opts)))

@@ -81,7 +81,12 @@ const matchesToLibFactory = (libsPath: string, fn: MatchingFn) => async (
 ): Promise<matchedLib[]> => {
   const sll = new SortedLimitedList<matchedLib>({ limit: 5, predicate: (o) => -o.similarity.val })
 
-  for (let { name, version, file, signature: { functionSignature } } of libNVS) {
+  for (let {
+    name,
+    version,
+    file,
+    signature: { functionSignature },
+  } of libNVS) {
     await nextTick()
     const verLog = log.child({ lib: { name, version, file } })
 

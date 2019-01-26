@@ -43,8 +43,8 @@ const checkAppFnSig = async (
     spec.app.type === APP_TYPES.cordova
       ? getCordovaAnalysisFiles
       : spec.app.type === APP_TYPES.reactNative
-        ? getReactNativeAnalysisFiles
-        : assertNever(spec.app.type)
+      ? getReactNativeAnalysisFiles
+      : assertNever(spec.app.type)
   const loadedFiles: analysisFile[] = await fn(APPS_PATH, spec.app)
   assert(loadedFiles.length !== 0, _log, 'this app has no analysis files')
 
