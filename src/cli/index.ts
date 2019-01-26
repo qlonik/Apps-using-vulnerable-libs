@@ -1,7 +1,9 @@
-import { readdir, stat, constants, access } from 'fs-extra'
+import { stat, constants, access } from 'fs-extra'
 import { join } from 'path'
+import globCb from 'glob'
 import * as yargs from 'yargs' // eslint-disable-line import/no-namespace
 import { Logger } from 'pino'
+import { promisify } from 'util'
 import { EnvironmentError } from '../utils/errors'
 import { log as logger, assert } from '../utils/logger'
 import { EnvironmentSpecifier, EnvironmentValues, MainFn } from '../bin/_all.types'
@@ -42,6 +44,8 @@ const verifyBinEnvironment = <E extends EnvironmentSpecifier>(
     return Object.assign(acc, { [key]: value })
   }, orig)
 }
+
+const glob = promisify(globCb)
 
 yargs
   .command(
@@ -125,7 +129,7 @@ yargs
       return yargs
     },
     async () => {
-      const scripts = await readdir(join(__dirname, SCRIPTS_LOCATION))
+      const scripts = await glob(`**/*.js`, { cwd: join(__dirname, SCRIPTS_LOCATION) })
       const names = transformAndCleanScriptNames(scripts)
 
       logger.info({ names }, 'available commands')
