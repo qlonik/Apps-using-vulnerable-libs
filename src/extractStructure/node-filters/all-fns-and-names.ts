@@ -27,7 +27,7 @@ import { inspect as utilInspect } from 'util'
 import { stdoutLog } from '../../utils/logger'
 import { getFnStatementTokens } from '../fn-statement-tokens'
 import { getFnStatementTypes } from '../fn-statement-types'
-import { opts } from '../options'
+import { opts as Opts } from '../options'
 import { Signal } from '../visit-nodes'
 
 const log = stdoutLog('extractStructure:nodeFilters:allFnsAndNames')
@@ -87,7 +87,7 @@ const extractNodeLocation = (loc: SourceLocation): SourceLocation => {
   }
 }
 
-export const fnNodeFilter = (path: string, node: BabelNode, opts: opts): Signal<Signature> => {
+export const fnNodeFilter = (path: string, node: BabelNode, opts: Opts): Signal<Signature> => {
   if (node && (node as any).__skip) {
     return Signal.continue<Signature>(null)
   }

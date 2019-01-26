@@ -8,8 +8,8 @@ import {
   foundNpmMentionsMap,
   foundRegexMentionsMap,
   messages,
-  npmLibs,
-  regexLibs,
+  npmLibs as NpmLibs,
+  regexLibs as RegexLibs,
 } from './find-lib-mentions'
 
 const NV_REG = /([\w-]+)\s+(?:@?version\s+)?(v?\d+\.\d+\.\d+)/g
@@ -56,7 +56,7 @@ worker<messages>({
         }
 
         const regexLibs = Object.keys(regexLibsCounts).map(
-          (name): regexLibs => [
+          (name): RegexLibs => [
             name,
             { count: regexLibsCounts[name] || 0, versions: regexLibsVersions[name] || [] },
           ],
@@ -116,7 +116,7 @@ worker<messages>({
         }
 
         const npmLibs = Object.keys(npmLibsCounts).map(
-          (name): npmLibs => [name, { count: npmLibsCounts[name] || 0 }],
+          (name): NpmLibs => [name, { count: npmLibsCounts[name] || 0 }],
         )
 
         found[file.path] = { file, npmLibs }
