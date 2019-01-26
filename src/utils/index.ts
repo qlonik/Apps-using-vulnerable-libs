@@ -3,7 +3,6 @@ import leftPadOrig from 'left-pad'
 import { dirname } from 'path'
 import { extract } from 'tar'
 import { opts as extractorOpts } from '../extractStructure'
-import { stdoutLog } from './logger'
 
 export const leftPad = (s: string | number, l: number = 4): string => {
   return leftPadOrig(s, l, '0')
@@ -64,11 +63,7 @@ const resolveParallelGroups = async function<T, R>(
     chunkMapFn?: (els: T[]) => Promise<R | R[]>
   } = {},
 ): Promise<R[]> {
-  const rpgLog = stdoutLog('resParGr')
-  rpgLog.enabled = false
-
-  return arr.reduce(async (acc, chunk, i) => {
-    rpgLog(`chunk ${leftPad(i)}`)
+  return arr.reduce(async (acc, chunk) => {
     const prevChunk = await acc
     const chunkRes = await Promise.all(chunk.map((fn) => fn()))
     if (chunkTapFn) {
