@@ -28,4 +28,4 @@ export FD=${fout}
 export OUT=${_out}
 export NODE_OPTIONS=--max_old_space_size=16384
 
-node ${NODE_DEBUG_OPTION} lib/bin "$@"
+node ${NODE_DEBUG_OPTION} lib/cli "$@"
