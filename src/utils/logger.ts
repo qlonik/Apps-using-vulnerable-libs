@@ -5,6 +5,7 @@ import pino from 'pino'
 import pump from 'pump'
 import stream from 'stream'
 import { inspect } from 'util'
+import { Falsy as falsy } from './types'
 
 /*
  * Config for Pino
@@ -63,7 +64,6 @@ const outputStream = fd ? createWriteStream('', { fd }) : process.stderr
 pump(logThrough.clone(), pretty, process.stdout)
 pump(logThrough, outputStream)
 
-export type falsy = false | '' | 0 | null | undefined
 export function assert<T>(
   statement: T,
   _log: pino.Logger = log,
