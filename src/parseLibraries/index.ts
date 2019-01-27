@@ -281,10 +281,15 @@ export async function extractSingleLibraryFromDump({
   return { name, version }
 }
 
-export async function updateUnionLiteralSignature(
-  { libsPath, name, version }: { libsPath: string; name: string; version?: string },
-  o: opts = {},
-): Promise<void> {
+export async function updateUnionLiteralSignature({
+  libsPath,
+  name,
+  version,
+}: {
+  libsPath: string
+  name: string
+  version?: string
+}): Promise<void> {
   const sigs = await getLibNameVersionSigContents(libsPath, name, version)
   const libraryPath = libPath(libsPath, name)
   const litSigPath = join(libraryPath, LIB_LITERAL_SIGNATURE_FILE)
