@@ -41,6 +41,7 @@ for (let [name, arbitrary, fn] of tests) {
       const aSh = shuffle(a)
       const bSh = shuffle(b)
 
+      // eslint-disable-next-line ava/use-t-well
       await suite(t.title, s => {
         s.set('maxTime', 1)
         s.set('minSamples', 10)

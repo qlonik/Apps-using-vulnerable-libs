@@ -49,6 +49,7 @@ test.serial(
       const origConsoleLog = console.log
       console.log = t.log
 
+      // eslint-disable-next-line ava/use-t-well
       await suite(t.title, s => {
         s.set('maxTime', 2)
         s.set('minSamples', 10)
