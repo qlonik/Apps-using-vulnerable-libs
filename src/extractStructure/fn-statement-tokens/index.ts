@@ -129,7 +129,6 @@ const wrapIRProducer: <T>(fn: IntoEIR<T>) => IntoStr<T> = (fn) => (node) => {
 }
 
 const fnStTokensParserWithOptions = ({ 'extractor-version': V }: opts) => {
-  const getTokensFromLiteral = wrapIRProducer(getLiteralIR)
   const getTokensFromLVal = wrapIRProducer(getLValIR)
   const getTokensFromLVals = R.pipe(
     (x: LVal[] | null) => x || ([] as LVal[]),
