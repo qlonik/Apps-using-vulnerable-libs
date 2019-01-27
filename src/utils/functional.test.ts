@@ -4,7 +4,14 @@ import arb from 'jsverify'
 import R from 'ramda'
 import { check } from '../_helpers/property-test'
 import { arraysPair } from '../_helpers/arbitraries'
-import { addMissing, filterFalsy, filterNullable, liftFn, matrixToCSV } from './functional'
+import {
+  addMissing,
+  filterFalsy,
+  filterNullable,
+  indexedMap,
+  liftFn,
+  matrixToCSV,
+} from './functional'
 
 const uniqueInts = arb.array(arb.integer).smap(R.uniq, R.identity)
 
@@ -124,5 +131,27 @@ test(
   'filterNullable() can be applied many times',
   check(arb.array(arb.json), (t, arr) => {
     t.deepEqual(filterNullable(filterNullable(arr)), filterNullable(arr))
+  }),
+)
+
+test(
+  'indexedMap() behaves like map',
+  check(arb.fn(arb.nat), arb.array(arb.nat), (t, mapFn, arr) => {
+    t.deepEqual(indexedMap(mapFn)(arr), arr.map(mapFn))
+  }),
+)
+
+test(
+  'indexedMap() exposes values and indexes',
+  check(arb.array(arb.nat), (t, arr) => {
+    let actSum = 0
+    indexedMap((_, i) => (actSum += i))(arr)
+
+    let expSum = 0
+    for (let i = 0; i < arr.length; i++) {
+      expSum += i
+    }
+
+    t.is(actSum, expSum)
   }),
 )

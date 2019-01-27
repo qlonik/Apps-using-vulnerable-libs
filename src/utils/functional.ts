@@ -34,3 +34,9 @@ export const filterFalsy: <T>(x: T[]) => Exclude<T, Falsy>[] = (xs) =>
 
 export const filterNullable: <T>(x: T[]) => NonNullable<T>[] = (xs) =>
   xs.filter((x): x is NonNullable<typeof x> => x !== null && x !== undefined)
+
+export interface IndexedMapFn {
+  <T, U>(f: (x: T, i: number, list?: T[]) => U): (l: T[]) => U[]
+  <T, U>(f: (x: T, i: number, list?: T[]) => U, l: T[]): U[]
+}
+export const indexedMap: IndexedMapFn = R.addIndex(R.map)
