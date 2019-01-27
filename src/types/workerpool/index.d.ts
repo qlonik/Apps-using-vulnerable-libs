@@ -1,4 +1,5 @@
 declare module 'workerpool' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   class PromiseLike<T> {
     public static CancellationError: ErrorConstructor
     public static TimetoutError: ErrorConstructor
