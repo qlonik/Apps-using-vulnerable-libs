@@ -1,6 +1,6 @@
 import test from 'ava'
 import arb from 'jsverify'
-import { sortBy, take } from 'lodash'
+import R from 'ramda'
 import { check } from '../_helpers/property-test'
 import { SortedLimitedList } from './sorted-limited-list'
 
@@ -21,11 +21,11 @@ test(
   check(arb.array(arb.number), (t, arr) => {
     const sllAsc = new SortedLimitedList<number>({ limit: arr.length })
     const valAsc = sllAsc.push(arr).value()
-    t.deepEqual(sortBy(arr), valAsc)
+    t.deepEqual(R.sortBy(n => n, arr), valAsc)
 
     const sllDesc = new SortedLimitedList<number>({ limit: arr.length, predicate: n => -n })
     const valDesc = sllDesc.push(arr).value()
-    t.deepEqual(sortBy(arr, n => -n), valDesc)
+    t.deepEqual(R.sortBy(n => -n, arr), valDesc)
   }),
 )
 
@@ -77,7 +77,7 @@ test(
     (t, limit, arr) => {
       type o = { a: string; b: { c: number; d: string } }
       const predicate = (o: o) => -o.b.c
-      const expected = take(sortBy(arr, predicate), limit)
+      const expected = R.take(limit, R.sortBy(predicate, arr))
 
       const sll = new SortedLimitedList({ limit, predicate })
       const val = sll.push(arr).value()

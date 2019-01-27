@@ -1,6 +1,6 @@
 import test, { Macro } from 'ava'
 import { stripIndent } from 'common-tags'
-import { isPlainObject } from 'lodash'
+import isPlainObject from 'lodash/fp/isPlainObject'
 import { extractStructure } from './index'
 import { DIRECTIVE, STATEMENT } from './tags'
 

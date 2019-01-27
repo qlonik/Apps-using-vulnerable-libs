@@ -1,25 +1,5 @@
-import { concat, filter, flow, isEqual, join as joinFp, map, replace } from 'lodash/fp'
 import R from 'ramda'
 import { Falsy } from './types'
-
-export const addMissing: <T>(x: T[], y: T[]) => T[] = (x, y) =>
-  concat(x, filter((el) => x.findIndex(isEqual(el)) === -1, y))
-
-export const liftFn: <X, Y, R>(f: (x: X, y: Y) => R) => (a: X[], b: Y[]) => R[] = (f) =>
-  flow(
-    R.zip,
-    map(([x, y]) => f(x, y)),
-  )
-
-export const matrixToCSV: (x: string[][]) => string = flow(
-  map(
-    flow(
-      map(replace(',', '_')),
-      joinFp(','),
-    ),
-  ),
-  joinFp('\n'),
-)
 
 export interface FilterFn {
   <T, S extends T>(fn: (value: T) => value is S, arr: T[]): S[]
@@ -40,3 +20,22 @@ export interface IndexedMapFn {
   <T, U>(f: (x: T, i: number, list?: T[]) => U, l: T[]): U[]
 }
 export const indexedMap: IndexedMapFn = R.addIndex(R.map)
+
+export const addMissing: <T>(x: T[], y: T[]) => T[] = (x, y) =>
+  R.concat(x, filterFn((el) => x.findIndex(R.equals(el)) === -1, y))
+
+export const liftFn: <X, Y, R>(f: (x: X, y: Y) => R) => (a: X[], b: Y[]) => R[] = (f) =>
+  R.pipe(
+    R.zip,
+    R.map(([x, y]) => f(x, y)),
+  )
+
+export const matrixToCSV: (x: string[][]) => string = R.pipe(
+  R.map(
+    R.pipe(
+      R.map(R.replace(',', '_')),
+      R.join(','),
+    ),
+  ),
+  R.join('\n'),
+)

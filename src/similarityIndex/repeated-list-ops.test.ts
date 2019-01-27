@@ -1,6 +1,6 @@
 import test from 'ava'
 import arb from 'jsverify'
-import { isEqual, sortBy, identity } from 'lodash/fp'
+import R from 'ramda'
 import { check } from '../_helpers/property-test'
 import {
   repeatedOps,
@@ -14,11 +14,11 @@ import {
 import { arraysPair, repeatingArr, repeatingNeArr } from '../_helpers/arbitraries'
 
 const AB = arraysPair(arb.integer, repeatingArr)
-const sort = sortBy(identity)
+const sort = R.sort(R.subtract)
 
 const fn = [
-  { name: 'for-loops', fn: repeatedOps(isEqual as ComparatorFn<number>) },
-  { name: 'reduce', fn: repeatedOpsFp(isEqual as ComparatorFn<number>) },
+  { name: 'for-loops', fn: repeatedOps(R.equals as ComparatorFn<number>) },
+  { name: 'reduce', fn: repeatedOpsFp(R.equals as ComparatorFn<number>) },
 ]
 const data = [
   {
@@ -77,10 +77,10 @@ fn.forEach(({ name, fn }) => {
     `${name}: a inter b same using different APIs`,
     check(arraysPair(arb.number, repeatingArr), (t, [a, b]) => {
       const { i, d } = fn(a, b)
-      t.deepEqual(i, repeatedIntersection(isEqual, a, b))
-      t.deepEqual(i, repeatedIntersectionFp(isEqual, a, b))
-      t.deepEqual(d, repeatedDifference(isEqual, a, b))
-      t.deepEqual(d, repeatedDifferenceFp(isEqual, a, b))
+      t.deepEqual(i, repeatedIntersection(R.equals, a, b))
+      t.deepEqual(i, repeatedIntersectionFp(R.equals, a, b))
+      t.deepEqual(d, repeatedDifference(R.equals, a, b))
+      t.deepEqual(d, repeatedDifferenceFp(R.equals, a, b))
     }),
   )
 
@@ -98,7 +98,7 @@ fn.forEach(({ name, fn }) => {
   test(
     `${name}: a ~= b || a subtr b ~!= b subtr a`,
     check({ tests: 1000 }, AB, (t, [a, b]) => {
-      if (isEqual(sort(a), sort(b))) {
+      if (R.equals(sort(a), sort(b))) {
         t.pass()
       } else {
         t.notDeepEqual(sort(fn(a, b).d), sort(fn(b, a).d))
@@ -153,8 +153,8 @@ fn.forEach(({ name, fn }) => {
 })
 
 const nestedFn = [
-  { name: 'for-loops (nested)', fn: repeatedOps(isEqual as ComparatorFn<number[]>) },
-  { name: 'reduce (nested)', fn: repeatedOpsFp(isEqual as ComparatorFn<number[]>) },
+  { name: 'for-loops (nested)', fn: repeatedOps(R.equals as ComparatorFn<number[]>) },
+  { name: 'reduce (nested)', fn: repeatedOpsFp(R.equals as ComparatorFn<number[]>) },
 ]
 const nestedArrays = [
   {

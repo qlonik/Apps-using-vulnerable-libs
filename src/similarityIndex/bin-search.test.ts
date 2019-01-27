@@ -1,13 +1,13 @@
 import test from 'ava'
 import arb from 'jsverify'
-import { identity } from 'lodash/fp'
+import R from 'ramda'
 import { repeatingNeArr } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import { binarySearch, numComp, strComp } from './bin-search'
 
 const tests: [string, arb.Arbitrary<any[]>, arb.Arbitrary<any>, (a: any, b: any) => number][] = [
-  ['strings', repeatingNeArr(arb.string).smap(a => a.sort(strComp), identity), arb.string, strComp],
-  ['numbers', repeatingNeArr(arb.number).smap(a => a.sort(numComp), identity), arb.number, numComp],
+  ['strings', repeatingNeArr(arb.string).smap(R.sort(strComp), R.identity), arb.string, strComp],
+  ['numbers', repeatingNeArr(arb.number).smap(R.sort(numComp), R.identity), arb.number, numComp],
 ]
 
 for (let [name, a, b, comp] of tests) {

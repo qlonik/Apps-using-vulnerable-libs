@@ -1,6 +1,7 @@
 import { SourceLocation } from 'babel-types'
 import arb from 'jsverify'
-import { clone, identity, isEqual, shuffle, uniqBy } from 'lodash/fp'
+import shuffle from 'lodash/fp/shuffle'
+import R from 'ramda'
 import {
   fnNamesConcat,
   fnNamesSplit,
@@ -11,13 +12,14 @@ import {
 import { repeatedDifference, repeatedIntersection } from '../similarityIndex/repeated-list-ops'
 import { divByZeroIsOne, indexValue } from '../similarityIndex/set'
 import { DefiniteMap, probIndex } from '../similarityIndex/similarity-methods/types'
+import { indexedMap } from '../utils/functional'
 
 export const arbMap = arb
   .nearray(arb.pair(arb.nat, arb.nat))
-  .smap((arr) => uniqBy((x) => x[0], arr), identity)
-  .smap((arr) => uniqBy((x) => x[1], arr), identity)
-  .smap((arr) => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
-  .smap((arr): Map<number, number> => new Map(arr), (map) => [...map])
+  .smap(R.uniqBy((x) => x[0]), R.identity)
+  .smap(R.uniqBy((x) => x[1]), R.identity)
+  .smap(R.sortBy((x) => x[0]), R.identity)
+  .smap((arr) => new Map(arr), (map) => [...map])
 
 export const arbIndexValue = arb
   .suchthat(arb.pair(arb.nat, arb.nat), ([num, den]) => num <= den)
@@ -28,30 +30,29 @@ export const arbIndexValue = arb
 
 export const arbMapWithConfidence = arb
   .nearray(arb.pair(arb.nat, arb.record({ index: arb.nat, prob: arbIndexValue })))
-  .smap((arr) => uniqBy((x) => x[0], arr), identity)
-  .smap((arr) => uniqBy((x) => x[1].index, arr), identity)
-  .smap((arr) => clone(arr).sort((p1, p2) => p1[0] - p2[0]), identity)
+  .smap(R.uniqBy((x) => x[0]), R.identity)
+  .smap(R.uniqBy((x) => x[1].index), R.identity)
+  .smap(R.sortBy((x) => x[0]), R.identity)
   .smap((arr) => new Map(arr) as DefiniteMap<number, probIndex>, (map) => [...map])
 
 export const arraysPair = <T>(
   a: arb.Arbitrary<T>,
   arr: <U>(x: arb.Arbitrary<U>) => arb.Arbitrary<U[]> = arb.array,
-): arb.Arbitrary<[T[], T[]]> => {
-  return arb.tuple([arr(a), arr(a), arr(a)]).smap(
-    ([one, intersection, two]: [T[], T[], T[]]): [T[], T[]] => [
+): arb.Arbitrary<[T[], T[]]> =>
+  arb.tuple([arr(a), arr(a), arr(a)]).smap<[T[], T[]]>(
+    ([one, intersection, two]) => [
       shuffle(one.concat(intersection)),
       shuffle(two.concat(intersection)),
     ],
     ([one, two]) => {
-      const intersection = repeatedIntersection(isEqual, one, two)
+      const intersection = repeatedIntersection(R.equals, one, two)
       return [
-        repeatedDifference(isEqual, one, intersection),
+        repeatedDifference(R.equals, one, intersection),
         intersection,
-        repeatedDifference(isEqual, two, intersection),
+        repeatedDifference(R.equals, two, intersection),
       ]
     },
   )
-}
 
 const arbLineColumn = arb.record({
   line: arb.nat,
@@ -71,17 +72,17 @@ const arbFunctionSignature = arb.record<FunctionSignature>({
   name: arb
     .nearray(arb.either(arb.constant('[anonymous]'), arb.asciinestring))
     .smap(
-      (arr) => arr.map((v) => (v as any).value as typeof v),
-      (arr) => arr.map((v) => (v === '[anonymous]' ? (arb as any).left(v) : (arb as any).right(v))),
+      R.map((v) => (v as any).value as typeof v),
+      R.map((v) => (v === '[anonymous]' ? (arb as any).left(v) : (arb as any).right(v))),
     )
-    .smap((a) => a.reduce(fnNamesConcat, ''), fnNamesSplit),
+    .smap(R.reduce(fnNamesConcat, '' as string), fnNamesSplit),
   loc: arbLocation,
   fnStatementTokens: arb.array(arb.asciinestring),
   fnStatementTypes: arb.array(arb.asciinestring),
 })
 export const arbFunctionSignatureArr = arb
   .nearray(arbFunctionSignature)
-  .smap((arr): FunctionSignature[] => arr.map(indAM), (arr) => arr.map(unInd))
+  .smap(indexedMap(indAM), R.map(unInd))
 export const arbFunctionSignatureArrPair = arraysPair(arbFunctionSignature).smap(
   ([a, b]): [FunctionSignature[], FunctionSignature[]] => [a.map(indAM), b.map(indAM)],
   ([a, b]) => [a.map(unInd), b.map(unInd)],

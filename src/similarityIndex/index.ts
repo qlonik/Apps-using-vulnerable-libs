@@ -1,4 +1,4 @@
-import { map, sortBy } from 'lodash/fp'
+import R from 'ramda'
 import { Logger } from 'pino'
 import { Omit } from 'typical-mini'
 import { promisify } from 'util'
@@ -116,12 +116,9 @@ const matchesToLibFactory = (libsPath: string, fn: MatchingFn) => async (
     }))
 }
 
-const mapToArrayPairs = map((r: rankType) => ({
+const mapToArrayPairs = R.map((r: rankType) => ({
   ...r,
-  matches: r.matches.map((m) => ({
-    ...m,
-    mapping: [...m.mapping.entries()] as [number, probIndex][],
-  })),
+  matches: R.map((m) => ({ ...m, mapping: [...m.mapping.entries()] }), r.matches),
 }))
 
 export const bundle_similarity_fn = async ({
@@ -140,11 +137,9 @@ export const bundle_similarity_fn = async ({
   //   run from beginning of for-loop with remaining unmapped functions
   const fn = returnFunctionMatchingFn(fnName)
   const mRemainingToLib = matchesToLibFactory(libsPath, fn)
-  const preparedCandidates = sortBy((o) => -o.index.val, candidates).map(({ name, index }, i) => ({
-    name,
-    index,
-    top: i + 1,
-  }))
+  const preparedCandidates = R.sortBy((o) => -o.index.val, candidates).map(
+    ({ name, index }, i) => ({ name, index, top: i + 1 }),
+  )
 
   let time_
   let done_

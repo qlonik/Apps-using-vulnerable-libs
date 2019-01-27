@@ -1,5 +1,5 @@
 import test from 'ava'
-import { cloneDeep } from 'lodash'
+import R from 'ramda'
 import { arbMapWithConfidence, arbMap } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import { invertMap, invertMapWithConfidence } from './set'
@@ -83,7 +83,7 @@ test('invertMapWithConfidence() throws when values contain undefined', t => {
 test(
   'invertMap() does not mutate data',
   check({ tests: 5 }, arbMap, (t, map) => {
-    const copy = cloneDeep(map)
+    const copy = R.clone(map)
     invertMap(copy)
     t.deepEqual(map, copy)
   }),
@@ -102,7 +102,7 @@ test(
 test(
   'invertMapWithConfidence() does not mutate data',
   check({ tests: 5 }, arbMapWithConfidence, (t, m) => {
-    const copy = cloneDeep(m)
+    const copy = R.clone(m)
     invertMapWithConfidence(copy)
     t.deepEqual(m, copy)
   }),

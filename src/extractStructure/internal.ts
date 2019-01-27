@@ -1,6 +1,7 @@
-import { flatMap, Many } from 'lodash'
-import { negate } from 'lodash/fp'
+import negate from 'lodash/fp/negate'
+import R from 'ramda'
 import { assertNever } from '../utils'
+import { filterFn, indexedMap } from '../utils/functional'
 import { fnNamesConcat } from './fn-names-concat'
 import { fnNodeFilter } from './node-filters/all-fns-and-names'
 import { literalValuesFilter } from './node-filters/literal-values'
@@ -41,16 +42,18 @@ export const collapseFnNamesTree = (
   opts: opts,
   fnNameSoFar: string = '',
 ): FunctionSignature[] => {
-  return flatMap(
-    tree,
-    (fnDesc: TreePath<FunctionSignature>): Many<FunctionSignature> => {
-      const fnName = fnNamesConcat(fnNameSoFar, fnDesc.data.name)
-      const treeElem: FunctionSignature = { ...fnDesc.data, name: fnName }
-      return !fnDesc.c ? treeElem : [treeElem].concat(collapseFnNamesTree(fnDesc.c, opts, fnName))
-    },
-  )
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((el, index) => ({ ...el, index }))
-    .filter(negate(fnHasNoTokens(opts)))
-    .filter(negate(fnOnlyRetAnonFn(opts)))
+  return R.pipe(
+    R.chain(({ data, c: children }: TreePath<FunctionSignature>) => {
+      const fnName = fnNamesConcat(fnNameSoFar, data.name)
+      const treeElem: FunctionSignature = { ...data, name: fnName }
+      return R.concat(
+        [treeElem],
+        children ? collapseFnNamesTree(children, opts, fnName) : ([] as FunctionSignature[]),
+      )
+    }),
+    R.sortWith([(a, b) => a.name.localeCompare(b.name)]),
+    indexedMap((el, index) => ({ ...el, index })),
+    filterFn(negate(fnHasNoTokens(opts))),
+    filterFn(negate(fnOnlyRetAnonFn(opts))),
+  )(tree)
 }
