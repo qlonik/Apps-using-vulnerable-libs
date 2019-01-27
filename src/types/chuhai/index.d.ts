@@ -24,4 +24,5 @@ declare interface ChuhaiBench {
   bench(title: string, impl: () => any): void
 }
 
+// eslint-disable-next-line import/no-default-export
 export default function chuhaiFn(title: string, impl: (s: ChuhaiBench) => any): Promise<any>
