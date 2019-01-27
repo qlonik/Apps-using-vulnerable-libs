@@ -4,7 +4,7 @@ import arb from 'jsverify'
 import R from 'ramda'
 import { check } from '../_helpers/property-test'
 import { arraysPair } from '../_helpers/arbitraries'
-import { addMissing, liftFn, matrixToCSV } from './functional'
+import { addMissing, filterFalsy, filterNullable, liftFn, matrixToCSV } from './functional'
 
 const uniqueInts = arb.array(arb.integer).smap(R.uniq, R.identity)
 
@@ -98,5 +98,31 @@ test(
     )
 
     t.deepEqual(m, dec(matrixToCSV(m)))
+  }),
+)
+
+test('filterFalsy() removes falsy', t => {
+  const arr = [undefined, null, 0, 1, 2, 3, 4, 5, '', 'hello', 'world', true, false]
+  const exp = [1, 2, 3, 4, 5, 'hello', 'world', true]
+  t.deepEqual(filterFalsy(arr), exp)
+})
+
+test('filterNullable() removes undefined and null', t => {
+  const arr = [undefined, null, 0, 1, 2, 3, 4, 5, '', 'hello', 'world', true, false]
+  const exp = [0, 1, 2, 3, 4, 5, '', 'hello', 'world', true, false]
+  t.deepEqual(filterNullable(arr), exp)
+})
+
+test(
+  'filterFalsy() can be applied many times',
+  check(arb.array(arb.json), (t, arr) => {
+    t.deepEqual(filterFalsy(filterFalsy(arr)), filterFalsy(arr))
+  }),
+)
+
+test(
+  'filterNullable() can be applied many times',
+  check(arb.array(arb.json), (t, arr) => {
+    t.deepEqual(filterNullable(filterNullable(arr)), filterNullable(arr))
   }),
 )
