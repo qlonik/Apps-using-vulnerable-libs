@@ -19,3 +19,12 @@ export const matrixToCSV: (x: string[][]) => string = flow(
   ),
   joinFp('\n'),
 )
+
+export interface FilterFn {
+  <T, S extends T>(fn: (value: T) => value is S, arr: T[]): S[]
+  <T, S extends T>(fn: (value: T) => value is S): (arr: T[]) => S[]
+  <T>(fn: (value: T) => boolean, arr: T[]): T[]
+  <T>(fn: (value: T) => boolean): (arr: T[]) => T[]
+}
+export const filterFn: FilterFn = R.curry((fn: any, arr: any) => arr.filter(fn))
+
