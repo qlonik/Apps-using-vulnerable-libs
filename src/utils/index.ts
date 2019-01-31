@@ -120,4 +120,4 @@ export const objectHasKey = <T extends { [x: string]: any }>(
   k: string | number | symbol,
 ): k is keyof T => k in o
 
-export const isNonNullable = <T>(x: T): x is NonNullable<T> => x !== null && x !== undefined
+export { isNonNullable } from './functional'

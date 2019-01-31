@@ -29,11 +29,11 @@ export interface FilterFn {
 }
 export const filterFn: FilterFn = R.curry((fn: any, arr: any) => arr.filter(fn))
 
-export const filterFalsy: <T>(x: T[]) => Exclude<T, Falsy>[] = (xs) =>
-  xs.filter((x): x is Exclude<typeof x, Falsy> => !!x)
+export const isNonFalsy = <T>(x: T): x is Exclude<T, Falsy> => !!x
+export const isNonNullable = <T>(x: T): x is NonNullable<T> => x !== null && x !== undefined
 
-export const filterNullable: <T>(x: T[]) => NonNullable<T>[] = (xs) =>
-  xs.filter((x): x is NonNullable<typeof x> => x !== null && x !== undefined)
+export const filterFalsy: <T>(x: T[]) => Exclude<T, Falsy>[] = filterFn(isNonFalsy)
+export const filterNullable: <T>(x: T[]) => NonNullable<T>[] = filterFn(isNonNullable)
 
 export interface IndexedMapFn {
   <T, U>(f: (x: T, i: number, list?: T[]) => U): (l: T[]) => U[]
