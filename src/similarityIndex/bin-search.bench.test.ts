@@ -1,7 +1,8 @@
 import test, { ExecutionContext } from 'ava'
 import suite from 'chuhai'
 import arb from 'jsverify'
-import { sortedIndexOf } from 'lodash/fp'
+import sortedIndexOf from 'lodash/fp/sortedIndexOf'
+import R from 'ramda'
 import { largeNeArr } from '../_helpers/arbitraries'
 import { check } from '../_helpers/property-test'
 import { binarySearch, numComp, strComp } from './bin-search'
@@ -12,7 +13,7 @@ const arrAndEl = <T extends string | number>(
 ): [typeof comp, arb.Arbitrary<T>, arb.Arbitrary<T[]>] => [
   comp,
   el,
-  largeNeArr(el).smap(ar => ar.sort(comp), ar => ar),
+  largeNeArr(el).smap(R.sort(comp), R.identity),
 ]
 
 const tests = [
