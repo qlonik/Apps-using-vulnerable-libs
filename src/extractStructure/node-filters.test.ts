@@ -2,7 +2,7 @@ import test from 'ava'
 import { isFunction, SourceLocation } from 'babel-types'
 import { parse } from 'babylon'
 import { oneLineTrim, source, stripIndent } from 'common-tags'
-import { assertNever } from '../utils'
+import { assertNever, isNonNullable } from '../utils'
 import { fnNamesConcat } from './fn-names-concat'
 import { extractStructure } from './index'
 import { collapseFnNamesTree, fnOnlyTreeCreator, literalValues, rnDeclareFns } from './internal'
@@ -310,7 +310,7 @@ const getCode = ({ 'extractor-version': V }: opts) => {
       fnStatementTypes: fnF1_types.sort(),
       fnStatementTokens: fnF1_toks.sort(),
     },
-  ].filter((o): o is NonNullable<typeof o> => o !== null && o !== undefined)
+  ].filter(isNonNullable)
 
   return { code, treePath, signature }
 }

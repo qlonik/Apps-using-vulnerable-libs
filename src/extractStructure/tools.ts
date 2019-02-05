@@ -1,5 +1,6 @@
 import { Fraction } from 'fraction.js'
 import { last } from 'lodash/fp'
+import { isNonNullable } from '../utils'
 import { fnNamesSplit } from './fn-names-concat'
 import { FunctionSignature, FunctionSignatures } from './types'
 
@@ -34,7 +35,7 @@ const shortOrAnonymousFnRatio = (sig: FunctionSignature[] | FunctionSignatures):
   const _sig = Array.isArray(sig) ? sig : sig.functionSignature
   const fnNamesCount = _sig
     .map(({ name }) => last(fnNamesSplit(name)))
-    .filter((i): i is NonNullable<typeof i> => i !== null && i !== undefined)
+    .filter(isNonNullable)
     .reduce(
       (acc, name) => ({
         sh: acc.sh + (name !== ANONYMOUS_FN_NAME && name.length < LONG_FN_NAME_LENGTH ? 1 : 0),

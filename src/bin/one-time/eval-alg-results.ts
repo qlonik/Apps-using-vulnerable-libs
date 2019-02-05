@@ -27,7 +27,7 @@ import { getLibNameVersions, libNameVersion } from '../../parseLibraries'
 import { BundleSimFnReturn, SerializableRankType } from '../../similarityIndex'
 import { divByZeroIsZero, indexValue } from '../../similarityIndex/set'
 import { FN_MATCHING_METHODS } from '../../similarityIndex/similarity-methods'
-import { assertNever } from '../../utils'
+import { assertNever, isNonNullable } from '../../utils'
 import { assert } from '../../utils/logger'
 import { MainFn, TerminateFn } from '../_all.types'
 
@@ -56,7 +56,6 @@ type TopMatch = {
   file: SerializableRankType['matches'][0]['file']
   similarity: SerializableRankType['matches'][0]['similarity']
 }
-const filterNull = <T>(x: T): x is Exclude<T, null | undefined> => x !== null && x !== undefined
 const getTopMatchMap = (arr: SerializableRankType[]): TopMatch[] =>
   arr
     .map((rank: SerializableRankType) => {
@@ -73,7 +72,7 @@ const getTopMatchMap = (arr: SerializableRankType[]): TopMatch[] =>
         similarity: topMatch.similarity,
       }
     })
-    .filter(filterNull)
+    .filter(isNonNullable)
 
 type NVMap = {
   [name: string]:

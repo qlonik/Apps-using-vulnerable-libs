@@ -14,7 +14,7 @@ import {
 } from '../../parseApps'
 import { getLibNameVersionSigContents, libNameVersionSigFile } from '../../parseLibraries'
 import { librarySimilarityByFunctionStatementTokens_v6 } from '../../similarityIndex/similarity-methods'
-import { assertNever } from '../../utils'
+import { assertNever, isNonNullable } from '../../utils'
 import { assert } from '../../utils/logger'
 import { MainFn, TerminateFn } from '../_all.types'
 
@@ -77,7 +77,7 @@ export const main: MainFn<typeof environment> = async function main(log, { APPS_
         .map(({ name, version, file }): libNameVersionSigFile => ({ name, version, file }))
       return targets.length === 0 ? null : { app, file, targets }
     })
-    .filter((i): i is NonNullable<typeof i> => i !== null && i !== undefined)
+    .filter(isNonNullable)
     .reduce(
       (acc, spec) =>
         acc.concat(spec.targets.map((target) => ({ app: spec.app, file: spec.file, target }))),
