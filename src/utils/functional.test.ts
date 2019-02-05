@@ -136,7 +136,8 @@ test(
 
 test(
   'indexedMap() behaves like map',
-  check(arb.fn(arb.nat), arb.array(arb.nat), (t, mapFn, arr) => {
+  check(arb.fn(arb.fn(arb.fn(arb.nat))), arb.array(arb.nat), (t, f, arr) => {
+    const mapFn: (x: any, y: any, z: any) => number = R.uncurryN(3, f)
     t.deepEqual(indexedMap(mapFn)(arr), arr.map(mapFn))
   }),
 )
