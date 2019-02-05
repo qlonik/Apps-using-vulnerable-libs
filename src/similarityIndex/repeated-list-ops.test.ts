@@ -17,10 +17,10 @@ const AB = arraysPair(arb.integer, repeatingArr)
 const sort = sortBy(identity)
 
 const fn = [
-  { name: 'for-loops', fn: repeatedOps(isEqual as ComparatorFn<any>) },
-  { name: 'reduce', fn: repeatedOpsFp(isEqual as ComparatorFn<any>) },
+  { name: 'for-loops', fn: repeatedOps(isEqual as ComparatorFn<number>) },
+  { name: 'reduce', fn: repeatedOpsFp(isEqual as ComparatorFn<number>) },
 ]
-const data: { a: any[]; b: any[]; i: any[]; d: any[]; rd: any[] }[] = [
+const data = [
   {
     a: [1, 1, 2, 2, 3, 4, 5],
     b: [1, 2, 2, 2, 3, 6, 7],
@@ -39,13 +39,6 @@ const data: { a: any[]; b: any[]; i: any[]; d: any[]; rd: any[] }[] = [
   { a: [1, 2, 1, 2, 1, 2, 1], b: [1, 1, 1], i: [1, 1, 1], d: [2, 2, 2, 1], rd: [] },
   { a: [1, 2, 1, 2, 1, 2, 1], b: [1, 1, 1, 2], i: [1, 2, 1, 1], d: [2, 2, 1], rd: [] },
   { a: [1, 2, 1, 2, 1, 1, 2], b: [1, 1, 1, 2], i: [1, 2, 1, 1], d: [2, 1, 2], rd: [] },
-  {
-    a: [[1, 1], [1, 1, 1], [1, 1], [1]],
-    b: [[1], [1, 1, 1]],
-    i: [[1, 1, 1], [1]],
-    d: [[1, 1], [1, 1]],
-    rd: [],
-  },
 ]
 
 fn.forEach(({ name, fn }) => {
@@ -157,4 +150,26 @@ fn.forEach(({ name, fn }) => {
       t.deepEqual(u2, u3)
     }),
   )
+})
+
+const nestedFn = [
+  { name: 'for-loops (nested)', fn: repeatedOps(isEqual as ComparatorFn<number[]>) },
+  { name: 'reduce (nested)', fn: repeatedOpsFp(isEqual as ComparatorFn<number[]>) },
+]
+const nestedArrays = [
+  {
+    a: [[1, 1], [1, 1, 1], [1, 1], [1]],
+    b: [[1], [1, 1, 1]],
+    i: [[1, 1, 1], [1]],
+    d: [[1, 1], [1, 1]],
+    rd: [],
+  },
+]
+
+nestedFn.forEach(({ name, fn }) => {
+  nestedArrays.forEach(({ a, b, i, d, rd }, _i) => {
+    test(`${name}: op #${_i}`, t => {
+      t.deepEqual({ i, d, rd }, fn(a, b))
+    })
+  })
 })
