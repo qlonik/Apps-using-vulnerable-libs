@@ -1,9 +1,7 @@
 import test from 'ava'
 import suite from 'chuhai'
-import { Logger } from 'pino'
 import { arbSignatureWithCommentsPair } from '../../_helpers/arbitraries'
 import { check } from '../../_helpers/property-test'
-import { signatureWithComments } from '../../extractStructure'
 import {
   librarySimilarityByFunctionNames_jaccardIndex,
   librarySimilarityByFunctionNames_ourIndex,
@@ -17,16 +15,9 @@ import {
   librarySimilarityByFunctionStatementTypes,
   librarySimilarityByLiteralValues,
 } from './index'
-import { SimMapWithConfidence } from './types'
+import { LiteralMatchingFn, MatchingFn, SimMapWithConfidence } from './types'
 
-const tests: [
-  string,
-  (
-    l: Logger | undefined,
-    a: signatureWithComments,
-    b: signatureWithComments,
-  ) => SimMapWithConfidence
-][] = [
+const tests: [string, MatchingFn | LiteralMatchingFn][] = [
   ['FnStTokens_v1', librarySimilarityByFunctionStatementTokens_v1],
   ['FnStTokens_v2', librarySimilarityByFunctionStatementTokens_v2],
   ['FnStTokens_v3', librarySimilarityByFunctionStatementTokens_v3],
