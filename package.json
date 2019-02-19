@@ -81,8 +81,8 @@
   "devDependencies": {
     "@types/execa": "^0.9.0",
     "@types/sinon": "^7.0.5",
-    "@typescript-eslint/eslint-plugin": "^1.2.0",
-    "@typescript-eslint/parser": "^1.2.0",
+    "@typescript-eslint/eslint-plugin": "^1.4.0",
+    "@typescript-eslint/parser": "^1.4.0",
     "ava": "github:avajs/ava#993cf410a957bcab68f5b11746e692634d099a82",
     "chuhai": "^1.2.0",
     "eslint": "^5.12.1",
