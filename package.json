@@ -83,7 +83,7 @@
     "@types/sinon": "^7.0.5",
     "@typescript-eslint/eslint-plugin": "^1.4.0",
     "@typescript-eslint/parser": "^1.4.0",
-    "ava": "github:avajs/ava#993cf410a957bcab68f5b11746e692634d099a82",
+    "ava": "github:avajs/ava#40ede9269dab982fa60b0d3495ba4df1303e94b7",
     "chuhai": "^1.2.0",
     "eslint": "^5.12.1",
     "eslint-config-prettier": "^4.0.0",
