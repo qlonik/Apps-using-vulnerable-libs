@@ -36,7 +36,7 @@ export const check: CheckFn = function check(...args: any[]): Implementation {
   const defaultOpts = { quiet: true }
   const passedOpts = !isArbitraryLike(args[0]) ? args.shift() : {}
   const opts = Object.assign(defaultOpts, passedOpts) as Options
-  const propertyFn = args.pop() as Exclude<Macro, 'title'>
+  const propertyFn = args.pop() as Exclude<Macro<any[]>, 'title'>
   const arbitraries = args as Arbitrary<any>[]
 
   return async function jsc$test(test) {
@@ -48,7 +48,7 @@ export const check: CheckFn = function check(...args: any[]): Implementation {
       } else {
         attempt.discard()
         logsMap.set(attempt.title, attempt.logs)
-        return attempt.passed || attempt.error
+        return attempt.passed || attempt.errors[0]
       }
     })
     const result = await jsc.check(prop, opts)

@@ -39,11 +39,11 @@ const extractTokens = (
   return getFnStatementTokens(getDefaultOpts(options))(fn)
 }
 
-export const checkTokensMacro: Macro = async (
-  t: ExecutionContext,
-  content: string = '',
-  expected: string[] = [],
-  opts?: Partial<opts>,
+export const checkTokensMacro: Macro<[string?, string[]?, Partial<opts>?]> = async (
+  t,
+  content = '',
+  expected = [],
+  opts,
 ) => {
   t.truthy(content, 'Script content is empty')
 
@@ -65,11 +65,11 @@ export const checkTokensMacro: Macro = async (
   }
 }
 
-export const checkSameSignature: Macro = async (
-  t: ExecutionContext,
-  one: string,
-  two: string,
-  opts?: Partial<opts>,
+export const checkSameSignature: Macro<[string, string, Partial<opts>?]> = async (
+  t,
+  one,
+  two,
+  opts?,
 ) => {
   t.truthy(one, 'First script is empty')
   t.truthy(two, 'Second script is empty')
@@ -87,6 +87,6 @@ export const checkSameSignature: Macro = async (
   t.deepEqual(oneT, twoT)
 }
 
-export const checkThrows: Macro = async (t: ExecutionContext, content: string) => {
+export const checkThrows: Macro<[string, any?]> = async (t, content) => {
   t.throws(() => parse(content), { name: 'SyntaxError' })
 }

@@ -4,7 +4,7 @@ import isPlainObject from 'lodash/fp/isPlainObject'
 import { extractStructure } from './index'
 import { DIRECTIVE, STATEMENT } from './tags'
 
-const checkTypesMacro: Macro = async (t, content: string, expected: string[]) => {
+const checkTypesMacro: Macro<[string, string[]]> = async (t, content, expected) => {
   const structure = await extractStructure({ content })
   const [firstFn] = structure.functionSignature
 
