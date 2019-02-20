@@ -21,21 +21,7 @@ export enum Signals {
 }
 
 export class Signal<T> {
-  private __signal: Signals
-  private __data: T | null
-
-  private constructor(s: Signals, d: T | null) {
-    this.__signal = s
-    this.__data = d
-  }
-
-  public get signal() {
-    return this.__signal
-  }
-
-  public get data() {
-    return this.__data
-  }
+  private constructor(public readonly signal: Signals, public readonly data: T | null) {}
 
   public static continue<T>(data: T | null) {
     return new Signal<T>(Signals.continueRecursion, data)
