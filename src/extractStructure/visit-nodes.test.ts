@@ -1,4 +1,4 @@
-import { SinonStub, stub } from 'sinon'
+import { restore, SinonStub, stub } from 'sinon'
 import { contextualize } from '../_helpers/test-context'
 import { getDefaultOpts } from './options'
 import { Signal, visitNodes } from './visit-nodes'
@@ -74,6 +74,10 @@ const test = contextualize(() => {
     prop,
     tree,
   }
+})
+
+test.afterEach(t => {
+  restore()
 })
 
 test('empty options', t => {
