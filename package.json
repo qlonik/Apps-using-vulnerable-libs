@@ -8,9 +8,11 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig-dist.json",
     "build:watch": "npm run build -- --watch",
-    "clean": "rm -rf lib",
+    "build:dev": "tsc",
+    "build:dev:watch": "npm run build:dev -- --watch",
+    "clean": "rm -rf lib .build",
     "clean:build": "npm run clean && npm run build",
     "docs": "typedoc",
     "test": "npm run test:coverage && npm run test:lint",
@@ -106,6 +108,7 @@
   },
   "ava": {
     "files": [
+      "test/**/*.ts",
       "src/**/*.test.ts"
     ],
     "sources": [
@@ -136,6 +139,7 @@
     ],
     "exclude": [
       "**/*.d.ts",
+      "test/**/*.ts",
       "**/*.test.ts",
       "src/_helpers/",
       "src/manual-reports/identified-apps/f-droid/",
@@ -298,6 +302,7 @@
     "overrides": [
       {
         "files": [
+          "test/**/*.ts",
           "*.test.ts"
         ],
         "rules": {
@@ -312,6 +317,7 @@
     ]
   },
   "eslintIgnore": [
+    ".build/",
     "lib/",
     "coverage/",
     "test/fixtures/",
