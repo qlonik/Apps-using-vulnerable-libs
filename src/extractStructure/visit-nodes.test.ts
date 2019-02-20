@@ -1,5 +1,5 @@
+import avaTest, { TestInterface } from 'ava'
 import { restore, SinonStub, stub } from 'sinon'
-import { contextualize } from '../_helpers/test-context'
 import { getDefaultOpts } from './options'
 import { Signal, visitNodes } from './visit-nodes'
 
@@ -33,7 +33,7 @@ const objectWithPropertySpy = <K extends string, V>(
   }
 }
 
-const test = contextualize(() => {
+const setup = () => {
   const prop = 'prop'
   const value = 42
   const { getSpy, setSpy, obj } = objectWithPropertySpy(prop, value)
@@ -74,6 +74,12 @@ const test = contextualize(() => {
     prop,
     tree,
   }
+}
+
+const test = avaTest as TestInterface<ReturnType<typeof setup>>
+
+test.beforeEach(t => {
+  t.context = setup()
 })
 
 test.afterEach(t => {
