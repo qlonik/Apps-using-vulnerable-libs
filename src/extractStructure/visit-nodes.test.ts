@@ -90,9 +90,7 @@ test('empty options', t => {
 test('filter returns null', t => {
   const { tree, getSpy, setSpy } = t.context
 
-  const iterator = visitNodes({
-    fn: () => Signal.continue<any>(null),
-  })
+  const iterator = visitNodes(() => Signal.continue<any>(null))
   const result = iterator(tree, getDefaultOpts())
 
   t.true(getSpy.calledOnce)
@@ -103,17 +101,15 @@ test('filter returns null', t => {
 test('filter returns some data and continues recursion', t => {
   const { tree, getSpy, setSpy } = t.context
 
-  const iterator = visitNodes({
-    fn: (path, val) => {
-      if (path === 'a.g' || path === 'a.g[1].i' || path === 'o') {
-        return Signal.continue({
-          path,
-          data: val,
-        })
-      }
+  const iterator = visitNodes((path, val) => {
+    if (path === 'a.g' || path === 'a.g[1].i' || path === 'o') {
+      return Signal.continue({
+        path,
+        data: val,
+      })
+    }
 
-      return Signal.continue<any>(null)
-    },
+    return Signal.continue<any>(null)
   })
   const result = iterator(tree, getDefaultOpts())
 
@@ -143,17 +139,15 @@ test('filter returns some data and continues recursion', t => {
 test('filter returns some data and prevents recursion', t => {
   const { tree, getSpy, setSpy } = t.context
 
-  const iterator = visitNodes({
-    fn: (path, val) => {
-      if (path === 'a.g' || path === 'a.g[1].i' || path === 'o') {
-        return Signal.stop({
-          path,
-          data: val,
-        })
-      }
+  const iterator = visitNodes((path, val) => {
+    if (path === 'a.g' || path === 'a.g[1].i' || path === 'o') {
+      return Signal.stop({
+        path,
+        data: val,
+      })
+    }
 
-      return Signal.continue<any>(null)
-    },
+    return Signal.continue<any>(null)
   })
   const result = iterator(tree, getDefaultOpts())
 
@@ -177,17 +171,15 @@ test('filter returns some data and prevents recursion', t => {
 test('filter returns spied object', t => {
   const { tree, getSpy, setSpy, prop, value } = t.context
 
-  const iterator = visitNodes({
-    fn: (path, val) => {
-      if (path === `o.p.${prop}`) {
-        return Signal.stop({
-          path,
-          data: val,
-        })
-      }
+  const iterator = visitNodes((path, val) => {
+    if (path === `o.p.${prop}`) {
+      return Signal.stop({
+        path,
+        data: val,
+      })
+    }
 
-      return Signal.continue<any>(null)
-    },
+    return Signal.continue<any>(null)
   })
   const result = iterator(tree, getDefaultOpts())
 

@@ -11,9 +11,9 @@ import { EXPRESSION, STATEMENT } from './tags'
 import { FunctionSignature } from './types'
 import { TreePath, visitNodes } from './visit-nodes'
 
-export const fnOnlyTreeCreator = visitNodes<FunctionSignature>({ fn: fnNodeFilter })
-export const rnDeclareFns = visitNodes({ fn: rnDeclareFnFilter })
-export const literalValues = visitNodes({ fn: literalValuesFilter })
+export const fnOnlyTreeCreator = visitNodes<FunctionSignature>(fnNodeFilter)
+export const rnDeclareFns = visitNodes(rnDeclareFnFilter)
+export const literalValues = visitNodes(literalValuesFilter)
 
 const fnHasNoTokens = ({ 'extractor-version': V }: opts) => (el: FunctionSignature): boolean => {
   if (V === EXTRACTOR_VERSION.v1 || V === EXTRACTOR_VERSION.v2) {

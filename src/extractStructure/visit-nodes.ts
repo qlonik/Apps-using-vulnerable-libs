@@ -1,18 +1,16 @@
 import { Node as BabelNode } from 'babel-types'
-import { flatMap } from 'lodash'
-import { assertNever } from '../utils'
+import R from 'ramda'
+import { assertNever, isNonNullable } from '../utils'
 import { opts } from './options'
 
-/**
- * @param prop - property name
- * @param data - custom data
- * @param node - node of the AST
- * @param c - children
- */
 export type TreePath<T> = {
+  /** property name */
   prop: string
+  /** custom data */
   data: T
+  /** node of the AST */
   node?: BabelNode
+  /** children */
   // eslint-disable-next-line typescript/no-use-before-define
   c?: TreePath<T>[]
 }
@@ -52,31 +50,28 @@ const pathConcat = (p: string, c: string | number): string => {
   return p.concat(typeof c === 'number' ? `[${c}]` : p === '' ? c : '.' + c)
 }
 
-export const visitNodes = <K>({
-  fn = undefined,
-}: {
-  fn?: (path: string, val: any, opts: opts) => Signal<K>
-} = {}) => {
+export const visitNodes = <K>(
+  fn: undefined | ((path: string, val: any, opts: opts) => Signal<K>) = undefined,
+) => {
   return function paths(
     obj: object | Array<any>,
     opts: opts,
     pathSoFar: string = '',
   ): TreePath<K>[] {
-    let entries: Array<[string | number, any]> = []
-    if (Array.isArray(obj)) {
-      entries = [...obj.entries()]
-    } else if (typeof obj === 'object') {
-      entries = Object.entries(obj)
-    }
+    const entries = Array.isArray(obj)
+      ? [...obj.entries()]
+      : typeof obj === 'object'
+      ? Object.entries(obj)
+      : []
 
-    return flatMap(entries, ([key, value]: [string | number, any]) => {
+    return R.chain<[string | number, unknown], TreePath<K>>(([key, value]) => {
       const childPath = pathConcat(pathSoFar, key)
       const { data = null, signal = Signals.preventRecursion } =
         typeof fn === 'function' ? fn(childPath, value, opts) : {}
       let children = null
 
       if (signal === Signals.continueRecursion) {
-        if (value && typeof value === 'object') {
+        if (typeof value === 'object' && isNonNullable(value)) {
           const ch = paths(value, opts, childPath)
           if (ch.length > 0) {
             children = ch
@@ -99,12 +94,12 @@ export const visitNodes = <K>({
           result.c = children
         }
 
-        return result
+        return [result]
       } else if (children) {
         return children
       } else {
         return []
       }
-    })
+    }, entries)
   }
 }
