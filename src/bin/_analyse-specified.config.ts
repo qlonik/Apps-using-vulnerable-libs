@@ -1,7 +1,12 @@
 import { APP_TYPES, cordovaAnalysisFile } from '../parseApps'
 import { libName, libNameVersion } from '../parseLibraries'
-import { descriptor, METHODS_TYPE } from './analyse-specified'
+import {
+  FN_MATCHING_METHODS_TYPE,
+  LIT_MATCHING_METHODS_TYPE,
+} from '../similarityIndex/similarity-methods'
+import { analysisDescriptor } from './analyse-specified'
 
+export type METHODS_TYPE = LIT_MATCHING_METHODS_TYPE | FN_MATCHING_METHODS_TYPE
 export type toAnalyseType = {
   /**
    * Methods to use
@@ -10,17 +15,17 @@ export type toAnalyseType = {
   /**
    * App to analyse
    */
-  app: descriptor['app']
+  app: analysisDescriptor['app']
   /**
    * Files to analyse
    */
-  files: descriptor['file'][]
+  files: analysisDescriptor['file'][]
   /**
    * Libraries to compare against
    */
   libs: (
     | '*'
-    | ((libName | libNameVersion | descriptor['lib']) & {
+    | ((libName | libNameVersion | analysisDescriptor['lib']) & {
         /**
          * Target version of the detected library
          */

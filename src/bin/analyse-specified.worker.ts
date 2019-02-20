@@ -1,8 +1,10 @@
 import { codeBlock } from 'common-tags'
 import { mkdirp, pathExists, readdir, readJSON, writeFile } from 'fs-extra'
-import { padEnd, round, sortBy } from 'lodash'
+import padEnd from 'lodash/padEnd'
+import round from 'lodash/round'
 import { basename, extname, join } from 'path'
 import { Logger } from 'pino'
+import R from 'ramda'
 import { worker, WorkerFunctionsMap } from 'workerpool'
 import { signatureNew } from '../extractStructure'
 import {
@@ -23,11 +25,16 @@ import {
   returnFunctionMatchingFn,
   returnLiteralMatchingFn,
 } from '../similarityIndex/similarity-methods'
-import { SimMapWithConfidence } from '../similarityIndex/similarity-methods/types'
+import {
+  DefiniteMap,
+  probIndex,
+  SimMapWithConfidence,
+} from '../similarityIndex/similarity-methods/types'
 import { SortedLimitedList } from '../similarityIndex/sorted-limited-list'
 import { myWriteJSON } from '../utils/files'
 import logger from '../utils/logger'
-import { messages, METHODS_TYPE } from './analyse-specified'
+import { METHODS_TYPE } from './_analyse-specified.config'
+import { messages } from './analyse-specified'
 
 type wFnMap = WorkerFunctionsMap<messages>
 type fnName<K extends METHODS_TYPE = METHODS_TYPE> = {
@@ -51,31 +58,34 @@ const transformFilePath = (f: analysisFile) => {
   }
 }
 
+const roundAndPad = (n: number) => padEnd(`${round(n, 6)},`, 9)
+const transformAndSortMapping = R.pipe(
+  (mapping: DefiniteMap<number, probIndex>) => [...mapping.entries()],
+  R.map(([key, { index, prob }]) => {
+    const paddedMap = padEnd(`${key}->${index}`, 12)
+    const paddedProb = `val: ${roundAndPad(prob.val)} num: ${prob.num}, den: ${prob.den}`
+
+    return { s: `${paddedMap} ({ ${paddedProb} })`, order: [-prob.val, key] }
+  }),
+  R.sortWith([(o1, o2) => o1.order[0] - o2.order[0], (o1, o2) => o1.order[1] - o2.order[1]]),
+  R.map(({ s }) => ({ m: s, c: [] })),
+)
+
 type retType = { time: number; similarity: indexValue; mapping: { m: string; c: string[] }[] }
-const compareAndTransformSim = (method: fnName['fn']) => (unknown: signatureNew) => async (
+const compareAndTransformSim = async (
+  method: fnName['fn'],
+  unknown: signatureNew,
   lib: signatureNew,
 ): Promise<retType> => {
   const start = process.hrtime()
   const { similarity, mapping } = method(undefined, unknown, lib)
   const diff = process.hrtime(start)
 
-  type intermediate = { s: string; order: number[] }
-  const sortedMapping = sortBy(
-    [...mapping.keys()].map(
-      (key): intermediate => {
-        const { index, prob } = mapping.get(key)
-
-        const paddedMap = padEnd(`${key}->${index}`, 12)
-        const roundAndPad = (n: number) => padEnd(`${round(n, 6)},`, 9)
-        const paddedProb = `val: ${roundAndPad(prob.val)} num: ${prob.num}, den: ${prob.den}`
-
-        return { s: `${paddedMap} ({ ${paddedProb} })`, order: [-prob.val, key] }
-      },
-    ),
-    [(o: intermediate) => o.order[0], (o: intermediate) => o.order[1]],
-  ).map(({ s }: intermediate) => ({ m: s, c: [] }))
-
-  return { time: round(diff[0] + diff[1] / 1e9, 3), similarity, mapping: sortedMapping }
+  return {
+    time: round(diff[0] + diff[1] / 1e9, 3),
+    similarity,
+    mapping: transformAndSortMapping(mapping),
+  }
 }
 const formatRetType = (o: retType): string => {
   const timeEncoded = JSON.stringify(o.time)
@@ -98,8 +108,8 @@ const formatRetType = (o: retType): string => {
 }
 
 const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => {
-  return async ({ apps, libs, save, app, file, lib, forceRedo = false }) => {
-    const appAnalysedPerFile = await getAnalysedData(apps, app, [file])
+  return async ({ APP_PATH, LIB_PATH, ANALYSIS_PATH, app, file, lib, forceRedo = false }) => {
+    const appAnalysedPerFile = await getAnalysedData(APP_PATH, app, [file])
     if (appAnalysedPerFile.length > 1) {
       log.warn('appAnalysedPerFile has more than one element')
     }
@@ -109,7 +119,7 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
     }
 
     const libFileName = basename(lib.file, extname(lib.file))
-    const libSigs = await getLibNameVersionSigContents(libs, lib.name, lib.version, lib.file)
+    const libSigs = await getLibNameVersionSigContents(LIB_PATH, lib.name, lib.version, lib.file)
     if (libSigs.length > 1) {
       log.warn(`lib ${lib.name} ${lib.version} ${libFileName}.json has more than one element`)
     }
@@ -119,7 +129,7 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
     }
 
     const dirPath = join(
-      save,
+      ANALYSIS_PATH,
       transformAppPath(app),
       transformFilePath(file),
       lib.name,
@@ -128,8 +138,8 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
     await mkdirp(dirPath)
 
     const filePath = join(dirPath, `${name}.json`)
-    if (!(await pathExists(filePath)) || forceRedo) {
-      const result = await compareAndTransformSim(fn)(appSig)(libSig)
+    if (forceRedo || !(await pathExists(filePath))) {
+      const result = await compareAndTransformSim(fn, appSig, libSig)
       await writeFile(filePath, formatRetType(result))
     }
 
@@ -137,14 +147,14 @@ const analyse = <T extends METHODS_TYPE>({ fn, name }: fnName<T>): wFnMap[T] => 
   }
 }
 
-const aggregate: wFnMap['aggregate'] = async ({ save, app, file, libNames }) => {
-  const wDir = join(save, transformAppPath(app), transformFilePath(file))
+const aggregate: wFnMap['aggregate'] = async ({ ANALYSIS_PATH, app, file, libs }) => {
+  const wDir = join(ANALYSIS_PATH, transformAppPath(app), transformFilePath(file))
   const predicate = (s: Similarity) => -s.similarity.val
   type sllsMap = { [S in METHODS_TYPE]: SortedLimitedList<Similarity> }
   type simMap = { [S in METHODS_TYPE]: Similarity[] }
   const globalSlls = {} as sllsMap
 
-  for (let { name: libName } of libNames) {
+  for (let { name: libName } of libs) {
     const libDir = join(wDir, libName)
     const filesVersions = await readdir(libDir)
 
