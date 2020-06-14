@@ -1,5 +1,5 @@
-import { curry, head, isEqual, once, partition } from 'lodash/fp'
 import { Logger } from 'pino'
+import R from 'ramda'
 import { FunctionSignature } from '../../extractStructure'
 import {
   data,
@@ -61,14 +61,14 @@ const checkAppFnSig = async (
     'fn sig at specified index does not exist',
   )
   assert(
-    isEqual(fnSig, spec.signature),
+    R.equals(fnSig, spec.signature),
     _log.child({ fnSig: { index: fnSig.index } }),
     'specified fn sig is not the same as loaded fn sig',
   )
   return spec.signature
 }
 
-const loadLibSig = curry(
+const loadLibSig = R.curry(
   /**
    * @throws when loaded 0 or more than 1 signature.
    * @param _log
@@ -92,13 +92,13 @@ const loadLibSig = curry(
       'not a single signature loaded',
     )
 
-    const libSig = assert(head(contents), _log, 'no lib signature')
+    const libSig = assert(R.head(contents), _log, 'no lib signature')
     return libSig.signature.functionSignature
   },
 )
 
 type libSpec = libNameVersionSigFile & { index: number }
-const loadLibFnSig = curry(
+const loadLibFnSig = R.curry(
   /**
    * @throws when signature at given index does not exist, and when signature
    *   at given index does not have expected index.
@@ -149,7 +149,7 @@ const targetSigCheckerFactory =
           .map(fn(_log)(LIBS_PATH))
           .map(loAsync(jl(t)))
           .map(async (x, _i) => ({ ...(await x), _i }))
-        return partition((x) => x.val === 1, await Promise.all(indValPs))
+        return R.partition((x) => x.val === 1, await Promise.all(indValPs))
       }
 
 export const environment = {
@@ -173,8 +173,8 @@ export const main: MainFn<typeof environment> = async function main(log, { APPS_
       const tSigChFromLibSpec = tSigCh(loadLibFnSig)
       const tSigChFromLib = tSigCh(noopMap)
 
-      const [targetVersions, expMatch] = partition((o) => o.targetVersion, fn.matchedFns)
-      const [expMisMatch, noFn] = partition(
+      const [targetVersions, expMatch] = R.partition((o) => !!o.targetVersion, fn.matchedFns)
+      const [expMisMatch, noFn] = R.partition(
         (o) => o.reason === r.mod || o.reason === r.min,
         fn.misMatchedFns,
       ) as [ModMisMatchedFn[], GoneMisMatchedFn[]]
@@ -272,8 +272,8 @@ export const main: MainFn<typeof environment> = async function main(log, { APPS_
         noFn: { val: totals.noFn.num / totals.noFn.den, ...totals.noFn },
       },
     },
-    "Expected results for function matching. All 'vals' should be equal to 1",
+    'Expected results for function matching. All \'vals\' should be equal to 1',
   )
 }
 
-export const terminate: TerminateFn = () => once(function terminate() {})
+export const terminate: TerminateFn = () => R.once(function terminate() {})

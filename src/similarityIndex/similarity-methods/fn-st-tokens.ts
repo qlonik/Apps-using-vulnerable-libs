@@ -294,9 +294,6 @@ export const v6 = provideFnSig(
   /**
    * This function calculates mapping between unknown signature and known lib signature in the same
    * way as {@link v5} does. However, this function uses {@link libPortion}
-   * @param log
-   * @param unknown
-   * @param lib
    */
   function v6(log, unknown, lib) {
     const fnStart = process.hrtime()
@@ -357,14 +354,14 @@ export const v6 = provideFnSig(
     const tLibPortion = portionEnd[0] * 1e9 + portionEnd[1]
     v6log.debug(
       {
-        fnTime,
-        tComp,
-        tCompProp: tComp / fnTime,
-        tLibPortion,
-        jlTime,
-        jlCount,
-        libLen: lib.length,
-        unkLen: unknown.length,
+        /* execution time of this fn */ fnTime,
+        /* time take to perform comparison */ tComp,
+        /* proportion of fn time used for comparison */ tCompProp: tComp / fnTime,
+        /* time to compute similarity index */ tLibPortion,
+        /* total time for fn comparison */ jlTime,
+        /* total number of fn comparisons */ jlCount,
+        /* size of lib signature */ libLen: lib.length,
+        /* size of unknown signature */ unkLen: unknown.length,
       },
       '>-----> fn-st-toks-v6 timings',
     )

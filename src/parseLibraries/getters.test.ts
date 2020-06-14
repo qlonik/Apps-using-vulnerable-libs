@@ -1,5 +1,5 @@
 import test from 'ava'
-import { cloneDeep } from 'lodash/fp'
+import R from 'ramda'
 import { shuffleVersions } from './getters'
 
 test('does not mutate incoming array', t => {
@@ -13,7 +13,7 @@ test('does not mutate incoming array', t => {
     { name: 'b', version: '2' },
     { name: 'b', version: '3' },
   ]
-  const deepCopy = cloneDeep(libs)
+  const deepCopy = R.clone(libs)
 
   shuffleVersions(deepCopy)
 

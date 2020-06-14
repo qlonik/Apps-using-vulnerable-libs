@@ -1,6 +1,6 @@
 import { copy, mkdirp, move, readJSON, remove } from 'fs-extra'
-import { memoize } from 'lodash/fp'
 import { join, relative } from 'path'
+import R from 'ramda'
 import shell from 'shelljs'
 import { worker } from 'workerpool'
 import { extractStructure, signatureWithComments } from '../extractStructure'
@@ -32,7 +32,7 @@ const ellog = makeLog('extract-lib-from-dump')
 const rllog = makeLog('reanalyse-lib')
 const siLog = makeLog('bundle_similarity_fn')
 
-const memoReadJSON = memoize((p: string): Promise<any> => readJSON(p))
+const memoReadJSON = R.memoizeWith(R.identity, (p: string): Promise<any> => readJSON(p))
 
 worker<messages>({
   bundle_similarity_fn: async ({ libsPath, signaturePath, candidatesPath, log: logData, fn }) => {

@@ -1,5 +1,5 @@
 import { Fraction } from 'fraction.js'
-import { findIndex, isEqual } from 'lodash/fp'
+import { isEqual } from 'lodash/fp'
 import { binarySearch, numComp, strComp } from './bin-search'
 import { IndexValueToFraction } from './fraction'
 import {
@@ -75,7 +75,7 @@ export const jaccardLikeWithMapping = <T>(
   const mapping = new Map<number, number>() as DefiniteMap<number, number>
 
   for (let [i, el] of aArr.entries()) {
-    const j = findIndex((o) => !o.__mapped && isEqual(o.val, el), bRest)
+    const j = bRest.findIndex((o) => !o.__mapped && isEqual(o.val, el))
     if (j === -1) {
       aRest.push(el)
     } else {
@@ -116,7 +116,7 @@ export const jaccardLike = <T>(a: T[] | Iterable<T>, b: T[] | Iterable<T>): inde
   let bRest = [...b].map((val) => ({ __mapped: false, val }))
 
   for (let el of a) {
-    const j = findIndex((o) => !o.__mapped && isEqual(o.val, el), bRest)
+    const j = bRest.findIndex((o) => !o.__mapped && isEqual(o.val, el))
     if (j === -1) {
       aRest++
     } else {
@@ -208,7 +208,7 @@ export const libPortion = <T>(unknown: T[] | Iterable<T>, lib: T[] | Iterable<T>
 
   for (let el of unknown) {
     unkLen += 1
-    let j = findIndex((o) => !o.__mapped && isEqual(o.val, el), libRest)
+    let j = libRest.findIndex((o) => !o.__mapped && isEqual(o.val, el))
     if (j !== -1) {
       tot++
       libRest[j].__mapped = true
@@ -238,7 +238,7 @@ export const libPortionWithMapping = <T>(
   const mapping = new Map<number, number>() as DefiniteMap<number, number>
 
   for (let [i, el] of unkwnArr.entries()) {
-    const j = findIndex((o) => !o.__mapped && isEqual(o.val, el), libRest)
+    const j = libRest.findIndex((o) => !o.__mapped && isEqual(o.val, el))
     if (j === -1) {
       unkwnRest.push(el)
     } else {

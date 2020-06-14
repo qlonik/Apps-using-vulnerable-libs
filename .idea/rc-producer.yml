@@ -1,12 +1,11 @@
 - &defaults
-  files: ["**/__tests__/**/*", "**/*.spec.*", "**/*.test.*", "!**/node_modules/**/*"]
-  beforeRun: typescript
+  files: ["**/__tests__/**/*", "**/test/**/*", "**/*.spec.*", "**/*.test.*", "!**/node_modules/**/*"]
   script: "./node_modules/.bin/ava"
-  scriptArgs: ["src/**/${fileNameWithoutExt}.*"]
+  scriptArgs: ["${file}"]
   rcName: "${fileNameWithoutExt}"
 
 -
   <<: *defaults
   lineRegExp: '^\s*test(?:\.[^(]+)*\((?:\s|\n)*(?:"|'')([^"'']+)'
-  scriptArgs: ["-m", "${0}", "src/**/${fileNameWithoutExt}.*"]
-  rcName: "${fileNameWithoutExt}.${0}"
+  scriptArgs: ["-m", "${0}", "${file}"]
+  rcName: "${fileNameWithoutExt} > ${0}"

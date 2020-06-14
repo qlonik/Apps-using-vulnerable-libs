@@ -1,7 +1,7 @@
 import { execFile } from 'child_process'
 import { mkdirp, pathExists, readJSON } from 'fs-extra'
-import { find, findIndex, flow, isEqual, map, partition, uniq } from 'lodash/fp'
 import { join } from 'path'
+import R from 'ramda'
 import { satisfies, valid, validRange } from 'semver'
 import { promisify } from 'util'
 import { libNameVersion } from '../../parseLibraries'
@@ -24,10 +24,10 @@ const buildLibVersionList = (snyk: SnykDB): { [name: string]: string } =>
     {},
   )
 
-const notInArray = <T>(arr: T[]) => (el: T) => findIndex(isEqual(el), arr) === -1
+const notInArray = <T>(arr: T[]) => (el: T) => R.findIndex(R.equals(el), arr) === -1
 const exec = promisify(execFile)
 const mapNVToLazyNV = (dump: string) =>
-  map(({ name, version }: libNameVersion) => async () => {
+  R.map(({ name, version }: libNameVersion) => async () => {
     const cwd = join(dump, name)
     await mkdirp(cwd)
     try {
@@ -78,7 +78,7 @@ export const main: MainFn<typeof environment> = async (
   const npmDb = (await readJSON(NPM_DB_DUMP_PATH)) as NpmDBEntry[]
   log.info('npm db is loaded')
   const npmDbNames = npmDb.map(({ name }) => name)
-  if (uniq(npmDbNames).length !== npmDbNames.length) {
+  if (R.uniq(npmDbNames).length !== npmDbNames.length) {
     log.warn('not all names in the npm db are unique')
   }
 
@@ -90,7 +90,7 @@ export const main: MainFn<typeof environment> = async (
 
   const nvs = await Object.entries(vulnVersionRanges).reduce(async (acc, [name, range]) => {
     const w = await acc
-    const foundNV = find((npmDb) => name === npmDb.name, npmDb)
+    const foundNV = R.find((npmDb) => name === npmDb.name, npmDb)
     if (!foundNV) {
       log.warn({ 'lib-name': name }, 'lib from snyk db is not found in npm db')
       return w
@@ -103,11 +103,11 @@ export const main: MainFn<typeof environment> = async (
     return w.concat(vs)
   }, Promise.resolve([] as libNameVersion[]))
 
-  const [s, f] = await flow(
+  const [s, f] = await R.pipe(
     mapNVToLazyNV(DOWNLOADED_PATH),
     resolveAllOrInParallel,
-    loAsync(partition(({ done }) => done)),
-    loAsync(map(map(({ name, version }) => ({ name, version })))),
+    loAsync(R.partition(({ done }) => done)),
+    loAsync(R.map(R.map(({ name, version }) => ({ name, version })))),
   )(nvs)
 
   await mkdirp(DOWNLOADED_PATH)

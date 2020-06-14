@@ -103,6 +103,7 @@
     "nyc": "^13.1.0",
     "prettier": "^1.16.1",
     "sinon": "^7.2.3",
+    "tap": "^12.5.3",
     "ts-node": "^8.0.2",
     "typedoc": "^0.14.2"
   },
@@ -160,9 +161,7 @@
       "node": true
     },
     "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "project": "./tsconfig.json"
-    },
+    "parserOptions": {},
     "plugins": [
       "ava",
       "import",
